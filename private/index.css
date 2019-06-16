@@ -49,9 +49,9 @@
 }
 */
 #imageModal .modal-dialog {
-  max-width: 100%;
+  max-width: 95%;
   max-height: 100%;
-  margin: 0 auto;
+  margin: 20px auto;
 }
 #imageModal .modal-body {
   padding: 0;
