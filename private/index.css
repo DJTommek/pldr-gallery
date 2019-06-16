@@ -58,15 +58,20 @@
 }
 
 #imageModal .file-name {
-    width: 100%;
+/*    width: 100%;*/
     text-align: center;
     margin: 10px;
 }
 #imageModal .navigation {
     width: 100%;
+    text-align: center;
 }
 #imageModal .navigation button {
-    width: 25%;
+    width: 23%;
+    margin-left: 0;
+}
+#imageModal .navigation button.btn-close {
+    width: 8%;
 }
 #imageModal .image img {
     /*

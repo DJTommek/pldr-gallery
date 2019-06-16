@@ -37,7 +37,7 @@ $(function() {
         $(this).addClass('structure-selected');
         selectStructure($(this).find('td:nth-child(2)').find('a').attr('href'));
     });
-    $('#imageModal').on('click', '.modal-dialog .modal-content .modal-head .navigation button',  function(e) {
+    $('#imageModal').on('click', '.modal-dialog .modal-content .navigation button',  function(e) {
         e.preventDefault();
         var moveDirection = $(this).data('structure-move');
         switch($(this).data('structureMove')) {

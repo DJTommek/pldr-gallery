@@ -16,9 +16,9 @@
     <body onhashchange="loadStructure();">
         <div id="loading">
             <div class="progress">
-              <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%">
-                <span class="sr-only">45% Complete</span>
-              </div>
+                <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%">
+                    <span class="sr-only">45% Complete</span>
+                </div>
             </div>            
         </div>
         <ol id="currentPath" class="breadcrumb">
@@ -30,30 +30,42 @@
                 <a type="button" id="button-logout" class="btn btn-default" aria-label="Help" href="/logout">Odhlásit</a>
             </div>
         </div>
-        
+
         <div id="structure"></div>
         <div id="imageModal" class="modal fade" tabindex="-1" role="dialog">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-head">
-                    <p class="file-name"></p>
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-head">
+                        <p class="file-name float-left"></p>
+                        <div class="navigation btn-group" role="group">
+                            <button type="button" data-structure-move="up-10"   class="btn btn-default move-prev-10">+10</button>
+                            <button type="button" data-structure-move="up"      class="btn btn-default move-prev">-1</button>
+                            <button type="button" data-structure-move="down"    class="btn btn-default move-next">+1</button>
+                            <button type="button" data-structure-move="down-10" class="btn btn-default move-next-10">+10</button>
+                            <button type="button" class="btn btn-danger btn-close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="image">
+                            <a href="#" target="_blank">
+                                <img load="loading(false);" class="img-responsive">
+                            </a>
+                        </div>
+                        <div id="preload"></div>
+                    </div>
                     <div class="navigation btn-group" role="group">
-                      <button type="button" data-structure-move="up-10"   class="btn btn-default move-prev-10">+10</button>
-                      <button type="button" data-structure-move="up"      class="btn btn-default move-prev">-1</button>
-                      <button type="button" data-structure-move="down"    class="btn btn-default move-next">+1</button>
-                      <button type="button" data-structure-move="down-10" class="btn btn-default move-next-10">+10</button>
+                        <button type="button" data-structure-move="up-10"   class="btn btn-default move-prev-10">+10</button>
+                        <button type="button" data-structure-move="up"      class="btn btn-default move-prev">-1</button>
+                        <button type="button" data-structure-move="down"    class="btn btn-default move-next">+1</button>
+                        <button type="button" data-structure-move="down-10" class="btn btn-default move-next-10">+10</button>
+                        <button type="button" class="btn btn-danger btn-close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                </div>
-                <div class="modal-body">
-                    <div class="image">
-                        <a href="#" target="_blank">
-                            <img load="loading(false);" class="img-responsive">
-                        </a>
-                    </div>
-                    <div id="preload"></div>
                 </div>
             </div>
-          </div>
         </div>        
-</body>
+    </body>
 </html>
