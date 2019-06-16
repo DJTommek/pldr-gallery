@@ -132,6 +132,14 @@ webserver.all('/ping', function (req, res) {
 webserver.get('/', function (req, res) {
     res.sendFile(__dirname + '/private/index.html');
 });
+webserver.all('/:type([a-zA-Z0-9-]+\.[a-z]+)', function(req, res) {
+    var file = __dirname + '/private/' + req.params.type;
+    console.log("searching file " + file);
+    if (fs.existsSync(file)) {
+        return res.sendfile(file);
+    }
+    return res.sendStatus(404);
+});
 
 
 /**
