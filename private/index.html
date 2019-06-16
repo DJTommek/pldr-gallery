@@ -415,7 +415,7 @@ function loadStructure(callback) {
 //                        if (index === loadedStructure.basePaths.length-2) {
 //                            breadcrumb += '<li class="active">'+ value + '</li>';                                                    
 //                        } else {
-                            breadcrumb += '<li><a href="#' + (breadcrumbPath += value + '/')  + ' ">'+ value + '</a></li>';
+                            breadcrumb += '<li><a href="#' + (breadcrumbPath += value + '/')  + ' ">'+ decodeURI(value) + '</a></li>';
 //                        }
                     }
                 });
