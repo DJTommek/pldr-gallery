@@ -220,8 +220,9 @@ function selectStructure(fileUrl) {
     } else { // Načítáme soubor
         var modal = '#imageModal .modal-dialog .modal-content ';
         $(modal + '.file-name').text(paths.last());
-        $(modal + '.image a').attr('href', fileUrl);
-        $(modal + '.image a img').attr('src', '__API/IMAGE/?IMAGE=' + btoa(encodeURIComponent(fileUrl)));
+        var apiUrl = '__API/IMAGE/?IMAGE=' + btoa(encodeURIComponent(fileUrl));
+        $(modal + '.image a').attr('href', apiUrl);
+        $(modal + '.image a img').attr('src', apiUrl);
         loading(true); // nacitame obrazek, event na dokonceni nacitani je jiz definovan
         
         var visible = $('#structure table tbody tr.structure-selected').prevAll('tr:visible[data-type="file"]').first();
