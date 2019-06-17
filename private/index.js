@@ -223,26 +223,20 @@ function selectStructure(fileUrl) {
         $(modal + '.image a').attr('href', fileUrl);
         $(modal + '.image a img').attr('src', fileUrl);
         loading(true); // nacitame obrazek, event na dokonceni nacitani je jiz definovan
-        //
-        // Přednačtu obrázek, aby se při posunu hned zobrazil místo načítání
-        var preload = '';
         
         var visible = $('#structure table tbody tr.structure-selected').prevAll('tr:visible[data-type="file"]').first();
         if (visible.length === 1) {
             $(modal + '.move-prev').attr('disabled', null);
-            preload += '<img src="' + $(visible).find('td:nth-child(2)').find('a').attr("href").replace(/^#/, '') + '">';
         } else {
             $(modal + '.move-prev').attr('disabled', 'disabled');            
         }
         var visible = $('#structure table tbody tr.structure-selected').nextAll('tr:visible[data-type="file"]').first();
         if (visible.length === 1) {
             $(modal + '.move-next').attr('disabled', null);
-            preload += '<img src="' + $(visible).find('td:nth-child(2)').find('a').attr("href").replace(/^#/, '') + '">';
         } else {
             $(modal + '.move-next').attr('disabled', 'disabled');            
         }
         
-        $('#preload').html(preload);
         $(modal + '.navigation button.move-prev-10').attr('href', '#/' + loadedStructure.files[loadedStructure.fileIndexSelected-10]);
         $(modal + '.navigation button.move-prev').attr('href', '#/' + loadedStructure.files[loadedStructure.fileIndexSelected-1]);
         $(modal + '.navigation button.move-next').attr('href', '#/' + loadedStructure.files[loadedStructure.fileIndexSelected+1]);
