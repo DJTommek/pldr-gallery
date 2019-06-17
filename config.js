@@ -4,6 +4,11 @@ module.exports = {
     path: 'd:/Data/Photo/',
     imageExtensions: ['jpg', 'jpeg', 'png', 'bmp'],
     httpServerPort: 1117,
+    compress: {
+        enabled: true,
+        minLimit: 1024 * 1024,
+        pngQuality: '65-80',
+    },
     google: {
         clientId: '405123468190-3si7ft7n40r00odqukeml3r9e8tncmju.apps.googleusercontent.com',
         secret: 'kpDiIGevRN0TU9h7xrwNrLKl',
@@ -12,7 +17,7 @@ module.exports = {
     },
     perms: {
     'x': [
-     'testovaciSlozka/',
+     '/',
      'Kamióny Zlín 2016-08-19/',
      '2017.08.17-20 Italie-Rakousko/',
     ],

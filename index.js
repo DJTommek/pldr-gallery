@@ -4,7 +4,7 @@ var e = require('./enum.js');
 
 c.imageExtensions = Array.prototype.slice.call(c.imageExtensions);
 
-c.compressImage = true;
+c.compress.enabled = true;
 
 var globby = require('globby');
 var fs = require("fs");
@@ -37,7 +37,7 @@ const imageminJpegRecompress = require('imagemin-jpeg-recompress');
 var start = new Date();
 u.log('***STARTING***');
 
-u.log('Image compression is ' + ((c.compressImage) ? 'enabled' : 'disabled'));
+u.log('Image compression is ' + ((c.compress.enabled) ? 'enabled' : 'disabled'));
 
 function getUptime(){
     var now = new Date();
@@ -209,6 +209,9 @@ webserver.all('*', function(req, res, next) {
     return next();
 });
 
+/**
+ * loading files
+ */
 webserver.all('/*.(' + c.imageExtensions.join('|') + ')', function (req, res) {
     u.log('(Web) Request file: ' + req.path);
     res.statusCode = 200;
@@ -231,11 +234,12 @@ webserver.all('/*.(' + c.imageExtensions.join('|') + ')', function (req, res) {
         var s = new Date();
         var fileStats = fs.lstatSync(filePath)
         if (fileStats.isFile()) {
-            if (c.compressImage) {
+            // check if compression algorithm should run
+            if (c.compress.enabled && (fileStats.size >= c.compress.minLimit) && req.cookies['settings-compress'] === 'true') {
                 imagemin([filePath], {
                     plugins: [
                         imageminJpegRecompress(),
-                        imageminPngquant({quality: '65-80'})
+                        imageminPngquant({quality: c.compress.pngQuality})
                     ]
                 }).then(function(file) {
                     var img = file[0].data;
@@ -266,7 +270,9 @@ function checkPerm (path, perms){
     return result;
 }
 
-
+/**
+ * loading list of folders and files
+ */
 webserver.post('/*', function (req, res) {
     u.log('(Web) Request path: ' + req.body.path);
     res.statusCode = 200;

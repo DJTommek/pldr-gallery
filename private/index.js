@@ -29,10 +29,19 @@ $(function() {
         $('#button-login').show();
         $('#button-logout').hide();
     }
+    
+    // settings
+    if (Cookies.get('settings-compress') === 'true') {
+        $('#settings-compress').attr('checked', true);
+    }
+    $('#settings-compress').on('click', function(e) {
+        Cookies.set('settings-compress', $(this).is(':checked'));
+    });
+    
     $('#filter').focus();
     $('#structure').on('click', 'table tbody tr',  function(e) {
         e.preventDefault();
-        $('#filter').focus();
+//        $('#filter').focus();
         $('.structure-selected').removeClass('structure-selected');
         $(this).addClass('structure-selected');
         selectStructure($(this).find('td:nth-child(2)').find('a').attr('href'));
