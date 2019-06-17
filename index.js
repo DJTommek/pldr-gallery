@@ -252,10 +252,11 @@ webserver.get('/__API/IMAGE/', function (req, res) {
                     return res.end(img);
                 });
             } else {
-                return fs.createReadStream(filePath).pipe(res);            
+                return fs.createReadStream(filePath).pipe(res);
             }
         }
     } catch (error) {
+        console.log(error);
         res.statusCode = 404;
     }
     //return res.end(u.apiResponse(apiResult));

@@ -16,26 +16,8 @@ module.exports = {
         redirectUrl: 'http://gallery.redilap.cz/login'
     },
     perms: {
-    'x': [
-     '/',
-     'Kamióny Zlín 2016-08-19/',
-     '2017.08.17-20 Italie-Rakousko/',
-    ],
-
-    'tom.palider@gmail.com': [
-     '/',
-     '/Jednotliví lidé/Adrian Moldřík/',
-     '/Bydlení/',
-     //'/Jednotliví lidé/',
-    ],
-
-    'holl.dita@gmail.com': [
-     '/Jednotliví lidé/Adrian Moldřík/',
-     '/Bydlení/',
-    ],
-
-    'ladislav.palider@gmail.com': [
-     '/',
-    ]
+        'x': [
+         'demo',
+        ],
     }
 }
