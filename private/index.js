@@ -221,7 +221,7 @@ function selectStructure(fileUrl) {
         var modal = '#imageModal .modal-dialog .modal-content ';
         $(modal + '.file-name').text(paths.last());
         $(modal + '.image a').attr('href', fileUrl);
-        $(modal + '.image a img').attr('src', fileUrl);
+        $(modal + '.image a img').attr('src', '__API/IMAGE/?IMAGE=' + btoa(encodeURIComponent(fileUrl)));
         loading(true); // nacitame obrazek, event na dokonceni nacitani je jiz definovan
         
         var visible = $('#structure table tbody tr.structure-selected').prevAll('tr:visible[data-type="file"]').first();

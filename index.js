@@ -212,8 +212,9 @@ webserver.all('*', function(req, res, next) {
 /**
  * loading files
  */
-webserver.all('/*.(' + c.imageExtensions.join('|') + ')', function (req, res) {
-    u.log('(Web) Request file: ' + req.path);
+webserver.get('/__API/IMAGE/', function (req, res) {
+    var filePath = decodeURIComponent(Buffer.from(req.query.IMAGE, 'base64').toString());
+    u.log('(Web) Request file: ' + filePath);
     res.statusCode = 200;
     res.setHeader("Content-Type", "image/png");
 //    res.setHeader("Content-Type", "application/json");
@@ -222,12 +223,12 @@ webserver.all('/*.(' + c.imageExtensions.join('|') + ')', function (req, res) {
         error: true,
         result: 'File - Není zadána cesta'
     };
-    if (!req.path) {
+    if (!filePath) {
         res.end(apiResult);
     }
 
     // aby se nemohly vyhledavat soubory v predchozich slozkach
-    var queryPath = req.path.replace('/..', '');
+    var queryPath = filePath.replace('/..', '');
 
     var filePath = decodeURIComponent(c.path + queryPath).replaceAll('//', '/');
     try {
