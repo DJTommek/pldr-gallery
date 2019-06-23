@@ -62,7 +62,7 @@ function getUptime(){
 }
 
 fs.readFile(c.path + '.pmg_perms', 'utf8', function(err, data) {
-    if (true || err) {
+    if (err) {
         u.log("Chyba při načítání .perm souboru: " + err);
     } else {
         try {
