@@ -211,6 +211,9 @@ function structureMove(direction) {
 }
 
 function selectStructure(fileUrl) {
+    if (!fileUrl) {
+        return;
+    }
     fileUrl = fileUrl.replace(/^#/, '');
     var paths = fileUrl.split('/');
     loadedStructure.fileIndexSelected = loadedStructure.files.indexOf(fileUrl);
@@ -288,10 +291,12 @@ function loadStructure(callback) {
                 content += '</thead><tbody>';
                 // O složku zpět
                 if (loadedStructure.basePath !== '/') {
-                    content += '<tr class="structure-back" data-type="folder"><td><span class="glyphicon glyphicon-level-up" aria-hidden="true"></span></td>';
+                    content += '<tr class="structure-back" data-type="folder">';
+                    content += '<td><span class="glyphicon glyphicon-level-up"></span></td>';
                     content += '<td><a href="#' + loadedStructure.basePaths.slice(0, -2).join('/') + '/">..</a></td>';
                     content += '<td>&nbsp;</td>';
-                    content += '<td>&nbsp;</td></tr>';
+                    content += '<td>&nbsp;</td>';
+                    content += '</tr>';
                 }
                 loadedStructure.files = [];
                 loadedStructure.folders = [];
@@ -314,6 +319,12 @@ function loadStructure(callback) {
                     }
                     content += '</tr>';
                 });
+                if (result.result.length === 0) {
+                    content += '<tr class="structure-back" data-type="folder">';
+                    content += '<td><span class="glyphicon glyphicon-warning-sign"></span></td>';
+                    content += '<td colspan="3">Složka je prázdná.</td>';
+                    content += '</tr>';
+                }
                 content += '</tbody></table>';
                 $('#structure').html(content);
 
