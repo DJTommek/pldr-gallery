@@ -14,25 +14,26 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jwerty/0.3.2/jwerty.min.js"></script>
     </head>
     <body onhashchange="loadStructure();">
-        <div id="loading">
-            <div class="progress">
-                <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%">
-                    <span class="sr-only">45% Complete</span>
-                </div>
-            </div>            
-        </div>
-        <ol id="currentPath" class="breadcrumb">
-        </ol>        
-        <div class="input-group">
-            <input type="search" id="filter" class="form-control" placeholder="Filtr souborů" onClick="filter()"/>
-            <div class="input-group-btn">
-                <button type="button" data-toggle="modal" data-target="#settingsModal" class="btn btn-default" aria-label="Settings" href="#"><i class="fa fa fa-wrench" aria-hidden="true"></i> Nastavení</button>
-                <a type="button" id="button-login" class="btn btn-default" aria-label="Help" href="/login"><i class="fa fa-sign-in" aria-hidden="true"></i> Přihlásit</a>
-                <a type="button" id="button-logout" class="btn btn-default" aria-label="Help" href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Odhlásit</a>
+        <div class="container">
+            <div id="loading">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%">
+                        <span class="sr-only">45% Complete</span>
+                    </div>
+                </div>            
             </div>
-        </div>
+            <ol id="currentPath" class="breadcrumb"></ol>        
+            <div class="input-group">
+                <input type="search" id="filter" class="form-control" placeholder="Filtr souborů" onClick="filter()"/>
+                <div class="input-group-btn">
+                    <button type="button" data-toggle="modal" data-target="#settingsModal" class="btn btn-default" aria-label="Settings" href="#"><i class="fa fa fa-wrench" aria-hidden="true"></i> Nastavení</button>
+                    <a type="button" id="button-login" class="btn btn-default" aria-label="Help" href="/login"><i class="fa fa-sign-in" aria-hidden="true"></i> Přihlásit</a>
+                    <a type="button" id="button-logout" class="btn btn-default" aria-label="Help" href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Odhlásit</a>
+                </div>
+            </div>
+            <div id="structure"></div>
+        </div>        
 
-        <div id="structure"></div>
         <div id="imageModal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -81,13 +82,13 @@
                                 <input type="checkbox" class="form-check-input" id="settings-compress">
                                 <label class="form-check-label" for="settings-compress">Compress</label>
                                 <p class="small form-text text-muted">
-                                  It might take few more seconds to load.
+                                    It might take few more seconds to load.
                                 </p>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
-        </div>        
+        </div>
     </body>
 </html>

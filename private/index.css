@@ -1,7 +1,6 @@
 	body {
 		margin: 0 auto;
 		max-width: 1920px;
-		padding: 10px;
 	}
     /* Velikost souboru */
     #structure table tbody tr td:nth-child(3) {
@@ -18,10 +17,6 @@
     }
     #structure table tbody tr td a:hover {
         text-decoration: none;
-    }
-    
-    #preload {
-        display: none;
     }
     
     .structure-selected {
@@ -79,13 +74,17 @@
     */
     margin: 0 auto;
 }
+#currentPath {
+    margin-top: 10px;    
+}
 #loading {
     display: block;
-    position: fixed;
+    position: absolute;
     top: 0;
-    left: 0;
-    width: 100%;
+    width: inherit;
     height: 10px;
+    z-index: 1100;
+    padding-right: 30px; /* to inherit .container 15px padding left and right */
 }
 #loading div {
     height: 10px;
