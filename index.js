@@ -15,7 +15,7 @@ var express = require('express');
 var compression = require('compression');
 var webserver = express();
 webserver.use(bodyParser.json()); // support json encoded bodies
-webserver.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+webserver.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 webserver.use(cookieParser()); // support cookies
 webserver.use(express.static('public'));
 webserver.use(compression());
@@ -39,14 +39,14 @@ u.log('***STARTING***');
 
 u.log('Image compression is ' + ((c.compress.enabled) ? 'enabled' : 'disabled'));
 
-function getUptime(){
+function getUptime() {
     var now = new Date();
     var diffMiliseconds = (now - start);
 
-    var milliseconds = parseInt((diffMiliseconds%1000));
-    var seconds = parseInt((diffMiliseconds/1000)%60);
-    var minutes = parseInt((diffMiliseconds/(1000*60))%60);
-    var hours = Math.floor(diffMiliseconds/(1000*60*60));
+    var milliseconds = parseInt((diffMiliseconds % 1000));
+    var seconds = parseInt((diffMiliseconds / 1000) % 60);
+    var minutes = parseInt((diffMiliseconds / (1000 * 60)) % 60);
+    var hours = Math.floor(diffMiliseconds / (1000 * 60 * 60));
 
     var diffHuman = (((String(hours)).pad(2, '0', 'left') + ':' + String(minutes).pad(2, '0', 'left')) + ":" + String(seconds).pad(2, '0', 'left') + "." + String(milliseconds).pad(3, '0', 'left'));
 
@@ -61,7 +61,7 @@ function getUptime(){
     return response;
 }
 
-fs.readFile(c.path + '.pmg_perms', 'utf8', function(err, data) {
+fs.readFile(c.path + '.pmg_perms', 'utf8', function (err, data) {
     if (err) {
         u.log("Chyba při načítání .perm souboru: " + err);
     } else {
@@ -69,17 +69,18 @@ fs.readFile(c.path + '.pmg_perms', 'utf8', function(err, data) {
             var perms = {};
             var lines = data.split("\r\n");
             var indexes = [];
-            lines.some(function(line) {
+            lines.some(function (line) {
+                line = line.trim();
                 if (line.match(/^#/)) { // Ignorujeme komentare
-                } else if (line.trim() === '') { // zrušit indexy
+                } else if (line === '') { // zrušit indexy
                     indexes = [];
                 } else if (!line.match(/^ /)) { // řádek nezačíná mezerou, je to tedy uživatel
                     indexes.push(line);
                     if (perms[line] === undefined) {
-                        perms[line] = [];                
+                        perms[line] = [];
                     }
                 } else {
-                    indexes.some(function(index) {
+                    indexes.some(function (index) {
                         perms[index].push(line.replace(/^ /, ''));
                     });
                 }
@@ -92,31 +93,6 @@ fs.readFile(c.path + '.pmg_perms', 'utf8', function(err, data) {
     }
     u.log('Perms: ' + JSON.stringify(c.perms));
 });
-
-webserver.all('/testdata', function (req, res) {
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    var data = [];
-    
-    for (var floor = 0; floor < 2; floor++) {
-        data[floor] = [];
-        for (var room = 0; room < 6; room++) {
-            data[floor].push({
-                number: (room+200),
-                light: (Math.random() > 0.5 ? true : false) ,
-                window: (Math.random() > 0.5 ? true : false)
-            });
-        }
-    }
-    res.statusCode = 200;
-    var result = {
-        datetime: u.formatDateTime(new Date),
-        error: false,
-        result: data
-    };
-    res.end(u.apiResponse(result));
-});
-
 
 webserver.all('/ping', function (req, res) {
     res.setHeader("Content-Type", "application/json");
@@ -132,7 +108,7 @@ webserver.all('/ping', function (req, res) {
 webserver.get('/', function (req, res) {
     res.sendFile(__dirname + '/private/index.html');
 });
-webserver.all('/:type([a-zA-Z0-9-]+\.[a-z]+)', function(req, res) {
+webserver.all('/:type([a-zA-Z0-9-]+\.[a-z]+)', function (req, res) {
     var file = __dirname + '/private/' + req.params.type;
     console.log("searching file " + file);
     if (fs.existsSync(file)) {
@@ -145,7 +121,7 @@ webserver.all('/:type([a-zA-Z0-9-]+\.[a-z]+)', function(req, res) {
 /**
  * Odhlaseni z googlu (smazani cookies)
  */
-webserver.all('/logout', function(req, res){
+webserver.all('/logout', function (req, res) {
     res.clearCookie("googleLogin");
     res.redirect('/');
 });
@@ -153,10 +129,10 @@ webserver.all('/logout', function(req, res){
 /**
  * Prihlaseni k googlu. Toto obstarava zaroven redirect NA i Z Google login stranky
  */
-webserver.get('/login', function(req, res){
+webserver.get('/login', function (req, res) {
     var code = req.query.code;
     if (code) {
-        res.cookie('googleLogin', code, { maxAge: 900000 });
+        res.cookie('googleLogin', code, {maxAge: 900000});
     }
     if (code === undefined) {
         var url = oauth2Client.generateAuthUrl({
@@ -165,23 +141,23 @@ webserver.get('/login', function(req, res){
         });
         res.redirect(url);
     } else {
-		code = code.replace('\\', '/'); // Bug, kdy lomitko v URL je normalni a v kodu zpetne (?!)
+        code = code.replace('\\', '/'); // Bug, kdy lomitko v URL je normalni a v kodu zpetne (?!)
         oauth2Client.getToken(code, function (err, tokens) {
             if (err) {
                 u.log('(Login) Chyba během získávání google tokenu: ' + err, e.LOG.ERROR);
                 return res.status(500).send('Chyba behem ziskavani google tokenu. Zkus to <a href="/">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');
             }
-            res.cookie('googleLogin', tokens.id_token, { maxAge: 900000 });
+            res.cookie('googleLogin', tokens.id_token, {maxAge: 900000});
             res.redirect('/');
         });
     }
 });
 
-webserver.all('*', function(req, res, next) {
+webserver.all('*', function (req, res, next) {
     req.logged = false;
     var code = req.cookies.googleLogin;
     if (code) {
-        oauth2Client.verifyIdToken(code, c.google.clientId, function(err, login) {
+        oauth2Client.verifyIdToken(code, c.google.clientId, function (err, login) {
             if (err) {
                 u.log('(Login) Chyba během ověřování google tokenu: ' + err, e.LOG.ERROR);
                 return res.status(500).send('Chyba behem overovani google tokenu. Zkus to <a href="/">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');
@@ -195,12 +171,13 @@ webserver.all('*', function(req, res, next) {
     }
 });
 
-webserver.all('*', function(req, res, next) {
+webserver.all('*', function (req, res, next) {
     var userPerms = c.perms['x'];
     if (req.logged) {
         try { // K právům všech připojíme práva daného uživatele pokud existují
             var userPerms = c.perms[req.logged].concat(userPerms);
-        } catch (e) { }
+        } catch (e) {
+        }
         if (userPerms.indexOf('/') >= 0) { // Pokud má právo na celou složku, ostatní práva jsou zbytečná
             userPerms = ['/'];
         }
@@ -242,7 +219,7 @@ webserver.get('/__API/IMAGE/', function (req, res) {
                         imageminJpegRecompress(),
                         imageminPngquant({quality: c.compress.pngQuality})
                     ]
-                }).then(function(file) {
+                }).then(function (file) {
                     var img = file[0].data;
                     fileStats.compressedSize = img.length;
                     fileStats.percent = 100 - ((fileStats.compressedSize / fileStats.size) * 100);
@@ -262,9 +239,9 @@ webserver.get('/__API/IMAGE/', function (req, res) {
     //return res.end(u.apiResponse(apiResult));
 });
 
-function checkPerm (path, perms){
+function checkPerm(path, perms) {
     var result = false;
-    perms.some(function(perm) {
+    perms.some(function (perm) {
         if (perm.match('/' + path) || ('/' + path).match(perm)) {
             return result = true;
         }
@@ -290,19 +267,19 @@ webserver.post('/*', function (req, res) {
 
     // aby se nemohly vyhledavat soubory v predchozich slozkach
     var queryPath = req.body.path.replace('/..', '');
-    
+
     var globSearch = [
         sanatizePath(decodeURIComponent(c.path + queryPath + '*/').replaceAll('//', '/')),
         sanatizePath(decodeURIComponent(c.path + queryPath + "*.*").replaceAll('//', '/')),
     ];
-    
+
     var re_extension = new RegExp('\\.(' + c.imageExtensions.join('|') + ')$', 'i');
     var folders = [];
     var files = [];
-    globby(globSearch[0]).then(function(rawPathsFolders) {
-        globby(globSearch[1], {nodir: true}).then(function(rawPathsFiles) {
+    globby(globSearch[0]).then(function (rawPathsFolders) {
+        globby(globSearch[1], {nodir: true}).then(function (rawPathsFiles) {
             rawPaths = rawPathsFolders.concat(rawPathsFiles);
-            rawPaths.forEach(function(path) {
+            rawPaths.forEach(function (path) {
                 var pathStats = fs.lstatSync(path);
                 path = path.replace(c.path, '');
                 if (checkPerm(path, req.userPerms)) {
