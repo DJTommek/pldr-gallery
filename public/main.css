@@ -1,0 +1,195 @@
+body {
+    margin: 0 auto;
+    max-width: 1920px;
+}
+/* Zmenšit breadcrumb */
+#navbar .breadcrumb {
+    padding: 0.5em 1em;
+    margin-bottom: 0;
+}
+
+/* Zarovnat text v dropdownu */
+#navbar .dropdown-item {
+    text-align: right;
+}
+
+/* Ikonka ma minimalni sirku */
+#structure table {
+    width: 100%;
+}
+/* Ikonka ma minimalni sirku */
+#structure table tbody tr td:nth-child(1) {
+    width: 1em; /* ikonka si stejně minimální šířku vynutí jakou zrovna potřebuje */
+}
+/* Nazev souboru či složky */
+#structure table tbody tr td:nth-child(2) {
+}
+/* Velikost souboru */
+#structure table tbody tr td:nth-child(3) {
+    text-align: right;
+    padding: 0 10px;
+}
+/* Vytvořeno */
+#structure table tbody tr td:nth-child(4) {
+    width: 9rem;
+}
+
+/* Cely radek je klikaci odkaz */
+#structure table tbody tr td {
+    cursor: pointer;
+}
+#structure table tbody tr td a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+#structure table tbody tr td a:hover {
+    text-decoration: none;
+}
+
+/* aktualne oznaceny radek */
+.structure-selected {
+    background-color: #e0e0e0 !important;
+}
+
+
+/**
+ * Fullscreen modal
+ * @author https://stackoverflow.com/a/18522320
+ */
+/*
+#imageModal .modal-dialog {
+  max-width: 100%;
+  max-height: 100%;
+  padding: 0;
+}
+
+#imageModal .modal-content {
+  max-height: auto;
+  min-height: 100%;
+  border-radius: 0;
+}
+#imageModal .modal-body {
+    padding: 0;
+}
+*/
+@media (min-width: 576px) {
+    .modal-dialog { max-width: none; }
+}
+
+.modal-dialog {
+    width: 98%;
+    height: 92%;
+    padding: 0;
+}
+
+.modal-content {
+    height: 99%;
+}
+.modal-content a.image {
+    display: block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+/*
+#imageModal .modal-dialog {
+    max-width: 95%;
+    max-height: 100%;
+    margin: 20px auto;
+}
+#imageModal .modal-body {
+    padding: 0;
+}
+*/
+#imageModal .file-name {
+    width: 100%;
+    text-align: center;
+    margin: 10px;
+}
+#imageModal .navigation {
+    width: 100%;
+    text-align: center;
+}
+/*#imageModal .navigation button {
+    width: 23%;
+    margin-left: 0;
+}
+#imageModal .navigation button.btn-close {
+    width: 8%;
+}*/
+/**
+ * prev/next buttons from lightbox tutorial
+ * @Author https://www.w3schools.com/howto/howto_js_lightbox.asp
+ */
+.prev,
+.next {
+  cursor: pointer;
+  position: absolute;
+  top: 40%;
+  width: auto;
+  padding: 3em 1em;
+  margin-top: -50px;
+  font-weight: bold;
+  font-size: 20px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+  -webkit-user-select: none;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+}
+.next:hover,
+.prev:hover {
+  color: white;
+  text-decoration: none;
+}
+.next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+/* On hover, add a black background color with a little bit see-through */
+.prev:hover,
+.next:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#loading {
+    display: block;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 10px;
+    z-index: 1100;
+}
+#loading div {
+    height: 10px;
+}
+
+
+/**
+ * Change colors to dark mode if body has ".dark" class
+ * - but do not change print output
+ */
+@media not print {
+    body.theme-dark .breadcrumb {
+        background-color: #616161;
+    }
+    body.theme-dark .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #212121;        
+    }
+    body.theme-dark {
+        background-color: black;
+        color: #909090;
+    }
+    body.theme-dark a:not(.btn) {
+        color: orange;
+    }
+    body.theme-dark .progress-bar {
+        background-color: orange;
+    }
+    body.theme-dark .structure-selected{
+        background-color: #616161 !important;
+    }
+}

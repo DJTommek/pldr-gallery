@@ -242,7 +242,7 @@ webserver.get('/__API/IMAGE/', function (req, res) {
 function checkPerm(path, perms) {
     var result = false;
     perms.some(function (perm) {
-        if (perm.match('/' + path) || ('/' + path).match(perm)) {
+        if (perm.match('/' + path.escapeRegex()) || ('/' + path).match(perm)) {
             return result = true;
         }
     });
@@ -275,8 +275,22 @@ webserver.post('/*', function (req, res) {
 
     var re_extension = new RegExp('\\.(' + c.imageExtensions.join('|') + ')$', 'i');
     var folders = [];
+    
+    // if requested folder is not root add one item to go back
+    if (queryPath !== '/') {
+        var goBackPath = queryPath.split('/');
+        goBackPath.splice(goBackPath.length - 2, 1); // remove last folder
+        folders.push({
+            path: goBackPath.join('/'),
+            displayText: '..',
+            displayIcon: 'level-up',
+        });
+    }
+
     var files = [];
+    console.log(globSearch);
     globby(globSearch[0]).then(function (rawPathsFolders) {
+        console.log(rawPathsFolders);
         globby(globSearch[1], {nodir: true}).then(function (rawPathsFiles) {
             rawPaths = rawPathsFolders.concat(rawPathsFiles);
             rawPaths.forEach(function (path) {
@@ -284,7 +298,7 @@ webserver.post('/*', function (req, res) {
                 path = path.replace(c.path, '');
                 if (checkPerm(path, req.userPerms)) {
                     var pathData = {
-                        path: path.replace(/\/$/, ''),
+                        path: '/' + path,
                     };
                     if (pathStats.isDirectory()) {
                         folders.push(pathData);

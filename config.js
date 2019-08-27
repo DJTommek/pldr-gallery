@@ -1,7 +1,8 @@
 module.exports = {
 //    path: 'p:/Photo/',
+    path: 'c:/Dropbox/',
 //    path: 'p:/____Family/',
-    path: 'd:/Data/Photo/',
+//    path: 'd:/Data/Photo/',
     imageExtensions: ['jpg', 'jpeg', 'png', 'bmp'],
     httpServerPort: 1117,
     compress: {
@@ -17,7 +18,7 @@ module.exports = {
     },
     perms: {
         'x': [
-         'demo',
+         '/',
         ],
     }
 }
