@@ -1,12 +1,4 @@
-jwerty.key(c.keyboard.filter, function (e) {
-    e.preventDefault();
-    if ($('#filter').is(':focus')) {
-        $('#filter').blur();
-    } else {
-        $('#filter').focus();
-    }
-});
-jwerty.key('up/left', function (e) {
+jwerty.key('up', function (e) {
     e.preventDefault();
     S.selectorMove('up');
     if (loadedStructure.modal) {
@@ -14,16 +6,39 @@ jwerty.key('up/left', function (e) {
         if (!S.get(S.selectedIndex).isFile) {
             S.selectorMove(S.getFirstFile().index);
         }
-        $('.structure-selected:visible').trigger("click");            
+        S.selectorSelect();
     }
 });
-jwerty.key('down/right', function (e) {
+jwerty.key('left', function (e) {
+    if (loadedStructure.modal) {
+        e.preventDefault();
+        S.selectorMove('up');
+        // if new selected item is not file, select first file and show it
+        if (!S.get(S.selectedIndex).isFile) {
+            S.selectorMove(S.getFirstFile().index);
+        }
+        S.selectorSelect();
+    } else {
+        // filter is focused, dont do anything special
+    }
+});
+jwerty.key('down', function (e) {
     e.preventDefault();
     S.selectorMove('down');
     if (loadedStructure.modal) {
-        $('.structure-selected:visible').trigger("click");
+        S.selectorSelect();
     }
 });
+jwerty.key('right', function (e) {
+    if (loadedStructure.modal) {
+        e.preventDefault();
+        S.selectorMove('down');
+        S.selectorSelect();
+    } else {
+        // filter is focused, dont do anything special
+    }
+});
+// @TODO should work this button in filter to go to the input beginning?
 jwerty.key('home', function (e) {
     e.preventDefault();
     S.selectorMove('first');
@@ -32,7 +47,7 @@ jwerty.key('home', function (e) {
         if (!S.get(S.selectedIndex).isFile) {
             S.selectorMove(S.getFirstFile().index);
         }
-        $('.structure-selected:visible').trigger("click");            
+        S.selectorSelect();
     }
 });
 jwerty.key('page-up', function (e) {
@@ -45,7 +60,7 @@ jwerty.key('page-up', function (e) {
         if (!S.get(S.selectedIndex).isFile) {
             S.selectorMove(S.getFirstFile().index);
         }
-        $('.structure-selected:visible').trigger("click");            
+        S.selectorSelect();
     }
 });
 jwerty.key('page-down', function (e) {
@@ -54,36 +69,54 @@ jwerty.key('page-down', function (e) {
         S.selectorMove('down');
     }
     if (loadedStructure.modal) {
-        $('.structure-selected:visible').trigger("click");
+        S.selectorSelect();
     }
 });
+// @TODO should work this button in filter to go to the input end?
 jwerty.key('end', function (e) {
     e.preventDefault();
     S.selectorMove('last');
     if (loadedStructure.modal) {
-        $('.structure-selected:visible').trigger("click");
+        S.selectorSelect();
     }
 });
 jwerty.key('enter', function (e) {
-    $('.structure-selected:visible').trigger("click");
+    S.selectorSelect();
 });
+
 jwerty.key('backspace', function (e) {
-    // @TODO 
-    // - if in modal, close it
-    // - if not in modal but filter is active, delete character in filter
-    // - if not in modal and filter is not active, move in folder up (if not in root)
-    $('#imageModal').modal('hide');
+    if (loadedStructure.modal) {
+        e.preventDefault(); // do not delete text from filter
+        $('#imageModal').modal('hide');
+    } else {
+        // filter is focused, dont do anything special
+    }
 });
-jwerty.key('shift-backspace', function (e) {
-    $('#imageModal').modal('hide');
-    // @TODO 
-    // - if in modal, close it
-    // - if not in modal, move in folder up (if not in root)
+jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
+    if (loadedStructure.modal) {
+        $('#imageModal').modal('hide');
+    } else { // go back
+        var item = S.getFirst();
+        if (item.displayText === '..') { // @HACK should be some property to recognize "go back"
+            S.selectorMove(item.index);
+            S.selectorSelect();
+        }
+    }
 });
 
 var filterTimeout = null;
-$('#filter').on('keyup keypress blur change', function (event) {
-    // @TODO - do not run filter if are used keys to move in structure (up, down, right, left, enter...)
+$(window).on('keyup keypress change', function (event) {
+    $('#filter').focus();
+    // do not run filter if are used keys to move in structure
+    if ([
+        37, 38, 39, 40, // left, up, right, down
+        13, // enter
+        27, // escape
+        33, 34, // page-up, page-down
+        35, 36, // end, home
+    ].indexOf(event.keyCode) >= 0) {
+        return;
+    }
     // Run filter after a little bit of inactivity
     // @Author: https://schier.co/blog/2014/12/08/wait-for-user-to-stop-typing-using-javascript.html
     clearTimeout(filterTimeout);

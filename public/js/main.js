@@ -4,12 +4,6 @@ var loadedStructure = {
 };
 const S = new Structure();
 
-var c = {
-    keyboard: {
-        filter: 'ctrl+f',
-    }
-};
-
 function loadAndResize() {
     // resize image in modal to fit the screen
     $('.modal-body a.image').css('height', $('.modal-content').height() - 100); // keep some space for text (eg. file name)
@@ -27,6 +21,7 @@ window.onerror = function (msg, url, linenumber) {
 
 // If hash is changed, something is being loaded (image of folder)
 $(window).on('hashchange', function (e) {
+    $('#filter').focus();
     S.setCurrent(window.location.hash);
     loadStructure(function () { // load folder structure
         // If selected item is file, open modal with image

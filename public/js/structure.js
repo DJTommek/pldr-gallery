@@ -9,7 +9,6 @@ class Structure {
         this.folders = [];
 
         this.selectedIndex = 0;
-        this.isRoot = true;
     }
     selectorMove(direction) {
         var item = null;
@@ -185,7 +184,6 @@ class Structure {
         this.getItems().forEach(function (item) {
             // Do not touch on "go back" item! Should be visible all times
             if (item.displayText === '..') {
-                console.log(".. not hidden");
                 return;
             }
             var text = item.paths.last().toLowerCase().trim();
@@ -195,7 +193,6 @@ class Structure {
             } else {
                 $("#structure tbody").find('[data-index="' + item.index + '"]').show();
                 allHidden = false;
-                console.log("item not hidden");
                 item.hide = false;
             }
         });
