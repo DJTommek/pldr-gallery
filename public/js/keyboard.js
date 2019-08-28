@@ -81,7 +81,13 @@ jwerty.key('shift-backspace', function (e) {
     // - if not in modal, move in folder up (if not in root)
 });
 
+var filterTimeout = null;
 $('#filter').on('keyup keypress blur change', function (event) {
     // @TODO - do not run filter if are used keys to move in structure (up, down, right, left, enter...)
-    filter();
+    // Run filter after a little bit of inactivity
+    // @Author: https://schier.co/blog/2014/12/08/wait-for-user-to-stop-typing-using-javascript.html
+    clearTimeout(filterTimeout);
+    filterTimeout = setTimeout(function () {
+        filter();
+    }, 500);
 });
