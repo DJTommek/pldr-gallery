@@ -171,31 +171,44 @@ class Structure {
         var item = this.getByName(this.currentPath);
         return (item && item.isFile) ? item : null;
     }
+    // return true if matches
+    // @TODO - move it into the functions?
+    runFilter(filterText, value) {
+        if (filterText.match(/^\/.+\/$/)) { // check, if string has delimiters is regex, at least /./
+            filterText = filterText.slice(1, -1); // remove delimiters, new RegExp will add automatically
+            var filterRegex = new RegExp(filterText);
+            return filterRegex.test(value);
+        } else {
+            filterText = filterText.toLowerCase().trim();
+            return (value.toLowerCase().trim().indexOf(filterText) !== -1);
+        }
+    }
     /**
      * Hide items which dont match to the filter text
      */
     filter() {
+        var self = this;
         //Important note: Filter can change only if modal is closed.
         if (loadedStructure.modal) {
             return;
         }
-        var filter = $('#filter').val().toLowerCase();
+        var filterText = $('#filter').val().toLowerCase();
         var allHidden = true;
         this.getItems().forEach(function (item) {
             // Do not touch on "go back" item! Should be visible all times
             if (item.displayText === '..') {
                 return;
             }
-            var text = item.paths.last().toLowerCase().trim();
-            if (text.indexOf(filter) === -1) {
-                item.hide = true;
-                $("#structure tbody").find('[data-index="' + item.index + '"]').hide();
-            } else {
+            if (self.runFilter(filterText, item.paths.last())) {
                 $("#structure tbody").find('[data-index="' + item.index + '"]').show();
                 allHidden = false;
                 item.hide = false;
+            } else {
+                item.hide = true;
+                $("#structure tbody").find('[data-index="' + item.index + '"]').hide();
             }
         });
+        // if no item passed filter, show warning
         if (allHidden) {
             // @TODO dont show this message if there are no files in folder. Need to do this dynamicaly (in root 0 items, everywhere else at least one item for go back)
             $("#structure tbody tr.no-filtered-items").removeClass('d-none');
