@@ -93,6 +93,7 @@ class Structure {
     getFirst() {
         return this.getNext(0);
     }
+    // get first visible file
     getFirstFile() {
         return this.files[0] || null;
     }
@@ -126,7 +127,7 @@ class Structure {
     }
     
     getFile(index) {
-        var item = this.items[index];
+        var item = this.get(index)
         return (item && item.isFile) ? item : null;
     }
     getFileUrl(index) {
