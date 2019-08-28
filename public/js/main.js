@@ -1,5 +1,5 @@
 var loadedStructure = {
-    loadedFolder: '/',
+    loadedFolder: '', // default is loaded nothing
     modal: false, // Is modal visible?
 };
 const S = new Structure();
@@ -29,7 +29,7 @@ window.onerror = function (msg, url, linenumber) {
 $(window).on('hashchange', function (e) {
     S.setCurrent(window.location.hash);
     loadStructure(function () { // load folder structure
-        $('#filter').val('');
+//        $('#filter').val('');
         // If selected item is file, open modal with image
         var currentFile = S.getCurrentFile();
         if (currentFile) { // loaded item is file
@@ -40,13 +40,13 @@ $(window).on('hashchange', function (e) {
             // @TODO added loading animation while loading image 
             // - set this url also to invisible img tag and it will run onLoad event when its loaded also as background-image
             //loading(true); // nacitame obrazek, event na dokonceni nacitani je jiz definovan
-            var prevFile = S.getFile(currentFile.index - 1);
-            if (prevFile) {
+            var prevFile = S.getPrevious(currentFile.index);
+            if (prevFile && prevFile.isFile) {
                 $(modal + '.prev').show().attr('href', '#' + prevFile.path);
             } else {
                 $(modal + '.prev').hide();
             }
-            var nextFile = S.getFile(currentFile.index + 1);
+            var nextFile = S.getNext(currentFile.index);
             if (nextFile) {
                 $(modal + '.next').show().attr('href', '#' + nextFile.path);
             } else {
@@ -122,6 +122,7 @@ $(function () {
 function loadStructure(callback) {
     // in case of triggering loading the same structure again (already loaded), skip it
     if (loadedStructure.loadedFolder === S.getCurrentFolder()) {
+        console.log("Structure is already loaded, skip");
         return (typeof callback === 'function' && callback());
     }
     $.ajax({
@@ -181,6 +182,10 @@ function loadStructure(callback) {
                     content += '<td colspan="3">Složka je prázdná.</td>';
                     content += '</tr>';
                 }
+                content += '<tr class="no-filtered-items d-none" data-type="info">';
+                content += '<td><i class="fa fa-warning fa-fw"></i></td>';
+                content += '<td colspan="3">Filter nevyhovuje žádnému řádku.</td>';
+                content += '</tr>';
 
                 content += '</tbody></table>';
                 $('#structure').html(content);
@@ -217,15 +222,21 @@ function loading(loading) {
  * @author: http://vivekarora.com/blog/simple-search-filter-using-jquery/
  */
 function filter() {
+    S.filter();
+    return;
     var val = $('#filter').val().toLowerCase();
     $("#structure tbody tr").addClass('d-none');
     $("#structure tbody tr").each(function () {
         var text = $(this).text().toLowerCase().trim();
-        console.log(text);
         if (text.indexOf(val) !== -1 || text === '..') { // always show root
             $(this).removeClass('d-none');
         }
     });
+    if ($("#structure tbody tr:visible").length) {
+        $("#structure tbody tr.no-filtered-items").addClass('d-none');
+    } else {
+        $("#structure tbody tr.no-filtered-items").removeClass('d-none');
+    }
     $("#structure tbody tr.structure-back").removeClass('d-none');
 //    S.selectorMove(); // to select first visible
 }
