@@ -95,7 +95,15 @@ class Structure {
     }
     // get first visible file
     getFirstFile() {
-        return this.files[0] || null;
+        var item = this.getNext(this.selectedIndex);
+        if (item) {
+            if (item.isFolder) {
+                return this.getNext(item.index);
+            } else {
+                return item;
+            }
+        }
+        return null;
     }
     // get last visible item
     getLast() {
