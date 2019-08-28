@@ -14,14 +14,14 @@ jwerty.key('up/left', function (e) {
         if (!S.get(S.selectedIndex).isFile) {
             S.selectorMove(S.getFirstFile().index);
         }
-        $('.structure-selected').trigger("click");            
+        $('.structure-selected:visible').trigger("click");            
     }
 });
 jwerty.key('down/right', function (e) {
     e.preventDefault();
     S.selectorMove('down');
     if (loadedStructure.modal) {
-        $('.structure-selected').trigger("click");
+        $('.structure-selected:visible').trigger("click");
     }
 });
 jwerty.key('home', function (e) {
@@ -32,7 +32,7 @@ jwerty.key('home', function (e) {
         if (!S.get(S.selectedIndex).isFile) {
             S.selectorMove(S.getFirstFile().index);
         }
-        $('.structure-selected').trigger("click");            
+        $('.structure-selected:visible').trigger("click");            
     }
 });
 jwerty.key('page-up', function (e) {
@@ -45,7 +45,7 @@ jwerty.key('page-up', function (e) {
         if (!S.get(S.selectedIndex).isFile) {
             S.selectorMove(S.getFirstFile().index);
         }
-        $('.structure-selected').trigger("click");            
+        $('.structure-selected:visible').trigger("click");            
     }
 });
 jwerty.key('page-down', function (e) {
@@ -54,18 +54,18 @@ jwerty.key('page-down', function (e) {
         S.selectorMove('down');
     }
     if (loadedStructure.modal) {
-        $('.structure-selected').trigger("click");
+        $('.structure-selected:visible').trigger("click");
     }
 });
 jwerty.key('end', function (e) {
     e.preventDefault();
     S.selectorMove('last');
     if (loadedStructure.modal) {
-        $('.structure-selected').trigger("click");
+        $('.structure-selected:visible').trigger("click");
     }
 });
 jwerty.key('enter', function (e) {
-    $('.structure-selected').trigger("click");
+    $('.structure-selected:visible').trigger("click");
 });
 jwerty.key('backspace', function (e) {
     // @TODO 
@@ -88,6 +88,6 @@ $('#filter').on('keyup keypress blur change', function (event) {
     // @Author: https://schier.co/blog/2014/12/08/wait-for-user-to-stop-typing-using-javascript.html
     clearTimeout(filterTimeout);
     filterTimeout = setTimeout(function () {
-        filter();
+        S.filter();
     }, 500);
 });

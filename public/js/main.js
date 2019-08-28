@@ -29,7 +29,6 @@ window.onerror = function (msg, url, linenumber) {
 $(window).on('hashchange', function (e) {
     S.setCurrent(window.location.hash);
     loadStructure(function () { // load folder structure
-//        $('#filter').val('');
         // If selected item is file, open modal with image
         var currentFile = S.getCurrentFile();
         if (currentFile) { // loaded item is file
@@ -190,7 +189,8 @@ function loadStructure(callback) {
                 content += '</tbody></table>';
                 $('#structure').html(content);
 
-                filter();
+                $('#filter').val(''); // @TODO - remove "typing waiting" cooldown
+//                S.filter();
             }
         },
         error: function () {
@@ -212,31 +212,6 @@ function loading(loading) {
     } else {
         setTimeout(function () {
             $('#loading').hide();
-        }, 100)
-
+        }, 100);
     }
-}
-
-/*
- * Filtrování textu ve struktuře
- * @author: http://vivekarora.com/blog/simple-search-filter-using-jquery/
- */
-function filter() {
-    S.filter();
-    return;
-    var val = $('#filter').val().toLowerCase();
-    $("#structure tbody tr").addClass('d-none');
-    $("#structure tbody tr").each(function () {
-        var text = $(this).text().toLowerCase().trim();
-        if (text.indexOf(val) !== -1 || text === '..') { // always show root
-            $(this).removeClass('d-none');
-        }
-    });
-    if ($("#structure tbody tr:visible").length) {
-        $("#structure tbody tr.no-filtered-items").addClass('d-none');
-    } else {
-        $("#structure tbody tr.no-filtered-items").removeClass('d-none');
-    }
-    $("#structure tbody tr.structure-back").removeClass('d-none');
-//    S.selectorMove(); // to select first visible
 }
