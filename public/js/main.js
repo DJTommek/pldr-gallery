@@ -220,8 +220,9 @@ function filter() {
     var val = $('#filter').val().toLowerCase();
     $("#structure tbody tr").addClass('d-none');
     $("#structure tbody tr").each(function () {
-        var text = $(this).text().toLowerCase();
-        if (text.indexOf(val) != -1) {
+        var text = $(this).text().toLowerCase().trim();
+        console.log(text);
+        if (text.indexOf(val) !== -1 || text === '..') { // always show root
             $(this).removeClass('d-none');
         }
     });
