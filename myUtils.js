@@ -1,8 +1,4 @@
-require('./public/js/functions.js');
 var fs = require('fs');
-var c = require('./config');
-var e = require('./enum.js');
-var https = require('https');
 
 String.prototype.replaceAll = function(search, replacement) {
     var target = this;

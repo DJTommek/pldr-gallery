@@ -1,7 +1,6 @@
-var c = require('./config');
-var u = require('./myUtils.js');
-var e = require('./enum.js');
-
+require('./public/js/functions.js');
+const c = require('./libs/config.js');
+const log = require('./libs/log.js');
 c.imageExtensions = Array.prototype.slice.call(c.imageExtensions);
 
 c.compress.enabled = true;
@@ -35,27 +34,20 @@ const imageminPngquant = require('imagemin-pngquant');
 const imageminJpegRecompress = require('imagemin-jpeg-recompress');
 
 var start = new Date();
-u.log('***STARTING***');
+log.log('***STARTING***');
 
-u.log('Image compression is ' + ((c.compress.enabled) ? 'enabled' : 'disabled'));
+log.log('Image compression is ' + ((c.compress.enabled) ? 'enabled' : 'disabled'));
 
 function getUptime() {
     var now = new Date();
-    var diffMiliseconds = (now - start);
-
-    var milliseconds = parseInt((diffMiliseconds % 1000));
-    var seconds = parseInt((diffMiliseconds / 1000) % 60);
-    var minutes = parseInt((diffMiliseconds / (1000 * 60)) % 60);
-    var hours = Math.floor(diffMiliseconds / (1000 * 60 * 60));
-
-    var diffHuman = (((String(hours)).pad(2, '0', 'left') + ':' + String(minutes).pad(2, '0', 'left')) + ":" + String(seconds).pad(2, '0', 'left') + "." + String(milliseconds).pad(3, '0', 'left'));
+    var diff = (now - start);
 
     var response = {
-        start: u.formatDateTime(start),
-        end: u.formatDateTime(now),
+        start: start.human(),
+        end: now.human(),
         uptime: {
-            milliseconds: diffMiliseconds,
-            human: diffHuman
+            milliseconds: diff,
+            human: msToHuman(diff)
         }
     }
     return response;
@@ -63,7 +55,7 @@ function getUptime() {
 
 fs.readFile(c.path + '.pmg_perms', 'utf8', function (err, data) {
     if (err) {
-        u.log("Chyba při načítání .perm souboru: " + err);
+        log.log("Chyba při načítání .perm souboru: " + err);
     } else {
         try {
             var perms = {};
@@ -85,24 +77,24 @@ fs.readFile(c.path + '.pmg_perms', 'utf8', function (err, data) {
                     });
                 }
             });
-            u.log("Úspěšně naparsován .perms soubor");
+            log.log("Úspěšně naparsován .perms soubor");
             c.perms = perms;
         } catch (err) {
-            u.log("Nepodarilo se naparsovat perm soubor: " + err);
+            log.log("Nepodarilo se naparsovat perm soubor: " + err);
         }
     }
-    u.log('Perms: ' + JSON.stringify(c.perms));
+    log.log('Perms: ' + JSON.stringify(c.perms));
 });
 
 webserver.all('/ping', function (req, res) {
     res.setHeader("Content-Type", "application/json");
     res.statusCode = 200;
     var result = {
-        datetime: u.formatDateTime(new Date),
+        datetime: (new Date).human(),
         error: false,
         result: getUptime()
     };
-    res.end(u.apiResponse(result));
+    res.end(JSON.stringify(result, null, 4));
 });
 
 webserver.get('/', function (req, res) {
@@ -144,7 +136,7 @@ webserver.get('/login', function (req, res) {
         code = code.replace('\\', '/'); // Bug, kdy lomitko v URL je normalni a v kodu zpetne (?!)
         oauth2Client.getToken(code, function (err, tokens) {
             if (err) {
-                u.log('(Login) Chyba během získávání google tokenu: ' + err, e.LOG.ERROR);
+                log.log('(Login) Chyba během získávání google tokenu: ' + err, log.ERROR);
                 return res.status(500).send('Chyba behem ziskavani google tokenu. Zkus to <a href="/">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');
             }
             res.cookie('googleLogin', tokens.id_token, {maxAge: 900000});
@@ -159,7 +151,7 @@ webserver.all('*', function (req, res, next) {
     if (code) {
         oauth2Client.verifyIdToken(code, c.google.clientId, function (err, login) {
             if (err) {
-                u.log('(Login) Chyba během ověřování google tokenu: ' + err, e.LOG.ERROR);
+                log.log('(Login) Chyba během ověřování google tokenu: ' + err, log.ERROR);
                 return res.status(500).send('Chyba behem overovani google tokenu. Zkus to <a href="/">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');
             }
             var payload = login.getPayload();
@@ -191,17 +183,17 @@ webserver.all('*', function (req, res, next) {
  */
 webserver.get('/__API/IMAGE/', function (req, res) {
     var filePath = decodeURIComponent(Buffer.from(req.query.IMAGE, 'base64').toString());
-    u.log('(Web) Request file: ' + filePath);
+    log.log('(Web) Request file: ' + filePath);
     res.statusCode = 200;
     res.setHeader("Content-Type", "image/png");
 //    res.setHeader("Content-Type", "application/json");
     var apiResult = {
-        datetime: u.formatDateTime(new Date),
+        datetime: (new Date).human(),
         error: true,
         result: 'File - Není zadána cesta'
     };
     if (!filePath) {
-        res.end(apiResult);
+        res.end(JSON.stringify(apiResult, null, 4))
     }
 
     // aby se nemohly vyhledavat soubory v predchozich slozkach
@@ -224,7 +216,7 @@ webserver.get('/__API/IMAGE/', function (req, res) {
                     fileStats.compressedSize = img.length;
                     fileStats.percent = 100 - ((fileStats.compressedSize / fileStats.size) * 100);
                     fileStats.percent = Math.round(fileStats.percent * 100) / 100;
-                    u.log('Compression takes: ' + ((new Date()) - s) + ' ms. Original size ' + Math.round(fileStats.size / 1024) + ' KB, compressed size ' + Math.round(fileStats.compressedSize / 1024) + ' KB and it is ' + fileStats.percent + '% smaller.');
+                    log.log('Compression takes: ' + ((new Date()) - s) + ' ms. Original size ' + Math.round(fileStats.size / 1024) + ' KB, compressed size ' + Math.round(fileStats.compressedSize / 1024) + ' KB and it is ' + fileStats.percent + '% smaller.');
                     res.setHeader("Content-Length", fileStats.compressedSize);
                     return res.end(img);
                 });
@@ -236,7 +228,7 @@ webserver.get('/__API/IMAGE/', function (req, res) {
         console.log(error);
         res.statusCode = 404;
     }
-    //return res.end(u.apiResponse(apiResult));
+    //return res.end(apiResponse(apiResult));
 });
 
 function checkPerm(path, perms) {
@@ -253,16 +245,16 @@ function checkPerm(path, perms) {
  * loading list of folders and files
  */
 webserver.post('/*', function (req, res) {
-    u.log('(Web) Request path: ' + req.body.path);
+    log.log('(Web) Request path: ' + req.body.path);
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     var apiResult = {
-        datetime: u.formatDateTime(new Date),
+        datetime: (new Date).human(),
         error: true,
         result: 'Folder - Není zadána cesta'
     };
     if (!req.body.path) {
-        res.end(u.apiResponse(apiResult));
+        res.end(JSON.stringify(apiResult, null, 4))
     }
 
     // aby se nemohly vyhledavat soubory v predchozich slozkach
@@ -305,16 +297,16 @@ webserver.post('/*', function (req, res) {
                     } else { // Filtrování pouze povolených souborů (dle přípony)
                         if (pathData.path.match(re_extension)) {
                             pathData.size = pathStats.size;
-                            pathData.created = u.formatDateTime(pathStats.ctime);
+                            pathData.created = pathStats.ctime.human();
                             files.push(pathData);
                         }
                     }
                 }
             });
-            u.log('(File) Nalezeno ' + folders.length + ' složek a ' + files.length + ' souborů.');
+            log.log('(File) Nalezeno ' + folders.length + ' složek a ' + files.length + ' souborů.');
             apiResult.error = false;
             apiResult.result = folders.concat(files);
-            res.end(u.apiResponse(apiResult));
+            res.end(JSON.stringify(apiResult, null, 4))
         });
     });
 });
@@ -325,8 +317,8 @@ webserver.get('/killllll', function (req, res) {
     process.exit();
 });
 
-webserver.listen(c.httpServerPort, function () {
-    u.log('(HTTP) Server listening on port ' + c.httpServerPort);
+webserver.listen(c.http.port, function () {
+    log.log('(HTTP) Server listening on port ' + c.http.port);
 });
 
 
