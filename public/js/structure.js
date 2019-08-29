@@ -95,7 +95,7 @@ class Structure {
     }
     // get first visible file
     getFirstFile() {
-        var item = this.getNext(this.selectedIndex);
+        var item = this.getNext(-1);
         if (item) {
             if (item.isFolder) {
                 return this.getNextFile(item.index);
@@ -132,7 +132,7 @@ class Structure {
         if (item && item.hide === false && item.isFile) {
             return item;
         }
-        return this.getNext(index);
+        return this.getNextFile(index);
     }
     // return previous visible item
     getPrevious(index) {
