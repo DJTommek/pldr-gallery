@@ -19,7 +19,6 @@ var c = {
             tokensPath: './tokens/'
         }
     },
-    httpServerPort: 1117,
     compress: {
         enabled: true,
         minLimit: 1024 * 1024,
