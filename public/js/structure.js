@@ -176,7 +176,6 @@ class Structure {
     setCurrent(path) {
         path = decodeURI(path).replace(/^#/, '');
         var paths = path.split('/');
-        console.log("setcurrentPath: " + path);
         this.currentPath = path;
         this.currentFolders = paths.slice(1, paths.length - 1); // slice first and last elements from array
         this.currentFolder = ('/' + this.currentFolders.join('/') + '/').replace('\/\/', '/');

@@ -26,27 +26,6 @@ module.exports.formatDateTime = function(datetime, returnArray){
     }
 }
 
-module.exports.log = function(msg, type)
-{
-    switch (type) {
-        case e.LOG.ERROR:
-            var fileSuffix = '_error';
-            break;
-        case e.LOG.INFO:
-        default:
-            var fileSuffix = null;
-            break;
-    }
-    var datetime = this.formatDateTime(new Date(), true);
-
-    var log = '[' + datetime.date + ' ' + datetime.time + '.' + datetime.milisecond + '] ' + msg;
-    console.log(log);
-	fs.appendFileSync('./log/' + datetime.date + '.txt', log + '\n', 'utf8');
-	if (fileSuffix !== null) {
-		fs.appendFileSync('./log/' + datetime.date + fileSuffix + '.txt', log + '\n', 'utf8');
-	}
-}
-
 module.exports.head = function(text)
 {
     this.log('***' + text + '***');

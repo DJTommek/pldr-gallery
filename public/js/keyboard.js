@@ -124,7 +124,6 @@ $('#filter input').on('keyup change', function (event) {
     ].indexOf(event.keyCode) >= 0) {
         return;
     }
-    console.log(event.keyCode);
     $('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
     // Run filter after a little bit of inactivity
     // @Author: https://schier.co/blog/2014/12/08/wait-for-user-to-stop-typing-using-javascript.html
