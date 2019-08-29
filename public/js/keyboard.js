@@ -123,5 +123,5 @@ $(window).on('keyup keypress change', function (event) {
     clearTimeout(filterTimeout);
     filterTimeout = setTimeout(function () {
         S.filter();
-    }, 500);
+    }, 200);
 });

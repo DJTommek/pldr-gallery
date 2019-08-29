@@ -230,9 +230,11 @@ class Structure {
         });
         // if no item passed filter, show warning
         if (allHidden) {
+            $('#filter').addClass('is-invalid');
             // @TODO dont show this message if there are no files in folder. Need to do this dynamicaly (in root 0 items, everywhere else at least one item for go back)
             $("#structure tbody tr.no-filtered-items").removeClass('d-none');
         } else {
+            $('#filter').removeClass('is-invalid');
             $("#structure tbody tr.no-filtered-items").addClass('d-none');
         }
         if (this.get(this.selectedIndex).hide) { // if currently selected item is not visible, move to previous visible
