@@ -98,7 +98,7 @@ class Structure {
         var item = this.getNext(this.selectedIndex);
         if (item) {
             if (item.isFolder) {
-                return this.getNext(item.index);
+                return this.getNextFile(item.index);
             } else {
                 return item;
             }
@@ -118,6 +118,18 @@ class Structure {
         }
         var item = this.get(index);
         if (item && item.hide === false) {
+            return item;
+        }
+        return this.getNext(index);
+    }
+    // return next visible item
+    getNextFile(index) {
+        index++;
+        if (index > this.items.length) {
+            return null;
+        }
+        var item = this.get(index);
+        if (item && item.hide === false && item.isFile) {
             return item;
         }
         return this.getNext(index);

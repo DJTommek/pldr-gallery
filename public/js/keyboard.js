@@ -57,7 +57,8 @@ jwerty.key('page-up', function (e) {
     }
     if (loadedStructure.modal) {
         // if new selected item is not file, select first file and show it
-        if (!S.get(S.selectedIndex).isFile) {
+        // If modal is opened, at least one file is always available
+        if (S.get(S.selectedIndex).isFile === false) {
             S.selectorMove(S.getFirstFile().index);
         }
         S.selectorSelect();
