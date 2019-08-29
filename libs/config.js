@@ -1,6 +1,6 @@
 var c = {
 //    path: 'p:/Photo/',
-    path: 'c:/Dropbox/',
+    path: 'c:/Users/DJTommek/',
 //    path: 'p:/____Family/',
 //    path: 'd:/Data/Photo/',
     imageExtensions: ['jpg', 'jpeg', 'png', 'bmp'],

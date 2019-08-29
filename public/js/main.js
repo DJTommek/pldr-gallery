@@ -1,7 +1,6 @@
 var loadedStructure = {
     loadedFolder: '', // default is loaded nothing
     modal: false, // Is modal visible?
-    loading: false,
     filtering: false,
 };
 const S = new Structure();
@@ -17,7 +16,7 @@ $(window).resize(function () {
 });
 // loading is done when img is loaded (also as background to another element)
 $('#imageModal .modal-dialog .modal-content img').load(function () {
-    loading(false);
+    loadingImage(false);
 });
 
 window.onerror = function (msg, url, linenumber) {
@@ -37,7 +36,7 @@ $(window).on('hashchange', function (e) {
             var modal = '#imageModal .modal-dialog .modal-content ';
             $(modal + '.file-name').text(currentFile.paths.last());
             $(modal + 'a.image').attr('href', S.getFileUrl(currentFile.index)).css('background-image', 'url(' + S.getFileUrl(currentFile.index) + ')');
-            loading(true); // starting loading img
+            loadingImage(true); // starting loading img
             $(modal + 'img').attr('src', S.getFileUrl(currentFile.index));
             // @TODO added loading animation while loading image 
             // - set this url also to invisible img tag and it will run onLoad event when its loaded also as background-image
@@ -199,28 +198,34 @@ function loadStructure(callback) {
             alert('Chyba během načítání dat. Kontaktuj autora.');
         },
         beforeSend: function () {
-            $('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-            $('#filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-            loading(true);
+            loadingStructure(true);
         },
         complete: function () {
-            loading(false);
+            loadingStructure(false);
             (typeof callback === 'function' && callback());
         }
     });
 }
 
-function loading(loading) {
+function loadingStructure(loading) {
 
     if (loading === true) {
-        loadedStructure.loading = true;
-        $('#loading').show();
+        $('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+        $('#filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
         $('#filter input').prop('disabled', true);
     }
     if (loading === false) {
-        loadedStructure.loading = false;
-        $('#loading').hide();
         $('#filter input').prop('disabled', false);
+    }
+}
+function loadingImage(loading) {
+
+    if (loading === true) {
+        $('#imageModal .modal-dialog .modal-content .image-loading').show();
+        loadedStructure.loading = true;
+    }
+    if (loading === false) {
+        $('#imageModal .modal-dialog .modal-content .image-loading').hide();
     }
     return loadedStructure.loading;
 }
