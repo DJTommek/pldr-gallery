@@ -114,6 +114,7 @@ var filterTimeout = null;
 $('#filter input').on('keyup change', function (event) {
     // do not run filter if are used keys to move in structure
     if ([
+        //undefined, // triggered on "change",
         37, 38, 39, 40, // left, up, right, down
         13, // enter
         27, // escape

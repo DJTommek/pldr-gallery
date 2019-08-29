@@ -216,8 +216,19 @@ class Structure {
             console.warn('Filtering is already running, cancel new request');
             return;
         }
-        loadedStructure.filtering = true;
         var filterText = $('#filter input').val().toLowerCase();
+        if (filterText.match(/^\/.+\/$/)) { // check, if string has delimiters is regex, at least /./
+            // @TODO in case of regexp error, filter might be triggered twice so this alert message too
+            try { // try if regex is valid before running filter
+                new RegExp(filterText.slice(1, -1));
+            } catch (exception) {
+                console.warn('User input filter is not valid: ' + exception.message);
+                alert('Filter is not valid: ' + exception.message);
+                $('#filter .filtered').text(0);
+                return;
+            }
+        }
+        loadedStructure.filtering = true;
         var allHidden = true;
         var visible = 0;
         this.getItems().forEach(function (item) {
