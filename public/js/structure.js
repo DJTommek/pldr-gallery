@@ -212,17 +212,21 @@ class Structure {
         if (loadedStructure.modal) {
             return;
         }
-        var filterText = $('#filter').val().toLowerCase();
+        var filterText = $('#filter input').val().toLowerCase();
         var allHidden = true;
+        var visible = 0;
+        var maxVisible = this.items.length;
         this.getItems().forEach(function (item) {
             // Do not touch on "go back" item! Should be visible all times
             if (item.displayText === '..') {
+                maxVisible--;
                 return;
             }
             if (self.runFilter(filterText, item.paths.last())) {
                 $("#structure tbody").find('[data-index="' + item.index + '"]').show();
                 allHidden = false;
                 item.hide = false;
+                visible++;
             } else {
                 item.hide = true;
                 $("#structure tbody").find('[data-index="' + item.index + '"]').hide();
@@ -230,13 +234,14 @@ class Structure {
         });
         // if no item passed filter, show warning
         if (allHidden) {
-            $('#filter').addClass('is-invalid');
+            $('#filter input').addClass('is-invalid');
             // @TODO dont show this message if there are no files in folder. Need to do this dynamicaly (in root 0 items, everywhere else at least one item for go back)
             $("#structure tbody tr.no-filtered-items").removeClass('d-none');
         } else {
-            $('#filter').removeClass('is-invalid');
+            $('#filter input').removeClass('is-invalid');
             $("#structure tbody tr.no-filtered-items").addClass('d-none');
         }
+        $('#filter div span').text(visible + '/' + maxVisible);
         if (this.get(this.selectedIndex).hide) { // if currently selected item is not visible, move to previous visible
             this.selectorMove('up');
             if (this.get(this.selectedIndex).hide) { // if there is no previous visible item, move to the next visible item

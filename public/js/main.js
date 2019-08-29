@@ -1,6 +1,7 @@
 var loadedStructure = {
     loadedFolder: '', // default is loaded nothing
     modal: false, // Is modal visible?
+    loading: false,
 };
 const S = new Structure();
 
@@ -21,7 +22,7 @@ window.onerror = function (msg, url, linenumber) {
 
 // If hash is changed, something is being loaded (image of folder)
 $(window).on('hashchange', function (e) {
-    $('#filter').focus();
+    $('#filter input').focus();
     S.setCurrent(window.location.hash);
     loadStructure(function () { // load folder structure
         // If selected item is file, open modal with image
@@ -176,16 +177,11 @@ function loadStructure(callback) {
                     content += '<td colspan="3">Složka je prázdná.</td>';
                     content += '</tr>';
                 }
-                content += '<tr class="no-filtered-items d-none" data-type="info">';
-                content += '<td><i class="fa fa-warning fa-fw"></i></td>';
-                content += '<td colspan="3">Filter nevyhovuje žádnému řádku.</td>';
-                content += '</tr>';
-
                 content += '</tbody></table>';
                 $('#structure').html(content);
 
-                $('#filter').val(''); // @TODO - remove "typing waiting" cooldown
-//                S.filter();
+                $('#filter input').val(''); // @TODO - remove "typing waiting" cooldown
+                S.filter();
             }
         },
         error: function () {
@@ -202,11 +198,16 @@ function loadStructure(callback) {
 }
 
 function loading(loading) {
-    if (loading) {
+    
+    if (loading === true) {
+        loadedStructure.loading = true;
         $('#loading').show();
-    } else {
-        setTimeout(function () {
-            $('#loading').hide();
-        }, 100);
+        $('#filter input').prop('disabled', true);
     }
+    if (loading === false) {
+        loadedStructure.loading = false;
+        $('#loading').hide();
+        $('#filter input').prop('disabled', false);
+    }
+    return loadedStructure.loading;
 }

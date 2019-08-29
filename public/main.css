@@ -12,7 +12,9 @@ body {
 #navbar .dropdown-item {
     text-align: right;
 }
-
+#filter {
+    width: 12rem;
+}
 /* Ikonka ma minimalni sirku */
 #structure table {
     width: 100%;

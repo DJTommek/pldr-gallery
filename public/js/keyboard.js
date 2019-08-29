@@ -107,7 +107,7 @@ jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
 
 var filterTimeout = null;
 $(window).on('keyup keypress change', function (event) {
-    $('#filter').focus();
+    $('#filter input').focus();
     // do not run filter if are used keys to move in structure
     if ([
         37, 38, 39, 40, // left, up, right, down
