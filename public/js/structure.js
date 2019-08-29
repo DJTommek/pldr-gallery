@@ -235,14 +235,15 @@ class Structure {
         } else {
             $("#structure tbody tr.no-filtered-items").addClass('d-none');
         }
-        // if currently selected item is not visible, move to previous visible
-        if (this.get(this.selectedIndex).hide) {
+        if (this.get(this.selectedIndex).hide) { // if currently selected item is not visible, move to previous visible
             this.selectorMove('up');
-            // if there is no previous visible item, move to the next visible item
-            if (this.get(this.selectedIndex).hide) {
+            if (this.get(this.selectedIndex).hide) { // if there is no previous visible item, move to the next visible item
                 this.selectorMove('down');
             }
             // if no item is visible, dont do anything...
+        }
+        if (this.get(this.selectedIndex).displayText === '..') { // if is filter active and selected item is "go back", try select next visible item
+            this.selectorMove('down');
         }
     }
 }
