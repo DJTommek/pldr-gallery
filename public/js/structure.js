@@ -232,14 +232,10 @@ class Structure {
                 $("#structure tbody").find('[data-index="' + item.index + '"]').hide();
             }
         });
-        // if no item passed filter, show warning
-        if (allHidden) {
+        if (allHidden) { // if no item passed filter, show warning
             $('#filter input').addClass('is-invalid');
-            // @TODO dont show this message if there are no files in folder. Need to do this dynamicaly (in root 0 items, everywhere else at least one item for go back)
-            $("#structure tbody tr.no-filtered-items").removeClass('d-none');
         } else {
             $('#filter input').removeClass('is-invalid');
-            $("#structure tbody tr.no-filtered-items").addClass('d-none');
         }
         $('#filter div span').text(visible + '/' + maxVisible);
         if (this.get(this.selectedIndex).hide) { // if currently selected item is not visible, move to previous visible
