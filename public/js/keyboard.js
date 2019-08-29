@@ -104,10 +104,14 @@ jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
         }
     }
 });
-
+// Autofocus into input before start typing
+$(window).on('keypress', function (event) {
+    if (loadedStructure.modal === false) {
+        $('#filter input').focus();
+    }
+});
 var filterTimeout = null;
-$(window).on('keyup keypress change', function (event) {
-    $('#filter input').focus();
+$('#filter input').on('keyup change', function (event) {
     // do not run filter if are used keys to move in structure
     if ([
         37, 38, 39, 40, // left, up, right, down
@@ -115,13 +119,17 @@ $(window).on('keyup keypress change', function (event) {
         27, // escape
         33, 34, // page-up, page-down
         35, 36, // end, home
+        16, 17, 18, // shift, right alt, alt
+        92, 93 // windows, context menu, 
     ].indexOf(event.keyCode) >= 0) {
         return;
     }
+    console.log(event.keyCode);
+    $('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
     // Run filter after a little bit of inactivity
     // @Author: https://schier.co/blog/2014/12/08/wait-for-user-to-stop-typing-using-javascript.html
     clearTimeout(filterTimeout);
     filterTimeout = setTimeout(function () {
         S.filter();
-    }, 200);
+    }, 300); // @TODO this cooldown should be bigger when there is too many items to filter
 });

@@ -10,7 +10,7 @@
     <body class="theme-darkk">
         <div id="loading">
             <div class="progress">
-                <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%">
                     <span class="sr-only">45% Complete</span>
                 </div>
             </div>            
@@ -23,12 +23,12 @@
                 </ol>
                 <form class="form-inline my-0">
                     <div class="input-group" id="filter">
-                        <input type="search" class="form-control" placeholder="Filter"/>
+                        <input type="search" class="form-control" placeholder="Filter" disabled/>
                         <div class="input-group-append">
                             <span class="input-group-text">
-                                <i class="fa fa-circle-o-notch fa-spin"></i>
+                                <span class="filtered"><i class="fa fa-circle-o-notch fa-spin"></i></span>
                                 /
-                                <i class="fa fa-circle-o-notch fa-spin"></i>
+                                <span class="total"><i class="fa fa-circle-o-notch fa-spin"></i></span>
                             </span>
                         </div>
                     </div>                    
@@ -62,6 +62,7 @@
                         <a class="prev" href="#">&#10094;</a>
                         <a class="next" href="#">&#10095;</a>                        
                         <a href="#" target="_blank" class="image"></a>
+                        <img src="" class="d-none"> <!-- just to register loading events -->
                     </div>
                 </div>
             </div>

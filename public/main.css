@@ -19,6 +19,19 @@ body {
 #structure table {
     width: 100%;
 }
+/* Cely radek je klikaci odkaz */
+#structure table tbody tr td {
+    cursor: pointer;
+    line-height: 2rem;
+}
+#structure table tbody tr td a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+#structure table tbody tr td a:hover {
+    text-decoration: none;
+}
 /* Ikonka ma minimalni sirku */
 #structure table tbody tr td:nth-child(1) {
     width: 1em; /* ikonka si stejně minimální šířku vynutí jakou zrovna potřebuje */
@@ -34,19 +47,6 @@ body {
 /* Vytvořeno */
 #structure table tbody tr td:nth-child(4) {
     width: 9rem;
-}
-
-/* Cely radek je klikaci odkaz */
-#structure table tbody tr td {
-    cursor: pointer;
-}
-#structure table tbody tr td a {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-#structure table tbody tr td a:hover {
-    text-decoration: none;
 }
 
 /* aktualne oznaceny radek */

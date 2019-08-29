@@ -2,6 +2,7 @@ var loadedStructure = {
     loadedFolder: '', // default is loaded nothing
     modal: false, // Is modal visible?
     loading: false,
+    filtering: false,
 };
 const S = new Structure();
 
@@ -13,6 +14,10 @@ function loadAndResize() {
 
 $(window).resize(function () {
     loadAndResize();
+});
+// loading is done when img is loaded (also as background to another element)
+$('#imageModal .modal-dialog .modal-content img').load(function () {
+    loading(false);
 });
 
 window.onerror = function (msg, url, linenumber) {
@@ -32,6 +37,8 @@ $(window).on('hashchange', function (e) {
             var modal = '#imageModal .modal-dialog .modal-content ';
             $(modal + '.file-name').text(currentFile.paths.last());
             $(modal + 'a.image').attr('href', S.getFileUrl(currentFile.index)).css('background-image', 'url(' + S.getFileUrl(currentFile.index) + ')');
+            loading(true); // starting loading img
+            $(modal + 'img').attr('src', S.getFileUrl(currentFile.index));
             // @TODO added loading animation while loading image 
             // - set this url also to invisible img tag and it will run onLoad event when its loaded also as background-image
             //loading(true); // nacitame obrazek, event na dokonceni nacitani je jiz definovan
@@ -132,7 +139,7 @@ function loadStructure(callback) {
             } else {
                 loadedStructure.loadedFolder = S.getCurrentFolder();
                 S.setAll(result.result);
-
+                var maxVisible = S.getItems().length;
                 // Cela cesta v hlaviccce
                 var breadcrumbHtml = '';
                 breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/">Galerie</a></li>';
@@ -154,6 +161,9 @@ function loadStructure(callback) {
                 content += ' </tr>';
                 content += '</thead><tbody>';
                 S.getFolders().forEach(function (item) {
+                    if (item.displayText === '..') {
+                        maxVisible--;
+                    }
                     content += '<tr data-type="folder" data-index="' + item.index + '">';
                     content += ' <td><i class="fa fa-' + (item.displayIcon || 'folder-open') + ' fa-fw"></i></td>';
                     content += ' <td><a href="#' + item.path + '">' + (item.displayText || item.paths.last()) + '</a></td>';
@@ -179,8 +189,9 @@ function loadStructure(callback) {
                 }
                 content += '</tbody></table>';
                 $('#structure').html(content);
-
-                $('#filter input').val(''); // @TODO - remove "typing waiting" cooldown
+                $('#filter .total').text(maxVisible);
+                $('#filter .filtered').text(maxVisible);
+                $('#filter input').val('');
                 S.filter();
             }
         },
@@ -188,6 +199,8 @@ function loadStructure(callback) {
             alert('Chyba během načítání dat. Kontaktuj autora.');
         },
         beforeSend: function () {
+            $('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+            $('#filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
             loading(true);
         },
         complete: function () {
@@ -198,7 +211,7 @@ function loadStructure(callback) {
 }
 
 function loading(loading) {
-    
+
     if (loading === true) {
         loadedStructure.loading = true;
         $('#loading').show();

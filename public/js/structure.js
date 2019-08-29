@@ -210,16 +210,20 @@ class Structure {
         var self = this;
         //Important note: Filter can change only if modal is closed.
         if (loadedStructure.modal) {
+            console.warn('Filtering is not possible, modal window is active');
             return;
         }
+        if (loadedStructure.filtering) {
+            console.warn('Filtering is already running, cancel new request');
+            return;
+        }
+        loadedStructure.filtering = true;
         var filterText = $('#filter input').val().toLowerCase();
         var allHidden = true;
         var visible = 0;
-        var maxVisible = this.items.length;
         this.getItems().forEach(function (item) {
             // Do not touch on "go back" item! Should be visible all times
             if (item.displayText === '..') {
-                maxVisible--;
                 return;
             }
             if (self.runFilter(filterText, item.paths.last())) {
@@ -237,8 +241,13 @@ class Structure {
         } else {
             $('#filter input').removeClass('is-invalid');
         }
-        $('#filter div span').text(visible + '/' + maxVisible);
-        if (this.get(this.selectedIndex).hide) { // if currently selected item is not visible, move to previous visible
+        $('#filter .filtered').text(visible);
+        var item = this.get(this.selectedIndex);
+        if (!item) { // new opened folder is empty, do not move with selector
+            loadedStructure.filtering = false;
+            return;
+        }
+        if (item.hide) { // if currently selected item is not visible, move to previous visible
             this.selectorMove('up');
             if (this.get(this.selectedIndex).hide) { // if there is no previous visible item, move to the next visible item
                 this.selectorMove('down');
@@ -248,5 +257,6 @@ class Structure {
         if (this.get(this.selectedIndex).displayText === '..') { // if is filter active and selected item is "go back", try select next visible item
             this.selectorMove('down');
         }
+        loadedStructure.filtering = false;
     }
 }
