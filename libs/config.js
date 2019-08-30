@@ -28,6 +28,9 @@ var c = {
         clientId: '405123468190-3si7ft7n40r00odqukeml3r9e8tncmju.apps.googleusercontent.com',
         secret: 'kpDiIGevRN0TU9h7xrwNrLKl'
     },
+    test: {
+        password: '4pTvuKygmguBm19z4CjB'
+    },
     perms: {
         'x': [
             '/demo/'

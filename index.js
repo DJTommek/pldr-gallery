@@ -135,7 +135,8 @@ webserver.all('*', function (req, res, next) {
     if (req.logged) {
         try { // K právům všech připojíme práva daného uživatele pokud existují
             var userPerms = perms.get(req.logged).concat(userPerms);
-        } catch (e) { }
+        } catch (e) {
+        }
     }
     if (userPerms.indexOf('/') >= 0) { // Pokud má právo na celou složku, ostatní práva jsou zbytečná
         userPerms = ['/'];
@@ -267,24 +268,24 @@ webserver.post('/*', function (req, res) {
 });
 
 webserver.get('/kill/:password', function (req, res) {
-	res.setHeader("Content-Type", "application/json");
-	res.statusCode = 200;
-	var result = {
-		datetime: (new Date).human(),
-		error: true,
-		result: 'Invalid password.',
-		name: req.params.test
-	};
-	if (req.params.password !== c.test.password) {
-		return res.end(u.apiResponse(result));
-	}
+    res.setHeader("Content-Type", "application/json");
+    res.statusCode = 200;
+    var result = {
+        datetime: (new Date).human(),
+        error: true,
+        result: 'Invalid password.',
+        name: req.params.test
+    };
+    if (req.params.password !== c.test.password) {
+        return res.end(JSON.stringify(result, null, 4));
+    }
     result.error = false;
     result.result = 'Kill requested in 2 seconds.'
     log.head('(Web) Server is going to kill');
-    res.end(u.apiResponse(result));
-    setTimeout(function() {
-        process.exit();        
-	}, 2000);
+    res.end(JSON.stringify(result, null, 4))
+    setTimeout(function () {
+        process.exit();
+    }, 2000);
 });
 
 webserver.listen(c.http.port, function () {
