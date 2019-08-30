@@ -179,8 +179,7 @@ function loadStructure(callback) {
                     content += '</tr>';
                 });
 
-                if (result.result.length === 1) { // only go back
-                    //@TODO - if root folder has only one item it shows this message too
+                if (maxVisible === 0) {
                     content += '<tr class="structure-back" data-type="folder">';
                     content += '<td><i class="fa fa-info fa-fw"></i></td>';
                     content += '<td colspan="3">Složka je prázdná.</td>';

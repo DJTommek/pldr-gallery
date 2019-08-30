@@ -9,7 +9,7 @@ var globby = require('globby');
 var fs = require("fs");
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
-
+const perms = require('./libs/permissions.js');
 var express = require('express');
 var compression = require('compression');
 var webserver = express();
@@ -52,39 +52,6 @@ function getUptime() {
     }
     return response;
 }
-
-fs.readFile(c.path + '.pmg_perms', 'utf8', function (err, data) {
-    if (err) {
-        log.log("Chyba při načítání .perm souboru: " + err);
-    } else {
-        try {
-            var perms = {};
-            var lines = data.split("\r\n");
-            var indexes = [];
-            lines.some(function (line) {
-                line = line.trim();
-                if (line.match(/^#/)) { // Ignorujeme komentare
-                } else if (line === '') { // zrušit indexy
-                    indexes = [];
-                } else if (!line.match(/^ /)) { // řádek nezačíná mezerou, je to tedy uživatel
-                    indexes.push(line);
-                    if (perms[line] === undefined) {
-                        perms[line] = [];
-                    }
-                } else {
-                    indexes.some(function (index) {
-                        perms[index].push(line.replace(/^ /, ''));
-                    });
-                }
-            });
-            log.log("Úspěšně naparsován .perms soubor");
-            c.perms = perms;
-        } catch (err) {
-            log.log("Nepodarilo se naparsovat perm soubor: " + err);
-        }
-    }
-    log.log('Perms: ' + JSON.stringify(c.perms));
-});
 
 webserver.all('/ping', function (req, res) {
     res.setHeader("Content-Type", "application/json");
@@ -164,16 +131,16 @@ webserver.all('*', function (req, res, next) {
 });
 
 webserver.all('*', function (req, res, next) {
-    var userPerms = c.perms['x'];
+    var userPerms = perms.get('x');
     if (req.logged) {
         try { // K právům všech připojíme práva daného uživatele pokud existují
-            var userPerms = c.perms[req.logged].concat(userPerms);
-        } catch (e) {
-        }
-        if (userPerms.indexOf('/') >= 0) { // Pokud má právo na celou složku, ostatní práva jsou zbytečná
-            userPerms = ['/'];
-        }
+            var userPerms = perms.get(req.logged).concat(userPerms);
+        } catch (e) { }
     }
+    if (userPerms.indexOf('/') >= 0) { // Pokud má právo na celou složku, ostatní práva jsou zbytečná
+        userPerms = ['/'];
+    }
+    console.log(userPerms)
     req.userPerms = userPerms;
     return next();
 });
@@ -231,16 +198,6 @@ webserver.get('/__API/IMAGE/', function (req, res) {
     //return res.end(apiResponse(apiResult));
 });
 
-function checkPerm(path, perms) {
-    var result = false;
-    perms.some(function (perm) {
-        if (perm.match('/' + path.escapeRegex()) || ('/' + path).match(perm)) {
-            return result = true;
-        }
-    });
-    return result;
-}
-
 /**
  * loading list of folders and files
  */
@@ -267,7 +224,7 @@ webserver.post('/*', function (req, res) {
 
     var re_extension = new RegExp('\\.(' + c.imageExtensions.join('|') + ')$', 'i');
     var folders = [];
-    
+
     // if requested folder is not root add one item to go back
     if (queryPath !== '/') {
         var goBackPath = queryPath.split('/');
@@ -280,15 +237,13 @@ webserver.post('/*', function (req, res) {
     }
 
     var files = [];
-    console.log(globSearch);
     globby(globSearch[0]).then(function (rawPathsFolders) {
-        console.log(rawPathsFolders);
         globby(globSearch[1], {nodir: true}).then(function (rawPathsFiles) {
             rawPaths = rawPathsFolders.concat(rawPathsFiles);
             rawPaths.forEach(function (path) {
                 var pathStats = fs.lstatSync(path);
                 path = path.replace(c.path, '');
-                if (checkPerm(path, req.userPerms)) {
+                if (perms.test(req.userPerms, path)) {
                     var pathData = {
                         path: '/' + path,
                     };
@@ -311,17 +266,30 @@ webserver.post('/*', function (req, res) {
     });
 });
 
-webserver.get('/killllll', function (req, res) {
-    console.log('killl');
-    res.end('killed');
-    process.exit();
+webserver.get('/kill/:password', function (req, res) {
+	res.setHeader("Content-Type", "application/json");
+	res.statusCode = 200;
+	var result = {
+		datetime: (new Date).human(),
+		error: true,
+		result: 'Invalid password.',
+		name: req.params.test
+	};
+	if (req.params.password !== c.test.password) {
+		return res.end(u.apiResponse(result));
+	}
+    result.error = false;
+    result.result = 'Kill requested in 2 seconds.'
+    log.head('(Web) Server is going to kill');
+    res.end(u.apiResponse(result));
+    setTimeout(function() {
+        process.exit();        
+	}, 2000);
 });
 
 webserver.listen(c.http.port, function () {
     log.log('(HTTP) Server listening on port ' + c.http.port);
 });
-
-
 
 function sanatizePath(path) {
     return path.replace(/(\.\.)|(^\/)/i, '');

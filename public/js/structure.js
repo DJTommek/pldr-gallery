@@ -51,7 +51,9 @@ class Structure {
 
     selectorSelect() {
         var item = this.get(this.selectedIndex);
-        window.location.hash = item.path;
+        if (item) {
+            window.location.hash = item.path;
+        }
     }
 
     setAll(items) {
