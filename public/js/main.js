@@ -38,23 +38,22 @@ $(window).on('hashchange', function (e) {
             $(modal + 'a.image').attr('href', S.getFileUrl(currentFile.index)).css('background-image', 'url(' + S.getFileUrl(currentFile.index) + ')');
             loadingImage(true); // starting loading img
             $(modal + 'img').attr('src', S.getFileUrl(currentFile.index));
-            // @TODO added loading animation while loading image 
-            // - set this url also to invisible img tag and it will run onLoad event when its loaded also as background-image
-            //loading(true); // nacitame obrazek, event na dokonceni nacitani je jiz definovan
             var prevFile = S.getPrevious(currentFile.index);
             if (prevFile && prevFile.isFile) {
-                $(modal + '.prev').show().attr('href', '#' + prevFile.path);
+                $(modal + 'a.prev').show().attr('href', '#' + prevFile.path);
+                $(modal + 'span.prev').hide();
             } else {
                 $(modal + '.prev').hide();
+                $(modal + 'span.prev').show();
             }
             var nextFile = S.getNext(currentFile.index);
             if (nextFile) {
-                $(modal + '.next').show().attr('href', '#' + nextFile.path);
+                $(modal + 'span.next').hide();
+                $(modal + 'a.next').show().attr('href', '#' + nextFile.path);
             } else {
-                $(modal + '.next').hide();
+                $(modal + 'a.next').hide();
+                $(modal + 'span.next').show();
             }
-            // @TODO if clicking on the buttons until end, button dissapears and after next click it trigger file opening in new tab.
-            // it will be better just remove right/left icon and click will do nothing
             $('#imageModal').modal('show');
         } else { // If selected item is folder, load structure of that folder
             var previousPath = decodeURI(e.originalEvent.oldURL.split('#')[1]); // get previous path
