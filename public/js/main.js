@@ -127,10 +127,10 @@ function loadStructure(callback) {
         return (typeof callback === 'function' && callback());
     }
     $.ajax({
-        url: '/',
-        method: 'POST',
+        url: '/api/structure',
+        method: 'GET',
         data: {
-            path: S.getCurrentFolder()
+            path: btoa(encodeURIComponent(S.getCurrentFolder()))
         },
         success: function (result) {
             if (result.error === true || !result.result) {

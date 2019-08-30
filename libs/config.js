@@ -33,7 +33,8 @@ var c = {
     },
     perms: {
         'x': [
-            '/demo/'
+            '/demo/',
+            '/tmp/'
         ]
     }
 };

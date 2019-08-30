@@ -33,18 +33,15 @@ const imageminJpegtran = require('imagemin-jpegtran');
 const imageminPngquant = require('imagemin-pngquant');
 const imageminJpegRecompress = require('imagemin-jpeg-recompress');
 
-var start = new Date();
+const start = new Date();
 log.log('***STARTING***');
 
 log.log('Image compression is ' + ((c.compress.enabled) ? 'enabled' : 'disabled'));
 
 function getUptime() {
-    var now = new Date();
-    var diff = (now - start);
-
+    var diff = (new Date() - start);
     var response = {
         start: start.human(),
-        end: now.human(),
         uptime: {
             milliseconds: diff,
             human: msToHuman(diff)
@@ -52,30 +49,6 @@ function getUptime() {
     }
     return response;
 }
-
-webserver.all('/ping', function (req, res) {
-    res.setHeader("Content-Type", "application/json");
-    res.statusCode = 200;
-    var result = {
-        datetime: (new Date).human(),
-        error: false,
-        result: getUptime()
-    };
-    res.end(JSON.stringify(result, null, 4));
-});
-
-webserver.get('/', function (req, res) {
-    res.sendFile(__dirname + '/private/index.html');
-});
-webserver.all('/:type([a-zA-Z0-9-]+\.[a-z]+)', function (req, res) {
-    var file = __dirname + '/private/' + req.params.type;
-    console.log("searching file " + file);
-    if (fs.existsSync(file)) {
-        return res.sendfile(file);
-    }
-    return res.sendStatus(404);
-});
-
 
 /**
  * Odhlaseni z googlu (smazani cookies)
@@ -130,7 +103,7 @@ webserver.all('*', function (req, res, next) {
     }
 });
 
-webserver.all('*', function (req, res, next) {
+webserver.all('/api/[a-z]+', function (req, res, next) {
     var userPerms = perms.get('x');
     if (req.logged) {
         try { // K právům všech připojíme práva daného uživatele pokud existují
@@ -141,86 +114,123 @@ webserver.all('*', function (req, res, next) {
     if (userPerms.indexOf('/') >= 0) { // Pokud má právo na celou složku, ostatní práva jsou zbytečná
         userPerms = ['/'];
     }
-    console.log(userPerms)
+    console.log('User perms: ' + JSON.stringify(userPerms));
     req.userPerms = userPerms;
-    return next();
-});
-
-/**
- * loading files
- */
-webserver.get('/__API/IMAGE/', function (req, res) {
-    var filePath = decodeURIComponent(Buffer.from(req.query.IMAGE, 'base64').toString());
-    log.log('(Web) Request file: ' + filePath);
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "image/png");
-//    res.setHeader("Content-Type", "application/json");
-    var apiResult = {
+    res.result = {
         datetime: (new Date).human(),
         error: true,
-        result: 'File - Není zadána cesta'
+        message: '',
+        result: [],
+        setError: function (text) {
+            this.error = true;
+            this.message = text;
+            this.result = [];
+        }, setResult: function (result, message) {
+            this.error = false;
+            this.result = result;
+            if (message) {
+                this.message = message;
+            }
+        }, toString: function () {
+            return JSON.stringify(this, null, 4);
+        }
     };
-    if (!filePath) {
-        res.end(JSON.stringify(apiResult, null, 4))
-    }
-
-    // aby se nemohly vyhledavat soubory v predchozich slozkach
-    var queryPath = filePath.replace('/..', '');
-
-    var filePath = decodeURIComponent(c.path + queryPath).replaceAll('//', '/');
+    next();
+});
+webserver.all('/api/image', function (req, res) {
+    res.setHeader("Content-Type", "image/png");
+    res.result.toString = function () {
+        return './public/image-errors/' + this.message + '.png';
+    };
     try {
+        if (!req.query.path) {
+            res.result.setError('neplatna-cesta');
+            return fs.createReadStream('' + res.result).pipe(res);
+        }
+
+        var filePath = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
+        log.log('(Web) Request file: ' + filePath);
+        res.statusCode = 200;
+
+        // aby se nemohly vyhledavat soubory v predchozich slozkach
+        var queryPath = filePath.replace('/..', '');
+
+        var filePath = decodeURIComponent(c.path + queryPath).replaceAll('//', '/');
         var s = new Date();
-        var fileStats = fs.lstatSync(filePath)
+        // @TODO return specific errors (not exists, not permissions etc) with specific statusCodes
+        var fileStats = fs.lstatSync(filePath);
         if (fileStats.isFile()) {
             // check if compression algorithm should run
-            if (c.compress.enabled && (fileStats.size >= c.compress.minLimit) && req.cookies['settings-compress'] === 'true') {
-                imagemin([filePath], {
-                    plugins: [
-                        imageminJpegRecompress(),
-                        imageminPngquant({quality: c.compress.pngQuality})
-                    ]
-                }).then(function (file) {
-                    var img = file[0].data;
-                    fileStats.compressedSize = img.length;
-                    fileStats.percent = 100 - ((fileStats.compressedSize / fileStats.size) * 100);
-                    fileStats.percent = Math.round(fileStats.percent * 100) / 100;
-                    log.log('Compression takes: ' + ((new Date()) - s) + ' ms. Original size ' + Math.round(fileStats.size / 1024) + ' KB, compressed size ' + Math.round(fileStats.compressedSize / 1024) + ' KB and it is ' + fileStats.percent + '% smaller.');
-                    res.setHeader("Content-Length", fileStats.compressedSize);
-                    return res.end(img);
-                });
-            } else {
-                return fs.createReadStream(filePath).pipe(res);
-            }
+//            if (c.compress.enabled && (fileStats.size >= c.compress.minLimit) && req.cookies['settings-compress'] === 'true') {
+//                imagemin([filePath], {
+//                    plugins: [
+//                        imageminJpegRecompress(),
+//                        imageminPngquant({quality: c.compress.pngQuality})
+//                    ]
+//                }).then(function (file) {
+//                    var img = file[0].data;
+//                    fileStats.compressedSize = img.length;
+//                    fileStats.percent = 100 - ((fileStats.compressedSize / fileStats.size) * 100);
+//                    fileStats.percent = Math.round(fileStats.percent * 100) / 100;
+//                    log.log('Compression takes: ' + ((new Date()) - s) + ' ms. Original size ' + Math.round(fileStats.size / 1024) + ' KB, compressed size ' + Math.round(fileStats.compressedSize / 1024) + ' KB and it is ' + fileStats.percent + '% smaller.');
+//                    res.setHeader("Content-Length", fileStats.compressedSize);
+//                    return res.end(img);
+//                });
+//            } else {
+            return fs.createReadStream(filePath).pipe(res);
+//            }
         }
     } catch (error) {
-        console.log(error);
         res.statusCode = 404;
+        res.result.setError('soubor-neexistuje');
+        return fs.createReadStream('' + res.result).pipe(res);
     }
     //return res.end(apiResponse(apiResult));
 });
 
+webserver.get('/api/ping', function (req, res) {
+    res.setHeader("Content-Type", "application/json");
+    res.statusCode = 200;
+    res.result.setResult(getUptime());
+    res.end('' + res.result); // @HACK force toString()
+});
+
+webserver.get('/api/kill', function (req, res) {
+    res.setHeader("Content-Type", "application/json");
+
+    if (req.query.password !== c.test.password) {
+        res.result.setError('Wrong password');
+        return res.end('' + res.result); // @HACK force toString()
+    }
+    res.result.setResult(null, 'Kill requested in 2 seconds.');
+    res.end('' + res.result); // @HACK force toString()
+    log.head('(Web) Server is going to kill');
+    setTimeout(function () {
+        process.exit();
+    }, 2000);
+});
+
+
 /**
  * loading list of folders and files
  */
-webserver.post('/*', function (req, res) {
-    log.log('(Web) Request path: ' + req.body.path);
+webserver.get('/api/structure', function (req, res) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-    var apiResult = {
-        datetime: (new Date).human(),
-        error: true,
-        result: 'Folder - Není zadána cesta'
-    };
-    if (!req.body.path) {
-        res.end(JSON.stringify(apiResult, null, 4))
+    if (!req.query.path) {
+        res.result.setError('File - Není zadána cesta');
+        return res.end('' + res.result); // @HACK force toString()
     }
 
+    var folderPath = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
+    log.log('(Web) Request path: ' + folderPath);
+
     // aby se nemohly vyhledavat soubory v predchozich slozkach
-    var queryPath = req.body.path.replace('/..', '');
+    var queryPath = folderPath.replaceAll('/..', '');
 
     var globSearch = [
-        sanatizePath(decodeURIComponent(c.path + queryPath + '*/').replaceAll('//', '/')),
-        sanatizePath(decodeURIComponent(c.path + queryPath + "*.*").replaceAll('//', '/')),
+        sanatizePath((c.path + queryPath + '*/').replaceAll('//', '/')),
+        sanatizePath((c.path + queryPath + "*.*").replaceAll('//', '/')),
     ];
 
     var re_extension = new RegExp('\\.(' + c.imageExtensions.join('|') + ')$', 'i');
@@ -238,15 +248,21 @@ webserver.post('/*', function (req, res) {
     }
 
     var files = [];
+    console.log('Loading folder structure started.');
+    var t0 = new Date();
     globby(globSearch[0]).then(function (rawPathsFolders) {
+        var t1 = new Date();
+        console.log('Glob 1 done: ' + (t1 - t0) + 'ms.');
         globby(globSearch[1], {nodir: true}).then(function (rawPathsFiles) {
+            var t2 = new Date();
+            console.log('Glob 1 done: ' + (t2 - t1) + 'ms.');
             rawPaths = rawPathsFolders.concat(rawPathsFiles);
             rawPaths.forEach(function (path) {
                 var pathStats = fs.lstatSync(path);
                 path = path.replace(c.path, '');
                 if (perms.test(req.userPerms, path)) {
                     var pathData = {
-                        path: '/' + path,
+                        path: '/' + path
                     };
                     if (pathStats.isDirectory()) {
                         folders.push(pathData);
@@ -259,33 +275,14 @@ webserver.post('/*', function (req, res) {
                     }
                 }
             });
+            var t3 = new Date();
+            console.log('Foreach done: ' + (t3 - t2) + 'ms.');
+            console.log('Total time: ' + (t3 - t0) + 'ms.');
             log.log('(File) Nalezeno ' + folders.length + ' složek a ' + files.length + ' souborů.');
-            apiResult.error = false;
-            apiResult.result = folders.concat(files);
-            res.end(JSON.stringify(apiResult, null, 4))
+            res.result.setResult(folders.concat(files));
+            res.end('' + res.result); // @HACK force toString()
         });
     });
-});
-
-webserver.get('/kill/:password', function (req, res) {
-    res.setHeader("Content-Type", "application/json");
-    res.statusCode = 200;
-    var result = {
-        datetime: (new Date).human(),
-        error: true,
-        result: 'Invalid password.',
-        name: req.params.test
-    };
-    if (req.params.password !== c.test.password) {
-        return res.end(JSON.stringify(result, null, 4));
-    }
-    result.error = false;
-    result.result = 'Kill requested in 2 seconds.'
-    log.head('(Web) Server is going to kill');
-    res.end(JSON.stringify(result, null, 4))
-    setTimeout(function () {
-        process.exit();
-    }, 2000);
 });
 
 webserver.listen(c.http.port, function () {

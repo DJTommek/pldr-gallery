@@ -156,7 +156,7 @@ class Structure {
     getFileUrl(index) {
         var item = this.getFile(index);
         if (item) {
-            return '__API/IMAGE/?IMAGE=' + btoa(encodeURIComponent(item.path));
+            return '/api/image?path=' + btoa(encodeURIComponent(item.path));
         }
         return '';
     }
