@@ -136,6 +136,13 @@ function loadStructure(callback) {
             if (result.error === true || !result.result) {
                 alert((result.result || 'Chyba během vytváření dat. Kontaktuj autora.'));
             } else {
+                var limited = false;
+                var limit = 1001;
+                var realTotal = result.result.length;
+                if (realTotal >= limit) {
+                    limited = true;
+                    result.result = result.result.slice(0, limit);
+                }
                 loadedStructure.loadedFolder = S.getCurrentFolder();
                 S.setAll(result.result);
                 var maxVisible = S.getItems().length;
@@ -183,6 +190,12 @@ function loadStructure(callback) {
                     content += '<tr class="structure-back" data-type="folder">';
                     content += '<td><i class="fa fa-info fa-fw"></i></td>';
                     content += '<td colspan="3">Složka je prázdná.</td>';
+                    content += '</tr>';
+                }
+                if (limited) {
+                    content += '<tr class="structure-limited" data-type="folder">';
+                    content += '<td><i class="fa fa-info fa-fw"></i></td>';
+                    content += '<td colspan="3">Zobrazuji pouze ' + (limit - 1) + ' položek z ' + realTotal + '. Pokud chceš zobrazit všechny, @TODO.</td>';
                     content += '</tr>';
                 }
                 content += '</tbody></table>';

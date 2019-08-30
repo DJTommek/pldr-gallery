@@ -125,7 +125,7 @@ $('#filter input').on('keyup change', function (event) {
     ].indexOf(event.keyCode) >= 0) {
         return;
     }
-    $('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+    $('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>'); // @TODO in case of filtering, this "loading" might stuck
     // Run filter after a little bit of inactivity
     // @Author: https://schier.co/blog/2014/12/08/wait-for-user-to-stop-typing-using-javascript.html
     clearTimeout(filterTimeout);
