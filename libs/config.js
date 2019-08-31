@@ -1,20 +1,20 @@
 var c = {
-//    path: 'p:/Photo/',
-    path: 'c:/Users/DJTommek/',
+    path: 'p:/Photo/',
+//    path: 'c:/Users/DJTommek/',
 //    path: 'p:/____Family/',
 //    path: 'd:/Data/Photo/',
     imageExtensions: ['jpg', 'jpeg', 'png', 'bmp'],
     http: {
-        baseUrl: 'djdr.redilap.cz:1120', // add port if changed or is not redirected to default ports 80 or 443
+        baseUrl: 'gallery.redilap.cz', // add port if changed or is not redirected to default ports 80 or 443
         protocol: 'http',
-        port: 1120,
+        port: 1117,
         login: {
             // Jméno cookie
             name: 'google-login',
             // Cookie, kam se přesměrovává po přihlášení
             redirect: 'login-redirect',
             // Jak dlouho po posledním použití bude cookie ještě platná
-            validity: 14 * 24 * 60 * 60 * 1000,
+            validity: 30 * 24 * 60 * 60 * 1000,
             // Kde se budou ukládat textové tokeny
             tokensPath: './tokens/'
         }
@@ -34,8 +34,7 @@ var c = {
     },
     perms: {
         'x': [
-            '/demo/',
-            '/tmp/'
+            '/demo/'
         ]
     }
 };

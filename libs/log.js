@@ -45,7 +45,7 @@ module.exports.log = function (msg, type, parameters)
             break;
         case this.WEBSERVER:
             mainLog = false;
-//            toConsole = false;
+            toConsole = false;
             filePath += 'webserver/webserver_' + datetime.date;
             break;
         case this.DEBUG:
