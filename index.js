@@ -155,7 +155,7 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
     var userPerms = perms.get('x');
     try {
         var token = req.cookies[c.http.login.name];
-        
+
         // Cookie neni nebo neni platna
         if (!token || !token.match("^[a-f0-9]{40}$")) {
             throw 'Musis se <a href="/login">prihlasit</a>.';
@@ -198,12 +198,16 @@ webserver.get('/api/image', function (req, res) {
     };
     try {
         if (!req.query.path) {
-            res.result.setError('neplatna-cesta');
-            return fs.createReadStream('' + res.result).pipe(res);
+            throw 'neplatna-cesta';
         }
 
         var filePath = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
         log.log('(Web) Request file: ' + filePath);
+
+        if (!perms.test(req.userPerms, filePath)) {
+            throw 'nemas-pravo';
+        }
+
         res.statusCode = 200;
 
         // aby se nemohly vyhledavat soubory v predchozich slozkach
