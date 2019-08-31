@@ -2,3 +2,4 @@ log/
 tests/log/
 !.gitignore
 /nbproject
+tokens/

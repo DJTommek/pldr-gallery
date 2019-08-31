@@ -72,14 +72,6 @@ $(function () {
     S.setCurrent(window.location.hash);
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
-    if (Cookies.get('googleLogin')) {
-        $('#button-login').hide();
-        $('#button-logout').show();
-    } else {
-        $('#button-login').show();
-        $('#button-logout').hide();
-    }
-
     // settings
     if (Cookies.get('settings-compress') === 'true') {
         $('#settings-compress').attr('checked', true);
@@ -135,6 +127,14 @@ function loadStructure(callback) {
             if (result.error === true || !result.result) {
                 alert((result.result || 'Chyba během vytváření dat. Kontaktuj autora.'));
             } else {
+                if (Cookies.get('google-login')) {
+                    $('#button-login').hide();
+                    $('#button-logout').show();
+                } else {
+                    $('#button-login').show();
+                    $('#button-logout').hide();
+                }
+
                 var limited = false;
                 var limit = 1001;
                 var realTotal = result.result.length;

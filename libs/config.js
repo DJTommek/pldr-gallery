@@ -5,9 +5,9 @@ var c = {
 //    path: 'd:/Data/Photo/',
     imageExtensions: ['jpg', 'jpeg', 'png', 'bmp'],
     http: {
-        baseUrl: 'gallery.redilap.cz', // add port if changed or is not redirected to default ports 80 or 443
+        baseUrl: 'djdr.redilap.cz:1120', // add port if changed or is not redirected to default ports 80 or 443
         protocol: 'http',
-        port: 1117,
+        port: 1120,
         login: {
             // Jméno cookie
             name: 'google-login',
@@ -26,7 +26,8 @@ var c = {
     },
     google: {
         clientId: '405123468190-3si7ft7n40r00odqukeml3r9e8tncmju.apps.googleusercontent.com',
-        secret: 'kpDiIGevRN0TU9h7xrwNrLKl'
+        secret: 'kpDiIGevRN0TU9h7xrwNrLKl',
+        redirectPath: '/login'
     },
     test: {
         password: '4pTvuKygmguBm19z4CjB'

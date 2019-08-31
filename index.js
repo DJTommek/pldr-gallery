@@ -1,6 +1,7 @@
 require('./public/js/functions.js');
 const c = require('./libs/config.js');
 const log = require('./libs/log.js');
+const sha1 = require('sha1');
 c.imageExtensions = Array.prototype.slice.call(c.imageExtensions);
 
 c.compress.enabled = true;
@@ -49,12 +50,26 @@ function getUptime() {
     }
     return response;
 }
+/**
+ * Middleware pro veškeré requesty
+ * - logování
+ */
+webserver.all('*', function (req, res, next) {
+    var weblog = '';
+    weblog += '[' + req.ip + ']';
+    weblog += '[' + req.method + ',' + req.protocol + ']';
+    weblog += '[' + req.path + ']';
+    weblog += '[GET:' + JSON.stringify(req.query) + ']';
+    weblog += '[POST:' + JSON.stringify(req.body) + ']';
+    log.log(weblog, log.WEBSERVER);
+    return next();
+});
 
 /**
  * Odhlaseni z googlu (smazani cookies)
  */
-webserver.all('/logout', function (req, res) {
-    res.clearCookie("googleLogin");
+webserver.get('/logout', function (req, res) {
+    res.clearCookie(c.http.login.name);
     res.redirect('/');
 });
 
@@ -62,60 +77,61 @@ webserver.all('/logout', function (req, res) {
  * Prihlaseni k googlu. Toto obstarava zaroven redirect NA i Z Google login stranky
  */
 webserver.get('/login', function (req, res) {
+    res.clearCookie(c.http.login.name);
     var code = req.query.code;
-    if (code) {
-        res.cookie('googleLogin', code, {maxAge: 900000});
-    }
+    // Neprihlaseny uzivatel (nema cookie) se dozaduje prihlaseni, zjistime pro nej 
+    // Google prihlasovaci URL a presmerujeme jej na ni. Po uspesnem prihlaseni
+    // se vrati req.code
     if (code === undefined) {
         var url = oauth2Client.generateAuthUrl({
-            access_type: 'offline', // will return a refresh token
             scope: 'email'
         });
         res.redirect(url);
+        return;
     } else {
         code = code.replace('\\', '/'); // Bug, kdy lomitko v URL je normalni a v kodu zpetne (?!)
-        oauth2Client.getToken(code, function (err, tokens) {
-            if (err) {
-                log.log('(Login) Chyba během získávání google tokenu: ' + err, log.ERROR);
-                return res.status(500).send('Chyba behem ziskavani google tokenu. Zkus to <a href="/">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');
+    }
+    // Google uzivatele presmeroval zpet sem se schvalenym loginem.
+    // Zkontrolujeme vraceny code a pokud je ok, hash token_id ziskany z code
+    // ulozime jako cookie a vytvorime soubor, kam ulozime udaje o uzivateli
+    oauth2Client.getToken(code, function (errGetToken, tokens, response) {
+        if (errGetToken) {
+            log.log('(Login) Chyba během získávání google tokenu: ' + errGetToken + '. Vice info v debug logu.', log.ERROR);
+            try {
+                log.log('(Login) ' + JSON.stringify(response), log.DEBUG);
+            } catch (error) {
+                log.log('(Login) Chyba během parsování response u získávání google tokenu.', log.DEBUG);
             }
-            res.cookie('googleLogin', tokens.id_token, {maxAge: 900000});
+            res.status(500).send('Chyba behem ziskavani google tokenu. Zkus to <a href="/login">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');
+            return;
+        }
+        // Overeni ziskaneho tokenu (pro ziskani emailu)
+        oauth2Client.verifyIdToken(tokens.id_token, c.google.clientId, function (errVerifyToken, login) {
+            if (errVerifyToken) {
+                log.log('(Login) Chyba během ověřování google tokenu: ' + errVerifyToken, log.ERROR);
+                res.status(500).send('Chyba behem ziskavani google tokenu. Zkus to <a href="/login">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');
+                return;
+            }
+            // Zjisteni informaci o uzivateli od Google
+            var payload = login.getPayload();
+            log.log('(Login) Logged user "' + payload.email + '".');
+            var tokenHash = sha1(tokens.id_token + c.authSalt);
+            var userData = {
+                logged_time: new Date().getTime(),
+                token_id: tokens.id_token,
+                token_hash: tokenHash,
+                ip: req.ip,
+                email: payload.email
+            };
+
+            fs.writeFileSync(c.http.login.tokensPath + tokenHash + '.txt', JSON.stringify(userData), 'utf8');
+            res.cookie(c.http.login.name, tokenHash, {expires: new Date(253402300000000)});
             res.redirect('/');
         });
-    }
+    });
 });
 
-webserver.all('*', function (req, res, next) {
-    req.logged = false;
-    var code = req.cookies.googleLogin;
-    if (code) {
-        oauth2Client.verifyIdToken(code, c.google.clientId, function (err, login) {
-            if (err) {
-                log.log('(Login) Chyba během ověřování google tokenu: ' + err, log.ERROR);
-                return res.status(500).send('Chyba behem overovani google tokenu. Zkus to <a href="/">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');
-            }
-            var payload = login.getPayload();
-            req.logged = payload.email;
-            return next();
-        });
-    } else {
-        return next();
-    }
-});
-
-webserver.all('/api/[a-z]+', function (req, res, next) {
-    var userPerms = perms.get('x');
-    if (req.logged) {
-        try { // K právům všech připojíme práva daného uživatele pokud existují
-            var userPerms = perms.get(req.logged).concat(userPerms);
-        } catch (e) {
-        }
-    }
-    if (userPerms.indexOf('/') >= 0) { // Pokud má právo na celou složku, ostatní práva jsou zbytečná
-        userPerms = ['/'];
-    }
-    console.log('User perms: ' + JSON.stringify(userPerms));
-    req.userPerms = userPerms;
+webserver.get('/api/[a-z]+', function (req, res, next) {
     res.result = {
         datetime: (new Date).human(),
         error: true,
@@ -135,9 +151,47 @@ webserver.all('/api/[a-z]+', function (req, res, next) {
             return JSON.stringify(this, null, 4);
         }
     };
+    // Load default user permissions
+    var userPerms = perms.get('x');
+    try {
+        var token = req.cookies[c.http.login.name];
+        
+        // Cookie neni nebo neni platna
+        if (!token || !token.match("^[a-f0-9]{40}$")) {
+            throw 'Musis se <a href="/login">prihlasit</a>.';
+        }
+        var cookieFilePath = c.http.login.tokensPath + token + '.txt';
+        // Existuje cookie i na serveru?
+        if (!fs.existsSync(cookieFilePath)) {
+            throw 'Cookie na serveru neexistuje, musis se znovu <a href="/login">prihlasit</a>.';
+        }
+        // Je cookie na serveru stale platna?
+        var fileStats = fs.statSync(cookieFilePath);
+        // Pokud je diff zaporny, cookie je starsi nez je povolene
+        var diff = (fileStats.atime.getTime() + c.http.login.validity) - new Date().getTime();
+        if (diff < 0) {
+            throw 'Platnost cookie vyprsela, musis se znovu <a href="/login">prihlasit</a>.';
+        }
+        // Vše je v pořádku
+        var cookieContent = JSON.parse(fs.readFileSync(cookieFilePath));
+
+        req.user = cookieContent.email;
+        // load logged user permissions and merge with default
+        userPerms = perms.get(cookieContent.email).concat(userPerms);
+
+        // Aktualizujeme platnost cookies
+        fs.utimesSync(cookieFilePath, new Date(), new Date());
+    } catch (error) {
+        res.clearCookie(c.http.login.name);
+    }
+    if (userPerms.indexOf('/') >= 0) { // Pokud má právo na celou složku, ostatní práva jsou zbytečná
+        userPerms = ['/'];
+    }
+    console.log('User perms: ' + JSON.stringify(userPerms));
+    req.userPerms = userPerms;
     next();
 });
-webserver.all('/api/image', function (req, res) {
+webserver.get('/api/image', function (req, res) {
     res.setHeader("Content-Type", "image/png");
     res.result.toString = function () {
         return './public/image-errors/' + this.message + '.png';
@@ -215,6 +269,7 @@ webserver.get('/api/kill', function (req, res) {
  * loading list of folders and files
  */
 webserver.get('/api/structure', function (req, res) {
+    console.log("structure done");
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     if (!req.query.path) {
@@ -280,7 +335,7 @@ webserver.get('/api/structure', function (req, res) {
             console.log('Total time: ' + (t3 - t0) + 'ms.');
             log.log('(File) Nalezeno ' + folders.length + ' složek a ' + files.length + ' souborů.');
             res.result.setResult(folders.concat(files));
-            res.end('' + res.result); // @HACK force toString()
+            res.end('' + res.result);
         });
     });
 });
