@@ -41,7 +41,7 @@
             <div id="structure"></div>
         </div>        
 
-        <div id="imageModal" class="modal fade" tabindex="-1" role="dialog" data-keyboard="false">
+        <div id="content-modal" class="modal fade" tabindex="-1" role="dialog" data-keyboard="false">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-head">
@@ -49,8 +49,8 @@
                             <span aria-hidden="true">Zavřít</span>
                         </button>                        
                         <p>
-                            <span class="image-loading"><i class="fa fa-circle-o-notch fa-spin"></i></span>
-                            <span class="file-name"></span> 
+                            <span class="image-loading" style="display: none;"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+                            <a class="file-name" href="" target="_blank"><span></span> <i class="fa fa-download"></i></a>
                         </p>
                     </div>
                     <div class="modal-body">
@@ -60,10 +60,14 @@
                         <span class="next">&nbsp;</span>
                         <a href="#" target="_blank" class="image"></a>
                         <img src="" class="d-none"> <!-- just to register loading events -->
+                        <video id="videoplayer" controls>
+                            <source src="" type="video/mp4">
+                        </video>
                     </div>
                 </div>
             </div>
         </div>        
+
         <div id="settingsModal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">

@@ -54,78 +54,48 @@ body {
     background-color: #e0e0e0 !important;
 }
 
-
-/**
- * Fullscreen modal
- * @author https://stackoverflow.com/a/18522320
- */
-/*
-#imageModal .modal-dialog {
-  max-width: 100%;
-  max-height: 100%;
-  padding: 0;
-}
-
-#imageModal .modal-content {
-  max-height: auto;
-  min-height: 100%;
-  border-radius: 0;
-}
-#imageModal .modal-body {
-    padding: 0;
-}
-*/
 @media (min-width: 576px) {
-    .modal-dialog { max-width: none; }
+    #content-modal .modal-dialog { max-width: none; }
 }
 
-.modal-dialog {
+#content-modal .modal-dialog {
     width: 98%;
     height: 92%;
     padding: 0;
 }
 
-.modal-content {
+#content-modal .modal-content {
     height: 99%;
 }
-.modal-content a.image {
+#content-modal .modal-content a.image {
     display: block;
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
 }
-/*
-#imageModal .modal-dialog {
-    max-width: 95%;
-    max-height: 100%;
-    margin: 20px auto;
+#content-modal .modal-content video {
+    margin: 0 auto;
+    display: block;
 }
-#imageModal .modal-body {
+#content-modal .modal-body {
     padding: 0;
 }
-*/
-#imageModal p {
+#content-modal p {
     width: 100%;
     text-align: center;
     margin: 10px;
 }
-#imageModal .navigation {
+#content-modal .navigation {
     width: 100%;
     text-align: center;
 }
-/*#imageModal .navigation button {
-    width: 23%;
-    margin-left: 0;
-}
-#imageModal .navigation button.btn-close {
-    width: 8%;
-}*/
 /**
  * prev/next buttons from lightbox tutorial
  * @Author https://www.w3schools.com/howto/howto_js_lightbox.asp
  */
 .prev,
 .next {
+  z-index: 1; /* show above video */
   cursor: pointer;
   position: absolute;
   top: 40%;

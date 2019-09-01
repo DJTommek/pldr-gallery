@@ -8,18 +8,25 @@ const S = new Structure();
 function loadAndResize() {
     // resize image in modal to fit the screen
     $('.modal-body a.image').css('height', $('.modal-content').height() - 100); // keep some space for text (eg. file name)
-    $('.modal-body a.image').css('widht', $('.modal-content').width());
+    $('.modal-body a.image').css('width', $('.modal-content').width());
+
+    $('.modal-body video').css('height', $('.modal-content').height() - 100); // keep some space for text (eg. file name)
+    $('.modal-body video').css('width', $('.modal-content').width());
 }
 
 $(window).resize(function () {
     loadAndResize();
 });
 // loading is done when img is loaded (also as background to another element)
-$('#imageModal .modal-dialog .modal-content img').load(function () {
+$('#content-modal .modal-dialog .modal-content img').load(function () {
     loadingImage(false);
 });
 
 window.onerror = function (msg, url, linenumber) {
+    if (msg.match('ResizeObserver loop limit exceeded')) {
+        // Dont care about this error: https://stackoverflow.com/questions/49384120/resizeobserver-loop-limit-exceeded
+        return true;
+    }
     alert('Error message: ' + msg + '\nURL: ' + url + '\nLine Number: ' + linenumber);
     return true;
 }
@@ -33,11 +40,20 @@ $(window).on('hashchange', function (e) {
         var currentFile = S.getCurrentFile();
         if (currentFile) { // loaded item is file
             S.selectorMove(currentFile.index); // highlight loaded image
-            var modal = '#imageModal .modal-dialog .modal-content ';
-            $(modal + '.file-name').text(currentFile.paths.last());
-            $(modal + 'a.image').attr('href', S.getFileUrl(currentFile.index)).css('background-image', 'url(' + S.getFileUrl(currentFile.index) + ')');
-            loadingImage(true); // starting loading img
-            $(modal + 'img').attr('src', S.getFileUrl(currentFile.index));
+            var modal = '#content-modal .modal-dialog .modal-content ';
+            $(modal + '.file-name').attr('href', S.getFileUrl(currentFile.index, true));
+            $(modal + '.file-name span').text(currentFile.paths.last());
+            if (currentFile.isVideo) {
+                $(modal + 'video source').attr('src', S.getFileUrl(currentFile.index));
+                $(modal + 'video').show().load();
+                $(modal + 'a.image').hide();
+            }
+            if (currentFile.isImage) {
+                $(modal + 'video').hide();
+                $(modal + 'a.image').show().attr('href', S.getFileUrl(currentFile.index)).css('background-image', 'url(' + S.getFileUrl(currentFile.index) + ')');
+                loadingImage(true); // starting loading img
+                $(modal + 'img').attr('src', S.getFileUrl(currentFile.index));
+            }
             var prevFile = S.getPrevious(currentFile.index);
             if (prevFile && prevFile.isFile) {
                 $(modal + 'a.prev').show().attr('href', '#' + prevFile.path);
@@ -54,7 +70,7 @@ $(window).on('hashchange', function (e) {
                 $(modal + 'a.next').hide();
                 $(modal + 'span.next').show();
             }
-            $('#imageModal').modal('show');
+            $('#content-modal').modal('show');
         } else { // If selected item is folder, load structure of that folder
             var previousPath = decodeURI(e.originalEvent.oldURL.split('#')[1]); // get previous path
             var item = S.getByName(previousPath);
@@ -101,15 +117,42 @@ $(function () {
         return;
     });
 
-    $('#imageModal').on('show.bs.modal', function (e) {
+    $('#content-modal').on('show.bs.modal', function (e) {
         loadedStructure.modal = true;
     }).on('shown.bs.modal', function () {
         loadAndResize();
     }).on('hide.bs.modal', function () {
         loadedStructure.modal = false;
         window.location.hash = S.getCurrentFolder();
+        videoPause();
     });
 });
+
+function videoToggle() {
+    try {
+        if ($('#content-modal video')[0].paused) {
+            videoPlay();
+        } else {
+            videoPause();            
+        }
+    } catch (exception) {
+        // In case of invalid src (for example)
+    }
+}
+function videoPause() {
+    try {
+        $('#content-modal video')[0].pause();
+    } catch (exception) {
+        // In case of invalid src (for example)
+    }
+}
+function videoPlay() {
+    try {
+        $('#content-modal video')[0].play();
+    } catch (exception) {
+        // In case of invalid src (for example)
+    }
+}
 
 function loadStructure(callback) {
     // in case of triggering loading the same structure again (already loaded), skip it
@@ -230,13 +273,12 @@ function loadingStructure(loading) {
     }
 }
 function loadingImage(loading) {
-
     if (loading === true) {
-        $('#imageModal .modal-dialog .modal-content .image-loading').show();
+        $('#content-modal .modal-dialog .modal-content .image-loading').show();
         loadedStructure.loading = true;
     }
     if (loading === false) {
-        $('#imageModal .modal-dialog .modal-content .image-loading').hide();
+        $('#content-modal .modal-dialog .modal-content .image-loading').hide();
     }
     return loadedStructure.loading;
 }

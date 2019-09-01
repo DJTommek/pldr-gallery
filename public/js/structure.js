@@ -67,6 +67,9 @@ class Structure {
             item.paths = item.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
             item.isFolder = (typeof item.size === 'undefined');
             item.isFile = !item.isFolder;
+            item.ext = ((item.isFile) ? item.paths.last().split('.').pop() : null);
+            item.isImage = (item.isFile && (['jpg', 'jpeg', 'png', 'bmp'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0));
+            item.isVideo = (item.isFile && (['mp4', 'avi'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0));
             item.hide = false;
             if (item.isFolder) {
                 this.folders.push(item);
@@ -153,9 +156,15 @@ class Structure {
         var item = this.get(index)
         return (item && item.isFile) ? item : null;
     }
-    getFileUrl(index) {
+    getFileUrl(index, download) {
         var item = this.getFile(index);
-        if (item) {
+        if (download === true) {
+            return '/api/download?path=' + btoa(encodeURIComponent(item.path));
+        }
+        if (item && item.isVideo) {
+            return '/api/video?path=' + btoa(encodeURIComponent(item.path));
+        }
+        if (item && item.isImage) {
             return '/api/image?path=' + btoa(encodeURIComponent(item.path));
         }
         return '';

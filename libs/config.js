@@ -4,6 +4,7 @@ var c = {
 //    path: 'p:/____Family/',
 //    path: 'd:/Data/Photo/',
     imageExtensions: ['jpg', 'jpeg', 'png', 'bmp'],
+    videoExtensions: ['mp4', 'avi'],
     http: {
         baseUrl: 'gallery.redilap.cz', // add port if changed or is not redirected to default ports 80 or 443
         protocol: 'http',

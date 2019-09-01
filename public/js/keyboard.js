@@ -85,17 +85,26 @@ jwerty.key('enter', function (e) {
     S.selectorSelect();
 });
 
+jwerty.key('space', function (e) {
+    if (loadedStructure.modal) {
+        e.preventDefault(); // do not delete text from filter
+        videoToggle();
+    } else {
+        // filter is focused, dont do anything special
+    }
+});
+
 jwerty.key('backspace', function (e) {
     if (loadedStructure.modal) {
         e.preventDefault(); // do not delete text from filter
-        $('#imageModal').modal('hide');
+        $('#content-modal').modal('hide');
     } else {
         // filter is focused, dont do anything special
     }
 });
 jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
     if (loadedStructure.modal) {
-        $('#imageModal').modal('hide');
+        $('#content-modal').modal('hide');
     } else { // go back
         var item = S.getFirst();
         if (item.displayText === '..') { // @HACK should be some property to recognize "go back"

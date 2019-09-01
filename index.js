@@ -191,6 +191,39 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
     req.userPerms = userPerms;
     next();
 });
+
+webserver.get('/api/download', function (req, res) {
+    try {
+        if (!req.query.path) {
+            throw 'neplatna-cesta';
+        }
+
+        var filePath = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
+        log.log('(Web) Request file: ' + filePath);
+
+        if (!perms.test(req.userPerms, filePath)) {
+            throw 'nemas-pravo';
+        }
+
+        res.statusCode = 200;
+
+        // aby se nemohly vyhledavat soubory v predchozich slozkach
+        var queryPath = filePath.replace('/..', '');
+
+        var filePath = decodeURIComponent(c.path + queryPath).replaceAll('//', '/');
+        var fileStats = fs.lstatSync(filePath);
+        if (!fileStats.isFile()) {
+            throw 'neni-soubor';
+        }
+        res.set("Content-Disposition", "inline;filename=" + queryPath.split('/').pop());
+        return fs.createReadStream(filePath).pipe(res);
+    } catch (error) {
+        res.statusCode = 404;
+        res.result.setError('soubor-neexistuje');
+        res.end('' + res.result);
+    }
+});
+
 webserver.get('/api/image', function (req, res) {
     res.setHeader("Content-Type", "image/png");
     res.result.toString = function () {
@@ -214,11 +247,12 @@ webserver.get('/api/image', function (req, res) {
         var queryPath = filePath.replace('/..', '');
 
         var filePath = decodeURIComponent(c.path + queryPath).replaceAll('//', '/');
-        var s = new Date();
         // @TODO return specific errors (not exists, not permissions etc) with specific statusCodes
         var fileStats = fs.lstatSync(filePath);
-        if (fileStats.isFile()) {
-            // check if compression algorithm should run
+        if (!fileStats.isFile()) {
+            throw 'neni-soubor';
+        }
+        // check if compression algorithm should run
 //            if (c.compress.enabled && (fileStats.size >= c.compress.minLimit) && req.cookies['settings-compress'] === 'true') {
 //                imagemin([filePath], {
 //                    plugins: [
@@ -235,15 +269,72 @@ webserver.get('/api/image', function (req, res) {
 //                    return res.end(img);
 //                });
 //            } else {
-            return fs.createReadStream(filePath).pipe(res);
+        return fs.createReadStream(filePath).pipe(res);
 //            }
-        }
     } catch (error) {
         res.statusCode = 404;
         res.result.setError('soubor-neexistuje');
         return fs.createReadStream('' + res.result).pipe(res);
     }
     //return res.end(apiResponse(apiResult));
+});
+
+webserver.get('/api/video', function (req, res) {
+    res.setHeader("Content-Type", "image/png");
+    res.result.toString = function () {
+        return './public/image-errors/' + this.message + '.png';
+    };
+    if (!req.query.path) {
+        throw 'neplatna-cesta';
+    }
+
+//    var filePath = decodeURIComponent(c.path + queryPath).replaceAll('//', '/');
+    var filePath = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
+    log.log('(Web) Request file: ' + filePath);
+
+    if (!perms.test(req.userPerms, filePath)) {
+        throw 'nemas-pravo';
+    }
+
+    res.statusCode = 200;
+
+    // aby se nemohly vyhledavat soubory v predchozich slozkach
+    var queryPath = filePath.replace('/..', '');
+
+    var filePath = decodeURIComponent(c.path + queryPath).replaceAll('//', '/');
+
+    var fileStats = fs.lstatSync(filePath);
+    if (!fileStats.isFile()) {
+        throw 'neni-soubor';
+    }
+
+    const stat = fs.statSync(filePath)
+    const fileSize = stat.size
+    const range = req.headers.range
+    if (range) {
+        const parts = range.replace(/bytes=/, "").split("-")
+        const start = parseInt(parts[0], 10)
+        const end = parts[1]
+                ? parseInt(parts[1], 10)
+                : fileSize - 1
+        const chunksize = (end - start) + 1
+        const file = fs.createReadStream(filePath, {start, end})
+        const head = {
+            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': chunksize,
+            'Content-Type': 'video/mp4',
+        }
+        res.writeHead(206, head);
+        file.pipe(res);
+    } else {
+        const head = {
+            'Content-Length': fileSize,
+            'Content-Type': 'video/mp4',
+        }
+        res.writeHead(200, head)
+        fs.createReadStream(filePath).pipe(res)
+    }
 });
 
 webserver.get('/api/ping', function (req, res) {
@@ -292,7 +383,7 @@ webserver.get('/api/structure', function (req, res) {
         sanatizePath((c.path + queryPath + "*.*").replaceAll('//', '/')),
     ];
 
-    var re_extension = new RegExp('\\.(' + c.imageExtensions.join('|') + ')$', 'i');
+    var re_extension = new RegExp('\\.(' + c.imageExtensions.concat(c.videoExtensions).join('|') + ')$', 'i');
     var folders = [];
 
     // if requested folder is not root add one item to go back
