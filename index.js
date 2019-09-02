@@ -187,7 +187,6 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
     if (userPerms.indexOf('/') >= 0) { // Pokud má právo na celou složku, ostatní práva jsou zbytečná
         userPerms = ['/'];
     }
-    console.log('User perms: ' + JSON.stringify(userPerms));
     req.userPerms = userPerms;
     next();
 });
@@ -368,7 +367,6 @@ webserver.get('/api/kill', function (req, res) {
  * loading list of folders and files
  */
 webserver.get('/api/structure', function (req, res) {
-    console.log("structure done");
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     if (!req.query.path) {
@@ -388,30 +386,21 @@ webserver.get('/api/structure', function (req, res) {
     ];
 
     var re_extension = new RegExp('\\.(' + c.imageExtensions.concat(c.videoExtensions).join('|') + ')$', 'i');
-    var folders = [];
 
-    // if requested folder is not root add one item to go back
-    if (queryPath !== '/') {
-        var goBackPath = queryPath.split('/');
-        goBackPath.splice(goBackPath.length - 2, 1); // remove last folder
-        folders.push({
-            path: goBackPath.join('/'),
-            displayText: '..',
-            displayIcon: 'level-up',
-        });
-    }
-
-    var files = [];
-    console.log('Loading folder structure started.');
-    var t0 = new Date();
-    globby(globSearch[0]).then(function (rawPathsFolders) {
-        var t1 = new Date();
-        console.log('Glob 1 done: ' + (t1 - t0) + 'ms.');
-        globby(globSearch[1], {nodir: true}).then(function (rawPathsFiles) {
-            var t2 = new Date();
-            console.log('Glob 1 done: ' + (t2 - t1) + 'ms.');
-            rawPaths = rawPathsFolders.concat(rawPathsFiles);
-            rawPaths.forEach(function (path) {
+    var loadFoldersPromise = new Promise(function (resolve) {
+        var folders = [];
+        // if requested folder is not root add one item to go back
+        if (queryPath !== '/') {
+            var goBackPath = queryPath.split('/');
+            goBackPath.splice(goBackPath.length - 2, 1); // remove last folder
+            folders.push({
+                path: goBackPath.join('/'),
+                displayText: '..',
+                displayIcon: 'level-up',
+            });
+        }
+        globby(globSearch[0]).then(function (rawPathsFolders) {
+            rawPathsFolders.forEach(function (path) {
                 var pathStats = fs.lstatSync(path);
                 path = path.replace(c.path, '');
                 if (perms.test(req.userPerms, path)) {
@@ -420,7 +409,24 @@ webserver.get('/api/structure', function (req, res) {
                     };
                     if (pathStats.isDirectory()) {
                         folders.push(pathData);
-                    } else { // Filtrování pouze povolených souborů (dle přípony)
+                    }
+                }
+            });
+            resolve(folders);
+        });
+    });
+
+    var loadFilesPromise = new Promise(function (resolve) {
+        var files = [];
+        globby(globSearch[1], {nodir: true}).then(function (rawPathsFiles) {
+            rawPathsFiles.forEach(function (path) {
+                var pathStats = fs.lstatSync(path);
+                path = path.replace(c.path, '');
+                if (perms.test(req.userPerms, path)) {
+                    var pathData = {
+                        path: '/' + path
+                    };
+                    if (!pathStats.isDirectory()) {
                         if (pathData.path.match(re_extension)) {
                             pathData.size = pathStats.size;
                             pathData.created = pathStats.ctime.human();
@@ -429,13 +435,16 @@ webserver.get('/api/structure', function (req, res) {
                     }
                 }
             });
-            var t3 = new Date();
-            console.log('Foreach done: ' + (t3 - t2) + 'ms.');
-            console.log('Total time: ' + (t3 - t0) + 'ms.');
-            log.log('(File) Nalezeno ' + folders.length + ' složek a ' + files.length + ' souborů.');
-            res.result.setResult(folders.concat(files));
-            res.end('' + res.result);
+            return resolve(files);
         });
+    });
+
+    Promise.all([loadFoldersPromise, loadFilesPromise]).then(function (data) {
+        res.result.setResult({
+            folders: data[0],
+            files: data[1]
+        });
+        res.end('' + res.result);
     });
 });
 

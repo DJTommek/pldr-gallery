@@ -181,6 +181,7 @@ function loadStructure(callback) {
             if (result.error === true || !result.result) {
                 alert((result.result || 'Chyba během vytváření dat. Kontaktuj autora.'));
             } else {
+                var items = result.result;
                 if (Cookies.get('google-login')) {
                     $('#button-login').hide();
                     $('#button-logout').show();
@@ -190,14 +191,19 @@ function loadStructure(callback) {
                 }
 
                 var limited = false;
-                var limit = 1001;
-                var realTotal = result.result.length;
+                var limit = 1000;
+                var realTotal = items.folders.length + items.files.length;
                 if (realTotal >= limit) {
                     limited = true;
-                    result.result = result.result.slice(0, limit);
+                    if (items.folders.length > limit) {
+                        items.folders = items.folders.slice(0, limit);                        
+                    }
+                    if (items.files.length > limit) {
+                        items.files = items.files.slice(0, limit);                        
+                    }
                 }
                 loadedStructure.loadedFolder = S.getCurrentFolder();
-                S.setAll(result.result);
+                S.setAll(items);
                 var maxVisible = S.getItems().length;
                 // Cela cesta v hlaviccce
                 var breadcrumbHtml = '';
@@ -248,7 +254,7 @@ function loadStructure(callback) {
                 if (limited) {
                     content += '<tr class="structure-limited" data-type="folder">';
                     content += '<td><i class="fa fa-info fa-fw"></i></td>';
-                    content += '<td colspan="3">Zobrazuji pouze ' + (limit - 1) + ' položek z ' + realTotal + '. Pokud chceš zobrazit všechny, @TODO.</td>';
+                    content += '<td colspan="3">Celkem je zde ' + (realTotal) + ' položek ale z důvodu rychlosti jsou některé skryty. Pro zobrazení, @TODO.</td>';
                     content += '</tr>';
                 }
                 content += '</tbody></table>';

@@ -61,24 +61,32 @@ class Structure {
         this.items = [];
         this.files = [];
         this.folders = [];
-
-        items.forEach(function (item, index) {
+        var index = 0;
+        items.folders.forEach(function (item) {
             item.index = index;
             item.paths = item.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
-            item.isFolder = (typeof item.size === 'undefined');
-            item.isFile = !item.isFolder;
-            item.ext = ((item.isFile) ? item.paths.last().split('.').pop() : null);
-            item.isImage = (item.isFile && (['jpg', 'jpeg', 'png', 'bmp'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0));
-            item.isVideo = (item.isFile && (['mp4', 'avi'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0));
+            item.isFolder = true;
+            item.isFile = false;
+            item.ext = '';
+            item.isImage = false;
+            item.isVideo = false;
             item.hide = false;
-            if (item.isFolder) {
-                this.folders.push(item);
-            }
-            if (item.isFile) {
-                this.files.push(item);
-            }
+            this.folders.push(item);
+            index++;
         }, this);
-        this.items = items;
+        items.files.forEach(function (item) {
+            item.index = index;
+            item.paths = item.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
+            item.isFolder = false;
+            item.isFile = true;
+            item.ext = item.paths.last().split('.').last();
+            item.isImage = (['jpg', 'jpeg', 'png', 'bmp'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
+            item.isVideo = (['mp4', 'avi'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
+            item.hide = false;
+            this.files.push(item);
+            index++;
+        }, this);
+        this.items = items.folders.concat(items.files);
     }
     getFolders() {
         return this.folders;
