@@ -279,6 +279,10 @@ webserver.get('/api/image', function (req, res) {
     //return res.end(apiResponse(apiResult));
 });
 
+/**
+ * Stream video into browser
+ * @Author https://medium.com/better-programming/video-stream-with-node-js-and-html5-320b3191a6b6
+ */
 webserver.get('/api/video', function (req, res) {
     res.setHeader("Content-Type", "image/png");
     res.result.toString = function () {
