@@ -7,9 +7,20 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="main.css">
     </head>
-    <body class="theme-darkk">
+    <body>
+        <script>
+            /* set dark theme as soon as possible to prevent blink of white theme */
+            try {
+                if (localStorage.getItem("theme") === 'dark') {
+                    var element = document.getElementsByTagName("body")[0];
+                    element.classList.add("theme-dark");
+                }
+            } catch (error) {
+                // Local storage is not working (disabled, unsupported, ...)
+            }
+        </script>
         <div class="container">
-            <nav class="navbar navbar-light sticky-top bg-light" id="navbar">
+            <nav class="navbar sticky-top" id="navbar">
                 <ol id="currentPath" class="breadcrumb">
                     <li class="breadcrumb-item active"><a href="#/">Galerie</a></li>
                 </ol>
@@ -33,6 +44,7 @@
                             <a class="dropdown-item" id="button-login" href="/login">Přihlásit <i class="fa fa-sign-in fa-fw"></i></a>
                             <a class="dropdown-item" id="button-logout" href="/logout">Odhlásit <i class="fa fa-sign-out fa-fw"></i></a>
                             <a class="dropdown-item" data-toggle="modal" data-target="#settingsModal" href="#">Nastavení <i class="fa fa-wrench fa-fw"></i></a>
+                            <a class="dropdown-item" id="settings-toggle-theme" href=""><span>Zhasnout</span><i class="fa fa-lightbulb-o fa-fw"></i></a>
                         </div>
                     </div>
                 </form>

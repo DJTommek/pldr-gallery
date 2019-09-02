@@ -2,6 +2,9 @@ body {
     margin: 0 auto;
     max-width: 1920px;
 }
+#navbar {
+    background-color: #f8f9fa;
+}
 /* Zmenšit breadcrumb */
 #navbar .breadcrumb {
     padding: 0.5em 1em;
@@ -95,36 +98,36 @@ body {
  */
 .prev,
 .next {
-  z-index: 1; /* show above video */
-  cursor: pointer;
-  position: absolute;
-  top: 40%;
-  width: 2.5em;
-  padding: 3em 1em;
-  margin-top: -50px;
-  font-weight: bold;
-  font-size: 20px;
-  transition: 0.6s ease;
-  border-radius: 0 3px 3px 0;
-  user-select: none;
-  -webkit-user-select: none;
-  background-color: rgba(0, 0, 0, 0.3);
-  color: white;
+    z-index: 1; /* show above video */
+    cursor: pointer;
+    position: absolute;
+    top: 40%;
+    width: 2.5em;
+    padding: 3em 1em;
+    margin-top: -50px;
+    font-weight: bold;
+    font-size: 20px;
+    transition: 0.6s ease;
+    border-radius: 0 3px 3px 0;
+    user-select: none;
+    -webkit-user-select: none;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
 }
 .next:hover,
 .prev:hover {
-  color: white;
-  text-decoration: none;
+    color: white;
+    text-decoration: none;
 }
 .next {
-  right: 0;
-  border-radius: 3px 0 0 3px;
+    right: 0;
+    border-radius: 3px 0 0 3px;
 }
 
 /* On hover, add a black background color with a little bit see-through */
 .prev:hover,
 .next:hover {
-  background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 #loading {
@@ -145,8 +148,23 @@ body {
  * - but do not change print output
  */
 @media not print {
-    body.theme-dark .breadcrumb {
+    body.theme-dark #navbar,
+    body.theme-dark #navbar .dropdown-menu {
+        background-color: #343a40;
+    }
+    body.theme-dark #navbar .dropdown-item:focus, 
+    body.theme-dark #navbar .dropdown-item:hover,
+    body.theme-dark #navbar .breadcrumb {
         background-color: #616161;
+    }
+    body.theme-dark .modal-content {
+        background-color: black;
+    }
+    body.theme-dark #filter input,
+    body.theme-dark #filter .input-group-text {
+        border: black;
+        color: #909090;
+        background-color: black;
     }
     body.theme-dark .table-striped > tbody > tr:nth-of-type(odd) {
         background-color: #212121;        

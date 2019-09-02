@@ -96,17 +96,28 @@ $(function () {
         Cookies.set('settings-compress', $(this).is(':checked'));
     });
 
+    // Set text into dropdown menu according enabled theme
+    var theme = localStorage.getItem("theme");
+    if (theme && theme === 'dark') {
+        $('#settings-toggle-theme span').text('Rozsvítit');
+    }
     /**
      * Toggle dark theme
      */
-    $('#settings-theme').change(function () {
-        if (this.checked) {
-            localStorage.setItem("theme", $(this).val());
-            $('body').addClass('theme-dark');
+    $('#settings-toggle-theme').on('click', function (event) {
+        event.stopPropagation(); // disable closing dropdown menu
+        event.preventDefault(); // disable a.href click
+        var theme = localStorage.getItem("theme");
+        if (!theme || theme === 'default') {
+            theme = 'dark';
+            $(this).children('span').text('Rozsvítit');
         } else {
-            localStorage.removeItem("theme");
-            $('body').removeClass();
+            theme = 'default';
+            $(this).children('span').text('Zhasnout');
         }
+        localStorage.setItem("theme", theme);
+        $('body').removeClass();
+        $('body').addClass('theme-' + theme);
     });
 
     // some line is selected
@@ -133,7 +144,7 @@ function videoToggle() {
         if ($('#content-modal video')[0].paused) {
             videoPlay();
         } else {
-            videoPause();            
+            videoPause();
         }
     } catch (exception) {
         // In case of invalid src (for example)
