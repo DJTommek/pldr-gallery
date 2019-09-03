@@ -86,8 +86,13 @@ $(window).on('hashchange', function (e) {
 $(function () {
     loadAndResize();
     updateLoginButtons();
+    // If not set hash, load url from last time
+    if (!window.location.hash && localStorage.getItem("hash-before-unload")) {
+        window.location.hash = localStorage.getItem("hash-before-unload");
+    } else {
+        window.dispatchEvent(new HashChangeEvent("hashchange"));
+    }
     S.setCurrent(window.location.hash);
-    window.dispatchEvent(new HashChangeEvent("hashchange"));
 
     $('#button-logout').on('click', function (event) {
         event.preventDefault();

@@ -198,6 +198,7 @@ class Structure {
         this.currentPath = path;
         this.currentFolders = paths.slice(1, paths.length - 1); // slice first and last elements from array
         this.currentFolder = ('/' + this.currentFolders.join('/') + '/').replace('\/\/', '/');
+        localStorage.setItem("hash-before-unload", this.currentFolder);
     }
     getCurrentFolder(array) {
         if (array === true) {
