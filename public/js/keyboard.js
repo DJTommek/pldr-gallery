@@ -83,8 +83,11 @@ jwerty.key('end', function (e) {
 });
 jwerty.key('enter', function (e) {
     if (loadedStructure.modal) {
+        var item = S.getCurrentFile();
+        if (item.isImage) {
+            $('#content-modal .modal-dialog .modal-content a.image')[0].click();
+        }
         // @TODO video open in fullscreen (also disable move left and right)
-        // @TODO image open in new tab
     } else {
         S.selectorSelect();
     }
