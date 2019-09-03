@@ -40,7 +40,11 @@ function loadPermissions(callback) {
 exports.test = function (perms, path) {
     var result = false;
     perms.some(function (perm) {
-        if (perm.match('/' + path.escapeRegex()) || ('/' + path).match(perm)) {
+        if (
+                (path).indexOf(perm) === 0
+                ||
+                (perm.indexOf(path)) === 0
+                ) {
             return result = true;
         }
     });

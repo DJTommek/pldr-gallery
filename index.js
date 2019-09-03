@@ -408,7 +408,7 @@ webserver.get('/api/structure', function (req, res) {
     ];
 
     var re_extension = new RegExp('\\.(' + c.imageExtensions.concat(c.videoExtensions).join('|') + ')$', 'i');
-
+    
     var loadFoldersPromise = new Promise(function (resolve) {
         var folders = [];
         // if requested folder is not root add one item to go back
@@ -424,10 +424,10 @@ webserver.get('/api/structure', function (req, res) {
         globby(globSearch[0]).then(function (rawPathsFolders) {
             rawPathsFolders.forEach(function (path) {
                 var pathStats = fs.lstatSync(path);
-                path = path.replace(c.path, '');
+                path = path.replace(c.path, '/');
                 if (perms.test(req.userPerms, path)) {
                     var pathData = {
-                        path: '/' + path
+                        path: path
                     };
                     if (pathStats.isDirectory()) {
                         folders.push(pathData);
@@ -443,10 +443,10 @@ webserver.get('/api/structure', function (req, res) {
         globby(globSearch[1], {nodir: true}).then(function (rawPathsFiles) {
             rawPathsFiles.forEach(function (path) {
                 var pathStats = fs.lstatSync(path);
-                path = path.replace(c.path, '');
+                path = path.replace(c.path, '/');
                 if (perms.test(req.userPerms, path)) {
                     var pathData = {
-                        path: '/' + path
+                        path: path
                     };
                     if (!pathStats.isDirectory()) {
                         if (pathData.path.match(re_extension)) {
