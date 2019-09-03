@@ -56,7 +56,7 @@ body {
 
 /* aktualne oznaceny radek */
 .structure-selected {
-    background-color: #e0e0e0 !important;
+    background-color: #c0c0c0 !important;
 }
 
 @media (min-width: 576px) {
