@@ -35,7 +35,7 @@ window.onerror = function (msg, url, linenumber) {
 $(window).on('hashchange', function (e) {
     $('#filter input').focus();
     S.setCurrent(window.location.hash);
-    loadStructure(function () { // load folder structure
+    loadStructure(false, function () { // load folder structure
         // If selected item is file, open modal with image
         var currentFile = S.getCurrentFile();
         if (currentFile) { // loaded item is file
@@ -91,12 +91,16 @@ $(function () {
 
     $('#button-logout').on('click', function (event) {
         event.preventDefault();
-        // remove cookie on the server (without refreshing browser)
-        $.get("/logout", function() {
-            // remove cookie from the browser (just in case of error)
-            Cookies.remove('google-login');
-        }); 
-        updateLoginButtons();
+        if (confirm('Opravdu se chceš odhlásit?')) {
+            // remove cookie on the server (without refreshing browser)
+            $.get("/logout", function () {
+                // remove cookie from the browser (just in case of error)
+                Cookies.remove('google-login');
+                updateLoginButtons();
+                loadStructure(true);
+                alert('Odhlášení bylo úspěšné.');
+            });
+        }
     });
 
     // settings
@@ -187,9 +191,9 @@ function updateLoginButtons() {
     }
 }
 
-function loadStructure(callback) {
+function loadStructure(force, callback) {
     // in case of triggering loading the same structure again (already loaded), skip it
-    if (loadedStructure.loadedFolder === S.getCurrentFolder()) {
+    if (force !== true && loadedStructure.loadedFolder === S.getCurrentFolder()) {
         console.log("Structure is already loaded, skip");
         return (typeof callback === 'function' && callback());
     }
