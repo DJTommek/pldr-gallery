@@ -89,6 +89,16 @@ $(function () {
     S.setCurrent(window.location.hash);
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
+    $('#button-logout').on('click', function (event) {
+        event.preventDefault();
+        // remove cookie on the server (without refreshing browser)
+        $.get("/logout", function() {
+            // remove cookie from the browser (just in case of error)
+            Cookies.remove('google-login');
+        }); 
+        updateLoginButtons();
+    });
+
     // settings
     if (Cookies.get('settings-compress') === 'true') {
         $('#settings-compress').attr('checked', true);

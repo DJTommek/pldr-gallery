@@ -62,15 +62,57 @@ webserver.all('*', function (req, res, next) {
     weblog += '[GET:' + JSON.stringify(req.query) + ']';
     weblog += '[POST:' + JSON.stringify(req.body) + ']';
     log.log(weblog, log.WEBSERVER);
+    res.result = {
+        datetime: (new Date).human(),
+        error: true,
+        message: '',
+        result: [],
+        setError: function (text) {
+            this.error = true;
+            this.message = text;
+            this.result = [];
+        }, setResult: function (result, message) {
+            this.error = false;
+            this.result = result;
+            if (message) {
+                this.message = message;
+            }
+        }, toString: function () {
+            return JSON.stringify(this, null, 4);
+        }
+    };
     return next();
 });
 
-/**
- * Odhlaseni z googlu (smazani cookies)
- */
+// Google logout (if ajax response in JSON, redirect otherwise)
+// - remove cookie from the server (cant be used anymore)
+// - request browser to remove it from browser
 webserver.get('/logout', function (req, res) {
+    var token = req.cookies[c.http.login.name];
     res.clearCookie(c.http.login.name);
-    res.redirect('/');
+    if (token && token.match(/^[a-f0-9]{40}$/)) {
+        // remove cookie from server file
+        fs.unlink(c.http.login.tokensPath + token + '.txt', function (error) {
+            if (error && error.errno !== -4058) { // something else than file doesnt exists
+                res.result.setError('Cant delete token. More info in log.');
+                log.log('Cant delete token "' + token + '". ' + error, log.ERROR);
+            } else {
+                res.result.setResult('Cookie was deleted');
+            }
+            if (req.xhr) {
+                res.end('' + res.result); //@HACK
+            } else { // redirect only if it is not ajax request
+                res.redirect('/');
+            }
+        });
+    } else {
+        if (req.xhr) {
+            res.result.setError('Cookie does not exists or is in invalid format.');
+            res.end('' + res.result); //@HACK
+        } else { // redirect only if it is not ajax request
+            res.redirect('/');
+        }
+    }
 });
 
 /**
@@ -132,25 +174,6 @@ webserver.get('/login', function (req, res) {
 });
 
 webserver.get('/api/[a-z]+', function (req, res, next) {
-    res.result = {
-        datetime: (new Date).human(),
-        error: true,
-        message: '',
-        result: [],
-        setError: function (text) {
-            this.error = true;
-            this.message = text;
-            this.result = [];
-        }, setResult: function (result, message) {
-            this.error = false;
-            this.result = result;
-            if (message) {
-                this.message = message;
-            }
-        }, toString: function () {
-            return JSON.stringify(this, null, 4);
-        }
-    };
     // Load default user permissions
     var userPerms = perms.get('x');
     try {
@@ -219,7 +242,7 @@ webserver.get('/api/download', function (req, res) {
     } catch (error) {
         res.statusCode = 404;
         res.result.setError('soubor-neexistuje');
-        res.end('' + res.result);
+        res.end('' + res.result); // @HACK force toString()
     }
 });
 
@@ -444,7 +467,7 @@ webserver.get('/api/structure', function (req, res) {
             folders: data[0],
             files: data[1]
         });
-        res.end('' + res.result);
+        res.end('' + res.result); // @HACK force toString()
     });
 });
 
