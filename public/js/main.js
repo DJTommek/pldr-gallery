@@ -85,6 +85,7 @@ $(window).on('hashchange', function (e) {
 
 $(function () {
     loadAndResize();
+    updateLoginButtons();
     S.setCurrent(window.location.hash);
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
@@ -164,6 +165,17 @@ function videoPlay() {
         // In case of invalid src (for example)
     }
 }
+function updateLoginButtons() {
+    if (Cookies.get('google-login')) { // logged in
+        $('#button-login').hide();
+        $('#button-logout').show();
+        $('#navbar .dropdown .dropdown-toggle i').addClass('fa-user').removeClass('fa-cog');
+    } else {
+        $('#button-login').show();
+        $('#button-logout').hide();
+        $('#navbar .dropdown .dropdown-toggle i').addClass('fa-cog').removeClass('fa-user');
+    }
+}
 
 function loadStructure(callback) {
     // in case of triggering loading the same structure again (already loaded), skip it
@@ -182,24 +194,17 @@ function loadStructure(callback) {
                 alert((result.result || 'Chyba během vytváření dat. Kontaktuj autora.'));
             } else {
                 var items = result.result;
-                if (Cookies.get('google-login')) {
-                    $('#button-login').hide();
-                    $('#button-logout').show();
-                } else {
-                    $('#button-login').show();
-                    $('#button-logout').hide();
-                }
-
+                updateLoginButtons(); // might be logged out
                 var limited = false;
                 var limit = 1000;
                 var realTotal = items.folders.length + items.files.length;
                 if (realTotal >= limit) {
                     limited = true;
                     if (items.folders.length > limit) {
-                        items.folders = items.folders.slice(0, limit);                        
+                        items.folders = items.folders.slice(0, limit);
                     }
                     if (items.files.length > limit) {
-                        items.files = items.files.slice(0, limit);                        
+                        items.files = items.files.slice(0, limit);
                     }
                 }
                 loadedStructure.loadedFolder = S.getCurrentFolder();
