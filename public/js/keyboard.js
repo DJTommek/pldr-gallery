@@ -82,7 +82,12 @@ jwerty.key('end', function (e) {
     }
 });
 jwerty.key('enter', function (e) {
-    S.selectorSelect();
+    if (loadedStructure.modal) {
+        // @TODO video open in fullscreen (also disable move left and right)
+        // @TODO image open in new tab
+    } else {
+        S.selectorSelect();
+    }
 });
 
 jwerty.key('space', function (e) {
