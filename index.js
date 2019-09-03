@@ -88,31 +88,7 @@ webserver.all('*', function (req, res, next) {
 // - remove cookie from the server (cant be used anymore)
 // - request browser to remove it from browser
 webserver.get('/logout', function (req, res) {
-    var token = req.cookies[c.http.login.name];
-    res.clearCookie(c.http.login.name);
-    if (token && token.match(/^[a-f0-9]{40}$/)) {
-        // remove cookie from server file
-        fs.unlink(c.http.login.tokensPath + token + '.txt', function (error) {
-            if (error && error.errno !== -4058) { // something else than file doesnt exists
-                res.result.setError('Cant delete token. More info in log.');
-                log.log('Cant delete token "' + token + '". ' + error, log.ERROR);
-            } else {
-                res.result.setResult('Cookie was deleted');
-            }
-            if (req.xhr) {
-                res.end('' + res.result); //@HACK
-            } else { // redirect only if it is not ajax request
-                res.redirect('/');
-            }
-        });
-    } else {
-        if (req.xhr) {
-            res.result.setError('Cookie does not exists or is in invalid format.');
-            res.end('' + res.result); //@HACK
-        } else { // redirect only if it is not ajax request
-            res.redirect('/');
-        }
-    }
+    res.redirect('/api/logout');
 });
 
 /**
@@ -361,6 +337,29 @@ webserver.get('/api/video', function (req, res) {
         res.writeHead(200, head)
         fs.createReadStream(filePath).pipe(res)
     }
+});
+
+webserver.get('/api/logout', function (req, res) {
+    res.setHeader("Content-Type", "application/json");
+    res.statusCode = 200;
+    try {
+        if (!req.user) { // is logged (it means cookie is valid)
+            throw 'Not logged in.';
+        }
+        var token = req.cookies[c.http.login.name];
+        try {
+            // remove cookie from server file
+            fs.unlinkSync(c.http.login.tokensPath + token + '.txt');
+        } catch (error) {
+            log.log('Cant delete token "' + token + '". ' + error, log.ERROR);
+            throw 'Cant delete token. More info in log.';
+        }
+        res.result.setResult('Cookie was deleted');
+    } catch (error) {
+        res.result.setError(error.message || error);
+    }
+    res.clearCookie(c.http.login.name); // send request to browser to remove cookie
+    res.end('' + res.result); // @HACK force toString()
 });
 
 webserver.get('/api/ping', function (req, res) {
