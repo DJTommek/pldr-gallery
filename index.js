@@ -38,6 +38,15 @@ const start = new Date();
 log.log('***STARTING***');
 
 log.log('Image compression is ' + ((c.compress.enabled) ? 'enabled' : 'disabled'));
+log.log('Defined base path is "' + c.path + '".');
+try {
+    let folderStats = fs.statSync(c.path);
+    if (folderStats.isFile()) {
+        throw 'it is file';
+    }
+} catch (error) {
+    log.log('Error while checking defined path: ' + error, log.FATAL_ERROR);
+}
 
 function getUptime() {
     var diff = (new Date() - start);
@@ -402,13 +411,24 @@ webserver.get('/api/structure', function (req, res) {
     // aby se nemohly vyhledavat soubory v predchozich slozkach
     var queryPath = folderPath.replaceAll('/..', '');
 
+    // check if loading path is folder (it also eliminate special characters as any char *)
+    try {
+        let queryPathStats = fs.statSync((c.path + queryPath).replaceAll('//', '/'));
+        if (queryPathStats.isFile()) {
+            throw '';
+        }
+    } catch (error) {
+        res.result.setError('Neplatná cesta');
+        res.end('' + res.result); // @HACK force toString()
+        return;
+    }
+
     var globSearch = [
         sanatizePath((c.path + queryPath + '*/').replaceAll('//', '/')),
         sanatizePath((c.path + queryPath + "*.*").replaceAll('//', '/')),
     ];
-
     var re_extension = new RegExp('\\.(' + c.imageExtensions.concat(c.videoExtensions).join('|') + ')$', 'i');
-    
+
     var loadFoldersPromise = new Promise(function (resolve) {
         var folders = [];
         // if requested folder is not root add one item to go back
@@ -423,15 +443,19 @@ webserver.get('/api/structure', function (req, res) {
         }
         globby(globSearch[0]).then(function (rawPathsFolders) {
             rawPathsFolders.forEach(function (path) {
-                var pathStats = fs.lstatSync(path);
-                path = path.replace(c.path, '/');
-                if (perms.test(req.userPerms, path)) {
-                    var pathData = {
-                        path: path
-                    };
-                    if (pathStats.isDirectory()) {
-                        folders.push(pathData);
+                try {
+                    var pathStats = fs.lstatSync(path);
+                    path = path.replace(c.path, '/');
+                    if (perms.test(req.userPerms, path)) {
+                        var pathData = {
+                            path: path
+                        };
+                        if (pathStats.isDirectory()) {
+                            folders.push(pathData);
+                        }
                     }
+                } catch (error) {
+                    log.log('[Globby] Cant get stats from folder "' + path + '".', log.DEBUG);
                 }
             });
             resolve(folders);
@@ -442,19 +466,23 @@ webserver.get('/api/structure', function (req, res) {
         var files = [];
         globby(globSearch[1], {nodir: true}).then(function (rawPathsFiles) {
             rawPathsFiles.forEach(function (path) {
-                var pathStats = fs.lstatSync(path);
-                path = path.replace(c.path, '/');
-                if (perms.test(req.userPerms, path)) {
-                    var pathData = {
-                        path: path
-                    };
-                    if (!pathStats.isDirectory()) {
-                        if (pathData.path.match(re_extension)) {
-                            pathData.size = pathStats.size;
-                            pathData.created = pathStats.ctime.human();
-                            files.push(pathData);
+                try {
+                    var pathStats = fs.lstatSync(path);
+                    path = path.replace(c.path, '/');
+                    if (perms.test(req.userPerms, path)) {
+                        var pathData = {
+                            path: path
+                        };
+                        if (!pathStats.isDirectory()) {
+                            if (pathData.path.match(re_extension)) {
+                                pathData.size = pathStats.size;
+                                pathData.created = pathStats.ctime.human();
+                                files.push(pathData);
+                            }
                         }
                     }
+                } catch (error) {
+                    log.log('[Globby] Cant get stats from file "' + path + '".', log.DEBUG);
                 }
             });
             return resolve(files);
