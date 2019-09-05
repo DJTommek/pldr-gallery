@@ -210,7 +210,7 @@ function loadStructure(force, callback) {
         },
         success: function (result) {
             if (result.error === true || !result.result) {
-                alert((result.result || 'Chyba během vytváření dat. Kontaktuj autora.'));
+                alert((result.message || 'Chyba během vytváření dat. Kontaktuj autora.'));
             } else {
                 var items = result.result;
                 updateLoginButtons(); // might be logged out
