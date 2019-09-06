@@ -254,6 +254,8 @@ function loadStructure(force, callback) {
                 alert((result.message || 'Chyba během vytváření dat. Kontaktuj autora.'));
             } else {
                 parseStructure(result.result);
+                $('#filter input').val('');
+                S.filter();
             }
         },
         error: function () {
@@ -343,8 +345,6 @@ function parseStructure(items) {
     $('#structure').html(content);
     $('#filter .total').text(maxVisible);
     $('#filter .filtered').text(maxVisible);
-    $('#filter input').val('');
-    S.filter();
 }
 
 function loadingStructure(loading) {
