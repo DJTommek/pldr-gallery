@@ -220,6 +220,7 @@ function loadSearch(callback) {
                 alert((result.message || 'Chyba během hledání. Kontaktuj autora.'));
             } else {
                 parseStructure(result.result);
+                S.selectorMove('first');
             }
         },
         error: function () {
@@ -227,9 +228,11 @@ function loadSearch(callback) {
         },
         beforeSend: function () {
             loadingStructure(true);
+            $('#filter .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
         },
         complete: function () {
             loadingStructure(false);
+            $('#filter .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
             (typeof callback === 'function' && callback());
         }
     });
