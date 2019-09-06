@@ -256,13 +256,11 @@ webserver.get('/api/search', function (req, res) {
     var readDirStart = new Date();
     readdirp(fullQueryPath, {type: 'files_directories', depth: 10, alwaysStat: false})
             .on('data', function (entry) {
-                return;
                 try {
                     if (!entry.dirent.isDirectory() && !entry.basename.match(fileExtRe)) {
                         return; // not directory or not match allowed extension
                     }
                     var path = entry.fullPath.replace(/\\/g, '/').replace(c.path, '/'); // all folder separators has to be /
-                    return;
                     if (entry.basename.toLowerCase().indexOf(req.query.query.toLowerCase()) === -1) {
                         return; // not match with searched query
                     }
