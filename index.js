@@ -227,10 +227,6 @@ webserver.get('/api/search', function (req, res) {
 
         log.log('(Web) Searching "' + req.query.query + '" in path "' + queryPath + '".');
 
-        var mask = [];
-        c.imageExtensions.concat(c.videoExtensions).forEach(function (ext) {
-            mask.push('*.' + ext);
-        });
         var finds = {
             folders: [],
             files: []
@@ -246,27 +242,38 @@ webserver.get('/api/search', function (req, res) {
             displayText: 'Zavřít vyhledávání "' + req.query.query + '"',
             displayIcon: 'long-arrow-left'
         });
+
+        // Do not use readdirp.fileFilter option because is case sensitive.
+        // Instead create custom file extensions regex with case-insensitive parameter
+        // Closed github request, Option for case-insensitive filter: https://github.com/paulmillr/readdirp/issues/47
+        var fileExtRe = new RegExp('\.(' + c.imageExtensions.concat(c.videoExtensions).join('|') + ')$', 'i');
+
     } catch (error) {
         res.result.setError('' + error); // @HACK force toString()
         res.end('' + res.result); // @HACK force toString()
     }
+
     var readDirStart = new Date();
-    readdirp(fullQueryPath, {type: 'files_directories', fileFilter: mask, depth: 10, alwaysStat: false})
+    readdirp(fullQueryPath, {type: 'files_directories', depth: 10, alwaysStat: false})
             .on('data', function (entry) {
+                // allow only directories and files with specific extension
+                if (!entry.dirent.isDirectory() && !entry.basename.match(fileExtRe)) {
+                    return;
+                }
                 var path = entry.fullPath.replaceAll('\\', '/'); // all folder separators has to be /
                 path = path.replace(c.path, '/');
                 if (entry.basename.toLowerCase().indexOf(req.query.query.toLowerCase()) >= 0) {
                     if (perms.test(req.userPerms, path)) {
                         try {
-                            var pathStats = fs.lstatSync(entry.fullPath);
                             var pathData = {
                                 path: path,
                                 displayText: path
                             };
-                            if (pathStats.isDirectory()) {
+                            if (entry.dirent.isDirectory()) {
                                 pathData.path += '/';
                                 finds.folders.push(pathData);
                             } else {
+                                var pathStats = fs.lstatSync(entry.fullPath);
                                 pathData.size = pathStats.size;
                                 pathData.created = pathStats.ctime.human();
                                 finds.files.push(pathData);
