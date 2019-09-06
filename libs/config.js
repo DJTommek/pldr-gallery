@@ -1,8 +1,4 @@
 var c = {
-    path: 'p:/Photo/',
-//    path: 'c:/Users/DJTommek/',
-//    path: 'p:/____Family/',
-//    path: 'd:/Data/Photo/',
     imageExtensions: ['jpg', 'jpeg', 'png', 'bmp'],
     videoExtensions: ['mp4', 'avi'],
     http: {
@@ -32,13 +28,28 @@ var c = {
     },
     test: {
         password: '4pTvuKygmguBm19z4CjB'
-    },
-    perms: {
-        'x': [
-            '/demo/'
-        ]
     }
 };
+
+// remove path and file, wich are running
+var runArgs = process.argv.slice(2);
+
+console.log("Start arguments: " + runArgs.join(' '));
+if (runArgs[0] === 'help') {
+    console.log('Available command line arguments:');
+    console.log('path="<some path>" - REQUIRED - Set base path');
+    console.log('  Note: special characters like ", ( or ) has to be escaped, eg. \\", \\( or \\)');
+    process.exit();
+}
+
+// Set base path via commandline
+console.log(runArgs.join(' '));
+var match = runArgs.join(' ').match(/path="(.+\/)"/);
+if (!match) {
+    console.error('You have to set start parameter path="<c:/path/>". More in help');
+    process.exit();
+}
+c.path = match[1];
 
 c.google.redirectUrl = c.http.protocol + '://' + c.http.baseUrl + c.google.redirectPath;
 module.exports = c;
