@@ -47,6 +47,21 @@ String.prototype.escapeRegex = String.prototype.escapeRegex || function ()
 {
     return this.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 };
+/**
+ * escape HTML tags
+ * @author https://stackoverflow.com/a/6234804/3334403
+ */
+String.prototype.escapeHtml = String.prototype.escapeHtml || function ()
+{
+    return this
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+};
+
+
 Array.prototype.last = function (last) {
     return this[this.length - (last || 1)];
 }
