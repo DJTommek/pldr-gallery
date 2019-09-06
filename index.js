@@ -256,34 +256,37 @@ webserver.get('/api/search', function (req, res) {
     var readDirStart = new Date();
     readdirp(fullQueryPath, {type: 'files_directories', depth: 10, alwaysStat: false})
             .on('data', function (entry) {
-                // allow only directories and files with specific extension
-                if (!entry.dirent.isDirectory() && !entry.basename.match(fileExtRe)) {
-                    return;
-                }
-                var path = entry.fullPath.replaceAll('\\', '/'); // all folder separators has to be /
-                path = path.replace(c.path, '/');
-                if (entry.basename.toLowerCase().indexOf(req.query.query.toLowerCase()) >= 0) {
-                    if (perms.test(req.userPerms, path)) {
-                        try {
-                            var pathData = {
-                                path: path,
-                                displayText: path
-                            };
-                            if (entry.dirent.isDirectory()) {
-                                pathData.path += '/';
-                                finds.folders.push(pathData);
-                            } else {
-                                var pathStats = fs.lstatSync(entry.fullPath);
-                                pathData.size = pathStats.size;
-                                pathData.created = pathStats.ctime.human();
-                                finds.files.push(pathData);
-                            }
-                        } catch (error) {
-                            log.log('Error while getting info about finded path ' + entry.fullPath + ': ' + error, log.ERROR);
-                        }
+                return;
+                try {
+                    if (!entry.dirent.isDirectory() && !entry.basename.match(fileExtRe)) {
+                        return; // not directory or not match allowed extension
                     }
+                    var path = entry.fullPath.replace(/\\/g, '/').replace(c.path, '/'); // all folder separators has to be /
+                    return;
+                    if (entry.basename.toLowerCase().indexOf(req.query.query.toLowerCase()) === -1) {
+                        return; // not match with searched query
+                    }
+                    if (!perms.test(req.userPerms, path)) {
+                        return; // user dont have permission to this item
+                    }
+                    var pathData = {
+                        path: path,
+                        displayText: path
+                    };
+                    if (entry.dirent.isDirectory()) {
+                        pathData.path += '/';
+                        finds.folders.push(pathData);
+                    } else { // is file
+                        var pathStats = fs.lstatSync(entry.fullPath);
+                        pathData.size = pathStats.size;
+                        pathData.created = pathStats.ctime.human();
+                        finds.files.push(pathData);
+                    }
+                } catch (error) {
+                    log.log('Error while processing finded path ' + entry.fullPath + ': ' + error, log.ERROR);
                 }
-            }).on('end', function () {
+            }
+            ).on('end', function () {
         log.log('Searhing done in ' + msToHuman(new Date() - readDirStart) + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
         res.result.setResult(finds);
         res.end('' + res.result); // @HACK force toString()
