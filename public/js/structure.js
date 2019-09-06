@@ -52,7 +52,12 @@ class Structure {
     selectorSelect() {
         var item = this.get(this.selectedIndex);
         if (item) {
-            window.location.hash = item.path;
+            // Override default action with force refresh
+            if (item.displayIcon === 'long-arrow-left') {
+                loadStructure(true);
+            } else {
+                window.location.hash = item.path;
+            }
         }
     }
 
@@ -253,10 +258,11 @@ class Structure {
         var visible = 0;
         this.getItems().forEach(function (item) {
             // Do not touch on "go back" item! Should be visible all times
-            if (item.displayText === '..') {
+            if (item.noFilter) {
                 return;
             }
-            if (self.runFilter(filterText, item.paths.last())) {
+            // display text to be compatibile with search results, otherwise it would be filtering only last part of path
+            if (self.runFilter(filterText, item.displayText || item.paths.last())) {
                 $("#structure tbody").find('[data-index="' + item.index + '"]').show();
                 allHidden = false;
                 item.hide = false;
@@ -282,9 +288,9 @@ class Structure {
             if (this.get(this.selectedIndex).hide) { // if there is no previous visible item, move to the next visible item
                 this.selectorMove('down');
             }
-            // if no item is visible, dont do anything...
+            // if no item is visible, dont do anything
         }
-        if (this.get(this.selectedIndex).displayText === '..') { // if is filter active and selected item is "go back", try select next visible item
+        if (this.get(this.selectedIndex).noFilter) { // if is filter active and selected item is "go back", try select next visible item
             this.selectorMove('down');
         }
         loadedStructure.filtering = false;

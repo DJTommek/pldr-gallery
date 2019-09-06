@@ -94,6 +94,8 @@ $(function () {
     }
     S.setCurrent(window.location.hash);
 
+    $('[data-toggle="tooltip"]').tooltip();
+
     $('#button-logout').on('click', function (event) {
         event.preventDefault();
         if (confirm('Opravdu se chceš odhlásit?')) {
@@ -106,6 +108,11 @@ $(function () {
                 alert('Odhlášení bylo úspěšné.');
             });
         }
+    });
+
+    $('#filter .search').on('click', function (event) {
+        event.preventDefault();
+        loadSearch();
     });
 
     // settings
@@ -195,7 +202,38 @@ function updateLoginButtons() {
         $('#navbar .dropdown .dropdown-toggle i').addClass('fa-cog').removeClass('fa-user');
     }
 }
-
+function loadSearch(callback) {
+    var query = $('#filter input').val().trim();
+    if (!query) {
+        console.log("Search query is empty, cancel search request");
+        return;
+    }
+    $.ajax({
+        url: '/api/search',
+        method: 'GET',
+        data: {
+            path: btoa(encodeURIComponent(S.getCurrentFolder())),
+            query: query
+        },
+        success: function (result) {
+            if (result.error === true || !result.result) {
+                alert((result.message || 'Chyba během hledání. Kontaktuj autora.'));
+            } else {
+                parseStructure(result.result);
+            }
+        },
+        error: function () {
+            alert('Chyba během načítání dat. Kontaktuj autora.');
+        },
+        beforeSend: function () {
+            loadingStructure(true);
+        },
+        complete: function () {
+            loadingStructure(false);
+            (typeof callback === 'function' && callback());
+        }
+    });
+}
 function loadStructure(force, callback) {
     // in case of triggering loading the same structure again (already loaded), skip it
     if (force !== true && loadedStructure.loadedFolder === S.getCurrentFolder()) {
@@ -212,81 +250,7 @@ function loadStructure(force, callback) {
             if (result.error === true || !result.result) {
                 alert((result.message || 'Chyba během vytváření dat. Kontaktuj autora.'));
             } else {
-                var items = result.result;
-                updateLoginButtons(); // might be logged out
-                var limited = false;
-                var limit = 1000;
-                var realTotal = items.folders.length + items.files.length;
-                if (realTotal >= limit) {
-                    limited = true;
-                    if (items.folders.length > limit) {
-                        items.folders = items.folders.slice(0, limit);
-                    }
-                    if (items.files.length > limit) {
-                        items.files = items.files.slice(0, limit);
-                    }
-                }
-                loadedStructure.loadedFolder = S.getCurrentFolder();
-                S.setAll(items);
-                var maxVisible = S.getItems().length;
-                // Cela cesta v hlaviccce
-                var breadcrumbHtml = '';
-                breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/">Galerie</a></li>';
-                var breadcrumbPath = '/';
-                S.getCurrentFolder(true).forEach(function (folderName) {
-                    if (folderName) {
-                        breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += folderName + '/') + ' ">' + decodeURI(folderName) + '</a></li>';
-                    }
-                });
-                $('#currentPath').html(breadcrumbHtml);
-
-                var content = '';
-                content += '<table class="table-striped table-hover table-condensed"><thead>';
-                content += ' <tr>';
-                content += '  <th>&nbsp;</th>';
-                content += '  <th>Název</th>';
-                content += '  <th>Velikost</th>';
-                content += '  <th>Datum</th>';
-                content += ' </tr>';
-                content += '</thead><tbody>';
-                S.getFolders().forEach(function (item) {
-                    if (item.displayText === '..') {
-                        maxVisible--;
-                    }
-                    content += '<tr data-type="folder" data-index="' + item.index + '">';
-                    content += ' <td><i class="fa fa-' + (item.displayIcon || 'folder-open') + ' fa-fw"></i></td>';
-                    content += ' <td><a href="#' + item.path + '">' + (item.displayText || item.paths.last()) + '</a></td>';
-                    content += ' <td>&nbsp;</td>';
-                    content += ' <td>&nbsp;</td>';
-                    content += '</tr>';
-                });
-                S.getFiles().forEach(function (item) {
-                    content += '<tr data-type="file" data-index="' + item.index + '">';
-                    content += '<td><i class="fa fa-file-image-o fa-fw"></i></td>';
-                    content += '<td><a href="#' + item.path + '">' + item.paths.last() + '</a></td>';
-                    content += '<td>' + formatBytes(item.size, 2) + '</td>';
-                    content += '<td>' + item.created.slice(0, -4) + '</td>';
-                    content += '</tr>';
-                });
-
-                if (maxVisible === 0) {
-                    content += '<tr class="structure-back" data-type="folder">';
-                    content += '<td><i class="fa fa-info fa-fw"></i></td>';
-                    content += '<td colspan="3">Složka je prázdná.</td>';
-                    content += '</tr>';
-                }
-                if (limited) {
-                    content += '<tr class="structure-limited" data-type="folder">';
-                    content += '<td><i class="fa fa-info fa-fw"></i></td>';
-                    content += '<td colspan="3">Celkem je zde ' + (realTotal) + ' položek ale z důvodu rychlosti jsou některé skryty. Pro zobrazení, @TODO.</td>';
-                    content += '</tr>';
-                }
-                content += '</tbody></table>';
-                $('#structure').html(content);
-                $('#filter .total').text(maxVisible);
-                $('#filter .filtered').text(maxVisible);
-                $('#filter input').val('');
-                S.filter();
+                parseStructure(result.result);
             }
         },
         error: function () {
@@ -302,15 +266,95 @@ function loadStructure(force, callback) {
     });
 }
 
+function parseStructure(items) {
+    // in case of triggering loading the same structure again (already loaded), skip it
+    updateLoginButtons(); // might be logged out
+    var limited = false;
+    var limit = 1000;
+    var realTotal = items.folders.length + items.files.length;
+    if (realTotal >= limit) {
+        limited = true;
+        if (items.folders.length > limit) {
+            items.folders = items.folders.slice(0, limit);
+        }
+        if (items.files.length > limit) {
+            items.files = items.files.slice(0, limit);
+        }
+    }
+    loadedStructure.loadedFolder = S.getCurrentFolder();
+    S.setAll(items);
+    var maxVisible = S.getItems().length;
+    // Cela cesta v hlaviccce
+    var breadcrumbHtml = '';
+    breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/">Galerie</a></li>';
+    var breadcrumbPath = '/';
+    S.getCurrentFolder(true).forEach(function (folderName) {
+        if (folderName) {
+            breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += folderName + '/') + ' ">' + decodeURI(folderName) + '</a></li>';
+        }
+    });
+    $('#currentPath').html(breadcrumbHtml);
+
+    var content = '';
+    content += '<table class="table-striped table-hover table-condensed"><thead>';
+    content += ' <tr>';
+    content += '  <th>&nbsp;</th>';
+    content += '  <th>Název</th>';
+    content += '  <th>Velikost</th>';
+    content += '  <th>Datum</th>';
+    content += ' </tr>';
+    content += '</thead><tbody>';
+    S.getFolders().forEach(function (item) {
+        if (item.noFilter) {
+            maxVisible--;
+        }
+        content += '<tr data-type="folder" data-index="' + item.index + '">';
+        content += ' <td><i class="fa fa-' + (item.displayIcon || 'folder-open') + ' fa-fw"></i></td>';
+        content += ' <td><a href="#' + item.path + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
+        content += ' <td>&nbsp;</td>';
+        content += ' <td>&nbsp;</td>';
+        content += '</tr>';
+    });
+    S.getFiles().forEach(function (item) {
+        content += '<tr data-type="file" data-index="' + item.index + '">';
+        content += '<td><i class="fa fa-file-image-o fa-fw"></i></td>';
+        content += '<td><a href="#' + item.path + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
+        content += '<td>' + formatBytes(item.size, 2) + '</td>';
+        content += '<td>' + item.created.slice(0, -4) + '</td>';
+        content += '</tr>';
+    });
+
+    if (maxVisible === 0) {
+        content += '<tr class="structure-back" data-type="folder">';
+        content += '<td><i class="fa fa-info fa-fw"></i></td>';
+        content += '<td colspan="3">Složka je prázdná.</td>';
+        content += '</tr>';
+    }
+    if (limited) {
+        content += '<tr class="structure-limited" data-type="folder">';
+        content += '<td><i class="fa fa-info fa-fw"></i></td>';
+        content += '<td colspan="3">Celkem je zde ' + (realTotal) + ' položek ale z důvodu rychlosti jsou některé skryty. Pro zobrazení, @TODO.</td>';
+        content += '</tr>';
+    }
+    content += '</tbody></table>';
+    $('#structure').html(content);
+    $('#filter .total').text(maxVisible);
+    $('#filter .filtered').text(maxVisible);
+    $('#filter input').val('');
+    S.filter();
+}
+
 function loadingStructure(loading) {
 
     if (loading === true) {
         $('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
         $('#filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
         $('#filter input').prop('disabled', true);
+        $('#filter .search').prop('disabled', true);
     }
     if (loading === false) {
         $('#filter input').prop('disabled', false);
+        $('#filter .search').prop('disabled', false);
     }
 }
 function loadingImage(loading) {

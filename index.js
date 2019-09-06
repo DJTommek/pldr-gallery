@@ -8,6 +8,7 @@ c.compress.enabled = true;
 
 var globby = require('globby');
 var fs = require("fs");
+const readdirp = require('readdirp');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 const perms = require('./libs/permissions.js');
@@ -196,9 +197,91 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
         userPerms = ['/'];
     }
     req.userPerms = userPerms;
+    log.log('Api access ' + req.path + ', user ' + (req.user ? req.user : 'x'));
     next();
 });
 
+webserver.get('/api/search', function (req, res) {
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    try {
+        if (!req.query.query) {
+            throw 'Error: no search input';
+        }
+        if (!req.query.path) {
+            throw 'Error: no path';
+        }
+        var queryPath = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
+        if (!perms.test(req.userPerms, queryPath)) {
+            throw 'Error: no permission';
+        }
+        try {
+            var fullQueryPath = (c.path + queryPath).replaceAll('//', '/');
+            let fullQueryPathStats = fs.statSync(fullQueryPath);
+            if (fullQueryPathStats.isFile()) {
+                throw '';
+            }
+        } catch (error) {
+            throw 'Error: invalid path';
+        }
+
+        log.log('(Web) Searching "' + req.query.query + '" in path "' + queryPath + '".');
+
+        var mask = [];
+        c.imageExtensions.concat(c.videoExtensions).forEach(function (ext) {
+            mask.push('*.' + ext);
+        });
+        var finds = {
+            folders: [],
+            files: []
+        };
+        // @HACK closing search by going folder back (not working in root)
+        // @TODO just trigger hash change instead folder change
+        var goBackPath = queryPath.split('/');
+        goBackPath.splice(goBackPath.length - 2, 1); // remove last folder
+        finds.folders.push({
+//            path: goBackPath.join('/'),
+            path: queryPath,
+            noFilter: true,
+            displayText: 'Zavřít vyhledávání "' + req.query.query + '"',
+            displayIcon: 'long-arrow-left'
+        });
+    } catch (error) {
+        res.result.setError('' + error); // @HACK force toString()
+        res.end('' + res.result); // @HACK force toString()
+    }
+    var readDirStart = new Date();
+    readdirp(fullQueryPath, {type: 'files_directories', fileFilter: mask, depth: 10, alwaysStat: false})
+            .on('data', function (entry) {
+                var path = entry.fullPath.replaceAll('\\', '/'); // all folder separators has to be /
+                path = path.replace(c.path, '/');
+                if (entry.basename.toLowerCase().indexOf(req.query.query.toLowerCase()) >= 0) {
+                    if (perms.test(req.userPerms, path)) {
+                        try {
+                            var pathStats = fs.lstatSync(entry.fullPath);
+                            var pathData = {
+                                path: path,
+                                displayText: path
+                            };
+                            if (pathStats.isDirectory()) {
+                                pathData.path += '/';
+                                finds.folders.push(pathData);
+                            } else {
+                                pathData.size = pathStats.size;
+                                pathData.created = pathStats.ctime.human();
+                                finds.files.push(pathData);
+                            }
+                        } catch (error) {
+                            log.log('Error while getting info about finded path ' + entry.fullPath + ': ' + error, log.ERROR);
+                        }
+                    }
+                }
+            }).on('end', function () {
+        log.log('Searhing done in ' + msToHuman(new Date() - readDirStart) + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
+        res.result.setResult(finds);
+        res.end('' + res.result); // @HACK force toString()
+    });
+});
 webserver.get('/api/download', function (req, res) {
     try {
         if (!req.query.path) {
@@ -438,6 +521,7 @@ webserver.get('/api/structure', function (req, res) {
             folders.push({
                 path: goBackPath.join('/'),
                 displayText: '..',
+                noFilter: true,
                 displayIcon: 'level-up',
             });
         }

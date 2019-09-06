@@ -93,6 +93,14 @@ jwerty.key('enter', function (e) {
     }
 });
 
+jwerty.key('ctrl+enter', function (e) {
+    if (loadedStructure.modal) {
+        
+    } else {
+        $('#filter .search').trigger('click');
+    }
+});
+
 jwerty.key('space', function (e) {
     if (loadedStructure.modal) {
         e.preventDefault(); // do not delete text from filter
