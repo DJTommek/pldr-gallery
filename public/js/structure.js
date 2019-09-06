@@ -51,10 +51,13 @@ class Structure {
 
     selectorSelect() {
         var item = this.get(this.selectedIndex);
+        var self = this;
         if (item) {
             // Override default action with force refresh
             if (item.displayIcon === 'long-arrow-left') {
-                loadStructure(true);
+                loadStructure(true, function () {
+                    self.selectorMove();
+                });
             } else {
                 window.location.hash = item.path;
             }
