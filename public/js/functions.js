@@ -107,7 +107,8 @@ global.isNumeric = function (n) {
  * @param {int} miliseconds
  * @returns {String}
  */
-global.msToHuman = function (miliseconds) {
+global.msToHuman = msToHuman;
+function msToHuman (miliseconds) {
     var milliseconds = Math.floor((miliseconds) % 1000);
     var seconds = Math.floor((miliseconds / (1000)) % 60);
     var minutes = Math.floor((miliseconds / (1000 * 60)) % 60);

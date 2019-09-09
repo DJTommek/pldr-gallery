@@ -277,7 +277,7 @@ webserver.get('/api/search', function (req, res) {
                     } else { // is file
                         var pathStats = fs.lstatSync(entry.fullPath);
                         pathData.size = pathStats.size;
-                        pathData.created = pathStats.ctime.human();
+                        pathData.created = pathStats.ctime;
                         finds.files.push(pathData);
                     }
                 } catch (error) {
@@ -568,7 +568,7 @@ webserver.get('/api/structure', function (req, res) {
                         if (!pathStats.isDirectory()) {
                             if (pathData.path.match(re_extension)) {
                                 pathData.size = pathStats.size;
-                                pathData.created = pathStats.ctime.human();
+                                pathData.created = pathStats.ctime;
                                 files.push(pathData);
                             }
                         }

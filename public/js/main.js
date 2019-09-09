@@ -305,8 +305,10 @@ function parseStructure(items) {
     content += ' <tr>';
     content += '  <th>&nbsp;</th>';
     content += '  <th>Název</th>';
-    content += '  <th>Velikost</th>';
-    content += '  <th>Datum</th>';
+    if (S.getFiles().length) {
+        content += '  <th>Velikost</th>';
+        content += '  <th>Datum</th>';
+    }
     content += ' </tr>';
     content += '</thead><tbody>';
     S.getFolders().forEach(function (item) {
@@ -316,8 +318,10 @@ function parseStructure(items) {
         content += '<tr data-type="folder" data-index="' + item.index + '">';
         content += ' <td><i class="fa fa-' + (item.displayIcon || 'folder-open') + ' fa-fw"></i></td>';
         content += ' <td><a href="#' + item.path + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
-        content += ' <td>&nbsp;</td>';
-        content += ' <td>&nbsp;</td>';
+        if (S.getFiles().length) {
+            content += ' <td>&nbsp;</td>';
+            content += ' <td>&nbsp;</td>';
+        }
         content += '</tr>';
     });
     S.getFiles().forEach(function (item) {
@@ -325,20 +329,21 @@ function parseStructure(items) {
         content += '<td><i class="fa fa-file-image-o fa-fw"></i></td>';
         content += '<td><a href="#' + item.path + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
         content += '<td>' + formatBytes(item.size, 2) + '</td>';
-        content += '<td>' + item.created.slice(0, -4) + '</td>';
+        let created = item.created.human(true);
+        content += '<td title="' + created + '\nPřed ' + msToHuman(new Date() - item.created) + '">' + created.date + ' <span>' + created.time + '</span></td>';
         content += '</tr>';
     });
 
     if (maxVisible === 0) {
         content += '<tr class="structure-back" data-type="folder">';
         content += '<td><i class="fa fa-info fa-fw"></i></td>';
-        content += '<td colspan="3">Složka je prázdná.</td>';
+        content += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Složka je prázdná.</td>';
         content += '</tr>';
     }
     if (limited) {
         content += '<tr class="structure-limited" data-type="folder">';
         content += '<td><i class="fa fa-info fa-fw"></i></td>';
-        content += '<td colspan="3">Celkem je zde ' + (realTotal) + ' položek ale z důvodu rychlosti jsou některé skryty. Pro zobrazení, @TODO.</td>';
+        content += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (realTotal) + ' položek ale z důvodu rychlosti jsou některé skryty. Pro zobrazení, @TODO.</td>';
         content += '</tr>';
     }
     content += '</tbody></table>';

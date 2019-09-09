@@ -85,6 +85,7 @@ class Structure {
         items.files.forEach(function (item) {
             item.index = index;
             item.paths = item.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
+            item.created = new Date(item.created);
             item.isFolder = false;
             item.isFile = true;
             item.ext = item.paths.last().split('.').last();
