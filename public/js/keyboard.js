@@ -89,7 +89,11 @@ jwerty.key('enter', function (e) {
         }
         // @TODO video open in fullscreen (also disable move left and right)
     } else {
-        S.selectorSelect();
+        if ($("#filter .search").is(":focus"))  {
+            $('#filter .search').trigger('click');
+        } else {
+            S.selectorSelect();
+        }
     }
 });
 
