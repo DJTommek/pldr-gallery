@@ -301,7 +301,7 @@ function parseStructure(items) {
     $('#currentPath').html(breadcrumbHtml);
 
     var content = '';
-    content += '<table class="table-striped table-hover table-condensed"><thead>';
+    content += '<table class="table-striped table-condensed"><thead>';
     content += ' <tr>';
     content += '  <th>&nbsp;</th>';
     content += '  <th>Název</th>';

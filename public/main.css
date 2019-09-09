@@ -73,7 +73,8 @@ body {
 
 
 /* aktualne oznaceny radek */
-.structure-selected {
+.structure-selected,
+#structure table tbody tr:hover {
     background-color: #c0c0c0 !important;
 }
 
@@ -199,7 +200,8 @@ body {
     body.theme-dark .progress-bar {
         background-color: orange;
     }
-    body.theme-dark .structure-selected{
+    body.theme-dark .structure-selected,
+    body.theme-dark #structure table tbody tr:hover {
         background-color: #616161 !important;
     }
 }
