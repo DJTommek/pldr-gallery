@@ -316,7 +316,7 @@ function parseStructure(items) {
             maxVisible--;
         }
         content += '<tr data-type="folder" data-index="' + item.index + '">';
-        content += ' <td><i class="fa fa-' + (item.displayIcon || 'folder-open') + ' fa-fw"></i></td>';
+        content += ' <td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
         content += ' <td><a href="#' + item.path + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
         if (S.getFiles().length) {
             content += ' <td>&nbsp;</td>';
@@ -326,7 +326,7 @@ function parseStructure(items) {
     });
     S.getFiles().forEach(function (item) {
         content += '<tr data-type="file" data-index="' + item.index + '">';
-        content += '<td><i class="fa fa-file-image-o fa-fw"></i></td>';
+        content += '<td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
         content += '<td><a href="#' + item.path + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
         content += '<td>' + formatBytes(item.size, 2) + '</td>';
         let created = item.created.human(true);

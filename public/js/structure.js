@@ -79,6 +79,7 @@ class Structure {
             item.isImage = false;
             item.isVideo = false;
             item.hide = false;
+            item.icon = (item.displayIcon || 'folder-open');
             this.folders.push(item);
             index++;
         }, this);
@@ -92,6 +93,15 @@ class Structure {
             item.isImage = (['jpg', 'jpeg', 'png', 'bmp'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
             item.isVideo = (['mp4', 'avi'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
             item.hide = false;
+            if (item.displayIcon) {
+                item.icon = item.displayIcon;
+            } else if (item.isImage) {
+                item.icon = 'file-image-o';
+            } else if (item.isVideo) {
+                item.icon = 'file-video-o';
+            } else {
+                item.icon = 'file-o';
+            }
             this.files.push(item);
             index++;
         }, this);
