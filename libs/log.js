@@ -2,17 +2,38 @@ var fs = require('fs');
 var readline = require('readline');
 module.exports.INFO = 0;
 module.exports.ERROR = 1;
+module.exports.MSG = 2;
 module.exports.DEBUG = 3;
 module.exports.WEBSERVER = 4;
 module.exports.SQL = 5;
 module.exports.FATAL_ERROR = 6;
 module.exports.UNCAUGHT_EXCEPTION = 7;
+module.exports.WARNING = 8;
 
-var folders = [
-    './log',
-    './log/sql',
-    './log/webserver'
-];
+module.exports.info = function (msg, parameters) {
+    this.log(msg, this.INFO, parameters);
+}
+module.exports.error = function (msg, parameters) {
+    this.log(msg, this.ERROR, parameters);
+}
+module.exports.msg = function (msg, parameters) {
+    this.log(msg, this.MSG, parameters);
+}
+module.exports.debug = function (msg, parameters) {
+    this.log(msg, this.DEBUG, parameters);
+}
+module.exports.webserver = function (msg, parameters) {
+    this.log(msg, this.WEBSERVER, parameters);
+}
+module.exports.sql = function (msg, parameters) {
+    this.log(msg, this.SQL, parameters);
+}
+module.exports.fatal = function (msg, parameters) {
+    this.log(msg, this.FATAL_ERROR, parameters);
+}
+module.exports.warning = function (msg, parameters) {
+    this.log(msg, this.WARNING, parameters);
+}
 
 module.exports.log = function (msg, type, parameters)
 {
@@ -26,22 +47,36 @@ module.exports.log = function (msg, type, parameters)
     var mainLog = true;
     var toConsole = true;
     var quit = false;
+    var color = '';
 
     switch (type) {
         case this.ERROR:
             mainLog = true;
             filePath += datetime.date + '_error';
+            color = '\x1b[31m'; // red
+            break;
+        case this.WARNING:
+            mainLog = true;
+            filePath += datetime.date + '_warning';
+            color = '\x1b[33m'; // yellow
             break;
         case this.FATAL_ERROR:
             mainLog = true;
             filePath += datetime.date + '_error';
             quit = true;
             msg = '[FATAL ERROR] ' + msg;
+            color = '\x1b[31m'; // red
             break;
         case this.UNCAUGHT_EXCEPTION:
             mainLog = false;
             toConsole = true;
             filePath += datetime.date + '_exception';
+            color = '\x1b[31m'; // red
+            break;
+        case this.MSG:
+            mainLog = false;
+            toConsole = false;
+            filePath += 'messages/message_' + datetime.date;
             break;
         case this.WEBSERVER:
             mainLog = false;
@@ -74,7 +109,7 @@ module.exports.log = function (msg, type, parameters)
     }
 
     if (toConsole) {
-        console.log(log);
+        console.log(color + log + '\x1b[0m');
     }
     try {
         if (mainLog) {
@@ -122,6 +157,8 @@ module.exports.getLogsList = function () {
                     filesDay[day].messages = fileName;
                 } else if (fileName.match('_debug')) {
                     filesDay[day].debug = fileName;
+                } else if (fileName.match('_warning')) {
+                    filesDay[day].warning = fileName;
                 } else if (fileName.match('_error')) {
                     filesDay[day].error = fileName;
                 } else if (fileName.match('_exception')) {
@@ -204,6 +241,12 @@ module.exports.readLog = function (options, callback)
 }
 
 function checkAndCreateFolders() {
+    folders = [
+        './log',
+        './log/messages',
+        './log/sql',
+        './log/webserver'
+    ];
     try {
         folders.forEach(function (folder) {
             if (!fs.existsSync(folder)) {
