@@ -161,7 +161,8 @@ webserver.get('/login', function (req, res) {
 
 webserver.get('/api/[a-z]+', function (req, res, next) {
     // Load default user permissions
-    var userPerms = perms.get('x');
+    var userPerms = perms.getUser('x');
+    // Try load perms for logged user
     try {
         var token = req.cookies[c.http.login.name];
 
@@ -185,13 +186,26 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
         var cookieContent = JSON.parse(fs.readFileSync(cookieFilePath));
 
         req.user = cookieContent.email;
-        // load logged user permissions and merge with default
-        userPerms = perms.get(cookieContent.email).concat(userPerms);
+        // load logged user permissions and merge with default user permissions
+        userPerms = perms.getUser(cookieContent.email).concat(userPerms);
 
         // Aktualizujeme platnost cookies
         fs.utimesSync(cookieFilePath, new Date(), new Date());
     } catch (error) {
         res.clearCookie(c.http.login.name);
+    }
+    // Try load perms if user has some passwords
+    try {
+        var passwordCookie = req.cookies['pmg-passwords'];
+        if (!passwordCookie) {
+            throw 'No password cookie is available';
+        }
+        var passwordsCookie = passwordCookie.split(',');
+        passwordsCookie.forEach(function (pass) {
+            userPerms = perms.getPass(pass).concat(userPerms);
+        });
+    } catch (error) {
+        log.error(error);
     }
     if (userPerms.indexOf('/') >= 0) { // Pokud má právo na celou složku, ostatní práva jsou zbytečná
         userPerms = ['/'];

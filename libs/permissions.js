@@ -2,12 +2,13 @@ var c = require('./config.js');
 var fs = require("fs");
 var log = require('./log.js');
 
-var permissions = {};
+var users = {};
+var passwords = {};
 
-function loadPermissions(callback) {
+function loadUsers(callback) {
     fs.readFile(c.path + '.pmg_perms', 'utf8', function (err, data) {
         if (err) {
-            return (typeof callback === 'function' && callback("Chyba při načítání .perm souboru: " + err));
+            return (typeof callback === 'function' && callback("Error while loading .pmg_perms: " + err));
         } else {
             try {
                 var perms = {};
@@ -28,10 +29,43 @@ function loadPermissions(callback) {
                         });
                     }
                 });
-                permissions = perms;
+                users = perms;
                 return (typeof callback === 'function' && callback(false));
             } catch (err) {
-                return (typeof callback === 'function' && callback("Nepodarilo se naparsovat perm soubor: " + err));
+                return (typeof callback === 'function' && callback("Error while parsing .pmg_perms: " + err));
+            }
+        }
+    });
+}
+
+function loadPasswords(callback) {
+    fs.readFile(c.path + '.pmg_passwords', 'utf8', function (err, data) {
+        if (err) {
+            return (typeof callback === 'function' && callback("Error while loading .pmg_passwords: " + err));
+        } else {
+            try {
+                var perms = {};
+                var lines = data.split("\r\n");
+                var indexes = [];
+                lines.some(function (line) {
+                    if (line.match(/^#/)) { // Ignorujeme komentare
+                    } else if (line.trim() === '') { // zrušit indexy
+                        indexes = [];
+                    } else if (!line.match(/^ /)) { // řádek nezačíná mezerou, je to tedy heslo
+                        indexes.push(line);
+                        if (perms[line] === undefined) {
+                            perms[line] = [];
+                        }
+                    } else {
+                        indexes.some(function (index) {
+                            perms[index].push(line.trim());
+                        });
+                    }
+                });
+                passwords = perms;
+                return (typeof callback === 'function' && callback(false));
+            } catch (err) {
+                return (typeof callback === 'function' && callback("Error while parsing .pmg_passwords: " + err));
             }
         }
     });
@@ -51,28 +85,36 @@ exports.test = function (perms, path) {
     return result;
 }
 
-exports.get = function (username) {
-    var perms = permissions[username];
+exports.getUser = function (username) {
+    var perms = users[username];
+    return ((perms) ? perms : []);
+}
+exports.getPass = function (password) {
+    var perms = passwords[password];
     return ((perms) ? perms : []);
 }
 
-exports.reload = function (callback) {
-    log.log("(Permissions) Reloading permissions");
-    loadPermissions(function (error) {
-        if (error) {
-            log.log(error, log.ERROR);
-            return (typeof callback === 'function' && callback(error));
-        } else {
-            log.log('Permissions loaded: ' + JSON.stringify(permissions));
-            return (typeof callback === 'function' && callback(false));
-        }
+
+function reload(callback) {
+    log.log("(Permissions) Loading permissions (users and passwords)");
+    loadUsers(function (errorPerms) {
+        loadPasswords(function (errorPass) {
+            if (!errorPerms && !errorPass) {
+                log.log('(Permissions) Passwords (' + Object.keys(passwords).length + ') and users (' + Object.keys(users).length + ') permissions were loaded.');
+                log.debug('(Permissions) Passwords: ' + JSON.stringify(passwords), {console: false});
+                log.debug('(Permissions) Users: ' + JSON.stringify(users), {console: false});
+                return (typeof callback === 'function' && callback(false));
+            }
+            if (errorPass) {
+                log.error('(Permissions) ' + errorPass);
+                return (typeof callback === 'function' && callback(errorPass));
+            }
+            if (errorPerms) {
+                log.error('(Permissions) ' + errorPerms);
+                return (typeof callback === 'function' && callback(errorPerms));
+            }
+        });
     });
 }
-
-loadPermissions(function (error) {
-    if (error) {
-        log.log(error, log.ERROR);
-    } else {
-        log.log('Permissions loaded: ' + JSON.stringify(permissions));
-    }
-});
+exports.reload = reload;
+reload();
