@@ -205,7 +205,7 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
             userPerms = perms.getPass(pass).concat(userPerms);
         });
     } catch (error) {
-        log.error(error);
+        // Do nothing, probably just dont have cookie
     }
     if (userPerms.indexOf('/') >= 0) { // Pokud má právo na celou složku, ostatní práva jsou zbytečná
         userPerms = ['/'];
