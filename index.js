@@ -336,6 +336,53 @@ webserver.get('/api/download', function (req, res) {
     }
 });
 
+webserver.get('/api/password', function (req, res) {
+    res.statusCode = 200;
+    try {
+        var passwordCookie = req.cookies['pmg-passwords'];
+        // If no password parameter is set, return list of all passwords
+        if (!req.query.password) {
+            let passwordPerms = [];
+            if (passwordCookie) {
+                let passwordsCookie = passwordCookie.split(',');
+                passwordsCookie.forEach(function (password) {
+                    passwordPerms.push({
+                        password: password,
+                        permissions: perms.getPass(password)
+                    });
+                });
+            }
+            res.result.setResult(passwordPerms, 'List of saved passwords.');
+            res.end('' + res.result); // @HACK force toString()
+            return;
+        }
+        // Passsword parameter is set
+        var passwordPerms = perms.getPass(req.query.password);
+        // Check, if there are any permission to this cookie
+        if (passwordPerms.length === 0) {
+            throw 'Invalid password.';
+        }
+        // Password is valid, save it into cookie (or create it if not set before)
+        if (passwordCookie) {
+            let passwordsCookie = passwordCookie.split(',');
+            if (passwordsCookie.indexOf(req.query.password) === -1) { // push to cookie only if not already pushed before
+                passwordsCookie.push(req.query.password);
+                res.cookie('pmg-passwords', passwordsCookie.join(','), {expires: new Date(253402300000000)});
+            }
+        } else {
+            res.cookie('pmg-passwords', req.query.password, {expires: new Date(253402300000000)});
+        }
+        // return list of permissions to this password
+        res.result.setResult({
+            password: req.query.password,
+            permissions: passwordPerms
+        }, 'Password "' + req.query.password + '" is valid.');
+    } catch (error) {
+        res.result.setError(error);
+    }
+    res.end('' + res.result); // @HACK force toString()
+});
+
 webserver.get('/api/image', function (req, res) {
     res.setHeader("Content-Type", "image/png");
     res.result.toString = function () {
