@@ -377,6 +377,18 @@ webserver.get('/api/password', function (req, res) {
             password: req.query.password,
             permissions: passwordPerms
         }, 'Password "' + req.query.password + '" is valid.');
+        if (req.xhr) {
+            // no redirect if ajax request
+        } else if (req.query.redirect && req.query.redirect === 'false') {
+            // no redirect if param redirect=false
+        } else {
+            // automatic redirect to the folder
+            // @TODO - if permission is not folder but some prefix, it will make error in frontend. Possible ways to fix:
+            // - do check, if permission string ends with "/"
+            // - do real check, if that folder exists
+            res.cookie('pmg-redirect', passwordPerms[0], {expires: new Date(253402300000000)});
+            res.redirect('/');
+        }
     } catch (error) {
         res.result.setError(error);
     }

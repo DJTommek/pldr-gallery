@@ -86,6 +86,11 @@ $(window).on('hashchange', function (e) {
 $(function () {
     loadAndResize();
     updateLoginButtons();
+    // If is set redirect, load this
+    if (Cookies.get('pmg-redirect')) {
+        window.location.hash = Cookies.get('pmg-redirect');
+        Cookies.remove('pmg-redirect');
+    }
     // If not set hash, load url from last time
     if (!window.location.hash && localStorage.getItem("hash-before-unload")) {
         window.location.hash = localStorage.getItem("hash-before-unload");
