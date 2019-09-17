@@ -36,17 +36,17 @@ const imageminPngquant = require('imagemin-pngquant');
 const imageminJpegRecompress = require('imagemin-jpeg-recompress');
 
 const start = new Date();
-log.log('***STARTING***');
+log.info('***STARTING***');
 
-log.log('Image compression is ' + ((c.compress.enabled) ? 'enabled' : 'disabled'));
-log.log('Defined base path is "' + c.path + '".');
+log.info('(Start) Image compression is ' + ((c.compress.enabled) ? 'enabled' : 'disabled'));
+log.info('(Start) Defined base path is "' + c.path + '".');
 try {
     let folderStats = fs.statSync(c.path);
     if (folderStats.isFile()) {
         throw 'it is file';
     }
 } catch (error) {
-    log.log('Error while checking defined path: ' + error, log.FATAL_ERROR);
+    log.fatal('(Start) Error while checking defined path: ' + error);
 }
 
 function getUptime() {
@@ -60,9 +60,13 @@ function getUptime() {
     }
     return response;
 }
+
 /**
- * Middleware pro veškeré requesty
- * - logování
+ * Middleware for all requests
+ * - logging GET and POST
+ * - define quick JSON response object
+ * 
+ * @return next()
  */
 webserver.all('*', function (req, res, next) {
     var weblog = '';
@@ -71,7 +75,8 @@ webserver.all('*', function (req, res, next) {
     weblog += '[' + req.path + ']';
     weblog += '[GET:' + JSON.stringify(req.query) + ']';
     weblog += '[POST:' + JSON.stringify(req.body) + ']';
-    log.log(weblog, log.WEBSERVER);
+    log.webserver(weblog);
+    
     res.result = {
         datetime: (new Date).human(),
         error: true,
@@ -94,15 +99,20 @@ webserver.all('*', function (req, res, next) {
     return next();
 });
 
-// Google logout (if ajax response in JSON, redirect otherwise)
-// - remove cookie from the server (cant be used anymore)
-// - request browser to remove it from browser
+/**
+ * Google logout - just redirect, more info in "/api/logout"
+ */
 webserver.get('/logout', function (req, res) {
     res.redirect('/api/logout');
 });
 
 /**
- * Prihlaseni k googlu. Toto obstarava zaroven redirect NA i Z Google login stranky
+ * Google login:
+ * - redirect to the google login page (if no req.query.code is available)
+ * - handling redirect back from Google page (req.query.code is available)
+ * 
+ * @return HTML text if error
+ * @return redirect if ok
  */
 webserver.get('/login', function (req, res) {
     res.clearCookie(c.http.login.name);
@@ -124,11 +134,11 @@ webserver.get('/login', function (req, res) {
     // ulozime jako cookie a vytvorime soubor, kam ulozime udaje o uzivateli
     oauth2Client.getToken(code, function (errGetToken, tokens, response) {
         if (errGetToken) {
-            log.log('(Login) Chyba během získávání google tokenu: ' + errGetToken + '. Vice info v debug logu.', log.ERROR);
+            log.error('(Login) Chyba během získávání google tokenu: ' + errGetToken + '. Vice info v debug logu.');
             try {
-                log.log('(Login) ' + JSON.stringify(response), log.DEBUG);
+                log.debug('(Login) ' + JSON.stringify(response));
             } catch (error) {
-                log.log('(Login) Chyba během parsování response u získávání google tokenu.', log.DEBUG);
+                log.debug('(Login) Chyba během parsování response u získávání google tokenu.');
             }
             res.status(500).send('Chyba behem ziskavani google tokenu. Zkus to <a href="/login">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');
             return;
@@ -136,13 +146,13 @@ webserver.get('/login', function (req, res) {
         // Overeni ziskaneho tokenu (pro ziskani emailu)
         oauth2Client.verifyIdToken(tokens.id_token, c.google.clientId, function (errVerifyToken, login) {
             if (errVerifyToken) {
-                log.log('(Login) Chyba během ověřování google tokenu: ' + errVerifyToken, log.ERROR);
+                log.error('(Login) Chyba během ověřování google tokenu: ' + errVerifyToken);
                 res.status(500).send('Chyba behem ziskavani google tokenu. Zkus to <a href="/login">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');
                 return;
             }
             // Zjisteni informaci o uzivateli od Google
             var payload = login.getPayload();
-            log.log('(Login) Logged user "' + payload.email + '".');
+            log.info('(Login) Logged user "' + payload.email + '".');
             var tokenHash = sha1(tokens.id_token + c.authSalt);
             var userData = {
                 logged_time: new Date().getTime(),
@@ -159,6 +169,13 @@ webserver.get('/login', function (req, res) {
     });
 });
 
+/**
+ * Main API middleware:
+ * - validate login cookie (if user logged)
+ * - load (default) user and password permissions
+ * 
+ * @returns next()
+ */
 webserver.get('/api/[a-z]+', function (req, res, next) {
     // Load default user permissions
     var userPerms = perms.getUser('x');
@@ -211,10 +228,18 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
         userPerms = ['/'];
     }
     req.userPerms = userPerms;
-    log.log('Api access ' + req.path + ', user ' + (req.user ? req.user : 'x'));
+    log.info('(Web) Api access ' + req.path + ', user ' + (req.user ? req.user : 'x'));
     next();
 });
 
+/**
+ * Run user search in all files and folders
+ * - case insensitive
+ * - search is performed in folder, what user has loaded (param path)
+ * 
+ * @param query - searching string
+ * @param path - where to search
+ */
 webserver.get('/api/search', function (req, res) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
@@ -238,8 +263,6 @@ webserver.get('/api/search', function (req, res) {
         } catch (error) {
             throw 'Error: invalid path';
         }
-
-        log.log('(Web) Searching "' + req.query.query + '" in path "' + queryPath + '".');
 
         var finds = {
             folders: [],
@@ -267,43 +290,57 @@ webserver.get('/api/search', function (req, res) {
         res.end('' + res.result); // @HACK force toString()
     }
 
+    var logPrefix = '(Web) Searching "' + req.query.query + '" in path "' + queryPath + '"';
     var readDirStart = new Date();
-    readdirp(fullQueryPath, {type: 'files_directories', depth: 10, alwaysStat: false})
-            .on('data', function (entry) {
-                try {
-                    if (!entry.dirent.isDirectory() && !entry.basename.match(fileExtRe)) {
-                        return; // not directory or not match allowed extension
-                    }
-                    var path = entry.fullPath.replace(/\\/g, '/').replace(c.path, '/'); // all folder separators has to be /
-                    if (entry.basename.toLowerCase().indexOf(req.query.query.toLowerCase()) === -1) {
-                        return; // not match with searched query
-                    }
-                    if (!perms.test(req.userPerms, path)) {
-                        return; // user dont have permission to this item
-                    }
-                    var pathData = {
-                        path: path,
-                        displayText: path
-                    };
-                    if (entry.dirent.isDirectory()) {
-                        pathData.path += '/';
-                        finds.folders.push(pathData);
-                    } else { // is file
-                        var pathStats = fs.lstatSync(entry.fullPath);
-                        pathData.size = pathStats.size;
-                        pathData.created = pathStats.ctime;
-                        finds.files.push(pathData);
-                    }
-                } catch (error) {
-                    log.log('Error while processing finded path ' + entry.fullPath + ': ' + error, log.ERROR);
-                }
+
+    readdirp(fullQueryPath, {type: 'files_directories', depth: 10, alwaysStat: false}).on('data', function (entry) {
+        try {
+            if (!entry.dirent.isDirectory() && !entry.basename.match(fileExtRe)) {
+                return; // not directory or not match allowed extension
             }
-            ).on('end', function () {
-        log.log('Searhing done in ' + msToHuman(new Date() - readDirStart) + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
-        res.result.setResult(finds);
+            var path = entry.fullPath.replace(/\\/g, '/').replace(c.path, '/'); // all folder separators has to be /
+            if (entry.basename.toLowerCase().indexOf(req.query.query.toLowerCase()) === -1) {
+                return; // not match with searched query
+            }
+            if (!perms.test(req.userPerms, path)) {
+                return; // user dont have permission to this item
+            }
+            var pathData = {
+                path: path,
+                displayText: path
+            };
+            if (entry.dirent.isDirectory()) {
+                pathData.path += '/';
+                finds.folders.push(pathData);
+            } else { // is file, load detailed info
+                var pathStats = fs.lstatSync(entry.fullPath);
+                pathData.size = pathStats.size;
+                pathData.created = pathStats.ctime;
+                finds.files.push(pathData);
+            }
+        } catch (error) {
+            log.error(logPrefix + ' throwed error while processing readdirp results: ' + error);
+        }
+    }).on('warn', function (warning) {
+        // @TODO - is emited "end" to send user response?
+        log.error(logPrefix + ' throwed warning: ' + warning);
+    }).on('error', function (error) {
+        // @TODO - is emited "end" to send user response?
+        log.error(logPrefix + ' throwed error: ' + error);
+    }).on('end', function () {
+        let humanTime = msToHuman(new Date() - readDirStart);
+        log.info(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
+        res.result.setResult(finds, 'Done in ' + humanTime);
         res.end('' + res.result); // @HACK force toString()
     });
 });
+
+/**
+ * Force download file instead custom headers for image, video etc.
+ * 
+ * @returns streamed file if ok
+ * @returns JSON if error
+ */
 webserver.get('/api/download', function (req, res) {
     try {
         if (!req.query.path) {
@@ -311,7 +348,6 @@ webserver.get('/api/download', function (req, res) {
         }
 
         var filePath = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
-        log.log('(Web) Request file: ' + filePath);
 
         if (!perms.test(req.userPerms, filePath)) {
             throw 'nemas-pravo';
@@ -328,6 +364,7 @@ webserver.get('/api/download', function (req, res) {
             throw 'neni-soubor';
         }
         res.set("Content-Disposition", "inline;filename=" + queryPath.split('/').pop());
+        log.info('(Web) Streaming file to download: ' + filePath);
         return fs.createReadStream(filePath).pipe(res);
     } catch (error) {
         res.statusCode = 404;
@@ -336,6 +373,14 @@ webserver.get('/api/download', function (req, res) {
     }
 });
 
+/**
+ * Check and/or update passwords
+ * If no parameter is set, list of passwords and permissions to these passwords is returned
+ * If parameter "password" is set and valid, save it to the cookie and returns permissions to this passwords
+ * 
+ * @requires password (optional)
+ * @returns JSON list of permissions
+ */
 webserver.get('/api/password', function (req, res) {
     res.statusCode = 200;
     try {
@@ -356,9 +401,8 @@ webserver.get('/api/password', function (req, res) {
             res.end('' + res.result); // @HACK force toString()
             return;
         }
-        // Passsword parameter is set
+        // Passsword parameter is set. Check, if there are any permission to this cookie
         var passwordPerms = perms.getPass(req.query.password);
-        // Check, if there are any permission to this cookie
         if (passwordPerms.length === 0) {
             throw 'Invalid password.';
         }
@@ -395,6 +439,11 @@ webserver.get('/api/password', function (req, res) {
     res.end('' + res.result); // @HACK force toString()
 });
 
+/**
+ * Stream image. 
+ * 
+ * @returns image stream (in case of error, streamed image with error text)
+ */
 webserver.get('/api/image', function (req, res) {
     res.setHeader("Content-Type", "image/png");
     res.result.toString = function () {
@@ -406,7 +455,7 @@ webserver.get('/api/image', function (req, res) {
         }
 
         var filePath = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
-        log.log('(Web) Request file: ' + filePath);
+        log.info('(Web) Request file: ' + filePath);
 
         if (!perms.test(req.userPerms, filePath)) {
             throw 'nemas-pravo';
@@ -435,7 +484,7 @@ webserver.get('/api/image', function (req, res) {
 //                    fileStats.compressedSize = img.length;
 //                    fileStats.percent = 100 - ((fileStats.compressedSize / fileStats.size) * 100);
 //                    fileStats.percent = Math.round(fileStats.percent * 100) / 100;
-//                    log.log('Compression takes: ' + ((new Date()) - s) + ' ms. Original size ' + Math.round(fileStats.size / 1024) + ' KB, compressed size ' + Math.round(fileStats.compressedSize / 1024) + ' KB and it is ' + fileStats.percent + '% smaller.');
+//                    log.info('Compression takes: ' + ((new Date()) - s) + ' ms. Original size ' + Math.round(fileStats.size / 1024) + ' KB, compressed size ' + Math.round(fileStats.compressedSize / 1024) + ' KB and it is ' + fileStats.percent + '% smaller.');
 //                    res.setHeader("Content-Length", fileStats.compressedSize);
 //                    return res.end(img);
 //                });
@@ -452,7 +501,9 @@ webserver.get('/api/image', function (req, res) {
 
 /**
  * Stream video into browser
+ * 
  * @Author https://medium.com/better-programming/video-stream-with-node-js-and-html5-320b3191a6b6
+ * @returns video stream 
  */
 webserver.get('/api/video', function (req, res) {
     res.setHeader("Content-Type", "image/png");
@@ -463,9 +514,8 @@ webserver.get('/api/video', function (req, res) {
         throw 'neplatna-cesta';
     }
 
-//    var filePath = decodeURIComponent(c.path + queryPath).replaceAll('//', '/');
     var filePath = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
-    log.log('(Web) Request file: ' + filePath);
+    log.info('(Web) Request file: ' + filePath);
 
     if (!perms.test(req.userPerms, filePath)) {
         throw 'nemas-pravo';
@@ -483,35 +533,41 @@ webserver.get('/api/video', function (req, res) {
         throw 'neni-soubor';
     }
 
-    const stat = fs.statSync(filePath)
-    const fileSize = stat.size
-    const range = req.headers.range
+    const stat = fs.statSync(filePath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
     if (range) {
-        const parts = range.replace(/bytes=/, "").split("-")
-        const start = parseInt(parts[0], 10)
-        const end = parts[1]
-                ? parseInt(parts[1], 10)
-                : fileSize - 1
-        const chunksize = (end - start) + 1
-        const file = fs.createReadStream(filePath, {start, end})
+        const parts = range.replace(/bytes=/, "").split("-");
+        const start = parseInt(parts[0], 10);
+        const end = (parts[1] ? parseInt(parts[1], 10) : fileSize - 1);
+        const chunksize = (end - start) + 1;
+        const file = fs.createReadStream(filePath, {start, end});
         const head = {
             'Content-Range': `bytes ${start}-${end}/${fileSize}`,
             'Accept-Ranges': 'bytes',
             'Content-Length': chunksize,
-            'Content-Type': 'video/mp4',
-        }
+            'Content-Type': 'video/mp4'
+        };
         res.writeHead(206, head);
         file.pipe(res);
     } else {
         const head = {
             'Content-Length': fileSize,
-            'Content-Type': 'video/mp4',
-        }
-        res.writeHead(200, head)
-        fs.createReadStream(filePath).pipe(res)
+            'Content-Type': 'video/mp4'
+        };
+        res.writeHead(200, head);
+        fs.createReadStream(filePath).pipe(res);
     }
 });
 
+/**
+ * Google logout
+ * - remove cookie from the server (cant be used anymore)
+ * - request browser to remove it from browser
+ * 
+ * @returns JSON if ajax
+ * @returns redirect otherwise
+ */
 webserver.get('/api/logout', function (req, res) {
     res.setHeader("Content-Type", "application/json");
     res.statusCode = 200;
@@ -524,7 +580,7 @@ webserver.get('/api/logout', function (req, res) {
             // remove cookie from server file
             fs.unlinkSync(c.http.login.tokensPath + token + '.txt');
         } catch (error) {
-            log.log('Cant delete token "' + token + '". ' + error, log.ERROR);
+            log.error('Cant delete token "' + token + '". ' + error);
             throw 'Cant delete token. More info in log.';
         }
         res.result.setResult('Cookie was deleted');
@@ -535,6 +591,11 @@ webserver.get('/api/logout', function (req, res) {
     res.end('' + res.result); // @HACK force toString()
 });
 
+/**
+ * Show uptime data
+ * 
+ * @returns JSON 
+ */
 webserver.get('/api/ping', function (req, res) {
     res.setHeader("Content-Type", "application/json");
     res.statusCode = 200;
@@ -542,6 +603,11 @@ webserver.get('/api/ping', function (req, res) {
     res.end('' + res.result); // @HACK force toString()
 });
 
+/**
+ * Kill server
+ * 
+ * @returns JSON
+ */
 webserver.get('/api/kill', function (req, res) {
     res.setHeader("Content-Type", "application/json");
 
@@ -557,9 +623,10 @@ webserver.get('/api/kill', function (req, res) {
     }, 2000);
 });
 
-
 /**
- * loading list of folders and files
+ * Load list items (of files and folders) from given path
+ * 
+ * @returns JSON
  */
 webserver.get('/api/structure', function (req, res) {
     res.statusCode = 200;
@@ -570,7 +637,6 @@ webserver.get('/api/structure', function (req, res) {
     }
 
     var folderPath = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
-    log.log('(Web) Request path: ' + folderPath);
 
     // aby se nemohly vyhledavat soubory v predchozich slozkach
     var queryPath = folderPath.replaceAll('/..', '');
@@ -620,7 +686,7 @@ webserver.get('/api/structure', function (req, res) {
                         }
                     }
                 } catch (error) {
-                    log.log('[Globby] Cant get stats from folder "' + path + '".', log.DEBUG);
+                    log.debug('[Globby] Cant get stats from folder "' + path + '".');
                 }
             });
             resolve(folders);
@@ -647,7 +713,7 @@ webserver.get('/api/structure', function (req, res) {
                         }
                     }
                 } catch (error) {
-                    log.log('[Globby] Cant get stats from file "' + path + '".', log.DEBUG);
+                    log.debug('[Globby] Cant get stats from file "' + path + '".');
                 }
             });
             return resolve(files);
@@ -663,8 +729,9 @@ webserver.get('/api/structure', function (req, res) {
     });
 });
 
+// Start webserver server
 webserver.listen(c.http.port, function () {
-    log.log('(HTTP) Server listening on port ' + c.http.port);
+    log.info('(HTTP) Server listening on port ' + c.http.port);
 });
 
 function sanatizePath(path) {
