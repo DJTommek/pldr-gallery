@@ -1,5 +1,5 @@
 var c = {
-    imageExtensions: ['jpg', 'jpeg', 'png', 'bmp'],
+    imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
     videoExtensions: ['mp4', 'avi'],
     http: {
         baseUrl: 'gallery.redilap.cz', // add port if changed or is not redirected to default ports 80 or 443
