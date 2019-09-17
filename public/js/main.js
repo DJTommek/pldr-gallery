@@ -296,7 +296,7 @@ function parseStructure(items) {
     var maxVisible = S.getItems().length;
     // Cela cesta v hlaviccce
     var breadcrumbHtml = '';
-    breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/">Galerie</a></li>';
+    breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/"><i class="fa fa-home"></i></a></li>';
     var breadcrumbPath = '/';
     S.getCurrentFolder(true).forEach(function (folderName) {
         if (folderName) {
