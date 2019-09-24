@@ -139,6 +139,20 @@ $(window).on('keypress', function (event) {
         $('#filter input').focus();
     }
 });
+
+// Move up and down in selector if is mouse wheel used
+// @TODO screen is jumping up and down even with prevent default
+// @TODO S.selectorSelect() if mouse wheel is clicked?
+/*
+$(window).on('wheel', function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    console.log("wheeee: " + event.originalEvent.deltaY);
+    console.log(event);
+    S.selectorMove(event.originalEvent.deltaY < 0 ? 'up' : 'down');
+});
+*/
+
 var filterTimeout = null;
 $('#filter input').on('keyup change', function (event) {
     // do not run filter if are used keys to move in structure
