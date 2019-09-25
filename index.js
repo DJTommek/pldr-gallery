@@ -283,7 +283,7 @@ webserver.get('/api/search', function (req, res) {
         // Do not use readdirp.fileFilter option because is case sensitive.
         // Instead create custom file extensions regex with case-insensitive parameter
         // Closed github request, Option for case-insensitive filter: https://github.com/paulmillr/readdirp/issues/47
-        var fileExtRe = new RegExp('\.(' + c.imageExtensions.concat(c.videoExtensions).join('|') + ')$', 'i');
+        var fileExtRe = new RegExp('\.(' + c.imageExtensions.concat(c.videoExtensions).concat(c.downloadExtensions).join('|') + ')$', 'i');
 
     } catch (error) {
         res.result.setError('' + error); // @HACK force toString()
@@ -657,7 +657,7 @@ webserver.get('/api/structure', function (req, res) {
         sanatizePath((c.path + queryPath + '*/').replaceAll('//', '/')),
         sanatizePath((c.path + queryPath + "*.*").replaceAll('//', '/')),
     ];
-    var re_extension = new RegExp('\\.(' + c.imageExtensions.concat(c.videoExtensions).join('|') + ')$', 'i');
+    var re_extension = new RegExp('\\.(' + c.imageExtensions.concat(c.videoExtensions).concat(c.downloadExtensions).join('|') + ')$', 'i');
 
     var loadFoldersPromise = new Promise(function (resolve) {
         var folders = [];

@@ -92,6 +92,7 @@ class Structure {
             item.ext = item.paths.last().split('.').last();
             item.isImage = (['jpg', 'jpeg', 'png', 'bmp', 'gif'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
             item.isVideo = (['mp4', 'avi'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
+            item.isZip = (['zip', 'zip64', '7z', 'rar', 'gz'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
             item.hide = false;
             if (item.displayIcon) {
                 item.icon = item.displayIcon;
@@ -99,6 +100,8 @@ class Structure {
                 item.icon = 'file-image-o';
             } else if (item.isVideo) {
                 item.icon = 'file-video-o';
+            } else if (item.isZip) {
+                item.icon = 'file-archive-o';
             } else {
                 item.icon = 'file-o';
             }

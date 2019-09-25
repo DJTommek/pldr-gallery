@@ -43,13 +43,15 @@ $(window).on('hashchange', function (e) {
             var modal = '#content-modal .modal-dialog .modal-content ';
             $(modal + '.file-name').attr('href', S.getFileUrl(currentFile.index, true));
             $(modal + '.file-name span').text(currentFile.paths.last());
+			
+			$(modal + 'a.image').hide();
+			$(modal + 'video').hide();
+			
             if (currentFile.isVideo) {
                 $(modal + 'video source').attr('src', S.getFileUrl(currentFile.index));
                 $(modal + 'video').show().load();
-                $(modal + 'a.image').hide();
             }
             if (currentFile.isImage) {
-                $(modal + 'video').hide();
                 $(modal + 'a.image').show().attr('href', S.getFileUrl(currentFile.index)).css('background-image', 'url(' + S.getFileUrl(currentFile.index) + ')');
                 loadingImage(true); // starting loading img
                 $(modal + 'img').attr('src', S.getFileUrl(currentFile.index));
