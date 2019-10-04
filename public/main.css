@@ -173,7 +173,7 @@ body {
     body.theme-dark #navbar .dropdown-menu {
         background-color: #343a40;
     }
-    body.theme-dark #navbar .dropdown-item:focus, 
+    body.theme-dark #navbar .dropdown-item:focus,
     body.theme-dark #navbar .dropdown-item:hover,
     body.theme-dark #navbar .breadcrumb {
         background-color: #616161;
@@ -188,7 +188,7 @@ body {
         background-color: black;
     }
     body.theme-dark .table-striped > tbody > tr:nth-of-type(odd) {
-        background-color: #212121;        
+        background-color: #212121;
     }
     body.theme-dark {
         background-color: black;
