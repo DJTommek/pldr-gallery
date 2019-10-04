@@ -1,7 +1,11 @@
 var c = {
     imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
     videoExtensions: ['mp4', 'avi'],
-    downloadExtensions: ['zip', 'zip64', '7z', 'rar', 'gz'],
+    downloadExtensions: [
+		'zip', 'zip64', '7z', 'rar', 'gz',
+		'pdf', 'doc', 'docx', 'xls', 'xlsx',
+		'mp3', // @TODO - move to audioExtensions
+	],
     http: {
         baseUrl: 'gallery.redilap.cz', // add port if changed or is not redirected to default ports 80 or 443
         protocol: 'http',
