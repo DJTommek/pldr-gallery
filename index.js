@@ -604,6 +604,31 @@ webserver.get('/api/ping', function (req, res) {
 });
 
 /**
+ * Save reportes
+ *
+ * @returns JSON
+ */
+webserver.post('/api/report', function (req, res) {
+	res.setHeader("Content-Type", "application/json");
+	res.statusCode = 200;
+	var msg = '(Report) User "' + (req.user ? req.user : 'x') + '" is reporting ';
+	if (req.body.type && req.body.type.match(/^[a-zA-Z0-9_\-.]{1,20}$/) && req.body.raw) {
+		switch (req.body.type) {
+			case 'javascript':
+				log.error(msg += 'javascript error:\n' + req.body.raw);
+				break;
+			default:
+				log.debug(msg += 'type="' + req.body.type + '":\n"' + req.body.raw + '".');
+				break;
+		}
+		res.result.setResult(null, 'Report saved');
+	} else {
+		res.result.setError('Invalid "type" or "raw" POST data');
+	}
+	res.end('' + res.result); // @HACK force toString()
+});
+
+/**
  * Kill server
  *
  * @returns JSON

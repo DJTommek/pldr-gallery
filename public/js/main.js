@@ -22,14 +22,27 @@ $('#content-modal .modal-dialog .modal-content img').load(function () {
 	loadingImage(false);
 });
 
-window.onerror = function (msg, url, linenumber) {
-    if (msg.match('ResizeObserver loop limit exceeded')) {
-        // Dont care about this error: https://stackoverflow.com/questions/49384120/resizeobserver-loop-limit-exceeded
-        return true;
-    }
-    alert('Error message: ' + msg + '\nURL: ' + url + '\nLine Number: ' + linenumber);
-    return true;
-}
+/**
+ * Global error handler
+ * @author https://stackoverflow.com/a/10556743/3334403
+ */
+window.onerror = function (msg, url, line, col, error) {
+	if (msg.match('ResizeObserver loop limit exceeded')) {
+		// Dont care about this error: https://stackoverflow.com/questions/49384120/resizeobserver-loop-limit-exceeded
+		return true;
+	}
+	// Note that col & error are new to the HTML 5 spec and may not be supported in every browser.  It worked for me in Chrome.
+	var extra = !col ? '' : '\ncolumn: ' + col;
+	extra += !error ? '' : '\nerror: ' + error;
+	var text = "Error: " + msg + "\nurl: " + url + "\nline: " + line + extra;
+
+	// Report and save error on server
+	$.post('/api/report', {type: 'javascript', 'raw': text});
+	alert('Nastala neočekávaná chyba. Pokud se opakuje, udělej screenshot obrazovky a kontaktuj správce.\n' + text);
+
+	// If you return true, then error alerts (like in older versions of Internet Explorer) will be suppressed.
+	return true;
+};
 
 // If hash is changed, something is being loaded (image of folder)
 $(window).on('hashchange', function (e) {
