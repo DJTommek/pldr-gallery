@@ -39,14 +39,18 @@ const start = new Date();
 log.info('***STARTING***');
 
 log.info('(Start) Image compression is ' + ((c.compress.enabled) ? 'enabled' : 'disabled'));
-log.info('(Start) Defined base path is "' + c.path + '".');
 try {
 	let folderStats = fs.statSync(c.path);
 	if (folderStats.isFile()) {
 		throw 'it is file';
 	}
+	let items = fs.readdirSync(c.path);
+	if (items.length === 0) {
+		throw 'No items in base folder.';
+	}
+	log.info('(Start) Defined base path "' + c.path + '" is valid with "' + items.length + '" items.');
 } catch (error) {
-	log.fatal('(Start) Error while checking defined path: ' + error);
+	log.fatal('(Start) Defined base path "' + c.path + '" is invalid. Error: ' + error);
 }
 
 function getUptime() {
