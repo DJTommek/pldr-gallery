@@ -1,3 +1,4 @@
+/* global Promise, decodeURIComponent */
 require('./public/js/functions.js');
 const c = require('./libs/config.js');
 const log = require('./libs/log.js');
@@ -61,7 +62,7 @@ function getUptime() {
 			milliseconds: diff,
 			human: msToHuman(diff)
 		}
-	}
+	};
 	return response;
 }
 
@@ -608,7 +609,7 @@ webserver.get('/api/ping', function (req, res) {
 });
 
 /**
- * Save reportes
+ * Save reports (errors, feedback, etc)
  *
  * @returns JSON
  */
@@ -742,7 +743,7 @@ webserver.get('/api/structure', function (req, res) {
 						}
 					}
 				} catch (error) {
-					log.debug('[Globby] Cant get stats from file "' + path + '".');
+					log.error('[Globby] Cant get stats from file "' + path + '": ' + error);
 				}
 			});
 			return resolve(files);
@@ -762,7 +763,3 @@ webserver.get('/api/structure', function (req, res) {
 webserver.listen(c.http.port, function () {
 	log.info('(HTTP) Server listening on port ' + c.http.port);
 });
-
-function sanatizePath(path) {
-	return path.replace(/(\.\.)|(^\/)/i, '');
-}

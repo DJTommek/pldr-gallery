@@ -129,7 +129,8 @@ function msToHuman(miliseconds) {
  * @param {int} miliseconds
  * @returns {String}
  */
-global.humanToMs = function (humanString) {
+global.humanToMs = humanToMs;
+function humanToMs(humanString) {
 	result = 0;
 	var reList = [
 		[/([0-9]+)d/, 1000 * 60 * 60 * 24],
@@ -145,4 +146,29 @@ global.humanToMs = function (humanString) {
 		}
 	});
 	return result;
+}
+
+/**
+ * Convert coordinates
+ * 50°03'07.8"N 14°27'08.5"E -> 50.052166,14.452364
+ * https://stackoverflow.com/a/1140335
+ */
+global.convertDMSToDD = convertDMSToDD;
+function convertDMSToDD(degrees, minutes, seconds, direction) {
+    var dd = degrees + minutes/60 + seconds/(60*60);
+    dd = Math.round(dd * 1000000) / 1000000;
+    if (direction === "S" || direction === "W") {
+        dd = dd * -1;
+    } // Don't do anything for N or E
+    return dd;
+}
+
+/**
+ * Prevent loading files and folders
+ * 
+ * @param {type} path
+ */
+global.sanatizePath = sanatizePath;
+function sanatizePath(path) {
+    return path.replace(/(\.\.)|(^\/)/i, '');
 }

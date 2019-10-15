@@ -20,6 +20,23 @@ $(window).resize(function () {
 // loading is done when img is loaded (also as background to another element)
 $('#content-modal .modal-dialog .modal-content img').load(function () {
 	loadingImage(false);
+    // Bug: exifdata is cached and will not change if img src is changed
+    // Delete cached exifdata. @Author: https://github.com/exif-js/exif-js/issues/163#issuecomment-412714098
+    delete this.exifdata;
+    EXIF.getData(this, function() {
+        var modal = '#content-modal .modal-dialog .modal-content ';
+        try {
+            exifTags = EXIF.getAllTags(this);
+            coords = {
+                lat: convertDMSToDD(exifTags['GPSLatitude'][0], exifTags['GPSLatitude'][1], exifTags['GPSLatitude'][2], exifTags['GPSLatitudeRef']),
+                lon: convertDMSToDD(exifTags['GPSLongitude'][0], exifTags['GPSLongitude'][1], exifTags['GPSLongitude'][2], exifTags['GPSLongitudeRef']),
+            };
+            $(modal + '.location').attr('href', 'https://www.google.cz/maps/place/' + coords['lat'] + ',' + coords['lon']).show();
+            console.log(coords);
+        } catch (error) {
+            // Exif data is probably missing
+        }
+    })
 });
 
 /**
@@ -386,12 +403,14 @@ function loadingStructure(loading) {
 	}
 }
 function loadingImage(loading) {
+    var modal = '#content-modal .modal-dialog .modal-content ';
 	if (loading === true) {
-		$('#content-modal .modal-dialog .modal-content .image-loading').show();
+        $(modal + '.location').hide();
+		$(modal + '.image-loading').show();
 		loadedStructure.loading = true;
 	}
 	if (loading === false) {
-		$('#content-modal .modal-dialog .modal-content .image-loading').hide();
+		$(modal + '.image-loading').hide();
 	}
 	return loadedStructure.loading;
 }
