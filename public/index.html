@@ -9,15 +9,15 @@
     </head>
     <body>
         <script>
-            /* set dark theme as soon as possible to prevent blink of white theme */
-            try {
-                if (localStorage.getItem("theme") === 'dark') {
-                    var element = document.getElementsByTagName("body")[0];
-                    element.classList.add("theme-dark");
-                }
-            } catch (error) {
-                // Local storage is not working (disabled, unsupported, ...)
-            }
+			/* set dark theme as soon as possible to prevent blink of white theme */
+			try {
+				if (localStorage.getItem("theme") === 'dark') {
+					var element = document.getElementsByTagName("body")[0];
+					element.classList.add("theme-dark");
+				}
+			} catch (error) {
+				// Local storage is not working (disabled, unsupported, ...)
+			}
         </script>
         <div>
             <nav class="navbar sticky-top" id="navbar">
@@ -52,8 +52,9 @@
                     </div>
                 </form>
             </nav>
-
+			<div id="structure-header"></div>
             <div id="structure"></div>
+			<div id="structure-footer"></div>
         </div>
 
         <div id="content-modal" class="modal fade" tabindex="-1" role="dialog" data-keyboard="false">

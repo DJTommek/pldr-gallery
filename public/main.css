@@ -71,6 +71,11 @@ body {
     }
 }
 
+#structure-header,
+#structure-footer {
+	text-align:	center;
+}
+
 
 /* aktualne oznaceny radek */
 .structure-selected,

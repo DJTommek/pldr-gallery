@@ -20,23 +20,23 @@ $(window).resize(function () {
 // loading is done when img is loaded (also as background to another element)
 $('#content-modal .modal-dialog .modal-content img').load(function () {
 	loadingImage(false);
-    // Bug: exifdata is cached and will not change if img src is changed
-    // Delete cached exifdata. @Author: https://github.com/exif-js/exif-js/issues/163#issuecomment-412714098
-    delete this.exifdata;
-    EXIF.getData(this, function() {
-        var modal = '#content-modal .modal-dialog .modal-content ';
-        try {
-            exifTags = EXIF.getAllTags(this);
-            coords = {
-                lat: convertDMSToDD(exifTags['GPSLatitude'][0], exifTags['GPSLatitude'][1], exifTags['GPSLatitude'][2], exifTags['GPSLatitudeRef']),
-                lon: convertDMSToDD(exifTags['GPSLongitude'][0], exifTags['GPSLongitude'][1], exifTags['GPSLongitude'][2], exifTags['GPSLongitudeRef']),
-            };
-            $(modal + '.location').attr('href', 'https://www.google.cz/maps/place/' + coords['lat'] + ',' + coords['lon']).show();
-            console.log(coords);
-        } catch (error) {
-            // Exif data is probably missing
-        }
-    })
+	// Bug: exifdata is cached and will not change if img src is changed
+	// Delete cached exifdata. @Author: https://github.com/exif-js/exif-js/issues/163#issuecomment-412714098
+	delete this.exifdata;
+	EXIF.getData(this, function () {
+		var modal = '#content-modal .modal-dialog .modal-content ';
+		try {
+			exifTags = EXIF.getAllTags(this);
+			coords = {
+				lat: convertDMSToDD(exifTags['GPSLatitude'][0], exifTags['GPSLatitude'][1], exifTags['GPSLatitude'][2], exifTags['GPSLatitudeRef']),
+				lon: convertDMSToDD(exifTags['GPSLongitude'][0], exifTags['GPSLongitude'][1], exifTags['GPSLongitude'][2], exifTags['GPSLongitudeRef']),
+			};
+			$(modal + '.location').attr('href', 'https://www.google.cz/maps/place/' + coords['lat'] + ',' + coords['lon']).show();
+			console.log(coords);
+		} catch (error) {
+			// Exif data is probably missing
+		}
+	})
 });
 
 /**
@@ -290,6 +290,8 @@ function loadStructure(force, callback) {
 			if (result.error === true || !result.result) {
 				alert((result.message || 'Chyba během vytváření dat. Kontaktuj autora.'));
 			} else {
+				$('#structure-header').html(result.result.header || '')
+				$('#structure-footer').html(result.result.footer || '')
 				parseStructure(result.result);
 				$('#filter input').val('');
 				S.filter();
@@ -403,9 +405,9 @@ function loadingStructure(loading) {
 	}
 }
 function loadingImage(loading) {
-    var modal = '#content-modal .modal-dialog .modal-content ';
+	var modal = '#content-modal .modal-dialog .modal-content ';
 	if (loading === true) {
-        $(modal + '.location').hide();
+		$(modal + '.location').hide();
 		$(modal + '.image-loading').show();
 		loadedStructure.loading = true;
 	}

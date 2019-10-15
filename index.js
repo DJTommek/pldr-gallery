@@ -750,10 +750,36 @@ webserver.get('/api/structure', function (req, res) {
 		});
 	});
 
-	Promise.all([loadFoldersPromise, loadFilesPromise]).then(function (data) {
+	var loadHeaderPromise = new Promise(function (resolve) {
+		fs.readFile(c.path + queryPath + 'header.html', function (error, data) {
+			if (error) {
+				if (error.code !== 'ENOENT') { // some other error than just missing file
+					log.error('Error while loading ' + c.path + queryPath + 'header.html: ' + error)
+				}
+				return resolve(null)
+			}
+			resolve(data.toString());
+		});
+	});
+
+	var loadFooterPromise = new Promise(function (resolve) {
+		fs.readFile(c.path + queryPath + 'footer.html', function (error, data) {
+			if (error) {
+				if (error.code !== 'ENOENT') { // some other error than just missing file
+					log.error('Error while loading ' + c.path + queryPath + 'footer.html: ' + error)
+				}
+				return resolve(null)
+			}
+			resolve(data.toString());
+		});
+	});
+
+	Promise.all([loadFoldersPromise, loadFilesPromise, loadHeaderPromise, loadFooterPromise]).then(function (data) {
 		res.result.setResult({
 			folders: data[0],
-			files: data[1]
+			files: data[1],
+			header: data[2],
+			footer: data[3]
 		});
 		res.end('' + res.result); // @HACK force toString()
 	});
