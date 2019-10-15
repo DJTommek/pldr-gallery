@@ -751,10 +751,15 @@ webserver.get('/api/structure', function (req, res) {
 	});
 
 	var loadHeaderPromise = new Promise(function (resolve) {
-		fs.readFile(c.path + queryPath + 'header.html', function (error, data) {
+		var headerPath = queryPath + 'header.html';
+		var fullHeaderPath = (c.path + headerPath).replaceAll('//', '/');
+		if (!perms.test(req.userPerms, headerPath)) { // user dont have permission to this header (or folder)
+			return resolve(null);
+		}
+		fs.readFile(fullHeaderPath, function (error, data) {
 			if (error) {
 				if (error.code !== 'ENOENT') { // some other error than just missing file
-					log.error('Error while loading ' + c.path + queryPath + 'header.html: ' + error)
+					log.error('Error while loading "' + fullHeaderPath + '": ' + error)
 				}
 				return resolve(null)
 			}
@@ -763,10 +768,15 @@ webserver.get('/api/structure', function (req, res) {
 	});
 
 	var loadFooterPromise = new Promise(function (resolve) {
-		fs.readFile(c.path + queryPath + 'footer.html', function (error, data) {
+		var footerPath = queryPath + 'footer.html';
+		var fullHeaderPath = (c.path + footerPath).replaceAll('//', '/');
+		if (!perms.test(req.userPerms, footerPath)) { // user dont have permission to this footer (or folder)
+			return resolve(null);
+		}
+		fs.readFile(fullHeaderPath, function (error, data) {
 			if (error) {
 				if (error.code !== 'ENOENT') { // some other error than just missing file
-					log.error('Error while loading ' + c.path + queryPath + 'footer.html: ' + error)
+					log.error('Error while loading "' + fullHeaderPath + '": ' + error)
 				}
 				return resolve(null)
 			}
