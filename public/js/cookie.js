@@ -5,7 +5,8 @@
  * Copyright 2006, 2015 Klaus Hartl & Fagner Brack
  * Released under the MIT license
  */
-;(function (factory) {
+;
+(function (factory) {
 	var registeredInModuleLoader = false;
 	if (typeof define === 'function' && define.amd) {
 		define(factory);
@@ -24,7 +25,7 @@
 		};
 	}
 }(function () {
-	function extend () {
+	function extend() {
 		var i = 0;
 		var result = {};
 		for (; i < arguments.length; i++) {
@@ -36,8 +37,8 @@
 		return result;
 	}
 
-	function init (converter) {
-		function api (key, value, attributes) {
+	function init(converter) {
+		function api(key, value, attributes) {
 			var result;
 			if (typeof document === 'undefined') {
 				return;
@@ -64,11 +65,12 @@
 					if (/^[\{\[]/.test(result)) {
 						value = result;
 					}
-				} catch (e) {}
+				} catch (e) {
+				}
 
 				if (!converter.write) {
 					value = encodeURIComponent(String(value))
-						.replace(/%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent);
+							.replace(/%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent);
 				} else {
 					value = converter.write(value, key);
 				}
@@ -116,13 +118,14 @@
 				try {
 					var name = parts[0].replace(rdecode, decodeURIComponent);
 					cookie = converter.read ?
-						converter.read(cookie, name) : converter(cookie, name) ||
-						cookie.replace(rdecode, decodeURIComponent);
+							converter.read(cookie, name) : converter(cookie, name) ||
+							cookie.replace(rdecode, decodeURIComponent);
 
 					if (this.json) {
 						try {
 							cookie = JSON.parse(cookie);
-						} catch (e) {}
+						} catch (e) {
+						}
 					}
 
 					if (key === name) {
@@ -133,7 +136,8 @@
 					if (!key) {
 						result[name] = cookie;
 					}
-				} catch (e) {}
+				} catch (e) {
+				}
 			}
 
 			return result;
