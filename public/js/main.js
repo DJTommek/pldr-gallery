@@ -420,14 +420,19 @@ function parseStructure(items) {
 }
 
 function loadingStructure(loading) {
-
 	if (loading === true) {
+		// add loading icon to specific item in structure
+		$('.structure-selected td:nth-child(2) a').prepend('<i class="fa fa-circle-o-notch fa-spin"></i> ');
+
 		$('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
 		$('#filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
 		$('#filter input').prop('disabled', true);
 		$('#filter .search').prop('disabled', true);
 	}
 	if (loading === false) {
+		// new structure will override loading icon but remove it manually in case of error
+		$('.structure-selected td:nth-child(2) a i').remove();
+
 		$('#filter input').prop('disabled', false);
 		$('#filter .search').prop('disabled', false);
 	}
