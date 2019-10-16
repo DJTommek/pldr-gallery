@@ -1,7 +1,7 @@
 jwerty.key('up', function (e) {
 	e.preventDefault();
 	S.selectorMove('up');
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 		// if new selected item is not file, select first file and show it
 		if (!S.get(S.selectedIndex).isFile) {
 			S.selectorMove(S.getFirstFile().index);
@@ -10,7 +10,7 @@ jwerty.key('up', function (e) {
 	}
 });
 jwerty.key('left', function (e) {
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 		e.preventDefault();
 		S.selectorMove('up');
 		// if new selected item is not file, select first file and show it
@@ -25,12 +25,12 @@ jwerty.key('left', function (e) {
 jwerty.key('down', function (e) {
 	e.preventDefault();
 	S.selectorMove('down');
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 		S.selectorSelect();
 	}
 });
 jwerty.key('right', function (e) {
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 		e.preventDefault();
 		S.selectorMove('down');
 		S.selectorSelect();
@@ -42,7 +42,7 @@ jwerty.key('right', function (e) {
 jwerty.key('home', function (e) {
 	e.preventDefault();
 	S.selectorMove('first');
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 		// if new selected item is not file, select first file and show it
 		if (S.get(S.selectedIndex).isFile === false) {
 			S.selectorMove(S.getFirstFile().index);
@@ -55,9 +55,9 @@ jwerty.key('page-up', function (e) {
 	for (var i = 0; i < 10; i++) {
 		S.selectorMove('up');
 	}
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 		// if new selected item is not file, select first file and show it
-		// If modal is opened, at least one file is always available
+		// If popup is opened, at least one file is always available
 		if (S.get(S.selectedIndex).isFile === false) {
 			S.selectorMove(S.getFirstFile().index);
 		}
@@ -69,7 +69,7 @@ jwerty.key('page-down', function (e) {
 	for (var i = 0; i < 10; i++) {
 		S.selectorMove('down');
 	}
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 		S.selectorSelect();
 	}
 });
@@ -77,15 +77,15 @@ jwerty.key('page-down', function (e) {
 jwerty.key('end', function (e) {
 	e.preventDefault();
 	S.selectorMove('last');
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 		S.selectorSelect();
 	}
 });
 jwerty.key('enter', function (e) {
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 		var item = S.getCurrentFile();
 		if (item.isImage) {
-			$('#content-modal .modal-dialog .modal-content a.image')[0].click();
+			$('#popup-filename')[0].click();
 		}
 		// @TODO video open in fullscreen (also disable move left and right)
 	} else {
@@ -98,7 +98,7 @@ jwerty.key('enter', function (e) {
 });
 
 jwerty.key('ctrl+enter', function (e) {
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 
 	} else {
 		$('#filter .search').trigger('click');
@@ -106,7 +106,7 @@ jwerty.key('ctrl+enter', function (e) {
 });
 
 jwerty.key('space', function (e) {
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 		e.preventDefault(); // do not delete text from filter
 		videoToggle();
 	} else {
@@ -115,16 +115,16 @@ jwerty.key('space', function (e) {
 });
 
 jwerty.key('backspace', function (e) {
-	if (loadedStructure.modal) {
+	if (loadedStructure.popup) {
 		e.preventDefault(); // do not delete text from filter
-		$('#content-modal').modal('hide');
+		popupClose();
 	} else {
 		// filter is focused, dont do anything special
 	}
 });
 jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
-	if (loadedStructure.modal) {
-		$('#content-modal').modal('hide');
+	if (loadedStructure.popup) {
+		popupClose();
 	} else { // go back
 		var item = S.getFirst();
 		if (item.displayText === '..') { // @HACK should be some property to recognize "go back"
@@ -135,7 +135,7 @@ jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
 });
 // Autofocus into input before start typing
 $(window).on('keypress', function (event) {
-	if (loadedStructure.modal === false) {
+	if (loadedStructure.popup === false) {
 		$('#filter input').focus();
 	}
 });

@@ -1,44 +1,52 @@
 var loadedStructure = {
 	loadedFolder: '', // default is loaded nothing
-	modal: false, // Is modal visible?
+	popup: false, // Is popup visible?
 	filtering: false,
 };
+var c = {
+	fadeSpeed: 250
+}
+
 const S = new Structure();
 
 function loadAndResize() {
-	// resize image in modal to fit the screen
-	$('.modal-body a.image').css('height', $('.modal-content').height() - 100); // keep some space for text (eg. file name)
-	$('.modal-body a.image').css('width', $('.modal-content').width());
+	// resize image in popup to fit the screen
+	$('#popup').css('height', window.innerHeight - $('#popup-footer').outerHeight());
+	$('#popup').css('width', window.innerWidth);
 
-	$('.modal-body video').css('height', $('.modal-content').height() - 100); // keep some space for text (eg. file name)
-	$('.modal-body video').css('width', $('.modal-content').width());
+	$('#popup-content').css('max-height', window.innerHeight - $('#popup-footer').outerHeight());
+	$('#popup-content').css('max-width', window.innerWidth);
 }
 
 $(window).resize(function () {
 	loadAndResize();
 });
-// loading is done when img is loaded (also as background to another element)
-$('#content-modal .modal-dialog .modal-content img').load(function () {
-	loadingImage(false);
+$('#popup-video').on('loadeddata', function () {
+	$(this).fadeIn(c.fadeSpeed, function () {
+		loadingPopup(false);
+	});
+});
+// loading is done when img is loaded
+$('#popup-image').load(function () {
+	$(this).fadeIn(c.fadeSpeed, function () {
+		loadingPopup(false);
+	});
 	// Bug: exifdata is cached and will not change if img src is changed
 	// Delete cached exifdata. @Author: https://github.com/exif-js/exif-js/issues/163#issuecomment-412714098
 	delete this.exifdata;
 	EXIF.getData(this, function () {
-		var modal = '#content-modal .modal-dialog .modal-content ';
 		try {
 			exifTags = EXIF.getAllTags(this);
 			coords = {
 				lat: convertDMSToDD(exifTags['GPSLatitude'][0], exifTags['GPSLatitude'][1], exifTags['GPSLatitude'][2], exifTags['GPSLatitudeRef']),
 				lon: convertDMSToDD(exifTags['GPSLongitude'][0], exifTags['GPSLongitude'][1], exifTags['GPSLongitude'][2], exifTags['GPSLongitudeRef']),
 			};
-			$(modal + '.location').attr('href', 'https://www.google.cz/maps/place/' + coords['lat'] + ',' + coords['lon']).show();
-			console.log(coords);
+			$('#popup-location').attr('href', 'https://www.google.cz/maps/place/' + coords['lat'] + ',' + coords['lon']).show();
 		} catch (error) {
 			// Exif data is probably missing
 		}
-	})
+	});
 });
-
 /**
  * Global error handler
  * @author https://stackoverflow.com/a/10556743/3334403
@@ -52,58 +60,61 @@ window.onerror = function (msg, url, line, col, error) {
 	var extra = !col ? '' : '\ncolumn: ' + col;
 	extra += !error ? '' : '\nerror: ' + error;
 	var text = "Error: " + msg + "\nurl: " + url + "\nline: " + line + extra;
-
 	// Report and save error on server
 	$.post('/api/report', {type: 'javascript', 'raw': text});
 	alert('Nastala neočekávaná chyba. Pokud se opakuje, udělej screenshot obrazovky a kontaktuj správce.\n' + text);
-
 	// If you return true, then error alerts (like in older versions of Internet Explorer) will be suppressed.
 	return true;
 };
-
 // If hash is changed, something is being loaded (image of folder)
 $(window).on('hashchange', function (e) {
-	$('#filter input').focus();
 	S.setCurrent(window.location.hash);
 	loadStructure(false, function () { // load folder structure
-		// If selected item is file, open modal with image
+		// If selected item is file, open popup with image
 		var currentFile = S.getCurrentFile();
 		if (currentFile) { // loaded item is file
-			S.selectorMove(currentFile.index); // highlight loaded image
-			var modal = '#content-modal .modal-dialog .modal-content ';
-			$(modal + '.file-name').attr('href', S.getFileUrl(currentFile.index, true));
-			$(modal + '.file-name span').text(currentFile.paths.last());
+			loadingPopup(true); // starting loading img
+			//@TODO - bug, when there is delay while opening popup.
+			// But it works fine if moving to another item without closing popup
+			Promise.all([
+				// Before continuing loading next item first has to hide previous,
+				// otherwise while fading out it will flash new item
+				$('#popup-video').fadeOut(c.fadeSpeed).promise(),
+				$('#popup-image').fadeOut(c.fadeSpeed).promise()
+			]).then(function () {
+				S.selectorMove(currentFile.index); // highlight loaded image
+				$('#popup-location').hide();
+				$('#popup-filename').text(currentFile.paths.last()).attr('href', S.getFileUrl(currentFile.index));
+				$('#popup-filename').attr('title', currentFile.path); // @TODO convert to tooltip
+				popupOpen();
+				if (currentFile.isImage) {
+					$('#popup-image').attr('src', S.getFileUrl(currentFile.index));
+					// fade in animation is triggered on image load
+				}
+				if (currentFile.isVideo) {
+					$('#popup-video source').attr('src', S.getFileUrl(currentFile.index));
+					$('#popup-video').load();
+				}
 
-			$(modal + 'a.image').hide();
-			$(modal + 'video').hide();
-
-			if (currentFile.isVideo) {
-				$(modal + 'video source').attr('src', S.getFileUrl(currentFile.index));
-				$(modal + 'video').show().load();
-			}
-			if (currentFile.isImage) {
-				$(modal + 'a.image').show().attr('href', S.getFileUrl(currentFile.index)).css('background-image', 'url(' + S.getFileUrl(currentFile.index) + ')');
-				loadingImage(true); // starting loading img
-				$(modal + 'img').attr('src', S.getFileUrl(currentFile.index));
-			}
-			var prevFile = S.getPrevious(currentFile.index);
-			if (prevFile && prevFile.isFile) {
-				$(modal + 'a.prev').show().attr('href', '#' + prevFile.path);
-				$(modal + 'span.prev').hide();
-			} else {
-				$(modal + '.prev').hide();
-				$(modal + 'span.prev').show();
-			}
-			var nextFile = S.getNext(currentFile.index);
-			if (nextFile) {
-				$(modal + 'span.next').hide();
-				$(modal + 'a.next').show().attr('href', '#' + nextFile.path);
-			} else {
-				$(modal + 'a.next').hide();
-				$(modal + 'span.next').show();
-			}
-			$('#content-modal').modal('show');
+				// @TODO upgrade counter to respect filter
+				$('#popup-counter').text((currentFile.index + 1 - S.getFolders().length) + '/' + S.getFiles().length);
+				var prevFile = S.getPrevious(currentFile.index);
+				if (prevFile && prevFile.isFile) {
+					$('#popup-footer-prev').attr('href', '#' + prevFile.path);
+					$('#popup-prev').attr('href', '#' + prevFile.path);
+				} else {
+					//@TODO get last file
+				}
+				var nextFile = S.getNext(currentFile.index);
+				if (nextFile) {
+					$('#popup-footer-next').attr('href', '#' + nextFile.path);
+					$('#popup-next').attr('href', '#' + nextFile.path);
+				} else {
+					//@TODO get first file
+				}
+			})
 		} else { // If selected item is folder, load structure of that folder
+			popupClose();
 			var previousPath = decodeURI(e.originalEvent.oldURL.split('#')[1]); // get previous path
 			var item = S.getByName(previousPath);
 			if (item) { // founded = going back
@@ -114,7 +125,6 @@ $(window).on('hashchange', function (e) {
 		}
 	});
 });
-
 $(function () {
 	loadAndResize();
 	updateLoginButtons();
@@ -130,9 +140,7 @@ $(function () {
 		window.dispatchEvent(new HashChangeEvent("hashchange"));
 	}
 	S.setCurrent(window.location.hash);
-
 	$('[data-toggle="tooltip"]').tooltip();
-
 	$('#button-logout').on('click', function (event) {
 		event.preventDefault();
 		if (confirm('Opravdu se chceš odhlásit?')) {
@@ -146,12 +154,13 @@ $(function () {
 			});
 		}
 	});
-
+	$('#popup-close, #popup-content').on('click', function (event) {
+		popupClose();
+	});
 	$('#filter .search').on('click', function (event) {
 		event.preventDefault();
 		loadSearch();
 	});
-
 	// settings
 	if (Cookies.get('settings-compress') === 'true') {
 		$('#settings-compress').attr('checked', true);
@@ -159,7 +168,6 @@ $(function () {
 	$('#settings-compress').on('click', function (e) {
 		Cookies.set('settings-compress', $(this).is(':checked'));
 	});
-
 	// Set text into dropdown menu according enabled theme
 	var theme = localStorage.getItem("theme");
 	if (theme && theme === 'dark') {
@@ -183,7 +191,6 @@ $(function () {
 		$('body').removeClass();
 		$('body').addClass('theme-' + theme);
 	});
-
 	// some line is selected
 	$('#structure').on('click', 'table tbody tr', function (e) {
 		e.preventDefault();
@@ -191,41 +198,41 @@ $(function () {
 		S.selectorSelect();
 		return;
 	});
-
-	$('#content-modal').on('show.bs.modal', function (e) {
-		loadedStructure.modal = true;
-	}).on('shown.bs.modal', function () {
-		loadAndResize();
-	}).on('hide.bs.modal', function () {
-		loadedStructure.modal = false;
-		window.location.hash = S.getCurrentFolder();
-		videoPause();
-	});
 });
+function popupOpen() {
+	loadedStructure.popup = true;
+	$('#popup').fadeIn(c.fadeSpeed);
+}
+function popupClose() {
+	$('#popup').fadeOut(c.fadeSpeed);
+	loadedStructure.popup = false;
+	window.location.hash = S.getCurrentFolder();
+	videoPause();
+}
 
 function videoToggle() {
 	try {
-		if ($('#content-modal video')[0].paused) {
+		if ($('#popup-video')[0].paused) {
 			videoPlay();
 		} else {
 			videoPause();
 		}
 	} catch (exception) {
-		// In case of invalid src (for example)
+// In case of invalid src (for example)
 	}
 }
 function videoPause() {
 	try {
-		$('#content-modal video')[0].pause();
+		$('#popup-video')[0].pause();
 	} catch (exception) {
-		// In case of invalid src (for example)
+// In case of invalid src (for example)
 	}
 }
 function videoPlay() {
 	try {
-		$('#content-modal video')[0].play();
+		$('#popup-video')[0].play();
 	} catch (exception) {
-		// In case of invalid src (for example)
+// In case of invalid src (for example)
 	}
 }
 function updateLoginButtons() {
@@ -275,7 +282,7 @@ function loadSearch(callback) {
 	});
 }
 function loadStructure(force, callback) {
-	// in case of triggering loading the same structure again (already loaded), skip it
+// in case of triggering loading the same structure again (already loaded), skip it
 	if (force !== true && loadedStructure.loadedFolder === S.getCurrentFolder()) {
 		console.log("Structure is already loaded, skip");
 		return (typeof callback === 'function' && callback());
@@ -311,7 +318,7 @@ function loadStructure(force, callback) {
 }
 
 function parseStructure(items) {
-	// in case of triggering loading the same structure again (already loaded), skip it
+// in case of triggering loading the same structure again (already loaded), skip it
 	updateLoginButtons(); // might be logged out
 	var limited = false;
 	var limit = 1000;
@@ -338,7 +345,6 @@ function parseStructure(items) {
 		}
 	});
 	$('#currentPath').html(breadcrumbHtml);
-
 	var content = '';
 	content += '<table class="table-striped table-condensed"><thead>';
 	content += ' <tr>';
@@ -372,7 +378,6 @@ function parseStructure(items) {
 		content += '<td title="' + created + '\nPřed ' + msToHuman(new Date() - item.created) + '">' + created.date + ' <span>' + created.time + '</span></td>';
 		content += '</tr>';
 	});
-
 	if (maxVisible === 0) {
 		content += '<tr class="structure-back" data-type="folder">';
 		content += '<td><i class="fa fa-info fa-fw"></i></td>';
@@ -404,15 +409,14 @@ function loadingStructure(loading) {
 		$('#filter .search').prop('disabled', false);
 	}
 }
-function loadingImage(loading) {
-	var modal = '#content-modal .modal-dialog .modal-content ';
+function loadingPopup(loading) {
 	if (loading === true) {
-		$(modal + '.location').hide();
-		$(modal + '.image-loading').show();
 		loadedStructure.loading = true;
+		$('#popup-loading').show();
 	}
 	if (loading === false) {
-		$(modal + '.image-loading').hide();
+		loadedStructure.loading = false;
+		$('#popup-loading').hide();
 	}
 	return loadedStructure.loading;
 }
