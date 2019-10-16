@@ -1,16 +1,22 @@
 jwerty.key('up', function (e) {
-	e.preventDefault();
-	S.selectorMove('up');
-	if (loadedStructure.popup) {
-		// if new selected item is not file, select first file and show it
-		if (!S.get(S.selectedIndex).isFile) {
-			S.selectorMove(S.getFirstFile().index);
+	if (loadedStructure.settings) {
+
+	} else {
+		e.preventDefault();
+		S.selectorMove('up');
+		if (loadedStructure.popup) {
+			// if new selected item is not file, select first file and show it
+			if (!S.get(S.selectedIndex).isFile) {
+				S.selectorMove(S.getFirstFile().index);
+			}
+			S.selectorSelect();
 		}
-		S.selectorSelect();
 	}
 });
 jwerty.key('left', function (e) {
-	if (loadedStructure.popup) {
+	if (loadedStructure.settings) {
+
+	} else if (loadedStructure.popup) {
 		e.preventDefault();
 		S.selectorMove('up');
 		// if new selected item is not file, select first file and show it
@@ -23,14 +29,20 @@ jwerty.key('left', function (e) {
 	}
 });
 jwerty.key('down', function (e) {
-	e.preventDefault();
-	S.selectorMove('down');
-	if (loadedStructure.popup) {
-		S.selectorSelect();
+	if (loadedStructure.settings) {
+
+	} else {
+		e.preventDefault();
+		S.selectorMove('down');
+		if (loadedStructure.popup) {
+			S.selectorSelect();
+		}
 	}
 });
 jwerty.key('right', function (e) {
-	if (loadedStructure.popup) {
+	if (loadedStructure.settings) {
+
+	} else if (loadedStructure.popup) {
 		e.preventDefault();
 		S.selectorMove('down');
 		S.selectorSelect();
@@ -40,49 +52,67 @@ jwerty.key('right', function (e) {
 });
 // @TODO should work this button in filter to go to the input beginning?
 jwerty.key('home', function (e) {
-	e.preventDefault();
-	S.selectorMove('first');
-	if (loadedStructure.popup) {
-		// if new selected item is not file, select first file and show it
-		if (S.get(S.selectedIndex).isFile === false) {
-			S.selectorMove(S.getFirstFile().index);
+	if (loadedStructure.settings) {
+
+	} else {
+		e.preventDefault();
+		S.selectorMove('first');
+		if (loadedStructure.popup) {
+			// if new selected item is not file, select first file and show it
+			if (S.get(S.selectedIndex).isFile === false) {
+				S.selectorMove(S.getFirstFile().index);
+			}
+			S.selectorSelect();
 		}
-		S.selectorSelect();
 	}
 });
 jwerty.key('page-up', function (e) {
-	e.preventDefault();
-	for (var i = 0; i < 10; i++) {
-		S.selectorMove('up');
-	}
-	if (loadedStructure.popup) {
-		// if new selected item is not file, select first file and show it
-		// If popup is opened, at least one file is always available
-		if (S.get(S.selectedIndex).isFile === false) {
-			S.selectorMove(S.getFirstFile().index);
+	if (loadedStructure.settings) {
+
+	} else {
+		e.preventDefault();
+		for (var i = 0; i < 10; i++) {
+			S.selectorMove('up');
 		}
-		S.selectorSelect();
+		if (loadedStructure.popup) {
+			// if new selected item is not file, select first file and show it
+			// If popup is opened, at least one file is always available
+			if (S.get(S.selectedIndex).isFile === false) {
+				S.selectorMove(S.getFirstFile().index);
+			}
+			S.selectorSelect();
+		}
 	}
 });
 jwerty.key('page-down', function (e) {
-	e.preventDefault();
-	for (var i = 0; i < 10; i++) {
-		S.selectorMove('down');
-	}
-	if (loadedStructure.popup) {
-		S.selectorSelect();
+	if (loadedStructure.settings) {
+
+	} else {
+		e.preventDefault();
+		for (var i = 0; i < 10; i++) {
+			S.selectorMove('down');
+		}
+		if (loadedStructure.popup) {
+			S.selectorSelect();
+		}
 	}
 });
 // @TODO should work this button in filter to go to the input end?
 jwerty.key('end', function (e) {
-	e.preventDefault();
-	S.selectorMove('last');
-	if (loadedStructure.popup) {
-		S.selectorSelect();
+	if (loadedStructure.settings) {
+
+	} else {
+		e.preventDefault();
+		S.selectorMove('last');
+		if (loadedStructure.popup) {
+			S.selectorSelect();
+		}
 	}
 });
 jwerty.key('enter', function (e) {
-	if (loadedStructure.popup) {
+	if (loadedStructure.settings) {
+		$("#form-settings").submit();
+	} else if (loadedStructure.popup) {
 		var item = S.getCurrentFile();
 		if (item.isImage) {
 			$('#popup-filename')[0].click();
@@ -98,7 +128,9 @@ jwerty.key('enter', function (e) {
 });
 
 jwerty.key('ctrl+enter', function (e) {
-	if (loadedStructure.popup) {
+	if (loadedStructure.settings) {
+
+	} else if (loadedStructure.popup) {
 
 	} else {
 		$('#filter .search').trigger('click');
@@ -106,7 +138,9 @@ jwerty.key('ctrl+enter', function (e) {
 });
 
 jwerty.key('space', function (e) {
-	if (loadedStructure.popup) {
+	if (loadedStructure.settings) {
+
+	} else if (loadedStructure.popup) {
 		e.preventDefault(); // do not delete text from filter
 		videoToggle();
 	} else {
@@ -115,7 +149,9 @@ jwerty.key('space', function (e) {
 });
 
 jwerty.key('backspace', function (e) {
-	if (loadedStructure.popup) {
+	if (loadedStructure.settings) {
+
+	} else if (loadedStructure.popup) {
 		e.preventDefault(); // do not delete text from filter
 		popupClose();
 	} else {
@@ -123,7 +159,9 @@ jwerty.key('backspace', function (e) {
 	}
 });
 jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
-	if (loadedStructure.popup) {
+	if (loadedStructure.settings) {
+
+	} else if (loadedStructure.popup) {
 		popupClose();
 	} else { // go back
 		var item = S.getFirst();
@@ -135,7 +173,11 @@ jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
 });
 // Autofocus into input before start typing
 $(window).on('keypress', function (event) {
-	if (loadedStructure.popup === false) {
+	if (loadedStructure.settings) {
+
+	} else if (loadedStructure.popup) {
+
+	} else {
 		$('#filter input').focus();
 	}
 });

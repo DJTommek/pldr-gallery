@@ -1,6 +1,7 @@
 var loadedStructure = {
 	loadedFolder: '', // default is loaded nothing
 	popup: false, // Is popup visible?
+	settings: false, // is settings modal visible?
 	filtering: false,
 };
 var c = {
@@ -161,6 +162,25 @@ $(function () {
 		event.preventDefault();
 		loadSearch();
 	});
+
+	// Fill form settings with values from Settings class
+	$('#form-settings input').each(function () {
+		let settingsName = $(this).attr('name');
+		$(this).val(Settings.load(settingsName));
+	});
+	// Save form values to Settings class
+	$('#form-settings').on('submit', function (event) {
+		event.preventDefault();
+		var values = $(this).serializeArray();
+		values.forEach(function (input) {
+			Settings.save(input.name, input.value)
+		});
+		$('#settings-save').html('Uloženo <i class="fa fa-check"></i>').addClass('btn-success').removeClass('btn-primary').prop('disabled', true);
+		setTimeout(function () {
+			$('#settings-save').html('Uložit').removeClass('btn-success').addClass('btn-primary').prop('disabled', false);
+		}, 2000);
+	});
+
 	// settings
 	if (Cookies.get('settings-compress') === 'true') {
 		$('#settings-compress').attr('checked', true);
@@ -194,6 +214,12 @@ $(function () {
 		S.selectorMove($(this).data('index'));
 		S.selectorSelect();
 		return;
+	});
+
+	$('#modal-settings').on('show.bs.modal', function () {
+		loadedStructure.settings = true;
+	}).on('hidden.bs.modal', function () {
+		loadedStructure.settings = false;
 	});
 });
 function popupOpen() {
