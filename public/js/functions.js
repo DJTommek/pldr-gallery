@@ -97,7 +97,12 @@ Date.prototype.human = function (returnObject) {
 		return res + '';
 	}
 }
-global.isNumeric = function (n) {
+
+/**
+ * Check, if value is numeric (number as string)
+ */
+global.isNumeric = isNumeric;
+function isNumeric(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
@@ -155,20 +160,20 @@ function humanToMs(humanString) {
  */
 global.convertDMSToDD = convertDMSToDD;
 function convertDMSToDD(degrees, minutes, seconds, direction) {
-    var dd = degrees + minutes/60 + seconds/(60*60);
-    dd = Math.round(dd * 1000000) / 1000000;
-    if (direction === "S" || direction === "W") {
-        dd = dd * -1;
-    } // Don't do anything for N or E
-    return dd;
+	var dd = degrees + minutes / 60 + seconds / (60 * 60);
+	dd = Math.round(dd * 1000000) / 1000000;
+	if (direction === "S" || direction === "W") {
+		dd = dd * -1;
+	} // Don't do anything for N or E
+	return dd;
 }
 
 /**
  * Prevent loading files and folders
- * 
+ *
  * @param {type} path
  */
 global.sanatizePath = sanatizePath;
 function sanatizePath(path) {
-    return path.replace(/(\.\.)|(^\/)/i, '');
+	return path.replace(/(\.\.)|(^\/)/i, '');
 }
