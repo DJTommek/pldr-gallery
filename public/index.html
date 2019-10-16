@@ -11,7 +11,7 @@
         <script>
 			/* set dark theme as soon as possible to prevent blink of white theme */
 			try {
-				if (localStorage.getItem("theme") === 'dark') {
+				if (localStorage.getItem("pldr-settings-theme") === 'dark') {
 					var element = document.getElementsByTagName("body")[0];
 					element.classList.add("theme-dark");
 				}
@@ -114,6 +114,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
 		<script type="text/javascript" src="js/functions.js?2"></script>
 		<script type="text/javascript" src="js/cookie.js"></script>
+		<script type="text/javascript" src="js/settings.js"></script>
 		<script type="text/javascript" src="js/structure.js"></script>
 		<script type="text/javascript" src="js/main.js?2"></script>
 		<script type="text/javascript" src="js/keyboard.js?2"></script>

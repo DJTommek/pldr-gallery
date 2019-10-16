@@ -22,13 +22,13 @@ $(window).resize(function () {
 	loadAndResize();
 });
 $('#popup-video').on('loadeddata', function () {
-	$(this).fadeIn(c.fadeSpeed, function () {
+	$(this).fadeIn(Settings.load('animationSpeed'), function () {
 		loadingPopup(false);
 	});
 });
 // loading is done when img is loaded
 $('#popup-image').load(function () {
-	$(this).fadeIn(c.fadeSpeed, function () {
+	$(this).fadeIn(Settings.load('animationSpeed'), function () {
 		loadingPopup(false);
 	});
 	// Bug: exifdata is cached and will not change if img src is changed
@@ -79,8 +79,8 @@ $(window).on('hashchange', function (e) {
 			Promise.all([
 				// Before continuing loading next item first has to hide previous,
 				// otherwise while fading out it will flash new item
-				$('#popup-video').fadeOut(c.fadeSpeed).promise(),
-				$('#popup-image').fadeOut(c.fadeSpeed).promise()
+				$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise(),
+				$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise()
 			]).then(function () {
 				S.selectorMove(currentFile.index); // highlight loaded image
 				$('#popup-location').hide();
@@ -134,8 +134,8 @@ $(function () {
 		Cookies.remove('pmg-redirect');
 	}
 	// If not set hash, load url from last time
-	if (!window.location.hash && localStorage.getItem("hash-before-unload")) {
-		window.location.hash = localStorage.getItem("hash-before-unload");
+	if (!window.location.hash && Settings.load('hashBeforeUnload')) {
+		window.location.hash = Settings.load('hashBeforeUnload');
 	} else {
 		window.dispatchEvent(new HashChangeEvent("hashchange"));
 	}
@@ -169,8 +169,7 @@ $(function () {
 		Cookies.set('settings-compress', $(this).is(':checked'));
 	});
 	// Set text into dropdown menu according enabled theme
-	var theme = localStorage.getItem("theme");
-	if (theme && theme === 'dark') {
+	if (Settings.load('theme') === 'dark') {
 		$('#settings-toggle-theme span').text('Rozsvítit');
 	}
 	/**
@@ -179,17 +178,15 @@ $(function () {
 	$('#settings-toggle-theme').on('click', function (event) {
 		event.stopPropagation(); // disable closing dropdown menu
 		event.preventDefault(); // disable a.href click
-		var theme = localStorage.getItem("theme");
-		if (!theme || theme === 'default') {
-			theme = 'dark';
+		let theme = Settings.load('theme');
+		if (theme === 'default') {
 			$(this).children('span').text('Rozsvítit');
+			theme = Settings.save('theme', 'dark');
 		} else {
-			theme = 'default';
 			$(this).children('span').text('Zhasnout');
+			theme = Settings.save('theme', 'default');
 		}
-		localStorage.setItem("theme", theme);
-		$('body').removeClass();
-		$('body').addClass('theme-' + theme);
+		$('body').removeClass().addClass('theme-' + theme);
 	});
 	// some line is selected
 	$('#structure').on('click', 'table tbody tr', function (e) {
@@ -201,10 +198,10 @@ $(function () {
 });
 function popupOpen() {
 	loadedStructure.popup = true;
-	$('#popup').fadeIn(c.fadeSpeed);
+	$('#popup').fadeIn(Settings.load('animationSpeed'));
 }
 function popupClose() {
-	$('#popup').fadeOut(c.fadeSpeed);
+	$('#popup').fadeOut(Settings.load('animationSpeed'));
 	loadedStructure.popup = false;
 	window.location.hash = S.getCurrentFolder();
 	videoPause();
