@@ -4,9 +4,6 @@ var loadedStructure = {
 	settings: false, // is settings modal visible?
 	filtering: false,
 };
-var c = {
-	fadeSpeed: 250
-}
 
 const S = new Structure();
 
@@ -75,8 +72,6 @@ $(window).on('hashchange', function (e) {
 		var currentFile = S.getCurrentFile();
 		if (currentFile) { // loaded item is file
 			loadingPopup(true); // starting loading img
-			//@TODO - bug, when there is delay while opening popup.
-			// But it works fine if moving to another item without closing popup
 			Promise.all([
 				// Before continuing loading next item first has to hide previous,
 				// otherwise while fading out it will flash new item
@@ -228,6 +223,12 @@ function popupOpen() {
 }
 function popupClose() {
 	$('#popup').fadeOut(Settings.load('animationSpeed'));
+
+	// This will prevent waiting (promise) on re-opening popup window:
+	// animation in promise will skip if elements are already faded out
+	$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise();
+	$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise();
+
 	loadedStructure.popup = false;
 	window.location.hash = S.getCurrentFolder();
 	videoPause();
