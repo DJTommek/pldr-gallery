@@ -353,15 +353,14 @@ function parseStructure(items) {
 // in case of triggering loading the same structure again (already loaded), skip it
 	updateLoginButtons(); // might be logged out
 	var limited = false;
-	var limit = 1000;
 	var realTotal = items.folders.length + items.files.length;
-	if (realTotal >= limit) {
+	if (Settings.load('structureItemLimit') > 0 && realTotal >= Settings.load('structureItemLimit')) {
 		limited = true;
-		if (items.folders.length > limit) {
-			items.folders = items.folders.slice(0, limit);
+		if (items.folders.length > Settings.load('structureItemLimit')) {
+			items.folders = items.folders.slice(0, Settings.load('structureItemLimit'));
 		}
-		if (items.files.length > limit) {
-			items.files = items.files.slice(0, limit);
+		if (items.files.length > Settings.load('structureItemLimit')) {
+			items.files = items.files.slice(0, Settings.load('structureItemLimit'));
 		}
 	}
 	loadedStructure.loadedFolder = S.getCurrentFolder();
@@ -419,7 +418,7 @@ function parseStructure(items) {
 	if (limited) {
 		content += '<tr class="structure-limited" data-type="folder">';
 		content += '<td><i class="fa fa-info fa-fw"></i></td>';
-		content += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (realTotal) + ' položek ale z důvodu rychlosti jsou některé skryty. Pro zobrazení, @TODO.</td>';
+		content += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (realTotal) + ' položek ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</td>';
 		content += '</tr>';
 	}
 	content += '</tbody></table>';

@@ -3,6 +3,7 @@
 	var settingsValues = {
 		theme: 'default',
 		animationSpeed: 250,
+		structureItemLimit: 1000,
 		hashBeforeUnload: '/'
 	}
 	var Settings = {

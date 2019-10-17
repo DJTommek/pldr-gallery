@@ -102,9 +102,17 @@
 					<div class="modal-body">
 						<form id="form-settings">
 							<div class="form-group">
-								<label for="settings-animationSpeed">Rychlost animací (v milisekundách)</label>
+								<label for="settings-animationSpeed">Rychlost animací (v milisekundách):</label>
 								<input type="number" required name="animationSpeed" id="settings-animationSpeed" class="form-control" min="0" max="10000">
 								<small class="form-text text-muted">0 = bez animací, 250 = výchozí hodnota</small>
+							</div>
+							<div class="form-group">
+								<label for="settings-structureItemLimit">Maximální počet zobrazovaných položek ve složce:</label>
+								<input type="number" required name="structureItemLimit" id="settings-structureItemLimit" class="form-control" min="0">
+								<small class="form-text text-muted">
+									0 = všechny, 1000 = výchozí hodnota<br>
+									<i class="fa fa-warning"></i> Pokud má složka příliš velké množství položek a tato hodnota bude taktéž vysoká, může načítání chvíli trvat popř může zpomalit či úplně zablokovat prohlížeč.
+								</small>
 							</div>
 							<button type="submit" id="settings-save" class="btn btn-primary">Uložit</button>
 						</form>
