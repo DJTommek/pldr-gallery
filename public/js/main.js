@@ -4,14 +4,11 @@ var loadedStructure = {
 	settings: false, // is settings modal visible?
 	filtering: false,
 };
-
 const S = new Structure();
-
 function loadAndResize() {
 	// resize image in popup to fit the screen
 	$('#popup').css('height', window.innerHeight - $('#popup-footer').outerHeight());
 	$('#popup').css('width', window.innerWidth);
-
 	$('#popup-content').css('max-height', window.innerHeight - $('#popup-footer').outerHeight());
 	$('#popup-content').css('max-width', window.innerWidth);
 }
@@ -157,7 +154,6 @@ $(function () {
 		event.preventDefault();
 		loadSearch();
 	});
-
 	// Fill form settings with values from Settings class
 	$('#form-settings input').each(function () {
 		let settingsName = $(this).attr('name');
@@ -174,14 +170,6 @@ $(function () {
 		setTimeout(function () {
 			$('#settings-save').html('Uložit').removeClass('btn-success').addClass('btn-primary').prop('disabled', false);
 		}, 2000);
-	});
-
-	// settings
-	if (Cookies.get('settings-compress') === 'true') {
-		$('#settings-compress').attr('checked', true);
-	}
-	$('#settings-compress').on('click', function (e) {
-		Cookies.set('settings-compress', $(this).is(':checked'));
 	});
 	// Set text into dropdown menu according enabled theme
 	if (Settings.load('theme') === 'dark') {
@@ -211,6 +199,28 @@ $(function () {
 		return;
 	});
 
+	if (Cookies.get('pmg-passwords')) {
+		$.getJSON("/api/password", function (response) {
+			try {
+				response.result.forEach(function (pass) {
+					let html = '<h5>' + pass.password + ':</h5>';
+					let htmlPasswords = [];
+					pass.permissions.forEach(function (perm) {
+						htmlPasswords.push('<a href="#' + perm + '">' + perm + '</a>');
+					});
+					html += '<p>' + htmlPasswords.join('<br>') + '</p>';
+					$('#form-passwords').append(html);
+				});
+			} catch (error) {
+				console.error('Error while loading password: ' + error);
+			}
+			$('#form-passwords-loading').hide();
+		});
+	} else {
+		$('#form-passwords-loading').hide();
+		$('#form-passwords-nothing').show();
+	}
+
 	$('#modal-settings').on('show.bs.modal', function () {
 		loadedStructure.settings = true;
 	}).on('hidden.bs.modal', function () {
@@ -223,12 +233,10 @@ function popupOpen() {
 }
 function popupClose() {
 	$('#popup').fadeOut(Settings.load('animationSpeed'));
-
 	// This will prevent waiting (promise) on re-opening popup window:
 	// animation in promise will skip if elements are already faded out
 	$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise();
 	$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise();
-
 	loadedStructure.popup = false;
 	window.location.hash = S.getCurrentFolder();
 	videoPause();
@@ -424,7 +432,6 @@ function loadingStructure(loading) {
 	if (loading === true) {
 		// add loading icon to specific item in structure
 		$('.structure-selected td:nth-child(2) a').prepend('<i class="fa fa-circle-o-notch fa-spin"></i> ');
-
 		$('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
 		$('#filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
 		$('#filter input').prop('disabled', true);
@@ -433,7 +440,6 @@ function loadingStructure(loading) {
 	if (loading === false) {
 		// new structure will override loading icon but remove it manually in case of error
 		$('.structure-selected td:nth-child(2) a i').remove();
-
 		$('#filter input').prop('disabled', false);
 		$('#filter .search').prop('disabled', false);
 	}
