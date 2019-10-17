@@ -387,6 +387,7 @@ webserver.get('/api/download', function (req, res) {
  * @returns JSON list of permissions
  */
 webserver.get('/api/password', function (req, res) {
+	res.setHeader("Content-Type", "application/json");
 	res.statusCode = 200;
 	try {
 		var passwordCookie = req.cookies['pmg-passwords'];
