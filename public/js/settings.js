@@ -4,6 +4,7 @@
 		theme: 'default',
 		animationSpeed: 250,
 		structureItemLimit: 1000,
+		favouriteFolders: [],
 		hashBeforeUnload: '/'
 	}
 	var Settings = {
@@ -22,11 +23,16 @@
 			let value = settingsValues[name];
 			if (value) {
 				if (isNumeric(value)) {
-					value = parseInt(value);
+					return parseInt(value);
 				} else if (value === 'true') {
-					value = true;
+					return true;
 				} else if (value === 'false') {
-					value = false;
+					return false;
+				}
+				try {
+					return JSON.parse(value)
+				} catch (error) {
+					// do nothing, probably is not JSON
 				}
 				return value;
 			}
@@ -42,9 +48,17 @@
 		 * @returns {string|int|boolean}
 		 */
 		save: function (name, value) {
+			if (typeof name === 'undefined' || typeof value === 'undefined') {
+				console.error('Settings.save() require two parameters.')
+				return null;
+			}
 			if (!settingsValues[name]) {
 				console.error('Settings with name "' + name + '" does not exists, cant save.')
 				return null;
+			}
+			// is Array or JSON
+			if (Array.isArray(value) || value && value.constructor === ({}).constructor) {
+				value = JSON.stringify(value);
 			}
 			settingsValues[name] = value;
 			localStorage.setItem('pldr-settings-' + name, value);

@@ -221,6 +221,19 @@ $(function () {
 		$('#form-passwords-nothing').show();
 	}
 
+	$('#currentPath').on('click', '#breadcrumb-favourite', function () {
+		var path = $(this).data('path');
+		var saved = Settings.load('favouriteFolders')
+		if ($(this).hasClass('fa-star')) { // Is already added to favourites
+			saved.pushUnique(path);
+			$(this).addClass('fa-star-o').removeClass('fa-star');
+		} else {
+			saved.removeByValue(path);
+			$(this).addClass('fa-star').removeClass('fa-star-o');
+		}
+		Settings.save('favouriteFolders', saved);
+	});
+
 	$('#modal-settings').on('show.bs.modal', function () {
 		loadedStructure.settings = true;
 	}).on('hidden.bs.modal', function () {
@@ -240,6 +253,10 @@ function popupClose() {
 	loadedStructure.popup = false;
 	window.location.hash = S.getCurrentFolder();
 	videoPause();
+}
+
+function generateFavouritesMenu() {
+	var saved = Settings.load('favourieFolders');
 }
 
 function videoToggle() {
@@ -372,10 +389,13 @@ function parseStructure(items) {
 	var breadcrumbPath = '/';
 	S.getCurrentFolder(true).forEach(function (folderName) {
 		if (folderName) {
-			breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += folderName + '/') + ' ">' + decodeURI(folderName) + '</a></li>';
+			breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += folderName + '/') + '">' + decodeURI(folderName) + '</a></li>';
 		}
 	});
+//	let icon = (Settings.load('favouriteFolders').indexOf(S.getCurrentFolder()) >= 0) ? 'fa-star' : 'fa-star-o';
+//	breadcrumbHtml += '<li><a id="breadcrumb-favourite" class="fa fa-fw ' + icon + '" data-path="' + S.getCurrentFolder() + '"></a></li>';
 	$('#currentPath').html(breadcrumbHtml);
+
 	var content = '';
 	content += '<table class="table-striped table-condensed"><thead>';
 	content += ' <tr>';
