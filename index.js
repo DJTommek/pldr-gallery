@@ -267,7 +267,6 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 				}
 			}
 			res.locals.path = queryPath;
-			res.locals.fullPath = fullPath;
 		} catch (error) {
 			// log to debug because anyone can generate invalid paths
 			log.debug('(Web) Requested invalid path "' + req.query.path + '", error: ' + error + '.');
