@@ -66,6 +66,24 @@ Array.prototype.last = function (last) {
 	return this[this.length - (last || 1)];
 }
 
+/**
+ * Remove item from array by value
+ */
+Array.prototype.removeByValue = function (item) {
+	var index = this.indexOf(item);
+	if (index !== -1) {
+		this.splice(index, 1);
+	}
+	return this;
+}
+
+Array.prototype.pushUnique = function (item) {
+	if (this.indexOf(item) === -1) {
+		this.push(item);
+	}
+	return this;
+}
+
 function formatBytes(bytes, decimals) {
 	if (bytes == 0)
 		return '0 Bytes';
