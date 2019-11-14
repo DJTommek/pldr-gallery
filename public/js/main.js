@@ -73,12 +73,24 @@ $(window).on('hashchange', function (e) {
 				// Before continuing loading next item first has to hide previous,
 				// otherwise while fading out it will flash new item
 				$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise(),
-				$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise()
+				$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise(),
+				$('#popup-icon').fadeOut(Settings.load('animationSpeed')).promise(),
 			]).then(function () {
 				S.selectorMove(currentFile.index); // highlight loaded image
 				$('#popup-location').hide();
-				$('#popup-filename').text(currentFile.paths.last()).attr('href', S.getFileUrl(currentFile.index));
+
+				let openUrl = S.getFileUrl(currentFile.index);
+				let downloadUrl = S.getFileUrl(currentFile.index, true);
+				if (!openUrl) { // If item has no view url, use icon to indicate it is file that has to be downloaded
+					openUrl = downloadUrl;
+					$('#popup-icon').removeClass().addClass('fa fa-5x fa-' + currentFile.icon);
+					$('#popup-icon').fadeIn(Settings.load('animationSpeed'), function () {
+						loadingPopup(false);
+					});
+				}
+				$('#popup-filename').text(currentFile.paths.last()).attr('href', openUrl);
 				$('#popup-filename').attr('title', currentFile.path); // @TODO convert to tooltip
+				$('#popup-download').attr('href', downloadUrl);
 				popupOpen();
 				if (currentFile.isImage) {
 					$('#popup-image').attr('src', S.getFileUrl(currentFile.index));
@@ -198,7 +210,6 @@ $(function () {
 		S.selectorSelect();
 		return;
 	});
-
 	if (Cookies.get('pmg-passwords')) {
 		$.getJSON("/api/password", function (response) {
 			try {
@@ -233,7 +244,6 @@ $(function () {
 		}
 		Settings.save('favouriteFolders', saved);
 	});
-
 	$('#modal-settings').on('show.bs.modal', function () {
 		loadedStructure.settings = true;
 	}).on('hidden.bs.modal', function () {
@@ -395,7 +405,6 @@ function parseStructure(items) {
 //	let icon = (Settings.load('favouriteFolders').indexOf(S.getCurrentFolder()) >= 0) ? 'fa-star' : 'fa-star-o';
 //	breadcrumbHtml += '<li><a id="breadcrumb-favourite" class="fa fa-fw ' + icon + '" data-path="' + S.getCurrentFolder() + '"></a></li>';
 	$('#currentPath').html(breadcrumbHtml);
-
 	var content = '';
 	content += '<table class="table-striped table-condensed"><thead>';
 	content += ' <tr>';

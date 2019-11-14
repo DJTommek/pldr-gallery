@@ -109,6 +109,7 @@ body {
 }
 #popup-image,
 #popup-video,
+#popup-icon,
 #popup-loading {
 	max-height: inherit;
 	max-width: inherit;
