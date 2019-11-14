@@ -106,20 +106,18 @@ $(window).on('hashchange', function (e) {
 
 				// generate URL for previous file buttons
 				let prevFile = S.getPrevious(currentFile.index);
+				let prevFileUrl = currentFile.path; // default is current file (do nothing)
 				if (prevFile && prevFile.isFile) { // if there is some previous file
 					prevFileUrl = prevFile.path;
-				} else { // if no next file, use current file url
-					let prevFileUrl = currentFile.path;
 				}
 				$('#popup-footer-prev').attr('href', '#' + prevFileUrl);
 				$('#popup-prev').attr('href', '#' + prevFileUrl);
 
 				// generate URL for next file buttons
 				let nextFile = S.getNext(currentFile.index);
+				let nextFileUrl = currentFile.path; // default is current file (do nothing)
 				if (nextFile && nextFile.isFile) { // if there is some next file
 					nextFileUrl = nextFile.path;
-				} else { // if no next file, use current file url
-					let nextFileUrl = currentFile.path;
 				}
 				$('#popup-footer-next').attr('href', '#' + nextFileUrl);
 				$('#popup-next').attr('href', '#' + nextFileUrl);
