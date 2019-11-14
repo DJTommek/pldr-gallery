@@ -103,20 +103,26 @@ $(window).on('hashchange', function (e) {
 
 				// @TODO upgrade counter to respect filter
 				$('#popup-counter').text((currentFile.index + 1 - S.getFolders().length) + '/' + S.getFiles().length);
-				var prevFile = S.getPrevious(currentFile.index);
-				if (prevFile && prevFile.isFile) {
-					$('#popup-footer-prev').attr('href', '#' + prevFile.path);
-					$('#popup-prev').attr('href', '#' + prevFile.path);
-				} else {
-					//@TODO get last file
+
+				// generate URL for previous file buttons
+				let prevFile = S.getPrevious(currentFile.index);
+				if (prevFile && prevFile.isFile) { // if there is some previous file
+					prevFileUrl = prevFile.path;
+				} else { // if no next file, use current file url
+					let prevFileUrl = currentFile.path;
 				}
-				var nextFile = S.getNext(currentFile.index);
-				if (nextFile) {
-					$('#popup-footer-next').attr('href', '#' + nextFile.path);
-					$('#popup-next').attr('href', '#' + nextFile.path);
-				} else {
-					//@TODO get first file
+				$('#popup-footer-prev').attr('href', '#' + prevFileUrl);
+				$('#popup-prev').attr('href', '#' + prevFileUrl);
+
+				// generate URL for next file buttons
+				let nextFile = S.getNext(currentFile.index);
+				if (nextFile && nextFile.isFile) { // if there is some next file
+					nextFileUrl = nextFile.path;
+				} else { // if no next file, use current file url
+					let nextFileUrl = currentFile.path;
 				}
+				$('#popup-footer-next').attr('href', '#' + nextFileUrl);
+				$('#popup-next').attr('href', '#' + nextFileUrl);
 			})
 		} else { // If selected item is folder, load structure of that folder
 			popupClose();
