@@ -141,7 +141,7 @@ jwerty.key('space', function (e) {
 	if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
-		e.preventDefault(); // do not delete text from filter
+		e.preventDefault(); // do not type in filter
 		videoToggle();
 	} else {
 		// filter is focused, dont do anything special

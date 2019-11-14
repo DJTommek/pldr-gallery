@@ -5,9 +5,11 @@
 		animationSpeed: 250,
 		structureItemLimit: 1000,
 		favouriteFolders: [],
-		hashBeforeUnload: '/'
+		hashBeforeUnload: '/',
+		presentationSpeed: 5000,
+		presentationEnabled: 'false',
 	};
-	const Settings = {
+	var Settings = {
 		/**
 		 * Return saved (or default) value from localstorage
 		 *
@@ -20,7 +22,7 @@
 			}
 			// return specific value
 			let value = settingsValues[name];
-			if (value) {
+			if (typeof value !== 'undefined') {
 				if (isNumeric(value)) {
 					return parseInt(value);
 				} else if (value === 'true') {
@@ -51,8 +53,8 @@
 				console.error('Settings.save() require two parameters.');
 				return null;
 			}
-			if (!settingsValues[name]) {
-				console.error('Settings with name "' + name + '" does not exists, cant save.');
+			if (typeof settingsValues[name] === 'undefined') {
+				console.error('Settings with name "' + name + '" does not exists, cant save.')
 				return null;
 			}
 			// is Array or JSON

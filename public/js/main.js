@@ -1,9 +1,12 @@
-let loadedStructure = {
+/* global Settings */
+var loadedStructure = {
 	loadedFolder: '', // default is loaded nothing
 	popup: false, // Is popup visible?
 	settings: false, // is settings modal visible?
 	filtering: false,
 	flashIndex: 0, // incremental index used for flashMessage()
+	presentationRunning: false,
+	presentationIntervalId: null,
 };
 
 const S = new Structure();
@@ -18,13 +21,12 @@ function loadAndResize() {
 		.css('max-width', window.innerWidth);
 }
 
-$(window);
-
 $(window).on('resize', function () {
 	loadAndResize();
 });
 
 $('#popup-video').on('loadeddata', function () {
+	loadingDone(this);
 	$(this).fadeIn(Settings.load('animationSpeed'), function () {
 		loadingPopup(false);
 	});
@@ -32,25 +34,43 @@ $('#popup-video').on('loadeddata', function () {
 
 // loading is done when img is loaded
 $('#popup-image').load(function () {
-	$(this).fadeIn(Settings.load('animationSpeed'), function () {
-		loadingPopup(false);
-	});
-	// Bug: exifdata is cached and will not change if img src is changed
-	// Delete cached exifdata. @Author: https://github.com/exif-js/exif-js/issues/163#issuecomment-412714098
-	delete this.exifdata;
-	EXIF.getData(this, function () {
-		try {
-			let exifTags = EXIF.getAllTags(this);
-			let coords = {
-				lat: convertDMSToDD(exifTags['GPSLatitude'][0], exifTags['GPSLatitude'][1], exifTags['GPSLatitude'][2], exifTags['GPSLatitudeRef']),
-				lon: convertDMSToDD(exifTags['GPSLongitude'][0], exifTags['GPSLongitude'][1], exifTags['GPSLongitude'][2], exifTags['GPSLongitudeRef']),
-			};
-			$('#popup-location').attr('href', 'https://www.google.cz/maps/place/' + coords['lat'] + ',' + coords['lon']).show();
-		} catch (error) {
-			// Exif data is probably missing
-		}
-	});
+	loadingDone(this);
 });
+
+function loadingDone(element) {
+	console.log(element);
+	if (element) {
+		$(element).fadeIn(Settings.load('animationSpeed'), function () {
+			loadingPopup(false);
+		});
+		if (loadedStructure.presentationRunning) {
+			if ('#' + S.currentPath === $('#popup-next').attr('href')) { // last item
+				$('#popup-footer-presentation')[0].click(); // Stop presentation mode
+				return;
+			}
+			loadedStructure.presentationIntervalId = setTimeout(function () {
+				$('#popup-next')[0].click();
+			}, Settings.load('presentationSpeed'));
+		}
+		// Bug: exifdata is cached and will not change if img src is changed
+		// Delete cached exifdata. @Author: https://github.com/exif-js/exif-js/issues/163#issuecomment-412714098
+		delete element.exifdata;
+		EXIF.getData(element, function () {
+			try {
+				exifTags = EXIF.getAllTags(element);
+				coords = {
+					lat: convertDMSToDD(exifTags['GPSLatitude'][0], exifTags['GPSLatitude'][1], exifTags['GPSLatitude'][2], exifTags['GPSLatitudeRef']),
+					lon: convertDMSToDD(exifTags['GPSLongitude'][0], exifTags['GPSLongitude'][1], exifTags['GPSLongitude'][2], exifTags['GPSLongitudeRef']),
+				};
+				$('#popup-location').attr('href', 'https://www.google.cz/maps/place/' + coords['lat'] + ',' + coords['lon']).show();
+			} catch (error) {
+				// Exif data is probably missing
+			}
+		});
+	} else {
+		loadingPopup(false);
+	}
+}
 
 /**
  * Global error handler
@@ -106,10 +126,11 @@ $(window).on('hashchange', function (e) {
 				if (currentFile.isImage) {
 					$('#popup-image').attr('src', S.getFileUrl(currentFile.index));
 					// fade in animation is triggered on image load
-				}
-				if (currentFile.isVideo) {
+				} else if (currentFile.isVideo) {
 					$('#popup-video source').attr('src', S.getFileUrl(currentFile.index));
 					$('#popup-video').load();
+				} else {
+					loadingDone()
 				}
 
 				// @TODO upgrade counter to respect filter
@@ -183,6 +204,21 @@ $(function () {
 		event.preventDefault();
 		loadSearch();
 	});
+
+	$('#popup-footer-presentation').on('click', function (event) {
+		if ($('#popup-footer-presentation-play').is(":visible")) {
+			$('#popup-footer-presentation-stop').show();
+			$('#popup-footer-presentation-play').hide();
+			loadedStructure.presentationRunning = true;
+			$('#popup-next')[0].click();
+		} else {
+			$('#popup-footer-presentation-play').show();
+			$('#popup-footer-presentation-stop').hide();
+			loadedStructure.presentationRunning = false;
+			clearTimeout(loadedStructure.presentationIntervalId);
+		}
+	});
+
 	// Fill form settings with values from Settings class
 	// @TODO upgrade to works with all types of inputs (text, number, radio, checkbox...)
 	// type=number
