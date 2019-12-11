@@ -232,27 +232,39 @@ $(function () {
 		S.selectorSelect();
 		return;
 	});
-	if (Cookies.get('pmg-passwords')) {
+
+	/**
+	 * Showing saved passwords in settings
+	 */
+	$('#settings-passwords-load').on('click', function (event) {
+		const button = this;
+		$(button).html('Načítám <i class="fa fa-circle-o-notch fa-spin"></i>').prop('disabled', true);
+
+		$('#settings-passwords-nothing').hide();
+		$('#settings-passwords-list').empty();
+
 		$.getJSON("/api/password", function (response) {
-			try {
-				response.result.forEach(function (pass) {
-					let html = '<h5>' + pass.password + ':</h5>';
-					let htmlPasswords = [];
-					pass.permissions.forEach(function (perm) {
-						htmlPasswords.push('<a href="#' + perm + '">' + perm + '</a>');
-					});
-					html += '<p>' + htmlPasswords.join('<br>') + '</p>';
-					$('#form-passwords').append(html);
-				});
-			} catch (error) {
-				console.error('Error while loading password: ' + error);
+			if (response.result.length === 0) {
+				$('#settings-passwords-nothing').show();
+				return;
 			}
-			$('#form-passwords-loading').hide();
+			response.result.forEach(function (pass) {
+				let html = '<h5>' + pass.password + ':</h5>';
+				let htmlPasswords = [];
+				pass.permissions.forEach(function (perm) {
+					htmlPasswords.push('<a href="#' + perm + '">' + perm + '</a>');
+				});
+				html += '<p>' + htmlPasswords.join('<br>') + '</p>';
+				$('#settings-passwords-list').append(html);
+			});
+		}).fail(function(response) {
+			flashMessage('danger', 'Error <b>' + response.status + '</b> while loading passwords: <b>' + response.statusText + '</b>');
+		}).always(function() {
+			setTimeout(function () {
+				$(button).html('Načíst hesla').prop('disabled', false);
+			}, 500);
 		});
-	} else {
-		$('#form-passwords-loading').hide();
-		$('#form-passwords-nothing').show();
-	}
+	});
 
 	// Event - add to favourites
 	$('#currentPath').on('click', '#breadcrumb-favourite.fa-star-o', function () {
