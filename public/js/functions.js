@@ -68,6 +68,9 @@ Array.prototype.last = function (last) {
 
 /**
  * Remove item from array by value
+ *
+ * @param item
+ * @returns {Array}
  */
 Array.prototype.removeByValue = function (item) {
 	var index = this.indexOf(item);
@@ -77,6 +80,12 @@ Array.prototype.removeByValue = function (item) {
 	return this;
 }
 
+/**
+ * Push into array only if not already in it
+ *
+ * @param item
+ * @returns {Array}
+ */
 Array.prototype.pushUnique = function (item) {
 	if (this.indexOf(item) === -1) {
 		this.push(item);

@@ -149,6 +149,7 @@ $(window).on('hashchange', function (e) {
 $(function () {
 	loadAndResize();
 	updateLoginButtons();
+	favouritesGenerateMenu();
 	// If is set redirect, load this
 	if (Cookies.get('pmg-redirect')) {
 		window.location.hash = Cookies.get('pmg-redirect');
@@ -253,20 +254,17 @@ $(function () {
 		$('#form-passwords-nothing').show();
 	}
 
-	$('#currentPath').on('click', '#breadcrumb-favourite', function () {
-		let path = $(this).data('path');
-		let saved = Settings.load('favouriteFolders');
-		if ($(this).hasClass('fa-star')) { // Is already added to favourites
-			saved.removeByValue(path);
-			$(this).addClass('fa-star-o').removeClass('fa-star');
-			flashMessage('info', 'Folder "' + path + '" has been removed from favourites.');
-		} else {
-			saved.pushUnique(path);
-			$(this).addClass('fa-star').removeClass('fa-star-o');
-			flashMessage('info', 'Folder has been added to favourites. Check <i class="fa fa-bars fa-fw"></i> menu.');
-		}
-		Settings.save('favouriteFolders', saved);
+	// Event - add to favourites
+	$('#currentPath').on('click', '#breadcrumb-favourite.fa-star-o', function () {
+		favouritesAdd($(this).data('path'));
+		$(this).addClass('fa-star').removeClass('fa-star-o');
 	});
+	// Event - remove from favourites
+	$('#currentPath').on('click', '#breadcrumb-favourite.fa-star', function () {
+		favouritesRemove($(this).data('path'));
+		$(this).addClass('fa-star-o').removeClass('fa-star');
+	});
+
 	$('#modal-settings').on('show.bs.modal', function () {
 		loadedStructure.settings = true;
 	}).on('hidden.bs.modal', function () {
@@ -288,8 +286,32 @@ function popupClose() {
 	videoPause();
 }
 
-function generateFavouritesMenu() {
-	var saved = Settings.load('favourieFolders');
+function favouritesAdd(path) {
+	let saved = Settings.load('favouriteFolders');
+	saved.pushUnique(path);
+	flashMessage('info', 'Folder has been added to favourites. Check <i class="fa fa-bars fa-fw"></i> menu.');
+	Settings.save('favouriteFolders', saved);
+	favouritesGenerateMenu();
+}
+function favouritesRemove(path) {
+	let saved = Settings.load('favouriteFolders');
+	saved.removeByValue(path);
+	flashMessage('info', 'Folder "' + path + '" has been removed from favourites.');
+	Settings.save('favouriteFolders', saved);
+	favouritesGenerateMenu();
+}
+
+function favouritesGenerateMenu() {
+	$('#navbar-hamburger-dropdown .dropdown-menu .favourites-submenu').remove();
+	var saved = Settings.load('favouriteFolders');
+	if (saved.length > 0) {
+		$('#navbar-hamburger-dropdown .dropdown-menu').append('<div class="dropdown-divider favourites-submenu"></div>');
+	}
+	saved.forEach(function(savedFolder) {
+		$('#navbar-hamburger-dropdown .dropdown-menu').append(
+			'<a class="dropdown-item favourites-submenu" href="#' + savedFolder + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>'
+		);
+	});
 }
 
 function videoToggle() {
@@ -426,8 +448,8 @@ function parseStructure(items) {
 		}
 	});
 	if (S.getCurrentFolder() !== '/') { // show only in non-root folders
-		// let icon = (Settings.load('favouriteFolders').indexOf(S.getCurrentFolder()) >= 0) ? 'fa-star' : 'fa-star-o';
-		// breadcrumbHtml += '<li><a id="breadcrumb-favourite" class="fa fa-fw ' + icon + '" data-path="' + S.getCurrentFolder() + '"></a></li>';
+		let icon = (Settings.load('favouriteFolders').indexOf(S.getCurrentFolder()) >= 0) ? 'fa-star' : 'fa-star-o';
+		breadcrumbHtml += '<li><a id="breadcrumb-favourite" class="fa fa-fw ' + icon + '" data-path="' + S.getCurrentFolder() + '"></a></li>';
 	}
 	$('#currentPath').html(breadcrumbHtml);
 	var content = '';
