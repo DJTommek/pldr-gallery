@@ -12,13 +12,16 @@
 			/* set dark theme as soon as possible to prevent blink of white theme */
 			try {
 				if (localStorage.getItem("pldr-settings-theme") === 'dark') {
-					var element = document.getElementsByTagName("body")[0];
+					let element = document.getElementsByTagName("body")[0];
 					element.classList.add("theme-dark");
 				}
 			} catch (error) {
 				// Local storage is not working (disabled, unsupported, ...)
 			}
         </script>
+		<div id="flash-message">
+		</div>
+
         <div>
             <nav class="navbar sticky-top" id="navbar">
                 <ol id="currentPath" class="breadcrumb">
@@ -40,14 +43,13 @@
                     </div>
 
                     <div class="dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbar-dropdown-button" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-cog fa-fw"></i>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbar-dropdown-button" role="button" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-bars fa-fw"></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
                             <a class="dropdown-item" id="button-login" href="/login">Přihlásit <i class="fa fa-sign-in fa-fw"></i></a>
                             <a class="dropdown-item" id="button-logout" href="#" style="display: none;">Odhlásit <i class="fa fa-sign-out fa-fw"></i></a>
                             <a class="dropdown-item" data-toggle="modal" data-target="#modal-settings" href="#">Nastavení <i class="fa fa-wrench fa-fw"></i></a>
-                            <a class="dropdown-item" id="settings-toggle-theme" href=""><span>Zhasnout</span><i class="fa fa-lightbulb-o fa-fw"></i></a>
                         </div>
                     </div>
                 </form>
@@ -105,6 +107,19 @@
 					</div>
 					<div class="modal-body">
 						<form id="form-settings">
+
+							<div class="form-group" id="settings-theme">
+							Téma <i class="fa fa-lightbulb-o fa-fw"></i>
+<div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="theme" id="settings-theme-default" value="default">
+  <label class="form-check-label" for="settings-theme-default">Rozsvíceno</label>
+
+</div>
+<div class="form-check form-check-inline">
+  <input class="form-check-input" type="radio" name="theme" id="settings-theme-dark" value="dark">
+  <label class="form-check-label" for="settings-theme-dark">Zhasnuto</label>
+</div>
+							</div>
 							<div class="form-group">
 								<label for="settings-animationSpeed">Rychlost animací (v milisekundách):</label>
 								<input type="number" required name="animationSpeed" id="settings-animationSpeed" class="form-control" min="0" max="10000">

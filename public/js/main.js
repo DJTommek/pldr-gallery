@@ -3,6 +3,7 @@ let loadedStructure = {
 	popup: false, // Is popup visible?
 	settings: false, // is settings modal visible?
 	filtering: false,
+	flashIndex: 0, // incremental index used for flashMessage()
 };
 
 const S = new Structure();
@@ -182,10 +183,21 @@ $(function () {
 		loadSearch();
 	});
 	// Fill form settings with values from Settings class
-	$('#form-settings input').each(function () {
+	// @TODO upgrade to works with all types of inputs (text, number, radio, checkbox...)
+	// type=number
+	$('#form-settings input[type=number]').each(function () {
 		let settingsName = $(this).attr('name');
 		$(this).val(Settings.load(settingsName));
 	});
+	// type=radio
+	$('#form-settings input[type=radio]').each(function () {
+		let settingsName = $(this).attr('name');
+		let settingsValue = Settings.load(settingsName);
+		if ($(this).val() === settingsValue) {
+			$(this).prop("checked", true);
+		}
+	});
+
 	// Save form values to Settings class
 	$('#form-settings').on('submit', function (event) {
 		event.preventDefault();
@@ -205,16 +217,10 @@ $(function () {
 	/**
 	 * Toggle dark theme
 	 */
-	$('#settings-toggle-theme').on('click', function (event) {
-		event.stopPropagation(); // disable closing dropdown menu
-		event.preventDefault(); // disable a.href click
-		let theme = Settings.load('theme');
-		if (theme === 'default') {
-			$(this).children('span').text('Rozsvítit');
-			theme = Settings.save('theme', 'dark');
-		} else {
-			$(this).children('span').text('Zhasnout');
-			theme = Settings.save('theme', 'default');
+	$('#settings-theme input').on('click', function (event) {
+		let theme = 'default';
+		if ($('#settings-theme-dark').is(':checked')) {
+			theme = 'dark';
 		}
 		$('body').removeClass().addClass('theme-' + theme);
 	});
@@ -248,14 +254,16 @@ $(function () {
 	}
 
 	$('#currentPath').on('click', '#breadcrumb-favourite', function () {
-		var path = $(this).data('path');
-		var saved = Settings.load('favouriteFolders')
+		let path = $(this).data('path');
+		let saved = Settings.load('favouriteFolders');
 		if ($(this).hasClass('fa-star')) { // Is already added to favourites
-			saved.pushUnique(path);
-			$(this).addClass('fa-star-o').removeClass('fa-star');
-		} else {
 			saved.removeByValue(path);
+			$(this).addClass('fa-star-o').removeClass('fa-star');
+			flashMessage('info', 'Folder "' + path + '" has been removed from favourites.');
+		} else {
+			saved.pushUnique(path);
 			$(this).addClass('fa-star').removeClass('fa-star-o');
+			flashMessage('info', 'Folder has been added to favourites. Check <i class="fa fa-bars fa-fw"></i> menu.');
 		}
 		Settings.save('favouriteFolders', saved);
 	});
@@ -313,11 +321,11 @@ function updateLoginButtons() {
 	if (Cookies.get('google-login')) { // logged in
 		$('#button-login').hide();
 		$('#button-logout').show();
-		$('#navbar .dropdown .dropdown-toggle i').addClass('fa-user').removeClass('fa-cog');
+		$('#navbar .dropdown .dropdown-toggle i').addClass('fa-user').removeClass('fa-bars');
 	} else {
 		$('#button-login').show();
 		$('#button-logout').hide();
-		$('#navbar .dropdown .dropdown-toggle i').addClass('fa-cog').removeClass('fa-user');
+		$('#navbar .dropdown .dropdown-toggle i').addClass('fa-bars').removeClass('fa-user');
 	}
 }
 function loadSearch(callback) {
@@ -408,7 +416,7 @@ function parseStructure(items) {
 	loadedStructure.loadedFolder = S.getCurrentFolder();
 	S.setAll(items);
 	var maxVisible = S.getItems().length;
-	// Cela cesta v hlaviccce
+	// Full path as breadcrumb in header (home / folder / in / another / folder)
 	var breadcrumbHtml = '';
 	breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/"><i class="fa fa-home"></i></a></li>';
 	var breadcrumbPath = '/';
@@ -417,8 +425,10 @@ function parseStructure(items) {
 			breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += folderName + '/') + '">' + decodeURI(folderName) + '</a></li>';
 		}
 	});
-//	let icon = (Settings.load('favouriteFolders').indexOf(S.getCurrentFolder()) >= 0) ? 'fa-star' : 'fa-star-o';
-//	breadcrumbHtml += '<li><a id="breadcrumb-favourite" class="fa fa-fw ' + icon + '" data-path="' + S.getCurrentFolder() + '"></a></li>';
+	if (S.getCurrentFolder() !== '/') { // show only in non-root folders
+		// let icon = (Settings.load('favouriteFolders').indexOf(S.getCurrentFolder()) >= 0) ? 'fa-star' : 'fa-star-o';
+		// breadcrumbHtml += '<li><a id="breadcrumb-favourite" class="fa fa-fw ' + icon + '" data-path="' + S.getCurrentFolder() + '"></a></li>';
+	}
 	$('#currentPath').html(breadcrumbHtml);
 	var content = '';
 	content += '<table class="table-striped table-condensed"><thead>';
@@ -497,4 +507,17 @@ function loadingPopup(loading) {
 		$('#popup-loading').hide();
 	}
 	return loadedStructure.loading;
+}
+
+function flashMessage(type, text, fade = 4, target = '#flash-message')
+{
+	let html = '<div class="alert alert-' + type + '" id="alert' + loadedStructure.flashIndex + '" role="alert">';
+	html += '<button class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + text + '</div>';
+	$(target).prepend(html);
+	if (fade !== false) {
+		$('#alert' + loadedStructure.flashIndex).delay(fade * 1000).fadeOut("slow", function () {
+			$(this).remove();
+		});
+	}
+	loadedStructure.flashIndex++;
 }

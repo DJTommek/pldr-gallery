@@ -5,6 +5,18 @@ body {
     padding-top: 0; /* without reseting to zero navbar looks weird */
     margin-bottom: 3em; /* because of popup-footer */
 }
+#flash-message {
+    width: 60%;
+    max-width: 50em;
+    margin: 40px auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+	text-align: center;
+	z-index: 2000; /* should be above everything */
+}
 #popup-footer,
 #navbar {
     background-color: #f8f9fa;
