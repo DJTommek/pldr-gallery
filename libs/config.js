@@ -1,10 +1,11 @@
-var c = {
+const c = {
     imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
-    videoExtensions: ['mp4', 'avi'],
+    videoExtensions: ['mp4'],
     downloadExtensions: [
 		'zip', 'zip64', '7z', 'rar', 'gz',
 		'pdf', 'doc', 'docx', 'xls', 'xlsx',
 		'mp3', // @TODO - move to audioExtensions
+        'avi' // video but can't be played in browser
 	],
     http: {
         baseUrl: 'gallery.redilap.cz', // add port if changed or is not redirected to default ports 80 or 443
@@ -13,8 +14,6 @@ var c = {
         login: {
             // Jméno cookie
             name: 'google-login',
-            // Cookie, kam se přesměrovává po přihlášení
-            redirect: 'login-redirect',
             // Jak dlouho po posledním použití bude cookie ještě platná
             validity: 30 * 24 * 60 * 60 * 1000,
             // Kde se budou ukládat textové tokeny
@@ -37,7 +36,7 @@ var c = {
 };
 
 // remove path and file, wich are running
-var runArgs = process.argv.slice(2);
+const runArgs = process.argv.slice(2);
 
 console.log("Start arguments: " + runArgs.join(' '));
 if (runArgs[0] === 'help') {
@@ -48,8 +47,7 @@ if (runArgs[0] === 'help') {
 }
 
 // Set base path via commandline
-console.log(runArgs.join(' '));
-var match = runArgs.join(' ').match(/path="(.+\/)"/);
+const match = runArgs.join(' ').match(/path="(.+\/)"/);
 if (!match) {
     console.error('You have to set start parameter path="<c:/path/>". More in help');
     process.exit();

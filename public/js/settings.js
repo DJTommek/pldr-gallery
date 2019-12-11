@@ -1,18 +1,17 @@
 (function (window) {
 	// Defined settings with default values
-	var settingsValues = {
+	let settingsValues = {
 		theme: 'default',
 		animationSpeed: 250,
 		structureItemLimit: 1000,
 		favouriteFolders: [],
 		hashBeforeUnload: '/'
-	}
-	var Settings = {
+	};
+	const Settings = {
 		/**
 		 * Return saved (or default) value from localstorage
 		 *
 		 * @param {string} name
-		 * @returns {string|int|boolean}
 		 */
 		load: function (name) {
 			// return all values
@@ -36,7 +35,7 @@
 				}
 				return value;
 			}
-			console.error('Settings with name "' + name + '" does not exists, cant load.')
+			console.error('Settings with name "' + name + '" does not exists, cant load.');
 			return null;
 		},
 
@@ -49,11 +48,11 @@
 		 */
 		save: function (name, value) {
 			if (typeof name === 'undefined' || typeof value === 'undefined') {
-				console.error('Settings.save() require two parameters.')
+				console.error('Settings.save() require two parameters.');
 				return null;
 			}
 			if (!settingsValues[name]) {
-				console.error('Settings with name "' + name + '" does not exists, cant save.')
+				console.error('Settings with name "' + name + '" does not exists, cant save.');
 				return null;
 			}
 			// is Array or JSON

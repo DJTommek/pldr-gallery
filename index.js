@@ -7,28 +7,26 @@ c.imageExtensions = Array.prototype.slice.call(c.imageExtensions);
 
 c.compress.enabled = true;
 
-var globby = require('globby');
-var fs = require("fs");
+const globby = require('globby');
+const fs = require("fs");
 const path = require('path');
 const readdirp = require('readdirp');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const perms = require('./libs/permissions.js');
-var express = require('express');
-var compression = require('compression');
-var webserver = express();
+const express = require('express');
+const compression = require('compression');
+const webserver = express();
 webserver.use(bodyParser.json()); // support json encoded bodies
 webserver.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 webserver.use(cookieParser()); // support cookies
 webserver.use(express.static('public'));
 webserver.use(compression());
 
-var google = require('googleapis');
-var OAuth2Client = google.auth.OAuth2;
-var plus = google.plus('v1');
-var oauth2Client = new OAuth2Client(c.google.clientId, c.google.secret, c.google.redirectUrl);
+const google = require('googleapis');
+const oauth2Client = new google.auth.OAuth2(c.google.clientId, c.google.secret, c.google.redirectUrl);
 
-//var sharp = require('sharp');
+//const sharp = require('sharp');
 // TODO - potreba python
 // http://sharp.pixelplumbing.com/en/stable/install/
 
@@ -56,8 +54,8 @@ try {
 }
 
 function getUptime() {
-	var diff = (new Date() - start);
-	var response = {
+	const diff = (new Date() - start);
+	const response = {
 		start: start.human(),
 		uptime: {
 			milliseconds: diff,
@@ -75,7 +73,7 @@ function getUptime() {
  * @return next()
  */
 webserver.all('*', function (req, res, next) {
-	var weblog = '';
+	let weblog = '';
 	weblog += '[' + req.ip + ']';
 	weblog += '[' + req.method + ',' + req.protocol + ']';
 	weblog += '[' + req.path + ']';

@@ -1,26 +1,34 @@
-var loadedStructure = {
+let loadedStructure = {
 	loadedFolder: '', // default is loaded nothing
 	popup: false, // Is popup visible?
 	settings: false, // is settings modal visible?
 	filtering: false,
 };
+
 const S = new Structure();
+
 function loadAndResize() {
 	// resize image in popup to fit the screen
-	$('#popup').css('height', window.innerHeight - $('#popup-footer').outerHeight());
-	$('#popup').css('width', window.innerWidth);
-	$('#popup-content').css('max-height', window.innerHeight - $('#popup-footer').outerHeight());
-	$('#popup-content').css('max-width', window.innerWidth);
+	$('#popup')
+		.css('height', window.innerHeight - $('#popup-footer').outerHeight())
+		.css('width', window.innerWidth);
+	$('#popup-content')
+		.css('max-height', window.innerHeight - $('#popup-footer').outerHeight())
+		.css('max-width', window.innerWidth);
 }
 
-$(window).resize(function () {
+$(window);
+
+$(window).on('resize', function () {
 	loadAndResize();
 });
+
 $('#popup-video').on('loadeddata', function () {
 	$(this).fadeIn(Settings.load('animationSpeed'), function () {
 		loadingPopup(false);
 	});
 });
+
 // loading is done when img is loaded
 $('#popup-image').load(function () {
 	$(this).fadeIn(Settings.load('animationSpeed'), function () {
@@ -31,8 +39,8 @@ $('#popup-image').load(function () {
 	delete this.exifdata;
 	EXIF.getData(this, function () {
 		try {
-			exifTags = EXIF.getAllTags(this);
-			coords = {
+			let exifTags = EXIF.getAllTags(this);
+			let coords = {
 				lat: convertDMSToDD(exifTags['GPSLatitude'][0], exifTags['GPSLatitude'][1], exifTags['GPSLatitude'][2], exifTags['GPSLatitudeRef']),
 				lon: convertDMSToDD(exifTags['GPSLongitude'][0], exifTags['GPSLongitude'][1], exifTags['GPSLongitude'][2], exifTags['GPSLongitudeRef']),
 			};
@@ -42,6 +50,7 @@ $('#popup-image').load(function () {
 		}
 	});
 });
+
 /**
  * Global error handler
  * @author https://stackoverflow.com/a/10556743/3334403
@@ -52,7 +61,7 @@ window.onerror = function (msg, url, line, col, error) {
 		return true;
 	}
 	// Note that col & error are new to the HTML 5 spec and may not be supported in every browser.  It worked for me in Chrome.
-	var extra = !col ? '' : '\ncolumn: ' + col;
+	let extra = !col ? '' : '\ncolumn: ' + col;
 	extra += !error ? '' : '\nerror: ' + error;
 	var text = "Error: " + msg + "\nurl: " + url + "\nline: " + line + extra;
 	// Report and save error on server
@@ -61,6 +70,7 @@ window.onerror = function (msg, url, line, col, error) {
 	// If you return true, then error alerts (like in older versions of Internet Explorer) will be suppressed.
 	return true;
 };
+
 // If hash is changed, something is being loaded (image of folder)
 $(window).on('hashchange', function (e) {
 	S.setCurrent(window.location.hash);
@@ -134,6 +144,7 @@ $(window).on('hashchange', function (e) {
 		}
 	});
 });
+
 $(function () {
 	loadAndResize();
 	updateLoginButtons();
