@@ -243,6 +243,7 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 			queryPath = decodeURIComponent(Buffer.from(queryPath, 'base64').toString());
 			// fix relative parts (.. and .) and convert to forward slashes (default for Linux but it should be compatible with Windows too)
 			queryPath = path.normalize(queryPath).replaceAll('\\', '/');
+			res.locals.queryPath = queryPath;
 			// check permissions
 			if (!perms.test(req.userPerms, queryPath)) {
 				throw 'User do not have permissions to path"' + queryPath + '"'; // user dont have permission to this path
@@ -637,7 +638,7 @@ webserver.get('/api/structure', function (req, res) {
 	res.statusCode = 200;
 	res.setHeader("Content-Type", "application/json");
 	if (!res.locals.fullPathFolder) {
-		res.result.setError('File - Zadaná cesta není platná');
+		res.result.setError('Zadaná cesta "<b>' + res.locals.queryPath + '</b>" není platná nebo na ni nemáš právo.');
 		res.end('' + res.result); // @HACK force toString()
 		return;
 	}

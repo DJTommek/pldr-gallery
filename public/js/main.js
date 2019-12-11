@@ -411,17 +411,21 @@ function loadStructure(force, callback) {
 		},
 		success: function (result) {
 			if (result.error === true || !result.result) {
-				alert((result.message || 'Chyba během vytváření dat. Kontaktuj autora.'));
+				flashMessage('danger', (
+					(result.message || 'Chyba během načítání dat. Kontaktuj autora.') +
+					'<br>Zkus se <a href="/login" class="alert-link">přihlásit</a> nebo jít <a href="#" class="alert-link">domů</a>.'
+					), false
+				);
 			} else {
-				$('#structure-header').html(result.result.header || '')
-				$('#structure-footer').html(result.result.footer || '')
+				$('#structure-header').html(result.result.header || '');
+				$('#structure-footer').html(result.result.footer || '');
 				parseStructure(result.result);
 				$('#filter input').val('');
 				S.filter();
 			}
 		},
 		error: function () {
-			alert('Chyba během načítání dat. Kontaktuj autora.');
+			flashMessage('danger', (result.message || 'Serverová chyba během načítání dat. Kontaktuj autora.'), false);
 		},
 		beforeSend: function () {
 			loadingStructure(true);
