@@ -270,11 +270,13 @@ $(function () {
 	$('#currentPath').on('click', '#breadcrumb-favourite.fa-star-o', function () {
 		favouritesAdd($(this).data('path'));
 		$(this).addClass('fa-star').removeClass('fa-star-o');
+		$(this).attr('title', 'Odebrat z oblíbených');
 	});
 	// Event - remove from favourites
 	$('#currentPath').on('click', '#breadcrumb-favourite.fa-star', function () {
 		favouritesRemove($(this).data('path'));
 		$(this).addClass('fa-star-o').removeClass('fa-star');
+		$(this).attr('title', 'Přidat do oblíbených');
 	});
 
 	$('#modal-settings').on('show.bs.modal', function () {
@@ -312,7 +314,9 @@ function favouritesRemove(path) {
 	Settings.save('favouriteFolders', saved);
 	favouritesGenerateMenu();
 }
-
+function favouritesIs(path) {
+	return (Settings.load('favouriteFolders').indexOf(path) >= 0)
+}
 function favouritesGenerateMenu() {
 	$('#navbar-hamburger-dropdown .dropdown-menu .favourites-submenu').remove();
 	var saved = Settings.load('favouriteFolders');
@@ -464,8 +468,9 @@ function parseStructure(items) {
 		}
 	});
 	if (S.getCurrentFolder() !== '/') { // show only in non-root folders
-		let icon = (Settings.load('favouriteFolders').indexOf(S.getCurrentFolder()) >= 0) ? 'fa-star' : 'fa-star-o';
-		breadcrumbHtml += '<li><a id="breadcrumb-favourite" class="fa fa-fw ' + icon + '" data-path="' + S.getCurrentFolder() + '"></a></li>';
+		let icon = favouritesIs(S.getCurrentFolder()) ? 'fa-star' : 'fa-star-o';
+		let title = favouritesIs(S.getCurrentFolder()) ? 'Odebrat z oblíbených' : 'Přidat do oblíbených';
+		breadcrumbHtml += '<li><a id="breadcrumb-favourite" class="fa fa-fw ' + icon + '" data-path="' + S.getCurrentFolder() + '" title="' + title + '"></a></li>';
 	}
 	$('#currentPath').html(breadcrumbHtml);
 	var content = '';

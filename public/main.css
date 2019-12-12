@@ -74,7 +74,7 @@ body {
 /* Dont show time on smaller devices */
 #structure table thead tr th:nth-child(4),
 #structure table tbody tr td:nth-child(4) {
-    width: 5rem;
+    width: 6rem;
 }
 #structure table tbody tr td:nth-child(4) span {
     display: none;
@@ -203,6 +203,15 @@ body {
 /**
  * Popup end
  */
+
+/**
+ * Tweaks
+ */
+.form-check-label,
+input[type=radio],
+input[type=checkbox] {
+	cursor: pointer;
+}
 
 /**
  * Change colors to dark mode if body has ".dark" class
