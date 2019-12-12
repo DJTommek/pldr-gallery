@@ -4,7 +4,7 @@ jwerty.key('up', function (e) {
 	} else {
 		e.preventDefault();
 		if (loadedStructure.popup) {
-			itemPrev(true, true);
+			itemPrev(true);
 		} else {
 			S.selectorMove('up');
 		}
@@ -15,7 +15,7 @@ jwerty.key('left', function (e) {
 	if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
-		itemPrev(true, true);
+		itemPrev(true);
 	} else {
 		// filter might be focused, dont do anything special
 	}
@@ -27,7 +27,7 @@ jwerty.key('down', function (e) {
 	} else {
 		e.preventDefault();
 		if (loadedStructure.popup) {
-			itemNext(true, false);
+			itemNext(false);
 		} else {
 			S.selectorMove('down');
 		}
@@ -39,7 +39,7 @@ jwerty.key('right', function (e) {
 
 	} else if (loadedStructure.popup) {
 		e.preventDefault();
-		itemNext(true, true);
+		itemNext(false);
 	} else {
 		// filter is focused, dont do anything special
 	}
@@ -53,7 +53,7 @@ jwerty.key('home', function (e) {
 		e.preventDefault();
 		S.selectorMove('first');
 		if (loadedStructure.popup) {
-			itemPrev(true, true); // it will automatically find first file and opens it
+			itemPrev(true); // it will automatically find first file and opens it
 		}
 	}
 });
@@ -64,7 +64,7 @@ jwerty.key('page-up', function (e) {
 	} else {
 		e.preventDefault();
 		if (loadedStructure.popup) {
-			itemPrev10(true, true);
+			itemPrev10(true);
 		} else {
 			for (var i = 0; i < 10; i++) {
 				S.selectorMove('up');
@@ -79,9 +79,11 @@ jwerty.key('page-down', function (e) {
 	} else {
 		e.preventDefault();
 		if (loadedStructure.popup) {
-			itemNext10(true, false);
+			itemNext10(false);
 		} else {
-			itemNext10(false, false);
+			for (var i = 0; i < 10; i++) {
+				S.selectorMove('up');
+			}
 		}
 	}
 });
@@ -94,7 +96,7 @@ jwerty.key('end', function (e) {
 		e.preventDefault();
 		S.selectorMove('last');
 		if (loadedStructure.popup) {
-			itemNext(true, true);
+			itemNext(true);
 		}
 	}
 });

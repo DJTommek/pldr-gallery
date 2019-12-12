@@ -84,47 +84,42 @@ function loadingDone(element) {
 	}
 }
 
-function itemPrev10(open, stopPresentation) {
+/**
+ * Shortcuts to proper handling moving between items if popup is opened (respect presentation mode)
+ */
+function itemPrev10(stopPresentation) {
 	for (let i = 0; i < 9; i++) { // only 9 times. 10th time is in itemPrev()
 		S.selectorMove('up');
 	}
-	itemPrev(open, stopPresentation);
+	itemPrev(stopPresentation);
 }
-
-function itemPrev(open, stopPresentation) {
+function itemPrev(stopPresentation) {
 	if (stopPresentation === true) {
 		presentationStop();
 	}
 	presentationClearTimeout(); // to prevent running multiple presentation timeouts at the same time
 	videoPause();
-
 	S.selectorMove('up');
 	// if new selected item is not file, select first file and show it
 	if (S.get(S.selectedIndex).isFile === false) {
 		S.selectorMove(S.getFirstFile().index);
 	}
-	if (open) {
-		S.selectorSelect();
-	}
+	S.selectorSelect();
 }
-
-function itemNext(open, stopPresentation) {
+function itemNext(stopPresentation) {
 	if (stopPresentation === true) {
 		presentationStop();
 	}
 	presentationClearTimeout(); // to prevent running multiple presentation timeouts at the same time
 	videoPause();
 	S.selectorMove('down');
-	if (open) {
-		S.selectorSelect();
-	}
+	S.selectorSelect();
 }
-
-function itemNext10(open, stopPresentation) {
-	for (let i = 0; i < 9; i++) { // only 9 times. 10th time is in itemPrev()
+function itemNext10(stopPresentation) {
+	for (let i = 0; i < 9; i++) { // only 9 times. 10th time is in itemNext()
 		S.selectorMove('down');
 	}
-	itemNext(open, stopPresentation);
+	itemNext(stopPresentation);
 }
 
 /**
@@ -369,11 +364,11 @@ $(function () {
 
 	// Event - load next item if possible
 	$('#popup-next, #popup-footer-next').on('click', function () {
-		itemNext(true, false); // dont stop presentation mode
+		itemNext(false); // dont stop presentation mode
 	});
 	// Event - load previous item if possible
 	$('#popup-prev, #popup-footer-prev').on('click', function () {
-		itemPrev(true, true);
+		itemPrev(true);
 	});
 
 	$('#modal-settings').on('show.bs.modal', function () {
@@ -408,7 +403,7 @@ function presentationNext() {
 		presentationStop();
 		return;
 	}
-	itemNext(true, false);
+	itemNext(false);
 }
 function presentationStart() {
 	if (presentationIsLast()) {
@@ -421,7 +416,7 @@ function presentationStart() {
 	if (S.getCurrentFile().isVideo) {
 		videoPlay();
 	} else {
-		itemNext(true, false);
+		itemNext(false);
 	}
 }
 function presentationStop() {
