@@ -138,6 +138,16 @@ jwerty.key('space', function (e) {
 	}
 });
 
+jwerty.key('ctrl+space', function (e) {
+	if (loadedStructure.settings) {
+
+	} else if (loadedStructure.popup) {
+		presentationToggle();
+	} else {
+		// filter is focused, dont do anything special
+	}
+});
+
 jwerty.key('backspace', function (e) {
 	if (loadedStructure.settings) {
 

@@ -27,10 +27,10 @@ $(window).on('resize', function () {
 
 $('#popup-video').on('loadeddata', function () {
 	loadingDone(this);
-	// @TODO what is this doing?
-	// $(this).fadeIn(Settings.load('animationSpeed'), function () {
-	// 	loadingPopup(false);
-	// });
+}).on('ended', function () {
+	if (loadedStructure.presentationRunning) {
+		presentationNext();
+	}
 });
 
 // loading is done when img is loaded
@@ -43,33 +43,42 @@ function loadingDone(element) {
 		$(element).fadeIn(Settings.load('animationSpeed'), function () {
 			loadingPopup(false);
 		});
-		if (loadedStructure.presentationRunning) { // presentation is enabled
-			if (presentationIsLast()) {
-				presentationStop(); // manually stop presentation to toggle play button immediately
+		if ($(element).is('video')) {
+			if (loadedStructure.presentationRunning) { // presentation is enabled
+				if (presentationIsLast()) {
+					presentationStop(); // manually stop presentation to toggle play button immediately
+				}
+				videoPlay();
 			}
-			// load next item after presentation timeout
-			loadedStructure.presentationIntervalId = setTimeout(function () {
-				presentationNext();
-			}, Settings.load('presentationSpeed'));
+		} else if ($(element).is('img')) {
+			if (loadedStructure.presentationRunning) { // presentation is enabled
+				if (presentationIsLast()) {
+					presentationStop(); // manually stop presentation to toggle play button immediately
+				}
+				// load next item after presentation timeout
+				loadedStructure.presentationIntervalId = setTimeout(function () {
+					presentationNext();
+				}, Settings.load('presentationSpeed'));
+			}
+			/**
+			 * Load EXIF data if it is compatible image
+			 * Bug: exifdata is cached and will not change if img src is changed so it must be deleted first
+			 * @Author: https://github.com/exif-js/exif-js/issues/163#issuecomment-412714098
+			 */
+			delete element.exifdata;
+			EXIF.getData(element, function () {
+				try {
+					exifTags = EXIF.getAllTags(element);
+					coords = {
+						lat: convertDMSToDD(exifTags['GPSLatitude'][0], exifTags['GPSLatitude'][1], exifTags['GPSLatitude'][2], exifTags['GPSLatitudeRef']),
+						lon: convertDMSToDD(exifTags['GPSLongitude'][0], exifTags['GPSLongitude'][1], exifTags['GPSLongitude'][2], exifTags['GPSLongitudeRef']),
+					};
+					$('#popup-location').attr('href', 'https://www.google.cz/maps/place/' + coords['lat'] + ',' + coords['lon']).show();
+				} catch (error) {
+					// Exif data is probably missing
+				}
+			});
 		}
-		/**
-		 * Load EXIF data if it is compatible image
-		 * Bug: exifdata is cached and will not change if img src is changed so it must be deleted first
-		 * @Author: https://github.com/exif-js/exif-js/issues/163#issuecomment-412714098
-		 */
-		delete element.exifdata;
-		EXIF.getData(element, function () {
-			try {
-				exifTags = EXIF.getAllTags(element);
-				coords = {
-					lat: convertDMSToDD(exifTags['GPSLatitude'][0], exifTags['GPSLatitude'][1], exifTags['GPSLatitude'][2], exifTags['GPSLatitudeRef']),
-					lon: convertDMSToDD(exifTags['GPSLongitude'][0], exifTags['GPSLongitude'][1], exifTags['GPSLongitude'][2], exifTags['GPSLongitudeRef']),
-				};
-				$('#popup-location').attr('href', 'https://www.google.cz/maps/place/' + coords['lat'] + ',' + coords['lon']).show();
-			} catch (error) {
-				// Exif data is probably missing
-			}
-		});
 	} else {
 		loadingPopup(false);
 	}
@@ -243,7 +252,7 @@ $(function () {
 			});
 		}
 	});
-	$('#popup-close, #popup-content').on('click', function (event) {
+	$('#popup-close, #popup-content').on('click', function () {
 		popupClose();
 	});
 	$('#filter .search').on('click', function (event) {
@@ -251,11 +260,11 @@ $(function () {
 		loadSearch();
 	});
 
-	$('#popup-footer-presentation').on('click', function (event) {
-		if ($('#popup-footer-presentation-play').is(":visible")) {
-			presentationStart();
-		} else {
+	$('#popup-footer-presentation').on('click', function () {
+		if (loadedStructure.presentationRunning) {
 			presentationStop();
+		} else {
+			presentationStart();
 		}
 	});
 
@@ -406,18 +415,30 @@ function presentationStart() {
 		return; // there are no more items to go so dont even start the presentation
 	}
 	$('#popup-footer-presentation-stop').show();
-	$('#popup-footer-presentation-play').hide();
+	$('#popup-footer-presentation-start').hide();
 	loadedStructure.presentationRunning = true;
-	itemNext(true, false);
+	// if video, first play it
+	if (S.getCurrentFile().isVideo) {
+		videoPlay();
+	} else {
+		itemNext(true, false);
+	}
 }
 function presentationStop() {
-	$('#popup-footer-presentation-play').show();
+	$('#popup-footer-presentation-start').show();
 	$('#popup-footer-presentation-stop').hide();
 	loadedStructure.presentationRunning = false;
 	presentationClearTimeout();
 }
 function presentationClearTimeout() {
 	clearTimeout(loadedStructure.presentationIntervalId);
+}
+function presentationToggle() {
+	if (loadedStructure.presentationRunning) {
+		presentationStop();
+	} else {
+		presentationStart();
+	}
 }
 
 function favouritesAdd(path) {
