@@ -38,22 +38,24 @@ $('#popup-image').load(function () {
 });
 
 function loadingDone(element) {
-	console.log(element);
 	if (element) {
 		$(element).fadeIn(Settings.load('animationSpeed'), function () {
 			loadingPopup(false);
 		});
-		if (loadedStructure.presentationRunning) {
-			if ('#' + S.currentPath === $('#popup-next').attr('href')) { // last item
-				$('#popup-footer-presentation')[0].click(); // Stop presentation mode
-				return;
+		if (loadedStructure.presentationRunning) { // presentation is enabled
+			if (presentationIsLast()) {
+				presentationStop(); // manually stop presentation to toggle play button immediately
 			}
+			// load next item after presentation timeout
 			loadedStructure.presentationIntervalId = setTimeout(function () {
-				$('#popup-next')[0].click();
+				presentationNext();
 			}, Settings.load('presentationSpeed'));
 		}
-		// Bug: exifdata is cached and will not change if img src is changed
-		// Delete cached exifdata. @Author: https://github.com/exif-js/exif-js/issues/163#issuecomment-412714098
+		/**
+		 * Load EXIF data if it is compatible image
+		 * Bug: exifdata is cached and will not change if img src is changed so it must be deleted first
+		 * @Author: https://github.com/exif-js/exif-js/issues/163#issuecomment-412714098
+		 */
 		delete element.exifdata;
 		EXIF.getData(element, function () {
 			try {
@@ -70,6 +72,21 @@ function loadingDone(element) {
 	} else {
 		loadingPopup(false);
 	}
+}
+
+function itemNext(stopPresentation) {
+	if (stopPresentation === true) {
+		presentationStop();
+	}
+	presentationClearTimeout(); // to prevent running multiple presentation timeouts at the same time
+	window.location.hash = $('#popup-next').attr('href');
+}
+function itemPrev(stopPresentation) {
+	if (stopPresentation === true) {
+		presentationStop();
+	}
+	presentationClearTimeout(); // to prevent running multiple presentation timeouts at the same time
+	window.location.hash = $('#popup-prev').attr('href');
 }
 
 /**
@@ -207,27 +224,21 @@ $(function () {
 
 	$('#popup-footer-presentation').on('click', function (event) {
 		if ($('#popup-footer-presentation-play').is(":visible")) {
-			$('#popup-footer-presentation-stop').show();
-			$('#popup-footer-presentation-play').hide();
-			loadedStructure.presentationRunning = true;
-			$('#popup-next')[0].click();
+			presentationStart();
 		} else {
-			$('#popup-footer-presentation-play').show();
-			$('#popup-footer-presentation-stop').hide();
-			loadedStructure.presentationRunning = false;
-			clearTimeout(loadedStructure.presentationIntervalId);
+			presentationStop();
 		}
 	});
 
-	// Fill form settings with values from Settings class
-	// @TODO upgrade to works with all types of inputs (text, number, radio, checkbox...)
-	// type=number
-	$('#form-settings input[type=number]').each(function () {
+	/**
+	 * Fill form settings with values from Settings class
+	 * @TODO upgrade to works with all types of inputs (text, number, radio, checkbox...)
+	 */
+	$('#form-settings input[type=number]').each(function () { // type=number
 		let settingsName = $(this).attr('name');
 		$(this).val(Settings.load(settingsName));
 	});
-	// type=radio
-	$('#form-settings input[type=radio]').each(function () {
+	$('#form-settings input[type=radio]').each(function () { // type=radio
 		let settingsName = $(this).attr('name');
 		let settingsValue = Settings.load(settingsName);
 		if ($(this).val() === settingsValue) {
@@ -235,7 +246,9 @@ $(function () {
 		}
 	});
 
-	// Save form values to Settings class
+	/**
+	 * Save form values to Settings class
+	 */
 	$('#form-settings').on('submit', function (event) {
 		event.preventDefault();
 		var values = $(this).serializeArray();
@@ -261,6 +274,7 @@ $(function () {
 		}
 		$('body').removeClass().addClass('theme-' + theme);
 	});
+
 	// some line is selected
 	$('#structure').on('click', 'table tbody tr', function (e) {
 		e.preventDefault();
@@ -315,6 +329,15 @@ $(function () {
 		$(this).attr('title', 'Přidat do oblíbených');
 	});
 
+	// Event - load next item if possible
+	$('#popup-next, #popup-footer-next').on('click', function () {
+		itemNext(false); // dont stop presentation mode
+	});
+	// Event - load previous item if possible
+	$('#popup-prev, #popup-footer-prev').on('click', function () {
+		itemPrev(true);
+	});
+
 	$('#modal-settings').on('show.bs.modal', function () {
 		loadedStructure.settings = true;
 	}).on('hidden.bs.modal', function () {
@@ -334,6 +357,38 @@ function popupClose() {
 	loadedStructure.popup = false;
 	window.location.hash = S.getCurrentFolder();
 	videoPause();
+	presentationStop();
+}
+
+function presentationIsLast() {
+	let last = ($('#popup-next').attr('href') === '#' + S.currentPath);
+	console.log('item is last: ' + last);
+	return last;
+}
+function presentationNext() {
+	if (presentationIsLast()) {
+		presentationStop();
+		return;
+	}
+	itemNext(false);
+}
+function presentationStart() {
+	if (presentationIsLast()) {
+		return; // there are no more items to go so dont even start the presentation
+	}
+	$('#popup-footer-presentation-stop').show();
+	$('#popup-footer-presentation-play').hide();
+	loadedStructure.presentationRunning = true;
+	itemNext(false);
+}
+function presentationStop() {
+	$('#popup-footer-presentation-play').show();
+	$('#popup-footer-presentation-stop').hide();
+	loadedStructure.presentationRunning = false;
+	presentationClearTimeout();
+}
+function presentationClearTimeout() {
+	clearTimeout(loadedStructure.presentationIntervalId);
 }
 
 function favouritesAdd(path) {

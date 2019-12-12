@@ -7,7 +7,7 @@
 		favouriteFolders: [],
 		hashBeforeUnload: '/',
 		presentationSpeed: 5000,
-		presentationEnabled: 'false',
+		presentationEnabled: false,
 	};
 	var Settings = {
 		/**
