@@ -27,13 +27,14 @@ $(window).on('resize', function () {
 
 $('#popup-video').on('loadeddata', function () {
 	loadingDone(this);
-	$(this).fadeIn(Settings.load('animationSpeed'), function () {
-		loadingPopup(false);
-	});
+	// @TODO what is this doing?
+	// $(this).fadeIn(Settings.load('animationSpeed'), function () {
+	// 	loadingPopup(false);
+	// });
 });
 
 // loading is done when img is loaded
-$('#popup-image').load(function () {
+$('#popup-image').on('load', function () {
 	loadingDone(this);
 });
 
@@ -74,19 +75,47 @@ function loadingDone(element) {
 	}
 }
 
-function itemNext(stopPresentation) {
-	if (stopPresentation === true) {
-		presentationStop();
+function itemPrev10(open, stopPresentation) {
+	for (let i = 0; i < 9; i++) { // only 9 times. 10th time is in itemPrev()
+		S.selectorMove('up');
 	}
-	presentationClearTimeout(); // to prevent running multiple presentation timeouts at the same time
-	window.location.hash = $('#popup-next').attr('href');
+	itemPrev(open, stopPresentation);
 }
-function itemPrev(stopPresentation) {
+
+function itemPrev(open, stopPresentation) {
 	if (stopPresentation === true) {
 		presentationStop();
 	}
 	presentationClearTimeout(); // to prevent running multiple presentation timeouts at the same time
-	window.location.hash = $('#popup-prev').attr('href');
+	videoPause();
+
+	S.selectorMove('up');
+	// if new selected item is not file, select first file and show it
+	if (S.get(S.selectedIndex).isFile === false) {
+		S.selectorMove(S.getFirstFile().index);
+	}
+	if (open) {
+		S.selectorSelect();
+	}
+}
+
+function itemNext(open, stopPresentation) {
+	if (stopPresentation === true) {
+		presentationStop();
+	}
+	presentationClearTimeout(); // to prevent running multiple presentation timeouts at the same time
+	videoPause();
+	S.selectorMove('down');
+	if (open) {
+		S.selectorSelect();
+	}
+}
+
+function itemNext10(open, stopPresentation) {
+	for (let i = 0; i < 9; i++) { // only 9 times. 10th time is in itemPrev()
+		S.selectorMove('down');
+	}
+	itemNext(open, stopPresentation);
 }
 
 /**
@@ -147,7 +176,7 @@ $(window).on('hashchange', function (e) {
 					$('#popup-video source').attr('src', S.getFileUrl(currentFile.index));
 					$('#popup-video').load();
 				} else {
-					loadingDone()
+					loadingDone();
 				}
 
 				// @TODO upgrade counter to respect filter
@@ -331,11 +360,11 @@ $(function () {
 
 	// Event - load next item if possible
 	$('#popup-next, #popup-footer-next').on('click', function () {
-		itemNext(false); // dont stop presentation mode
+		itemNext(true, false); // dont stop presentation mode
 	});
 	// Event - load previous item if possible
 	$('#popup-prev, #popup-footer-prev').on('click', function () {
-		itemPrev(true);
+		itemPrev(true, true);
 	});
 
 	$('#modal-settings').on('show.bs.modal', function () {
@@ -370,7 +399,7 @@ function presentationNext() {
 		presentationStop();
 		return;
 	}
-	itemNext(false);
+	itemNext(true, false);
 }
 function presentationStart() {
 	if (presentationIsLast()) {
@@ -379,7 +408,7 @@ function presentationStart() {
 	$('#popup-footer-presentation-stop').show();
 	$('#popup-footer-presentation-play').hide();
 	loadedStructure.presentationRunning = true;
-	itemNext(false);
+	itemNext(true, false);
 }
 function presentationStop() {
 	$('#popup-footer-presentation-play').show();

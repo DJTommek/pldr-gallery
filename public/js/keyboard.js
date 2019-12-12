@@ -3,53 +3,48 @@ jwerty.key('up', function (e) {
 
 	} else {
 		e.preventDefault();
-		S.selectorMove('up');
 		if (loadedStructure.popup) {
-			// if new selected item is not file, select first file and show it
-			if (!S.get(S.selectedIndex).isFile) {
-				S.selectorMove(S.getFirstFile().index);
-			}
-			S.selectorSelect();
+			itemPrev(true, true);
+		} else {
+			S.selectorMove('up');
 		}
 	}
 });
+
 jwerty.key('left', function (e) {
 	if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
-		e.preventDefault();
-		S.selectorMove('up');
-		// if new selected item is not file, select first file and show it
-		if (!S.get(S.selectedIndex).isFile) {
-			S.selectorMove(S.getFirstFile().index);
-		}
-		S.selectorSelect();
+		itemPrev(true, true);
 	} else {
-		// filter is focused, dont do anything special
+		// filter might be focused, dont do anything special
 	}
 });
+
 jwerty.key('down', function (e) {
 	if (loadedStructure.settings) {
 
 	} else {
 		e.preventDefault();
-		S.selectorMove('down');
 		if (loadedStructure.popup) {
-			S.selectorSelect();
+			itemNext(true, false);
+		} else {
+			S.selectorMove('down');
 		}
 	}
 });
+
 jwerty.key('right', function (e) {
 	if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
 		e.preventDefault();
-		S.selectorMove('down');
-		S.selectorSelect();
+		itemNext(true, true);
 	} else {
 		// filter is focused, dont do anything special
 	}
 });
+
 // @TODO should work this button in filter to go to the input beginning?
 jwerty.key('home', function (e) {
 	if (loadedStructure.settings) {
@@ -58,45 +53,39 @@ jwerty.key('home', function (e) {
 		e.preventDefault();
 		S.selectorMove('first');
 		if (loadedStructure.popup) {
-			// if new selected item is not file, select first file and show it
-			if (S.get(S.selectedIndex).isFile === false) {
-				S.selectorMove(S.getFirstFile().index);
-			}
-			S.selectorSelect();
+			itemPrev(true, true); // it will automatically find first file and opens it
 		}
 	}
 });
+
 jwerty.key('page-up', function (e) {
 	if (loadedStructure.settings) {
 
 	} else {
 		e.preventDefault();
-		for (var i = 0; i < 10; i++) {
-			S.selectorMove('up');
-		}
 		if (loadedStructure.popup) {
-			// if new selected item is not file, select first file and show it
-			// If popup is opened, at least one file is always available
-			if (S.get(S.selectedIndex).isFile === false) {
-				S.selectorMove(S.getFirstFile().index);
+			itemPrev10(true, true);
+		} else {
+			for (var i = 0; i < 10; i++) {
+				S.selectorMove('up');
 			}
-			S.selectorSelect();
 		}
 	}
 });
+
 jwerty.key('page-down', function (e) {
 	if (loadedStructure.settings) {
 
 	} else {
 		e.preventDefault();
-		for (var i = 0; i < 10; i++) {
-			S.selectorMove('down');
-		}
 		if (loadedStructure.popup) {
-			S.selectorSelect();
+			itemNext10(true, false);
+		} else {
+			itemNext10(false, false);
 		}
 	}
 });
+
 // @TODO should work this button in filter to go to the input end?
 jwerty.key('end', function (e) {
 	if (loadedStructure.settings) {
@@ -105,10 +94,11 @@ jwerty.key('end', function (e) {
 		e.preventDefault();
 		S.selectorMove('last');
 		if (loadedStructure.popup) {
-			S.selectorSelect();
+			itemNext(true, true);
 		}
 	}
 });
+
 jwerty.key('enter', function (e) {
 	if (loadedStructure.settings) {
 		$("#form-settings").submit();

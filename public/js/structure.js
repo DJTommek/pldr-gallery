@@ -91,7 +91,7 @@ class Structure {
 			item.isFile = true;
 			item.ext = item.paths.last().split('.').last();
 			item.isImage = (['jpg', 'jpeg', 'png', 'bmp', 'gif'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
-			item.isVideo = (['mp4', 'avi'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
+			item.isVideo = (['mp4', 'webm', 'ogv'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
 			item.isZip = (['zip', 'zip64', '7z', 'rar', 'gz'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
 			item.hide = false;
 			if (item.displayIcon) {

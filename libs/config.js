@@ -1,6 +1,6 @@
 const c = {
     imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
-    videoExtensions: ['mp4'],
+    videoExtensions: ['mp4', 'webm', 'ogv'],
     downloadExtensions: [
 		'zip', 'zip64', '7z', 'rar', 'gz',
 		'pdf', 'doc', 'docx', 'xls', 'xlsx',
