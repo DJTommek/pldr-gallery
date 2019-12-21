@@ -1,0 +1,27 @@
+{
+  "name": "pldr-gallery",
+  "version": "1.0.0",
+  "description": "Complex gallery",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://DJTommek@bitbucket.org/DJTommek/pldrgallery.git"
+  },
+  "author": "Tomas Palider",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/DJTommek/pldrgallery#readme",
+  "dependencies": {
+    "body-parser": "latest",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.4",
+    "express": "^4.17.1",
+    "globby": "^6.1.0",
+	"googleapis": "^22.2.0",
+    "imagemin-pngquant": "^8.0.0",
+    "readdirp": "^3.2.0",
+    "sha1": "^1.1.1"
+  }
+}

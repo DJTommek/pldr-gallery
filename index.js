@@ -30,10 +30,10 @@ const oauth2Client = new google.auth.OAuth2(c.google.clientId, c.google.secret, 
 // TODO - potreba python
 // http://sharp.pixelplumbing.com/en/stable/install/
 
-const imagemin = require('imagemin');
-const imageminJpegtran = require('imagemin-jpegtran');
-const imageminPngquant = require('imagemin-pngquant');
-const imageminJpegRecompress = require('imagemin-jpeg-recompress');
+// const imagemin = require('imagemin');
+// const imageminJpegtran = require('imagemin-jpegtran');
+// const imageminPngquant = require('imagemin-pngquant');
+// const imageminJpegRecompress = require('imagemin-jpeg-recompress');
 
 const start = new Date();
 log.info('***STARTING***');
