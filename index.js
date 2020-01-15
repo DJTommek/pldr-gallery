@@ -23,6 +23,8 @@ webserver.use(cookieParser()); // support cookies
 webserver.use(express.static('public'));
 webserver.use(compression());
 
+const exifParser = require('exif-parser')
+
 const google = require('googleapis');
 const oauth2Client = new google.auth.OAuth2(c.google.clientId, c.google.secret, c.google.redirectUrl);
 
@@ -684,22 +686,47 @@ webserver.get('/api/structure', function (req, res) {
 	});
 
 	var loadFilesPromise = new Promise(function (resolve) {
+
+		function getCoordsFromExifFromFile(fullPath) {
+			try {
+				if (!fullPath.match(new RegExp('\.(' + c.exifExtensions.join('|') + ')$', 'i'))) {
+					return {};
+				}
+				// create small buffer, fill it with first x bytes from image and parse
+				let exifBuffer = new Buffer.alloc(c.exifBufferSize);
+				fs.readSync(fs.openSync(fullPath, 'r'), exifBuffer, 0, c.exifBufferSize, 0);
+				let parsed = exifParser.create(exifBuffer).parse();
+				if (parsed.tags.GPSLatitude && parsed.tags.GPSLatitude) {
+					return {
+						coordLat: Math.round(parsed.tags.GPSLatitude * 1000000) / 1000000,
+						coordLon: Math.round(parsed.tags.GPSLongitude * 1000000) / 1000000,
+					};
+				}
+			} catch (error) {
+				if (error.message === 'Index out of range') {
+					log.warning(c.exifBufferSize + ' bytes is too small buffer for loading EXIF from file "' + fullPath + '".');
+				} else {
+					log.error('Error while loading coordinates from EXIF for file "' + fullPath + '": ' + error);
+				}
+			}
+			return {};
+		}
+
 		var files = [];
 		globby(globSearch[1], {nodir: true}).then(function (rawPathsFiles) {
-			rawPathsFiles.forEach(function (path) {
+			rawPathsFiles.forEach(function (fullPath) {
 				try {
-					var pathStats = fs.lstatSync(path);
-					path = path.replace(c.path, '/');
-					if (perms.test(req.userPerms, path)) {
-						var pathData = {
-							path: path
-						};
-						if (!pathStats.isDirectory()) {
-							if (pathData.path.match(re_extension)) {
-								pathData.size = pathStats.size;
-								pathData.created = pathStats.ctime;
-								files.push(pathData);
-							}
+					let pathStats = fs.lstatSync(fullPath);
+					let dynamicPath = fullPath.replace(c.path, '/');
+					if (perms.test(req.userPerms, dynamicPath)) {
+						if (pathStats.isFile() && dynamicPath.match(re_extension)) {
+							let pathData = {
+								path: dynamicPath,
+								size: pathStats.size,
+								created: pathStats.ctime,
+							};
+							pathData = Object.assign(pathData, getCoordsFromExifFromFile(fullPath));
+							files.push(pathData);
 						}
 					}
 				} catch (error) {

@@ -60,24 +60,6 @@ function loadingDone(element) {
 					presentationNext();
 				}, Settings.load('presentationSpeed'));
 			}
-			/**
-			 * Load EXIF data if it is compatible image
-			 * Bug: exifdata is cached and will not change if img src is changed so it must be deleted first
-			 * @Author: https://github.com/exif-js/exif-js/issues/163#issuecomment-412714098
-			 */
-			delete element.exifdata;
-			EXIF.getData(element, function () {
-				try {
-					exifTags = EXIF.getAllTags(element);
-					coords = {
-						lat: convertDMSToDD(exifTags['GPSLatitude'][0], exifTags['GPSLatitude'][1], exifTags['GPSLatitude'][2], exifTags['GPSLatitudeRef']),
-						lon: convertDMSToDD(exifTags['GPSLongitude'][0], exifTags['GPSLongitude'][1], exifTags['GPSLongitude'][2], exifTags['GPSLongitudeRef']),
-					};
-					$('#popup-location').attr('href', 'https://www.google.cz/maps/place/' + coords['lat'] + ',' + coords['lon']).show();
-				} catch (error) {
-					// Exif data is probably missing
-				}
-			});
 		}
 	} else {
 		loadingPopup(false);
@@ -158,7 +140,11 @@ $(window).on('hashchange', function (e) {
 				$('#popup-icon').fadeOut(Settings.load('animationSpeed')).promise(),
 			]).then(function () {
 				S.selectorMove(currentFile.index); // highlight loaded image
-				$('#popup-location').hide();
+				if (currentFile.coordLat && currentFile.coordLon) {
+					$('#popup-location').attr('href', 'https://www.google.cz/maps/place/' + currentFile.coordLat + ',' + currentFile.coordLon).show();
+				} else {
+					$('#popup-location').hide();
+				}
 
 				let openUrl = S.getFileUrl(currentFile.index);
 				let downloadUrl = S.getFileUrl(currentFile.index, true);

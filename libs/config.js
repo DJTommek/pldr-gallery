@@ -1,4 +1,5 @@
 const c = {
+    exifExtensions: ['jpg', 'jpeg', 'png'],
     imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
     videoExtensions: ['mp4', 'webm', 'ogv'],
     downloadExtensions: [
@@ -7,6 +8,14 @@ const c = {
 		'mp3', // @TODO - move to audioExtensions
         'avi' // video but can't be played in browser
 	],
+
+    // how big in bytes should be buffer for loading EXIF from file
+    // @TODO use more buffer sizes depending on file type?
+    // https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.eXIf
+    // jpeg: 2^16-9 (65 527) bytes = 65.53 KB
+    // png: 2^31-1 (2 147 483 647) bytes  = 2.15 GB
+    exifBufferSize: 150000, // 150000 default
+
     http: {
         baseUrl: 'gallery.redilap.cz', // add port if changed or is not redirected to default ports 80 or 443
         protocol: 'http',
