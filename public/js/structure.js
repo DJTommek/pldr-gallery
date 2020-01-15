@@ -93,6 +93,7 @@ class Structure {
 			item.isImage = (['jpg', 'jpeg', 'png', 'bmp', 'gif'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
 			item.isVideo = (['mp4', 'webm', 'ogv'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
 			item.isZip = (['zip', 'zip64', '7z', 'rar', 'gz'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
+			item.isPdf = (['pdf'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
 			item.hide = false;
 			if (item.displayIcon) {
 				item.icon = item.displayIcon;
@@ -102,6 +103,8 @@ class Structure {
 				item.icon = 'file-video-o';
 			} else if (item.isZip) {
 				item.icon = 'file-archive-o';
+			} else if (item.isPdf) {
+				item.icon = 'file-pdf-o';
 			} else {
 				item.icon = 'file-o';
 			}
