@@ -377,7 +377,7 @@ webserver.get('/api/download', function (req, res) {
 		if (!res.locals.fullPathFile) {
 			throw 'neplatna-cesta';
 		}
-		res.set("Content-Disposition", "inline;filename=" + res.locals.fullPathFile.split('/').pop());
+		res.set('Content-Disposition', 'inline;filename="' + res.locals.fullPathFile.split('/').pop() + '"');
 		log.info('(Web) Streaming file to download: ' + res.locals.fullPathFile);
 		return fs.createReadStream(res.locals.fullPathFile).pipe(res);
 	} catch (error) {
