@@ -448,6 +448,7 @@ webserver.get('/api/password', function (req, res) {
 
 /**
  * Stream image.
+ * Image can be compressed via cookie. This can be overriden via GET compress=true or false
  *
  * @returns image stream (in case of error, streamed image with error text)
  */
@@ -462,8 +463,11 @@ webserver.get('/api/image', function (req, res) {
 			throw 'neplatna-cesta';
 		}
 		let imageStream = fs.createReadStream(res.locals.fullPathFile);
-		if (req.cookies['pmg-compress'] === 'true') {
+		if ((req.cookies['pmg-compress'] === 'true' && req.query.compress !== 'false') || req.query.compress === 'true') {
+			console.log('compress is true');
 			imageStream = imageStream.pipe(sharp().resize(c.compress));
+		} else {
+			console.log('compress is false');
 		}
 		return imageStream.pipe(res);
 	} catch (error) {
