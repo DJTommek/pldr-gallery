@@ -205,7 +205,8 @@ body {
  */
 
 #map {
-	height: 15em;
+	margin-top: 2em;
+	height: 30em;
 	width: 100%;
 }
 

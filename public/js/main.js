@@ -208,6 +208,7 @@ $(window).on('hashchange', function (e) {
 			} else { // going to new folder, select first item
 				S.selectorMove('first');
 			}
+			// @TODO fix reloading items in map even when folder hasn't changed
 			mapParsePhotos();
 		}
 	});
