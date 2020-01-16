@@ -53,7 +53,7 @@ class Structure {
 		var item = this.get(this.selectedIndex);
 		var self = this;
 		if (item) {
-			// Override default action with force refresh
+			// Override default action with force refresh - cancel searching
 			if (item.displayIcon === 'long-arrow-left') {
 				loadStructure(true, function () {
 					self.selectorMove();

@@ -66,7 +66,7 @@ jwerty.key('page-up', function (e) {
 		if (loadedStructure.popup) {
 			itemPrev10(true);
 		} else {
-			for (var i = 0; i < 10; i++) {
+			for (let i = 0; i < 10; i++) {
 				S.selectorMove('up');
 			}
 		}
@@ -81,8 +81,8 @@ jwerty.key('page-down', function (e) {
 		if (loadedStructure.popup) {
 			itemNext10(false);
 		} else {
-			for (var i = 0; i < 10; i++) {
-				S.selectorMove('up');
+			for (let i = 0; i < 10; i++) {
+				S.selectorMove('down');
 			}
 		}
 	}
@@ -105,8 +105,7 @@ jwerty.key('enter', function (e) {
 	if (loadedStructure.settings) {
 		$("#form-settings").submit();
 	} else if (loadedStructure.popup) {
-		var item = S.getCurrentFile();
-		if (item.isImage) {
+		if (S.getCurrentFile().isImage) {
 			$('#popup-filename')[0].click();
 		}
 		// @TODO video open in fullscreen (also disable move left and right)
@@ -166,7 +165,7 @@ jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
 	} else if (loadedStructure.popup) {
 		popupClose();
 	} else { // go back
-		var item = S.getFirst();
+		let item = S.getFirst();
 		if (item.displayText === '..') { // @HACK should be some property to recognize "go back"
 			S.selectorMove(item.index);
 			S.selectorSelect();
@@ -174,7 +173,7 @@ jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
 	}
 });
 // Autofocus into input before start typing
-$(window).on('keypress', function (event) {
+$(window).on('keypress', function () {
 	if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
@@ -184,20 +183,7 @@ $(window).on('keypress', function (event) {
 	}
 });
 
-// Move up and down in selector if is mouse wheel used
-// @TODO screen is jumping up and down even with prevent default
-// @TODO S.selectorSelect() if mouse wheel is clicked?
-/*
- $(window).on('wheel', function(event){
- event.preventDefault();
- event.stopPropagation();
- console.log("wheeee: " + event.originalEvent.deltaY);
- console.log(event);
- S.selectorMove(event.originalEvent.deltaY < 0 ? 'up' : 'down');
- });
- */
-
-var filterTimeout = null;
+let filterTimeout = null;
 $('#filter input').on('keyup change', function (event) {
 	// do not run filter if are used keys to move in structure
 	if ([

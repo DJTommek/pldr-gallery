@@ -8,6 +8,9 @@ const c = {
 		'mp3', // @TODO - move to audioExtensions
         'avi' // video but can't be played in browser
 	],
+    allFilesExcensions: [], // automatically generated from arrays above
+    extRegex: null, // generated from array above
+    extExifRegex: null, // generated from array above
 
     // how big in bytes should be buffer for loading EXIF from file
     // @TODO use multiple buffer sizes depending on file type?
@@ -44,6 +47,14 @@ const c = {
         password: '4pTvuKygmguBm19z4CjB'
     }
 };
+
+c.allFilesExcensions = [].concat(
+    c.imageExtensions,
+    c.videoExtensions,
+    c.downloadExtensions,
+);
+c.extRegex = new RegExp('\.(' + c.allFilesExcensions.join('|') + ')$', 'i');
+c.extExifRegex = new RegExp('\.(' + c.exifExtensions.join('|') + ')$', 'i');
 
 // remove path and file, wich are running
 const runArgs = process.argv.slice(2);

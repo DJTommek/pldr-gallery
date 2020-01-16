@@ -187,8 +187,7 @@ function humanToMs(humanString) {
  */
 global.convertDMSToDD = convertDMSToDD;
 function convertDMSToDD(degrees, minutes, seconds, direction) {
-	var dd = degrees + minutes / 60 + seconds / (60 * 60);
-	dd = Math.round(dd * 1000000) / 1000000;
+	let dd = numberRound(degrees + minutes / 60 + seconds / (60 * 60), 6);
 	if (direction === "S" || direction === "W") {
 		dd = dd * -1;
 	} // Don't do anything for N or E
@@ -203,4 +202,29 @@ function convertDMSToDD(degrees, minutes, seconds, direction) {
 global.sanatizePath = sanatizePath;
 function sanatizePath(path) {
 	return path.replace(/(\.\.)|(^\/)/i, '');
+}
+
+/**
+ * Generate folder for "go back"
+ *
+ * @param {type} path
+ */
+global.generateGoBackPath = generateGoBackPath;
+function generateGoBackPath(path) {
+	let goBackPath = path.split('/');
+	goBackPath.splice(goBackPath.length - 2, 1);
+	return goBackPath.join('/')
+}
+
+/**
+ * Round number with supporting floating point
+ *
+ * @param number
+ * @param points How many numbers behind floating point
+ * @returns {number}
+ */
+global.numberRound = numberRound;
+function numberRound(number, points) {
+	let precision = parseInt('1'.pad((points + 1), '0'));
+	return Math.round(number * precision) / precision;
 }
