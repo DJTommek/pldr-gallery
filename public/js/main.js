@@ -8,6 +8,15 @@ var loadedStructure = {
 	presentationRunning: false,
 	presentationIntervalId: null,
 };
+let mapData = {
+    map: null,
+    mapBounds: null,
+    markers: {
+        photos: {},
+    },
+    selectedMarker: null,
+    infoWindow: null
+};
 
 const S = new Structure();
 
@@ -199,6 +208,7 @@ $(window).on('hashchange', function (e) {
 			} else { // going to new folder, select first item
 				S.selectorMove('first');
 			}
+			mapParsePhotos();
 		}
 	});
 });
@@ -707,3 +717,64 @@ function flashMessage(type, text, fade = 4, target = '#flash-message')
 	}
 	loadedStructure.flashIndex++;
 }
+
+function mapInit()
+{
+    mapData.map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 7,
+        center: new google.maps.LatLng(49.6, 15.2), // Czechia
+    });
+    console.log("map loaded");
+
+    // init info window
+    mapData.infowindow = new google.maps.InfoWindow({
+        content: 'Nastala chyba'
+    });
+}
+
+/**
+ * Put loaded photos into google maps
+ *
+ * Note: Because of asynchronous loading both structure data and Google maps,
+ * putting markers into map must wait until maps are fully loaded. This is done by
+ * by periodic checking. After detecting, that map are already loaded, interval is stopped
+ */
+function mapParsePhotos() {
+	// Keep checking
+	let loadMapIntervalId = setInterval(function() {
+		if (mapData.map) { // maps are loaded
+			clearInterval(loadMapIntervalId);
+		} else {
+			return; // try again later
+		}
+		let showMap = false;
+		mapData.mapBounds = new google.maps.LatLngBounds();
+		// remove old markers
+		$.each(mapData.markers.photos, function(index, data) {
+			data.setMap(null);
+			delete mapData.markers.photos[index];
+		});
+		// create new markers and insert them into map
+		S.getFiles().forEach(function(item) {
+			if (item.coordLat && item.coordLon) {
+				$('#map').show();
+				showMap = true; // at least one item has coordinates
+				mapData.markers.photos[item.index] = new google.maps.Marker({
+					map: mapData.map,
+					position: {lat: item.coordLat, lng: item.coordLon},
+					title: item.paths.last(),
+					icon: 'images/marker-photo.png',
+					// animation: google.maps.Animation.DROP,
+				});
+				mapData.mapBounds.extend(mapData.markers.photos[item.index].position);
+				console.log("item loaded");
+			}
+		});
+		console.log("fit bounds");
+		mapData.map.fitBounds(mapData.mapBounds);
+		if (showMap === false) {
+			$('#map').hide();
+		}
+	}, 100);
+}
+

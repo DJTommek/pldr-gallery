@@ -204,6 +204,11 @@ body {
  * Popup end
  */
 
+#map {
+	height: 15em;
+	width: 100%;
+}
+
 /**
  * Tweaks
  */
