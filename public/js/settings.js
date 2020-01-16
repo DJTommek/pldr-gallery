@@ -8,6 +8,7 @@
 		hashBeforeUnload: '/',
 		presentationSpeed: 5000,
 		presentationEnabled: false,
+		compress: true,
 	};
 	var Settings = {
 		/**

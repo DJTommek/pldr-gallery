@@ -5,8 +5,6 @@ const log = require('./libs/log.js');
 const sha1 = require('sha1');
 c.imageExtensions = Array.prototype.slice.call(c.imageExtensions);
 
-c.compress.enabled = true;
-
 const globby = require('globby');
 const fs = require("fs");
 const path = require('path');
@@ -23,24 +21,16 @@ webserver.use(cookieParser()); // support cookies
 webserver.use(express.static('public'));
 webserver.use(compression());
 
-const exifParser = require('exif-parser')
+const exifParser = require('exif-parser');
 
 const google = require('googleapis');
 const oauth2Client = new google.auth.OAuth2(c.google.clientId, c.google.secret, c.google.redirectUrl);
 
-//const sharp = require('sharp');
-// TODO - potreba python
-// http://sharp.pixelplumbing.com/en/stable/install/
-
-// const imagemin = require('imagemin');
-// const imageminJpegtran = require('imagemin-jpegtran');
-// const imageminPngquant = require('imagemin-pngquant');
-// const imageminJpegRecompress = require('imagemin-jpeg-recompress');
+const sharp = require('sharp');
 
 const start = new Date();
 log.info('***STARTING***');
 
-log.info('(Start) Image compression is ' + ((c.compress.enabled) ? 'enabled' : 'disabled'));
 try {
 	let folderStats = fs.statSync(c.path);
 	if (folderStats.isFile()) {
@@ -471,27 +461,13 @@ webserver.get('/api/image', function (req, res) {
 		if (!res.locals.fullPathFile) {
 			throw 'neplatna-cesta';
 		}
-
-		// check if compression algorithm should run
-//            if (c.compress.enabled && (fileStats.size >= c.compress.minLimit) && req.cookies['settings-compress'] === 'true') {
-//                imagemin([filePath], {
-//                    plugins: [
-//                        imageminJpegRecompress(),
-//                        imageminPngquant({quality: c.compress.pngQuality})
-//                    ]
-//                }).then(function (file) {
-//                    var img = file[0].data;
-//                    fileStats.compressedSize = img.length;
-//                    fileStats.percent = 100 - ((fileStats.compressedSize / fileStats.size) * 100);
-//                    fileStats.percent = Math.round(fileStats.percent * 100) / 100;
-//                    log.info('Compression takes: ' + ((new Date()) - s) + ' ms. Original size ' + Math.round(fileStats.size / 1024) + ' KB, compressed size ' + Math.round(fileStats.compressedSize / 1024) + ' KB and it is ' + fileStats.percent + '% smaller.');
-//                    res.setHeader("Content-Length", fileStats.compressedSize);
-//                    return res.end(img);
-//                });
-//            } else {
-		return fs.createReadStream(res.locals.fullPathFile).pipe(res);
-//            }
+		let imageStream = fs.createReadStream(res.locals.fullPathFile);
+		if (req.cookies['pmg-compress'] === 'true') {
+			imageStream = imageStream.pipe(sharp().resize(c.compress));
+		}
+		return imageStream.pipe(res);
 	} catch (error) {
+		// @TODO return proper errors
 		res.statusCode = 404;
 		res.result.setError('soubor-neexistuje');
 		return fs.createReadStream('' + res.result).pipe(res);

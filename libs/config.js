@@ -10,7 +10,7 @@ const c = {
 	],
 
     // how big in bytes should be buffer for loading EXIF from file
-    // @TODO use more buffer sizes depending on file type?
+    // @TODO use multiple buffer sizes depending on file type?
     // https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.eXIf
     // jpeg: 2^16-9 (65 527) bytes = 65.53 KB
     // png: 2^31-1 (2 147 483 647) bytes  = 2.15 GB
@@ -31,8 +31,9 @@ const c = {
     },
     compress: {
         enabled: true,
-        minLimit: 1024 * 1024,
-        pngQuality: '65-80',
+        fit: 'inside',
+        width: 1024,
+        height: 1024
     },
     google: {
         clientId: '405123468190-3si7ft7n40r00odqukeml3r9e8tncmju.apps.googleusercontent.com',

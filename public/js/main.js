@@ -258,9 +258,12 @@ $(function () {
 		$(this).val(Settings.load(settingsName));
 	});
 	$('#form-settings input[type=radio]').each(function () { // type=radio
-		let settingsName = $(this).attr('name');
-		let settingsValue = Settings.load(settingsName);
-		if ($(this).val() === settingsValue) {
+		if ($(this).val() === Settings.load($(this).attr('name'))) {
+			$(this).prop("checked", true);
+		}
+	});
+	$('#form-settings input[type=checkbox]').each(function () { // type=radio
+		if (Settings.load($(this).attr('name'))) {
 			$(this).prop("checked", true);
 		}
 	});
@@ -270,19 +273,37 @@ $(function () {
 	 */
 	$('#form-settings').on('submit', function (event) {
 		event.preventDefault();
-		var values = $(this).serializeArray();
+		// save all inputs from form into Settings
+		let values = $(this).serializeArray();
 		values.forEach(function (input) {
 			Settings.save(input.name, input.value)
 		});
+		// un-checked checkbox inputs are not in serializedArray, needs to be handled separately
+		$('#form-settings input[type="checkbox"]').each(function() {
+			Settings.save($(this).attr('name'), $(this).is(':checked'))
+		});
+		// set compress variable into cookie on save
+		if (Settings.load('compress') === true) {
+			Cookies.set('pmg-compress', true);
+		} else {
+			Cookies.remove('pmg-compress');
+		}
+		// show info about save to user
 		$('#settings-save').html('Uloženo <i class="fa fa-check"></i>').addClass('btn-success').removeClass('btn-primary').prop('disabled', true);
 		setTimeout(function () {
 			$('#settings-save').html('Uložit').removeClass('btn-success').addClass('btn-primary').prop('disabled', false);
 		}, 2000);
 	});
-	// Set text into dropdown menu according enabled theme
-	if (Settings.load('theme') === 'dark') {
-		$('#settings-toggle-theme span').text('Rozsvítit');
+
+	/**
+	 * set compress variable into cookie on load
+	 */
+	if (Settings.load('compress') === true) {
+		Cookies.set('pmg-compress', true);
+	} else {
+		Cookies.remove('pmg-compress');
 	}
+
 	/**
 	 * Toggle dark theme
 	 */
