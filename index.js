@@ -464,10 +464,7 @@ webserver.get('/api/image', function (req, res) {
 		}
 		let imageStream = fs.createReadStream(res.locals.fullPathFile);
 		if ((req.cookies['pmg-compress'] === 'true' && req.query.compress !== 'false') || req.query.compress === 'true') {
-			console.log('compress is true');
 			imageStream = imageStream.pipe(sharp().resize(c.compress));
-		} else {
-			console.log('compress is false');
 		}
 		return imageStream.pipe(res);
 	} catch (error) {
@@ -685,6 +682,8 @@ webserver.get('/api/structure', function (req, res) {
 			} catch (error) {
 				if (error.message === 'Index out of range') {
 					log.warning(c.exifBufferSize + ' bytes is too small buffer for loading EXIF from file "' + fullPath + '".');
+				} else if (error.message === 'Invalid JPEG section offset') {
+					// ignore, probably broken image and/or EXIF data, more info in https://github.com/bwindels/exif-parser/issues/13
 				} else {
 					log.error('Error while loading coordinates from EXIF for file "' + fullPath + '": ' + error);
 				}
