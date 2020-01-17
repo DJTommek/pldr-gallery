@@ -81,14 +81,18 @@ webserver.all('*', function (req, res, next) {
 			this.error = true;
 			this.message = text;
 			this.result = [];
+			return this;
 		}, setResult: function (result, message) {
 			this.error = false;
 			this.result = result;
 			if (message) {
 				this.message = message;
 			}
+			return this;
 		}, toString: function () {
 			return JSON.stringify(this, null, 4);
+		}, end: function() {
+			res.end(this.toString());
 		}
 	};
 	return next();
@@ -292,8 +296,7 @@ webserver.get('/api/search', function (req, res) {
 			displayIcon: 'long-arrow-left' // icon is reserved to force reload structure
 		});
 	} catch (error) {
-		res.result.setError('' + error); // @HACK force toString()
-		res.end('' + res.result); // @HACK force toString()
+		res.result.setError(error.toString()).end();
 		return;
 	}
 
@@ -342,8 +345,7 @@ webserver.get('/api/search', function (req, res) {
 	}).on('end', function () {
 		let humanTime = msToHuman(new Date() - readDirStart);
 		log.info(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
-		res.result.setResult(finds, 'Done in ' + humanTime);
-		res.end('' + res.result); // @HACK force toString()
+		res.result.setResult(finds, 'Done in ' + humanTime).end();
 	});
 });
 
@@ -364,8 +366,7 @@ webserver.get('/api/download', function (req, res) {
 		return fs.createReadStream(res.locals.fullPathFile).pipe(res);
 	} catch (error) {
 		res.statusCode = 404;
-		res.result.setError('soubor-neexistuje');
-		res.end('' + res.result); // @HACK force toString()
+		res.result.setError('soubor-neexistuje').end();
 	}
 });
 
@@ -393,8 +394,7 @@ webserver.get('/api/password', function (req, res) {
 					});
 				});
 			}
-			res.result.setResult(passwordPerms, 'List of saved passwords.');
-			res.end('' + res.result); // @HACK force toString()
+			res.result.setResult(passwordPerms, 'List of saved passwords.').end();
 			return;
 		}
 		// Passsword parameter is set. Check, if there are any permission to this cookie
@@ -430,9 +430,9 @@ webserver.get('/api/password', function (req, res) {
 			res.redirect('/');
 		}
 	} catch (error) {
-		res.result.setError(error);
+		res.result.setError(error).end();
 	}
-	res.end('' + res.result); // @HACK force toString()
+	res.result.end();
 });
 
 /**
@@ -457,11 +457,35 @@ webserver.get('/api/image', function (req, res) {
 		}
 		return imageStream.pipe(res);
 	} catch (error) {
+		console.log(error);
 		// @TODO return proper errors
 		res.statusCode = 404;
 		res.result.setError('soubor-neexistuje');
-		return fs.createReadStream('' + res.result).pipe(res);
+		return fs.createReadStream(res.result.toString()).pipe(res);
 	}
+});
+
+webserver.get('/api/test', function (req, res) {
+	// @TODO finish this - write error message in /api/image
+	res.statusCode = 200;
+	res.setHeader("Content-Type", "image/png");
+
+	let text = '123456789 123456789';
+	let fontSize = 60;
+	let textBuffer = new Buffer(
+		'<svg height="' + (fontSize) + '" width="700">' +
+		'  <text x="50%" y="50%" dominant-baseline="hanging" text-anchor="middle" font-size="' + fontSize + '" fill="#fff">' + text + '</text>' +
+		'</svg>'
+	);
+
+	sharp({
+	  	create: {
+			width: 700,
+			height: 100,
+			channels: 4,
+			background: { r: 125, g: 125, b: 125, }
+	  	}
+	}).composite([{ input: textBuffer}]).png().pipe(res);
 });
 
 /**
@@ -499,9 +523,7 @@ webserver.get('/api/video', function (req, res) {
 		}
 	} catch (error) {
 		res.statusCode = 404;
-		res.result.setError('File - Zadaná cesta není platná');
-		res.end('' + res.result); // @HACK force toString()
-
+		res.result.setError('File - Zadaná cesta není platná').end();
 	}
 });
 
@@ -533,7 +555,7 @@ webserver.get('/api/logout', function (req, res) {
 		res.result.setError(error.message || error);
 	}
 	res.clearCookie(c.http.login.name); // send request to browser to remove cookie
-	res.end('' + res.result); // @HACK force toString()
+	res.result.end();
 });
 
 /**
@@ -544,8 +566,7 @@ webserver.get('/api/logout', function (req, res) {
 webserver.get('/api/ping', function (req, res) {
 	res.setHeader("Content-Type", "application/json");
 	res.statusCode = 200;
-	res.result.setResult(getUptime());
-	res.end('' + res.result); // @HACK force toString()
+	res.result.setResult(getUptime()).end();
 });
 
 /**
@@ -566,11 +587,10 @@ webserver.post('/api/report', function (req, res) {
 				log.debug(msg += 'type="' + req.body.type + '":\n"' + req.body.raw + '".');
 				break;
 		}
-		res.result.setResult(null, 'Report saved');
+		res.result.setResult(null, 'Report saved').end();
 	} else {
-		res.result.setError('Invalid "type" or "raw" POST data');
+		res.result.setError('Invalid "type" or "raw" POST data').end();
 	}
-	res.end('' + res.result); // @HACK force toString()
 });
 
 /**
@@ -582,11 +602,10 @@ webserver.get('/api/kill', function (req, res) {
 	res.setHeader("Content-Type", "application/json");
 
 	if (req.query.password !== c.test.password) {
-		res.result.setError('Wrong password');
-		return res.end('' + res.result); // @HACK force toString()
+		res.result.setError('Wrong password').end();
+		return;
 	}
-	res.result.setResult(null, 'pldrGallery is going to kill in 2 seconds.');
-	res.end('' + res.result); // @HACK force toString()
+	res.result.setResult(null, 'pldrGallery is going to kill in 2 seconds.').end();
 	log.head('(Web) Server is going to kill');
 	setTimeout(function () {
 		process.exit();
@@ -602,8 +621,7 @@ webserver.get('/api/structure', function (req, res) {
 	res.statusCode = 200;
 	res.setHeader("Content-Type", "application/json");
 	if (!res.locals.fullPathFolder) {
-		res.result.setError('Zadaná cesta "<b>' + res.locals.queryPath + '</b>" není platná nebo na ni nemáš právo.');
-		res.end('' + res.result); // @HACK force toString()
+		res.result.setError('Zadaná cesta "<b>' + res.locals.queryPath + '</b>" není platná nebo na ni nemáš právo.').end();
 		return;
 	}
 
@@ -726,8 +744,7 @@ webserver.get('/api/structure', function (req, res) {
 			files: data[1],
 			header: data[2],
 			footer: data[3]
-		});
-		res.end('' + res.result); // @HACK force toString()
+		}).end();
 	});
 });
 
