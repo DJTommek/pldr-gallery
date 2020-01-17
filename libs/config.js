@@ -32,6 +32,39 @@ let CONFIG = {
         width: 1024,
         height: 1024
     },
+    /**
+     * Following values are just placeholders, dont forget to set them in config.local.js
+     */
+    path: '',
+    google: {
+        // Generate your own "OAuth client ID" credentials for Web application on
+        // https://console.developers.google.com/apis/credentials
+        clientId: '012345678901-0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d.apps.googleusercontent.com',
+        secret: 'aBcDeFgHiJkLmNoPqRsTuVwX',
+        redirectPath: '/login',
+        // Generate your own "API key" for Google maps
+        // https://console.developers.google.com/apis/credentials
+        mapApiKey: 'AIzblahblahblahblahblahblahblahblahblah',
+    },
+    security: {
+        killPassword: '4pTvuKygmguBm19z4CjB'
+    },
+    http: {
+        // domain, where will be redirected after Google login
+        // Note: include also :port if different than 80 or 443
+        baseUrl: 'tomas.palider.cz',
+        protocol: 'https',
+        // port of webserver
+        port: 443,
+        login: {
+            // cookie name
+            name: 'google-login',
+            // expiration in miliseconds of user token (after last use)
+            validity: 30 * 24 * 60 * 60 * 1000,
+            // path to save logged users tokens
+            tokensPath: './tokens/'
+        },
+    },
 };
 
 // load local config

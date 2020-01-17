@@ -10,7 +10,7 @@ const HFS = require('./libs/helperFilesystem');
 const readdirp = require('readdirp');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const perms = require('./libs/permissions.js');
+const perms = require('./libs/permissions.js').load();
 const express = require('express');
 const compression = require('compression');
 const webserver = express();
@@ -71,10 +71,13 @@ webserver.all('*', function (req, res, next) {
 	weblog += '[POST:' + JSON.stringify(req.body) + ']';
 	LOG.webserver(weblog);
 
+	const requestStart = new Date();
+
 	res.result = {
 		datetime: (new Date).human(),
 		error: true,
 		message: '',
+		duration: null,
 		result: [],
 		setError: function (text) {
 			this.error = true;
@@ -91,6 +94,7 @@ webserver.all('*', function (req, res, next) {
 		}, toString: function () {
 			return JSON.stringify(this, null, 4);
 		}, end: function() {
+			this.duration = msToHuman(new Date() - requestStart);
 			res.end(this.toString());
 		}
 	};
@@ -112,7 +116,7 @@ webserver.get('/logout', function (req, res) {
  * @return HTML text if error
  * @return redirect if ok
  */
-webserver.get('/login', function (req, res) {
+webserver.get(c.google.redirectPath, function (req, res) {
 	res.clearCookie(c.http.login.name);
 	let code = req.query.code;
 	// Non-logged user (dont have cookie) wants to login. Generate Google login URL and redirect to it.
@@ -603,7 +607,7 @@ webserver.post('/api/report', function (req, res) {
 webserver.get('/api/kill', function (req, res) {
 	res.setHeader("Content-Type", "application/json");
 
-	if (req.query.password !== c.test.password) {
+	if (req.query.password !== c.security.killPassword) {
 		res.result.setError('Wrong password').end();
 		return;
 	}

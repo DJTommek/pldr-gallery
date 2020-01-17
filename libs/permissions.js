@@ -2,100 +2,75 @@ const CONFIG = require('./config.js');
 const FS = require("fs");
 const LOG = require('./log.js');
 
-var users = {};
-var passwords = {};
+let users = {};
+let passwords = {};
+
+function parsePermFile(filePath, callback) {
+    FS.readFile(filePath, 'utf8', function (error, data) {
+        if (error) {
+            return (typeof callback === 'function' && callback('Error while loading "' + filePath + '": ' + error));
+        }
+        try {
+            let perms = {};
+            let lines = filePath.split("\r\n");
+            let indexes = [];
+            lines.some(function (line) {
+                if (line.match(/^#/)) { // Ignore comments
+                } else if (line.trim() === '') { // lane is empty, reset indexes
+                    indexes = [];
+                } else if (!line.match(/^ /)) { // line dont start with space so it is index
+                    indexes.push(line);
+                    if (perms[line] === undefined) {
+                        perms[line] = [];
+                    }
+                } else { // line is some permission, save it to all currently loaded indexes
+                    indexes.some(function (index) {
+                        perms[index].push(line.trim());
+                    });
+                }
+            });
+            users = perms;
+            return (typeof callback === 'function' && callback(false));
+        } catch (error) {
+            return (typeof callback === 'function' && callback('Error while parsing "' + filePath + '": ' + error));
+        }
+    });
+}
 
 function loadUsers(callback) {
-    FS.readFile(CONFIG.path + '.pmg_perms', 'utf8', function (err, data) {
-        if (err) {
-            return (typeof callback === 'function' && callback("Error while loading .pmg_perms: " + err));
-        } else {
-            try {
-                var perms = {};
-                var lines = data.split("\r\n");
-                var indexes = [];
-                lines.some(function (line) {
-                    if (line.match(/^#/)) { // Ignorujeme komentare
-                    } else if (line.trim() === '') { // zrušit indexy
-                        indexes = [];
-                    } else if (!line.match(/^ /)) { // řádek nezačíná mezerou, je to tedy uživatel
-                        indexes.push(line);
-                        if (perms[line] === undefined) {
-                            perms[line] = [];
-                        }
-                    } else {
-                        indexes.some(function (index) {
-                            perms[index].push(line.trim());
-                        });
-                    }
-                });
-                users = perms;
-                return (typeof callback === 'function' && callback(false));
-            } catch (err) {
-                return (typeof callback === 'function' && callback("Error while parsing .pmg_perms: " + err));
-            }
-        }
-    });
+    parsePermFile(CONFIG.path + '.pmg_perms', callback);
 }
-
 function loadPasswords(callback) {
-    FS.readFile(CONFIG.path + '.pmg_passwords', 'utf8', function (err, data) {
-        if (err) {
-            return (typeof callback === 'function' && callback("Error while loading .pmg_passwords: " + err));
-        } else {
-            try {
-                var perms = {};
-                var lines = data.split("\r\n");
-                var indexes = [];
-                lines.some(function (line) {
-                    if (line.match(/^#/)) { // Ignorujeme komentare
-                    } else if (line.trim() === '') { // zrušit indexy
-                        indexes = [];
-                    } else if (!line.match(/^ /)) { // řádek nezačíná mezerou, je to tedy heslo
-                        indexes.push(line);
-                        if (perms[line] === undefined) {
-                            perms[line] = [];
-                        }
-                    } else {
-                        indexes.some(function (index) {
-                            perms[index].push(line.trim());
-                        });
-                    }
-                });
-                passwords = perms;
-                return (typeof callback === 'function' && callback(false));
-            } catch (err) {
-                return (typeof callback === 'function' && callback("Error while parsing .pmg_passwords: " + err));
-            }
-        }
-    });
+    parsePermFile(CONFIG.path + '.pmg_passwords', callback);
 }
 
-exports.test = function (perms, path) {
-    var result = false;
+exports.test = permissionCheck;
+function permissionCheck(perms, path) {
+    let result = false;
     perms.some(function (perm) {
-        if (
-                (path).indexOf(perm) === 0
-                ||
-                (perm.indexOf(path)) === 0
-                ) {
+        if ((path).indexOf(perm) === 0
+            ||
+            (perm.indexOf(path)) === 0
+        ) {
             return result = true;
         }
     });
     return result;
 }
 
-exports.getUser = function (username) {
-    var perms = users[username];
+exports.getUser = getUser;
+function getUser(username) {
+    let perms = users[username];
     return ((perms) ? perms : []);
 }
-exports.getPass = function (password) {
-    var perms = passwords[password];
+exports.getPass = getPass;
+function getPass(password) {
+    let perms = passwords[password];
     return ((perms) ? perms : []);
 }
 
-
-function reload(callback) {
+exports.load = load;
+function load(callback) {
     LOG.log("(Permissions) Loading permissions (users and passwords)");
     loadUsers(function (errorPerms) {
         loadPasswords(function (errorPass) {
@@ -116,5 +91,3 @@ function reload(callback) {
         });
     });
 }
-exports.reload = reload;
-reload();
