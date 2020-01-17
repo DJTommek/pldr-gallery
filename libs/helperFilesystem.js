@@ -1,8 +1,6 @@
 const FS = require('fs');
 const PATH = require('path');
-const CONFIG = require('./config.js');
 
-console.log(CONFIG);
 /**
  * Unite path to UNIX type even on Windows
  * - fixes relative path
