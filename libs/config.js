@@ -22,7 +22,7 @@ const c = {
     http: {
         baseUrl: 'gallery.redilap.cz', // add port if changed or is not redirected to default ports 80 or 443
         protocol: 'http',
-        port: 1119,
+        port: 1117,
         login: {
             // Jméno cookie
             name: 'google-login',
