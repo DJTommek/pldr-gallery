@@ -1,12 +1,12 @@
-var c = require('./config.js');
-var fs = require("fs");
-var log = require('./log.js');
+const CONFIG = require('./config.js');
+const FS = require("fs");
+const LOG = require('./log.js');
 
 var users = {};
 var passwords = {};
 
 function loadUsers(callback) {
-    fs.readFile(c.path + '.pmg_perms', 'utf8', function (err, data) {
+    FS.readFile(CONFIG.path + '.pmg_perms', 'utf8', function (err, data) {
         if (err) {
             return (typeof callback === 'function' && callback("Error while loading .pmg_perms: " + err));
         } else {
@@ -39,7 +39,7 @@ function loadUsers(callback) {
 }
 
 function loadPasswords(callback) {
-    fs.readFile(c.path + '.pmg_passwords', 'utf8', function (err, data) {
+    FS.readFile(CONFIG.path + '.pmg_passwords', 'utf8', function (err, data) {
         if (err) {
             return (typeof callback === 'function' && callback("Error while loading .pmg_passwords: " + err));
         } else {
@@ -96,21 +96,21 @@ exports.getPass = function (password) {
 
 
 function reload(callback) {
-    log.log("(Permissions) Loading permissions (users and passwords)");
+    LOG.log("(Permissions) Loading permissions (users and passwords)");
     loadUsers(function (errorPerms) {
         loadPasswords(function (errorPass) {
             if (!errorPerms && !errorPass) {
-                log.log('(Permissions) Passwords (' + Object.keys(passwords).length + ') and users (' + Object.keys(users).length + ') permissions were loaded.');
-                log.debug('(Permissions) Passwords: ' + JSON.stringify(passwords), {console: false});
-                log.debug('(Permissions) Users: ' + JSON.stringify(users), {console: false});
+                LOG.log('(Permissions) Passwords (' + Object.keys(passwords).length + ') and users (' + Object.keys(users).length + ') permissions were loaded.');
+                LOG.debug('(Permissions) Passwords: ' + JSON.stringify(passwords), {console: false});
+                LOG.debug('(Permissions) Users: ' + JSON.stringify(users), {console: false});
                 return (typeof callback === 'function' && callback(false));
             }
             if (errorPass) {
-                log.error('(Permissions) ' + errorPass);
+                LOG.error('(Permissions) ' + errorPass);
                 return (typeof callback === 'function' && callback(errorPass));
             }
             if (errorPerms) {
-                log.error('(Permissions) ' + errorPerms);
+                LOG.error('(Permissions) ' + errorPerms);
                 return (typeof callback === 'function' && callback(errorPerms));
             }
         });

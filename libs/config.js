@@ -1,16 +1,21 @@
-const c = {
-    exifExtensions: ['jpg', 'jpeg', 'png'],
-    imageExtensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
-    videoExtensions: ['mp4', 'webm', 'ogv'],
-    downloadExtensions: [
+let CONFIG = {
+    // showing in structure
+    extensionsAll: [], // generated from other extensions
+    // loading into <img> tag
+    extensionsImage: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
+    // try to load EXIF data
+    extensionsExif: ['jpg', 'jpeg', 'png'],
+    // loading into <video> tag
+    extensionsVideo: ['mp4', 'webm', 'ogv'],
+    // allowing to download
+    extensionsDownload: [
 		'zip', 'zip64', '7z', 'rar', 'gz',
 		'pdf', 'doc', 'docx', 'xls', 'xlsx',
 		'mp3', // @TODO - move to audioExtensions
         'avi' // video but can't be played in browser
 	],
-    allFilesExcensions: [], // automatically generated from arrays above
-    extRegex: null, // generated from array above
-    extExifRegex: null, // generated from array above
+    extensionsRegexAll: null, // generated from array above
+    extensionsRegexExif: null, // generated from array above
 
     // how big in bytes should be buffer for loading EXIF from file
     // @TODO use multiple buffer sizes depending on file type?
@@ -20,15 +25,18 @@ const c = {
     exifBufferSize: 150000, // 150000 default
 
     http: {
-        baseUrl: 'gallery.redilap.cz', // add port if changed or is not redirected to default ports 80 or 443
+        // domain, where will be redirected after Google login
+        // Note: include also :port if different than 80 or 443
+        baseUrl: 'gallery.redilap.cz',
         protocol: 'http',
-        port: 1117,
+        // port of webserver
+        port: 1119,
         login: {
-            // Jméno cookie
+            // cookie name
             name: 'google-login',
-            // Jak dlouho po posledním použití bude cookie ještě platná
+            // expiration in miliseconds of user token (after last use)
             validity: 30 * 24 * 60 * 60 * 1000,
-            // Kde se budou ukládat textové tokeny
+            // path to save logged users tokens
             tokensPath: './tokens/'
         }
     },
@@ -48,13 +56,13 @@ const c = {
     }
 };
 
-c.allFilesExcensions = [].concat(
-    c.imageExtensions,
-    c.videoExtensions,
-    c.downloadExtensions,
+CONFIG.extensionsAll = [].concat(
+    CONFIG.extensionsImage,
+    CONFIG.extensionsVideo,
+    CONFIG.extensionsDownload,
 );
-c.extRegex = new RegExp('\.(' + c.allFilesExcensions.join('|') + ')$', 'i');
-c.extExifRegex = new RegExp('\.(' + c.exifExtensions.join('|') + ')$', 'i');
+CONFIG.extensionsRegexAll = new RegExp('\.(' + CONFIG.extensionsAll.join('|') + ')$', 'i');
+CONFIG.extensionsRegexExif = new RegExp('\.(' + CONFIG.extensionsExif.join('|') + ')$', 'i');
 
 // remove path and file, wich are running
 const runArgs = process.argv.slice(2);
@@ -73,7 +81,7 @@ if (!match) {
     console.error('You have to set start parameter path="<c:/path/>". More in help');
     process.exit();
 }
-c.path = match[1];
+CONFIG.path = match[1];
 
-c.google.redirectUrl = c.http.protocol + '://' + c.http.baseUrl + c.google.redirectPath;
-module.exports = c;
+CONFIG.google.redirectUrl = CONFIG.http.protocol + '://' + CONFIG.http.baseUrl + CONFIG.google.redirectPath;
+module.exports = CONFIG;
