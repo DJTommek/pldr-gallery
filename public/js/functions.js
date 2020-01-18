@@ -267,9 +267,15 @@ function pathFromUrl(path) {
 function copyToClipboard(text) {
 	// Currently there is no javascript API to put text into clipboard
 	// so we have to create input text element and run command "copy"
-	let inputDom = document.getElementById("invisible-copy-url");
+	let inputDom = document.createElement('input');
+	inputDom.setAttribute('type', 'text');
+	// element can't be hidden (display: none), select() wouldn't work, but can be out of viewport
+	inputDom.setAttribute('style', 'display: block; position: absolute; top: -10em');
+	document.body.appendChild(inputDom);
 	inputDom.value = text;
 	inputDom.select();
 	inputDom.setSelectionRange(0, 99999); // for mobile devices
-	return document.execCommand("copy");
+	const success = document.execCommand("copy");
+	inputDom.parentNode.removeChild(inputDom);
+	return success;
 }

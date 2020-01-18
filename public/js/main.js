@@ -1,5 +1,5 @@
 /* global Settings */
-var loadedStructure = {
+const loadedStructure = {
 	loadedFolder: '', // default is loaded nothing
 	popup: false, // Is popup visible?
 	settings: false, // is settings modal visible?
@@ -8,7 +8,7 @@ var loadedStructure = {
 	presentationRunning: false,
 	presentationIntervalId: null,
 };
-let mapData = {
+const mapData = {
     map: null,
     mapBounds: null,
     markers: {
@@ -22,29 +22,17 @@ const S = new Structure();
 
 function loadAndResize() {
 	// resize image in popup to fit the screen
+	const height = window.innerHeight - $('#popup-footer').outerHeight();
 	$('#popup')
-		.css('height', window.innerHeight - $('#popup-footer').outerHeight())
+		.css('height', height)
 		.css('width', window.innerWidth);
 	$('#popup-content')
-		.css('max-height', window.innerHeight - $('#popup-footer').outerHeight())
+		.css('max-height', height)
 		.css('max-width', window.innerWidth);
 }
 
 $(window).on('resize', function () {
 	loadAndResize();
-});
-
-$('#popup-video').on('loadeddata', function () {
-	loadingDone(this);
-}).on('ended', function () {
-	if (loadedStructure.presentationRunning) {
-		presentationNext();
-	}
-});
-
-// loading is done when img is loaded
-$('#popup-image').on('load', function () {
-	loadingDone(this);
 });
 
 function loadingDone(element) {
@@ -125,7 +113,7 @@ window.onerror = function (msg, url, line, col, error) {
 	// Note that col & error are new to the HTML 5 spec and may not be supported in every browser.  It worked for me in Chrome.
 	let extra = !col ? '' : '\ncolumn: ' + col;
 	extra += !error ? '' : '\nerror: ' + error;
-	var text = "Error: " + msg + "\nurl: " + url + "\nline: " + line + extra;
+	const text = "Error: " + msg + "\nurl: " + url + "\nline: " + line + extra;
 	// Report and save error on server
 	$.post('/api/report', {type: 'javascript', 'raw': text});
 	alert('Nastala neočekávaná chyba. Pokud se opakuje, udělej screenshot obrazovky a kontaktuj správce.\n' + text);
@@ -134,11 +122,11 @@ window.onerror = function (msg, url, line, col, error) {
 };
 
 // If hash is changed, something is being loaded (image of folder)
-$(window).on('hashchange', function (e) {
+$(window).on('hashchange', function (event) {
 	S.setCurrent(pathFromUrl(window.location.hash));
 	loadStructure(false, function () { // load folder structure
 		// If selected item is file, open popup with image
-		var currentFile = S.getCurrentFile();
+		const currentFile = S.getCurrentFile();
 		if (currentFile) { // loaded item is file
 			loadingPopup(true); // starting loading img
 			Promise.all([
@@ -156,16 +144,14 @@ $(window).on('hashchange', function (e) {
 				}
 
 				let openUrl = S.getFileUrl(currentFile.index);
-				let downloadUrl = S.getFileUrl(currentFile.index, true);
+				const downloadUrl = S.getFileUrl(currentFile.index, true);
 				if (!openUrl) { // If item has no view url, use icon to indicate it is file that has to be downloaded
 					openUrl = downloadUrl;
-					$('#popup-icon').removeClass().addClass('fa fa-5x fa-' + currentFile.icon);
-					$('#popup-icon').fadeIn(Settings.load('animationSpeed'), function () {
+					$('#popup-icon').removeClass().addClass('fa fa-5x fa-' + currentFile.icon).fadeIn(Settings.load('animationSpeed'), function () {
 						loadingPopup(false);
 					});
 				}
-				$('#popup-filename').text(currentFile.paths.last()).attr('href', openUrl);
-				$('#popup-filename').attr('title', currentFile.path); // @TODO convert to tooltip
+				$('#popup-filename').text(currentFile.paths.last()).attr('href', openUrl).attr('title', currentFile.path);
 				$('#popup-download').attr('href', downloadUrl);
 				popupOpen();
 				if (currentFile.isImage) {
@@ -182,7 +168,7 @@ $(window).on('hashchange', function (e) {
 				$('#popup-counter').text((currentFile.index + 1 - S.getFolders().length) + '/' + S.getFiles().length);
 
 				// generate URL for previous file buttons
-				let prevFile = S.getPrevious(currentFile.index);
+				const prevFile = S.getPrevious(currentFile.index);
 				let prevFileUrl = currentFile.url; // default is current file (do nothing)
 				if (prevFile && prevFile.isFile) { // if there is some previous file
 					prevFileUrl = prevFile.url;
@@ -191,7 +177,7 @@ $(window).on('hashchange', function (e) {
 				$('#popup-prev').attr('href', '#' + prevFileUrl);
 
 				// generate URL for next file buttons
-				let nextFile = S.getNext(currentFile.index);
+				const nextFile = S.getNext(currentFile.index);
 				let nextFileUrl = currentFile.url; // default is current file (do nothing)
 				if (nextFile && nextFile.isFile) { // if there is some next file
 					nextFileUrl = nextFile.url;
@@ -201,8 +187,8 @@ $(window).on('hashchange', function (e) {
 			})
 		} else { // If selected item is folder, load structure of that folder
 			popupClose();
-			var previousPath = decodeURI(e.originalEvent.oldURL.split('#')[1]); // get previous path
-			var item = S.getByName(previousPath);
+			// get previous path
+			const item = S.getByName(decodeURI(event.originalEvent.oldURL.split('#')[1]));
 			if (item) { // founded = going back
 				S.selectorMove(item.index);
 			} else { // going to new folder, select first item
@@ -265,8 +251,7 @@ $(function () {
 	 * @TODO upgrade to works with all types of inputs (text, number, radio, checkbox...)
 	 */
 	$('#form-settings input[type=number]').each(function () { // type=number
-		let settingsName = $(this).attr('name');
-		$(this).val(Settings.load(settingsName));
+		$(this).val(Settings.load($(this).attr('name')));
 	});
 	$('#form-settings input[type=radio]').each(function () { // type=radio
 		if ($(this).val() === Settings.load($(this).attr('name'))) {
@@ -285,8 +270,7 @@ $(function () {
 	$('#form-settings').on('submit', function (event) {
 		event.preventDefault();
 		// save all inputs from form into Settings
-		let values = $(this).serializeArray();
-		values.forEach(function (input) {
+		$(this).serializeArray().forEach(function (input) {
 			Settings.save(input.name, input.value)
 		});
 		// un-checked checkbox inputs are not in serializedArray, needs to be handled separately
@@ -300,9 +284,17 @@ $(function () {
 			Cookies.remove('pmg-compress');
 		}
 		// show info about save to user
-		$('#settings-save').html('Uloženo <i class="fa fa-check"></i>').addClass('btn-success').removeClass('btn-primary').prop('disabled', true);
+		$('#settings-save')
+			.html('Uloženo <i class="fa fa-check"></i>')
+			.addClass('btn-success')
+			.removeClass('btn-primary')
+			.prop('disabled', true);
 		setTimeout(function () {
-			$('#settings-save').html('Uložit').removeClass('btn-success').addClass('btn-primary').prop('disabled', false);
+			$('#settings-save')
+				.html('Uložit')
+				.removeClass('btn-success')
+				.addClass('btn-primary')
+				.prop('disabled', false);
 		}, 2000);
 	});
 
@@ -318,7 +310,7 @@ $(function () {
 	/**
 	 * Toggle dark theme
 	 */
-	$('#settings-theme input').on('click', function (event) {
+	$('#settings-theme input').on('click', function () {
 		let theme = 'default';
 		if ($('#settings-theme-dark').is(':checked')) {
 			theme = 'dark';
@@ -331,13 +323,12 @@ $(function () {
 		e.preventDefault();
 		S.selectorMove($(this).data('index'));
 		S.selectorSelect();
-		return;
 	});
 
 	/**
 	 * Showing saved passwords in settings
 	 */
-	$('#settings-passwords-load').on('click', function (event) {
+	$('#settings-passwords-load').on('click', function () {
 		const button = this;
 		$(button).html('Načítám <i class="fa fa-circle-o-notch fa-spin"></i>').prop('disabled', true);
 
@@ -367,30 +358,38 @@ $(function () {
 		});
 	});
 
-	// Event - add to favourites
-	$('#currentPath').on('click', '#breadcrumb-favourite.fa-star-o', function () {
+	$('#popup-video').on('loadeddata', function () {
+		loadingDone(this);
+	}).on('ended', function () {
+		if (loadedStructure.presentationRunning) {
+			presentationNext();
+		}
+	});
+
+	// loading is done when img is loaded
+	$('#popup-image').on('load', function () {
+		loadingDone(this);
+	});
+
+	$('#currentPath').on('click', '#breadcrumb-favourite.fa-star-o', function () { // Event - add to favourites
 		favouritesAdd($(this).data('path'));
 		$(this).addClass('fa-star').removeClass('fa-star-o');
 		$(this).attr('title', 'Odebrat z oblíbených');
-	});
-	// Event - remove from favourites
-	$('#currentPath').on('click', '#breadcrumb-favourite.fa-star', function () {
+	}).on('click', '#breadcrumb-favourite.fa-star', function () { // Event - remove from favourites
 		favouritesRemove($(this).data('path'));
 		$(this).addClass('fa-star-o').removeClass('fa-star');
 		$(this).attr('title', 'Přidat do oblíbených');
-	});
-
-	// Event - share URL
-	$('#currentPath').on('click', '#breadcrumb-share', function () {
-		let niceUrl = window.location.origin + '#' + $(this).data('path');
+	}).on('click', '#breadcrumb-share', function () { // Event - share URL
+		const niceUrl = window.location.origin + '#' + $(this).data('path');
 		if (copyToClipboard(niceUrl)) {
-			flashMessage('success', 'URL was copied.')
+			flashMessage('info', 'URL was copied.')
 		} else {
-			// delete previous flash error message before showing new
+			// noinspection JSJQueryEfficiency - delete previous flash error message (if any) before showing new
 			$('#breadcrumb-share-flash').parent().remove();
 			// show error with pre-selected input filled with URL
 			flashMessage('danger', '<p><b>Error</b> while copying URL, copy it manually via <kbd class="nobr"><kbd>CTRL</kbd> + <kbd>C</kbd></kbd></p><input id="breadcrumb-share-flash" type="text" value="' + niceUrl + '">', false);
-			$('#breadcrumb-share-flash').focus().select();
+			// noinspection JSJQueryEfficiency
+			$('#breadcrumb-share-flash').trigger('focus').trigger('select');
 		}
 	});
 
@@ -485,7 +484,7 @@ function favouritesIs(path) {
 }
 function favouritesGenerateMenu() {
 	$('#navbar-hamburger-dropdown .dropdown-menu .favourites-submenu').remove();
-	var saved = Settings.load('favouriteFolders');
+	const saved = Settings.load('favouriteFolders');
 	if (saved.length > 0) {
 		$('#navbar-hamburger-dropdown .dropdown-menu').append('<div class="dropdown-divider favourites-submenu"></div>');
 	}
@@ -610,8 +609,8 @@ function loadStructure(force, callback) {
 function parseStructure(items) {
 // in case of triggering loading the same structure again (already loaded), skip it
 	updateLoginButtons(); // might be logged out
-	var limited = false;
-	var realTotal = items.folders.length + items.files.length;
+	let limited = false;
+	const realTotal = items.folders.length + items.files.length;
 	if (Settings.load('structureItemLimit') > 0 && realTotal >= Settings.load('structureItemLimit')) {
 		limited = true;
 		if (items.folders.length > Settings.load('structureItemLimit')) {
@@ -635,15 +634,15 @@ function parseStructure(items) {
 	});
 	// add or remove from favourites button
 	if (S.getCurrentFolder() !== '/') { // show only in non-root folders
-		let icon = favouritesIs(S.getCurrentFolder()) ? 'fa-star' : 'fa-star-o';
-		let title = favouritesIs(S.getCurrentFolder()) ? 'Odebrat z oblíbených' : 'Přidat do oblíbených';
+		const icon = favouritesIs(S.getCurrentFolder()) ? 'fa-star' : 'fa-star-o';
+		const title = favouritesIs(S.getCurrentFolder()) ? 'Odebrat z oblíbených' : 'Přidat do oblíbených';
 		breadcrumbHtml += '<li><a id="breadcrumb-favourite" class="fa fa-fw ' + icon + '" data-path="' + S.getCurrentFolder() + '" title="' + title + '"></a></li>';
 	}
 	// add "share url" button
 	breadcrumbHtml += '<li><a id="breadcrumb-share" class="fa fa-fw fa-share-alt" data-path="' + S.getCurrentFolderUrl() + '" title="Share URL"></a></li>';
 
 	$('#currentPath').html(breadcrumbHtml);
-	var content = '';
+	let content = '';
 	content += '<table class="table-striped table-condensed"><thead>';
 	content += ' <tr>';
 	content += '  <th>&nbsp;</th>';
@@ -672,7 +671,7 @@ function parseStructure(items) {
 		content += '<td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
 		content += '<td><a href="#' + item.url + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
 		content += '<td>' + formatBytes(item.size, 2) + '</td>';
-		let created = item.created.human(true);
+		const created = item.created.human(true);
 		content += '<td title="' + created + '\nPřed ' + msToHuman(new Date() - item.created) + '">' + created.date + ' <span>' + created.time + '</span></td>';
 		content += '</tr>';
 	});
@@ -758,7 +757,7 @@ function mapInit()
  */
 function mapParsePhotos() {
 	// Keep checking
-	let loadMapIntervalId = setInterval(function() {
+	const loadMapIntervalId = setInterval(function() {
 		if (mapData.map) { // maps are loaded
 			clearInterval(loadMapIntervalId);
 		} else {
