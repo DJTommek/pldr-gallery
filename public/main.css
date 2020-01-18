@@ -1,9 +1,7 @@
 body {
-    margin: 0 auto;
-    max-width: 1900px; /* 1920 - padding */
-    padding: 10px;
-    padding-top: 0; /* without reseting to zero navbar looks weird */
-    margin-bottom: 3em; /* because of popup-footer */
+	max-width: 1900px; /* 1920 - padding */
+	padding: 0 10px 10px; /* padding top because navbar looks weird without reseting to zero */
+	margin: 0 auto 3em; /* margin bottom because of popup-footer */
 }
 #flash-message {
     width: 60%;
@@ -154,7 +152,6 @@ body {
 
 }
 #popup-footer .list-inline-item {
-	padding: 0;
 	height: 3em;
 	min-width: 2.5em;
 	line-height: 1em;
