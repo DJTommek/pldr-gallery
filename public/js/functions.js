@@ -238,7 +238,7 @@ function numberRound(number, points) {
  */
 function pathToUrl(path) {
 	// escape + signs
-	path = path.replace(/([^\\])\+/g, '$1\\+');;
+	path = path.replace(/([^\\])\+/g, '$1\\+');
 	// replace ' ' with +
 	return path.replaceAll(' ', '+');
 }
@@ -255,4 +255,21 @@ function pathFromUrl(path) {
 	path = path.replace(/([^\\])\+/g, '$1 ');;
 	// remove escaping \\+ to get +
 	return path.replaceAll('\\+', '+');
+}
+
+/**
+ * Copy text into clipboard.
+ *
+ * @author https://www.w3schools.com/howto/howto_js_copy_clipboard.asp
+ * @param text
+ * @returns {boolean} true on success, false otherwise
+ */
+function copyToClipboard(text) {
+	// Currently there is no javascript API to put text into clipboard
+	// so we have to create input text element and run command "copy"
+	let inputDom = document.getElementById("invisible-copy-url");
+	inputDom.value = text;
+	inputDom.select();
+	inputDom.setSelectionRange(0, 99999); // for mobile devices
+	return document.execCommand("copy");
 }

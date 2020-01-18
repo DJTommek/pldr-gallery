@@ -26,9 +26,15 @@ body {
     padding: 0.5em 1em;
     margin-bottom: 0.5em;
 }
-#navbar .breadcrumb #breadcrumb-favourite {
+#navbar .breadcrumb #breadcrumb-favourite,
+#navbar .breadcrumb #breadcrumb-share {
 	padding-left: 0.5em;
 	cursor: pointer;
+}
+
+#breadcrumb-share-flash {
+	width: 100%;
+	text-align: center;
 }
 
 /* Zarovnat text v dropdownu */
@@ -217,6 +223,10 @@ body {
 input[type=radio],
 input[type=checkbox] {
 	cursor: pointer;
+}
+
+.nobr {
+	white-space: nowrap;
 }
 
 /**

@@ -380,6 +380,20 @@ $(function () {
 		$(this).attr('title', 'Přidat do oblíbených');
 	});
 
+	// Event - share URL
+	$('#currentPath').on('click', '#breadcrumb-share', function () {
+		let niceUrl = window.location.origin + '#' + $(this).data('path');
+		if (copyToClipboard(niceUrl)) {
+			flashMessage('success', 'URL was copied.')
+		} else {
+			// delete previous flash error message before showing new
+			$('#breadcrumb-share-flash').parent().remove();
+			// show error with pre-selected input filled with URL
+			flashMessage('danger', '<p><b>Error</b> while copying URL, copy it manually via <kbd class="nobr"><kbd>CTRL</kbd> + <kbd>C</kbd></kbd></p><input id="breadcrumb-share-flash" type="text" value="' + niceUrl + '">', false);
+			$('#breadcrumb-share-flash').focus().select();
+		}
+	});
+
 	// Event - load next item if possible
 	$('#popup-next, #popup-footer-next').on('click', function () {
 		itemNext(false); // dont stop presentation mode
@@ -619,11 +633,15 @@ function parseStructure(items) {
 			breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += folderName + '/') + '">' + pathFromUrl(decodeURI(folderName)) + '</a></li>';
 		}
 	});
+	// add or remove from favourites button
 	if (S.getCurrentFolder() !== '/') { // show only in non-root folders
 		let icon = favouritesIs(S.getCurrentFolder()) ? 'fa-star' : 'fa-star-o';
 		let title = favouritesIs(S.getCurrentFolder()) ? 'Odebrat z oblíbených' : 'Přidat do oblíbených';
 		breadcrumbHtml += '<li><a id="breadcrumb-favourite" class="fa fa-fw ' + icon + '" data-path="' + S.getCurrentFolder() + '" title="' + title + '"></a></li>';
 	}
+	// add "share url" button
+	breadcrumbHtml += '<li><a id="breadcrumb-share" class="fa fa-fw fa-share-alt" data-path="' + S.getCurrentFolderUrl() + '" title="Share URL"></a></li>';
+
 	$('#currentPath').html(breadcrumbHtml);
 	var content = '';
 	content += '<table class="table-striped table-condensed"><thead>';
