@@ -10,7 +10,8 @@ const HFS = require('./libs/helperFilesystem');
 const readdirp = require('readdirp');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const perms = require('./libs/permissions.js').load();
+const perms = require('./libs/permissions.js');
+perms.load();
 const express = require('express');
 const compression = require('compression');
 const webserver = express();
@@ -429,10 +430,7 @@ webserver.get('/api/password', function (req, res) {
 			// no redirect if param redirect=false
 		} else {
 			// automatic redirect to the folder
-			// @TODO - if permission is not folder but some prefix, it will make error in frontend. Possible ways to fix:
-			// - do check, if permission string ends with "/"
-			// - do real check, if that folder exists
-			res.cookie('pmg-redirect', passwordPerms[0], {expires: new Date(253402300000000)});
+			res.cookie('pmg-redirect', HFS.pathDirname(passwordPerms[0]), {expires: new Date(253402300000000)});
 			res.redirect('/');
 		}
 	} catch (error) {
@@ -455,7 +453,7 @@ webserver.get('/api/image', function (req, res) {
 	};
 	try {
 		if (!res.locals.fullPathFile) {
-			throw 'neplatna-cesta';
+			throw new Error('Neplatná cesta nebo nemáš právo');
 		}
 		let imageStream = FS.createReadStream(res.locals.fullPathFile);
 		if ((req.cookies['pmg-compress'] === 'true' && req.query.compress !== 'false') || req.query.compress === 'true') {
@@ -463,35 +461,23 @@ webserver.get('/api/image', function (req, res) {
 		}
 		return imageStream.pipe(res);
 	} catch (error) {
-		console.log(error);
-		// @TODO return proper errors
 		res.statusCode = 404;
-		res.result.setError('soubor-neexistuje');
-		return FS.createReadStream(res.result.toString()).pipe(res);
+		let fontSize = 40;
+		let textBuffer = new Buffer(
+			'<svg height="' + (fontSize) + '" width="700">' +
+			'  <text x="50%" y="30" dominant-baseline="hanging" text-anchor="middle" font-size="' + fontSize + '" fill="#fff">' + error + '</text>' +
+			'</svg>'
+		);
+
+		sharp({
+			create: {
+				width: 700,
+				height: 100,
+				channels: 4,
+				background: { r: 220, g: 53, b: 69, }
+			}
+		}).composite([{ input: textBuffer}]).png().pipe(res);
 	}
-});
-
-webserver.get('/api/test', function (req, res) {
-	// @TODO finish this - write error message in /api/image
-	res.statusCode = 200;
-	res.setHeader("Content-Type", "image/png");
-
-	let text = '123456789 123456789';
-	let fontSize = 60;
-	let textBuffer = new Buffer(
-		'<svg height="' + (fontSize) + '" width="700">' +
-		'  <text x="50%" y="50%" dominant-baseline="hanging" text-anchor="middle" font-size="' + fontSize + '" fill="#fff">' + text + '</text>' +
-		'</svg>'
-	);
-
-	sharp({
-	  	create: {
-			width: 700,
-			height: 100,
-			channels: 4,
-			background: { r: 125, g: 125, b: 125, }
-	  	}
-	}).composite([{ input: textBuffer}]).png().pipe(res);
 });
 
 /**

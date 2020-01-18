@@ -24,3 +24,12 @@ function pathJoin(...paths) {
 }
 module.exports.pathJoin = pathJoin;
 
+/**
+ * The same as PATH.dirname but keep trailing /
+ *
+ * @param path
+ */
+function pathDirname(path) {
+    return PATH.join(PATH.dirname(path), '/');
+}
+module.exports.pathDirname = pathDirname;

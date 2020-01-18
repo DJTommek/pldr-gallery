@@ -228,3 +228,31 @@ function numberRound(number, points) {
 	let precision = parseInt('1'.pad((points + 1), '0'));
 	return Math.round(number * precision) / precision;
 }
+
+/**
+ * Generate nice URL to prevent browser escaping into ugly URL encoded
+ *
+ * /demo/folder with+spaces and+plus signs/
+ * ->
+ * /demo/folder+with\+spaces+and\+plus+signs/
+ */
+function pathToUrl(path) {
+	// escape + signs
+	path = path.replace(/([^\\])\+/g, '$1\\+');;
+	// replace ' ' with +
+	return path.replaceAll(' ', '+');
+}
+
+/**
+ * Get path from nice URL
+ *
+ * /demo/folder+with\+spaces+and\+plus+signs/
+ * ->
+ * /demo/folder with+spaces and+plus signs/
+ */
+function pathFromUrl(path) {
+	// replace spaces (need to check, if + is not escaped)
+	path = path.replace(/([^\\])\+/g, '$1 ');;
+	// remove escaping \\+ to get +
+	return path.replaceAll('\\+', '+');
+}

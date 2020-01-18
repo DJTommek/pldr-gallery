@@ -135,7 +135,7 @@ window.onerror = function (msg, url, line, col, error) {
 
 // If hash is changed, something is being loaded (image of folder)
 $(window).on('hashchange', function (e) {
-	S.setCurrent(window.location.hash);
+	S.setCurrent(pathFromUrl(window.location.hash));
 	loadStructure(false, function () { // load folder structure
 		// If selected item is file, open popup with image
 		var currentFile = S.getCurrentFile();
@@ -183,18 +183,18 @@ $(window).on('hashchange', function (e) {
 
 				// generate URL for previous file buttons
 				let prevFile = S.getPrevious(currentFile.index);
-				let prevFileUrl = currentFile.path; // default is current file (do nothing)
+				let prevFileUrl = currentFile.url; // default is current file (do nothing)
 				if (prevFile && prevFile.isFile) { // if there is some previous file
-					prevFileUrl = prevFile.path;
+					prevFileUrl = prevFile.url;
 				}
 				$('#popup-footer-prev').attr('href', '#' + prevFileUrl);
 				$('#popup-prev').attr('href', '#' + prevFileUrl);
 
 				// generate URL for next file buttons
 				let nextFile = S.getNext(currentFile.index);
-				let nextFileUrl = currentFile.path; // default is current file (do nothing)
+				let nextFileUrl = currentFile.url; // default is current file (do nothing)
 				if (nextFile && nextFile.isFile) { // if there is some next file
-					nextFileUrl = nextFile.path;
+					nextFileUrl = nextFile.url;
 				}
 				$('#popup-footer-next').attr('href', '#' + nextFileUrl);
 				$('#popup-next').attr('href', '#' + nextFileUrl);
@@ -220,16 +220,16 @@ $(function () {
 	favouritesGenerateMenu();
 	// If is set redirect, load this
 	if (Cookies.get('pmg-redirect')) {
-		window.location.hash = Cookies.get('pmg-redirect');
+		window.location.hash = pathToUrl(Cookies.get('pmg-redirect'));
 		Cookies.remove('pmg-redirect');
 	}
 	// If not set hash, load url from last time
 	if (!window.location.hash && Settings.load('hashBeforeUnload')) {
-		window.location.hash = Settings.load('hashBeforeUnload');
+		window.location.hash = pathToUrl(Settings.load('hashBeforeUnload'));
 	} else {
 		window.dispatchEvent(new HashChangeEvent("hashchange"));
 	}
-	S.setCurrent(window.location.hash);
+	S.setCurrent(pathFromUrl(window.location.hash));
 	$('[data-toggle="tooltip"]').tooltip();
 	$('#button-logout').on('click', function (event) {
 		event.preventDefault();
@@ -353,7 +353,7 @@ $(function () {
 				let html = '<h5>' + pass.password + ':</h5>';
 				let htmlPasswords = [];
 				pass.permissions.forEach(function (perm) {
-					htmlPasswords.push('<a href="#' + perm + '">' + perm + '</a>');
+					htmlPasswords.push('<a href="#' + pathToUrl(perm) + '">' + perm + '</a>');
 				});
 				html += '<p>' + htmlPasswords.join('<br>') + '</p>';
 				$('#settings-passwords-list').append(html);
@@ -406,15 +406,13 @@ function popupClose() {
 	$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise();
 	$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise();
 	loadedStructure.popup = false;
-	window.location.hash = S.getCurrentFolder();
+	window.location.hash = pathToUrl(S.getCurrentFolder());
 	videoPause();
 	presentationStop();
 }
 
 function presentationIsLast() {
-	let last = ($('#popup-next').attr('href') === '#' + S.currentPath);
-	console.log('item is last: ' + last);
-	return last;
+	return ($('#popup-next').attr('href') === '#' + S.currentPath);
 }
 function presentationNext() {
 	if (presentationIsLast()) {
@@ -479,7 +477,7 @@ function favouritesGenerateMenu() {
 	}
 	saved.forEach(function(savedFolder) {
 		$('#navbar-hamburger-dropdown .dropdown-menu').append(
-			'<a class="dropdown-item favourites-submenu" href="#' + savedFolder + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>'
+			'<a class="dropdown-item favourites-submenu" href="#' + pathToUrl(savedFolder) + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>'
 		);
 	});
 }
@@ -521,7 +519,7 @@ function updateLoginButtons() {
 	}
 }
 function loadSearch(callback) {
-	var query = $('#filter input').val().trim();
+	let query = $('#filter input').val().trim();
 	if (!query) {
 		console.log("Search query is empty, cancel search request");
 		return;
@@ -611,14 +609,14 @@ function parseStructure(items) {
 	}
 	loadedStructure.loadedFolder = S.getCurrentFolder();
 	S.setAll(items);
-	var maxVisible = S.getItems().length;
+	let maxVisible = S.getItems().length;
 	// Full path as breadcrumb in header (home / folder / in / another / folder)
-	var breadcrumbHtml = '';
+	let breadcrumbHtml = '';
 	breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/"><i class="fa fa-home"></i></a></li>';
-	var breadcrumbPath = '/';
-	S.getCurrentFolder(true).forEach(function (folderName) {
+	let breadcrumbPath = '/';
+	S.getCurrentFolderUrl(true).forEach(function (folderName) {
 		if (folderName) {
-			breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += folderName + '/') + '">' + decodeURI(folderName) + '</a></li>';
+			breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += folderName + '/') + '">' + pathFromUrl(decodeURI(folderName)) + '</a></li>';
 		}
 	});
 	if (S.getCurrentFolder() !== '/') { // show only in non-root folders
@@ -644,7 +642,7 @@ function parseStructure(items) {
 		}
 		content += '<tr data-type="folder" data-index="' + item.index + '">';
 		content += ' <td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
-		content += ' <td><a href="#' + item.path + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
+		content += ' <td><a href="#' + item.url + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
 		if (S.getFiles().length) {
 			content += ' <td>&nbsp;</td>';
 			content += ' <td>&nbsp;</td>';
@@ -654,7 +652,7 @@ function parseStructure(items) {
 	S.getFiles().forEach(function (item) {
 		content += '<tr data-type="file" data-index="' + item.index + '">';
 		content += '<td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
-		content += '<td><a href="#' + item.path + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
+		content += '<td><a href="#' + item.url + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
 		content += '<td>' + formatBytes(item.size, 2) + '</td>';
 		let created = item.created.human(true);
 		content += '<td title="' + created + '\nPřed ' + msToHuman(new Date() - item.created) + '">' + created.date + ' <span>' + created.time + '</span></td>';

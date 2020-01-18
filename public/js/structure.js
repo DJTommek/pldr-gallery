@@ -34,7 +34,6 @@ class Structure {
 		if (item) {
 			this.selectedIndex = item.index;
 		}
-		console.log("selectorMove(" + direction + "), selected index: " + this.selectedIndex);
 		// css is indexing from one
 		$('#structure table tbody tr.structure-selected').removeClass('structure-selected');
 		$('#structure table tbody tr:nth-child(' + (this.selectedIndex + 1) + ')').addClass('structure-selected');
@@ -50,8 +49,8 @@ class Structure {
 	}
 
 	selectorSelect() {
-		var item = this.get(this.selectedIndex);
-		var self = this;
+		let item = this.get(this.selectedIndex);
+		let self = this;
 		if (item) {
 			// Override default action with force refresh - cancel searching
 			if (item.displayIcon === 'long-arrow-left') {
@@ -59,7 +58,7 @@ class Structure {
 					self.selectorMove();
 				});
 			} else {
-				window.location.hash = item.path;
+				window.location.hash = item.url;
 			}
 		}
 	}
@@ -69,9 +68,10 @@ class Structure {
 		this.items = [];
 		this.files = [];
 		this.folders = [];
-		var index = 0;
+		let index = 0;
 		items.folders.forEach(function (item) {
 			item.index = index;
+			item.url = pathToUrl(item.path);
 			item.paths = item.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
 			item.isFolder = true;
 			item.isFile = false;
@@ -85,6 +85,7 @@ class Structure {
 		}, this);
 		items.files.forEach(function (item) {
 			item.index = index;
+			item.url = pathToUrl(item.path);
 			item.paths = item.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
 			item.created = new Date(item.created);
 			item.isFolder = false;
@@ -133,7 +134,7 @@ class Structure {
 	}
 	// get first visible file
 	getFirstFile() {
-		var item = this.getNext(-1);
+		let item = this.getNext(-1);
 		if (item) {
 			if (item.isFolder) {
 				return this.getNextFile(item.index);
@@ -154,7 +155,7 @@ class Structure {
 		if (index > this.items.length) {
 			return null;
 		}
-		var item = this.get(index);
+		let item = this.get(index);
 		if (item && item.hide === false) {
 			return item;
 		}
@@ -166,7 +167,7 @@ class Structure {
 		if (index > this.items.length) {
 			return null;
 		}
-		var item = this.get(index);
+		let  item = this.get(index);
 		if (item && item.hide === false && item.isFile) {
 			return item;
 		}
@@ -178,7 +179,7 @@ class Structure {
 		if (index < 0) {
 			return null;
 		}
-		var item = this.get(index);
+		let item = this.get(index);
 		if (item && item.hide === false) {
 			return item;
 		}
@@ -186,25 +187,26 @@ class Structure {
 	}
 
 	getFile(index) {
-		var item = this.get(index)
+		let item = this.get(index);
 		return (item && item.isFile) ? item : null;
 	}
 	getFileUrl(index, download) {
-		var item = this.getFile(index);
+		let item = this.getFile(index);
+		let decoded = btoa(encodeURIComponent(item.path));
 		if (download === true) {
-			return '/api/download?path=' + btoa(encodeURIComponent(item.path));
+			return '/api/download?path=' + decoded;
 		}
 		if (item && item.isVideo) {
-			return '/api/video?path=' + btoa(encodeURIComponent(item.path));
+			return '/api/video?path=' + decoded;
 		}
 		if (item && item.isImage) {
-			return '/api/image?path=' + btoa(encodeURIComponent(item.path));
+			return '/api/image?path=' + decoded;
 		}
 		return '';
 	}
 
 	getByName(name) {
-		var result = null;
+		let result = null;
 		this.items.forEach(function (item) {
 			if (item.path === name) {
 				result = item;
@@ -219,17 +221,27 @@ class Structure {
 	 */
 	setCurrent(path) {
 		path = decodeURI(path).replace(/^#/, '');
-		var paths = path.split('/');
+		let paths = path.split('/');
 		this.currentPath = path;
 		this.currentFolders = paths.slice(1, paths.length - 1); // slice first and last elements from array
 		this.currentFolder = ('/' + this.currentFolders.join('/') + '/').replace('\/\/', '/');
+		// URL versions
+		this.currentFoldersUrl = this.currentFolders.map(pathToUrl);
+		this.currentFolderUrl = pathToUrl(this.currentFolder);
+
 		Settings.save('hashBeforeUnload', this.currentFolder)
 	}
-	getCurrentFolder(array) {
-		if (array === true) {
+	getCurrentFolder(returnArray) {
+		if (returnArray === true) {
 			return this.currentFolders;
 		}
 		return this.currentFolder;
+	}
+	getCurrentFolderUrl(returnArray) {
+		if (returnArray === true) {
+			return this.currentFoldersUrl;
+		}
+		return this.currentFolderUrl;
 	}
 	getCurrentFile() {
 		var item = this.getByName(this.currentPath);
@@ -258,7 +270,7 @@ class Structure {
 			return;
 		}
 		if (loadedStructure.filtering) {
-			console.warn('Filtering is already running, cancel new request');
+			console.warn('Filtering is already running, new filtering cancelled');
 			return;
 		}
 		var filterText = $('#filter input').val().toLowerCase();

@@ -12,7 +12,7 @@ function parsePermFile(filePath, callback) {
         }
         try {
             let perms = {};
-            let lines = filePath.split("\r\n");
+            let lines = data.split("\r\n");
             let indexes = [];
             lines.some(function (line) {
                 if (line.match(/^#/)) { // Ignore comments
@@ -29,8 +29,7 @@ function parsePermFile(filePath, callback) {
                     });
                 }
             });
-            users = perms;
-            return (typeof callback === 'function' && callback(false));
+            return (typeof callback === 'function' && callback(false, perms));
         } catch (error) {
             return (typeof callback === 'function' && callback('Error while parsing "' + filePath + '": ' + error));
         }
@@ -38,10 +37,16 @@ function parsePermFile(filePath, callback) {
 }
 
 function loadUsers(callback) {
-    parsePermFile(CONFIG.path + '.pmg_perms', callback);
+    parsePermFile(CONFIG.path + '.pmg_perms', function(error, perms) {
+        users = perms;
+        callback(error);
+    });
 }
 function loadPasswords(callback) {
-    parsePermFile(CONFIG.path + '.pmg_passwords', callback);
+    parsePermFile(CONFIG.path + '.pmg_passwords', function(error, perms) {
+        passwords = perms;
+        callback(error);
+    });
 }
 
 exports.test = permissionCheck;
