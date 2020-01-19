@@ -19,14 +19,17 @@ body {
 #navbar {
     background-color: #f8f9fa;
 }
-/* Zmenšit breadcrumb */
+/* Make breadcrumb smaller */
 #navbar .breadcrumb {
     padding: 0.5em 1em;
     margin-bottom: 0.5em;
 }
+/* Bigger area of clickable links */
+#navbar .breadcrumb li a {
+    padding: 1em 0;
+}
 #navbar .breadcrumb #breadcrumb-favourite,
 #navbar .breadcrumb #breadcrumb-share {
-	padding-left: 0.5em;
 	cursor: pointer;
 }
 

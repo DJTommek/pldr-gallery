@@ -4,6 +4,7 @@ class Item {
 		this.index = index;
 		this.url = pathToUrl(this.path);
 		this.paths = this.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
+		this.urls = this.paths.map(pathToUrl); // split path to folders and remove empty elements (if path start or end with /)
 		this.hide = false;
 		// Default values
 		this.isFolder = false;
@@ -15,14 +16,15 @@ class Item {
 		this.isPdf = false;
 	}
 }
+
 class Folder extends Item {
 	constructor(...args) {
 		super(...args);
 		this.isFolder = true;
 		this.icon = (this.icon || 'folder-open');
 	}
-
 }
+
 class File extends Item {
 	constructor(...args) {
 		super(...args);
@@ -47,6 +49,26 @@ class File extends Item {
 			this.icon = 'file-o';
 		}
 	}
+
+	/**
+	 * Get file URL
+	 *
+	 * @param download {boolean}
+	 * @returns {string|null}
+	 */
+	getFileUrl(download = false) {
+		const decoded = btoa(encodeURIComponent(this.path));
+		if (download === true) {
+			return '/api/download?path=' + decoded;
+		}
+		if (this.isVideo) {
+			return '/api/video?path=' + decoded;
+		}
+		if (this.isImage) {
+			return '/api/image?path=' + decoded;
+		}
+		return null;
+	}
 }
 
 /**
@@ -54,30 +76,43 @@ class File extends Item {
  */
 class Structure {
 	constructor() {
-		// currently loaded folder
-		this.currentFolder = '/';
-		this.currentFolders = [];
+		// currently selected item index
+		this.selectedIndex = 0;
+		// currently loaded folder (always Folder object)
+		this.currentFolderItem = null;
+		// currently opened file if popup is opened (File object), null otherwise
+		this.currentFileItem = null;
 
 		this.items = [];
 		this.files = [];
 		this.folders = [];
 
-		this.selectedIndex = 0;
 	}
-	/*
-	 * Manage currently loaded path
+	/**
+	 * Set currently loaded path
+	 *
+	 * @param path
 	 */
 	setCurrent(path) {
 		path = decodeURI(path).replace(/^#/, '');
-		let paths = path.split('/');
-		this.currentPath = path;
-		this.currentFolders = paths.slice(1, paths.length - 1); // slice first and last elements from array
-		this.currentFolder = ('/' + this.currentFolders.join('/') + '/').replace('\/\/', '/');
-		// URL versions
-		this.currentFoldersUrl = this.currentFolders.map(pathToUrl);
-		this.currentFolderUrl = pathToUrl(this.currentFolder);
+		console.warn('Set current(' + path + ')');
 
-		Settings.save('hashBeforeUnload', this.currentFolder)
+		let paths = path.split('/');
+		let currentFolders = paths.slice(1, paths.length - 1); // slice first and last elements from array
+		this.currentFileItem = null;
+
+		// File is requested, try find it in structure
+		if (paths.last()) {
+			this.currentFileItem = this.getByName(path);
+			this.selectedIndex = (this.currentFileItem || 0);
+		}
+
+		let currentFolder = ('/' + currentFolders.join('/') + '/').replace('\/\/', '/');
+		this.currentFolderItem = new Folder(null, {
+			path: currentFolder
+		});
+
+		Settings.save('hashBeforeUnload', path)
 	}
 
 	/**
@@ -151,7 +186,7 @@ class Structure {
 	 * In case of searching force-reload structure
 	 */
 	selectorSelect() {
-		let item = this.get(this.selectedIndex);
+		let item = this.getItem(this.selectedIndex);
 		let self = this;
 		if (item) {
 			// Override default action with force refresh - cancel searching
@@ -193,20 +228,49 @@ class Structure {
 	}
 
 	/**
-	 * Get item by index
-	 * @param index
-	 * @returns {*|null}
+	 * Get currently loaded folder object
+	 * Note: Index is null
+	 *
+	 * @returns {Folder}
 	 */
-	get(index) {
+	getCurrentFolder() {
+		return this.currentFolderItem;
+	}
+
+	/**
+	 * Get currently loaded file object
+	 *
+	 * @returns {File|null}
+	 */
+	getCurrentFile() {
+		return this.currentFileItem;
+	}
+
+	/**
+	 * Get item by index
+	 *
+	 * @param index
+	 * @returns {File|Folder|null}
+	 */
+	getItem(index) {
 		return this.items[index] || null;
 	}
 
-	// get first visible item
+	/**
+	 * Get first item in structure
+	 *
+	 * @returns {null|*}
+	 */
 	getFirst() {
 		// initial index has to be -1 because next will be 0
 		return this.getNext(-1);
 	}
-	// get first visible file
+
+	/**
+	 * Get first File in structure
+	 *
+	 * @returns {File|null}
+	 */
 	getFirstFile() {
 		let item = this.getNext(-1);
 		if (item) {
@@ -223,62 +287,78 @@ class Structure {
 		// initial index has to be greater than index of last item
 		return this.getPrevious(this.items.length);
 	}
-	// return next visible item
+
+	/**
+	 * Get next visible item based by index
+	 *
+	 * @param index
+	 * @returns {File|Folder|null}
+	 */
 	getNext(index) {
 		index++;
 		if (index > this.items.length) {
 			return null;
 		}
-		let item = this.get(index);
+		let item = this.getItem(index);
 		if (item && item.hide === false) {
 			return item;
 		}
 		return this.getNext(index);
 	}
-	// return next visible item
+
+	/**
+	 * Get next visible file
+	 *
+	 * @param index
+	 * @returns {File|null}
+	 */
 	getNextFile(index) {
 		index++;
 		if (index > this.items.length) {
 			return null;
 		}
-		let  item = this.get(index);
+		let  item = this.getItem(index);
 		if (item && item.hide === false && item.isFile) {
 			return item;
 		}
 		return this.getNextFile(index);
 	}
-	// return previous visible item
+
+	/**
+	 * Get previous visible item based by index
+	 *
+	 * @param index
+	 * @returns {File|Folder|null}
+	 */
 	getPrevious(index) {
 		index--;
 		if (index < 0) {
 			return null;
 		}
-		let item = this.get(index);
+		let item = this.getItem(index);
 		if (item && item.hide === false) {
 			return item;
 		}
 		return this.getPrevious(index);
 	}
 
+	/**
+	 * Get file by index
+	 *
+	 * @param index
+	 * @returns {File|null}
+	 */
 	getFile(index) {
-		let item = this.get(index);
+		let item = this.getItem(index);
 		return (item && item.isFile) ? item : null;
 	}
-	getFileUrl(index, download) {
-		let item = this.getFile(index);
-		let decoded = btoa(encodeURIComponent(item.path));
-		if (download === true) {
-			return '/api/download?path=' + decoded;
-		}
-		if (item && item.isVideo) {
-			return '/api/video?path=' + decoded;
-		}
-		if (item && item.isImage) {
-			return '/api/image?path=' + decoded;
-		}
-		return '';
-	}
 
+	/**
+	 * Get item by name
+	 *
+	 * @param name
+	 * @returns {null}
+	 */
 	getByName(name) {
 		let result = null;
 		this.items.forEach(function (item) {
@@ -289,23 +369,6 @@ class Structure {
 		return result;
 
 	}
-	getCurrentFolder(returnArray) {
-		if (returnArray === true) {
-			return this.currentFolders;
-		}
-		return this.currentFolder;
-	}
-	getCurrentFolderUrl(returnArray) {
-		if (returnArray === true) {
-			return this.currentFoldersUrl;
-		}
-		return this.currentFolderUrl;
-	}
-	getCurrentFile() {
-		const item = this.getByName(this.currentPath);
-		return (item && item.isFile) ? item : null;
-	}
-	//
 	/**
 	 * Check text against item name. Regex is supported.
 	 *
@@ -322,8 +385,10 @@ class Structure {
 			return (text.toLowerCase().trim().indexOf(searching) !== -1);
 		}
 	}
+
 	/**
 	 * Hide items which dont match to the filter text
+	 * @TODO refactor, split if possible and move back into main.js
 	 */
 	filter() {
 		const self = this;
@@ -373,19 +438,19 @@ class Structure {
 			$('#filter input').removeClass('is-invalid');
 		}
 		$('#filter .filtered').text(visible);
-		const item = this.get(this.selectedIndex);
+		const item = this.getItem(this.selectedIndex);
 		if (!item) { // new opened folder is empty, do not move with selector
 			loadedStructure.filtering = false;
 			return;
 		}
 		if (item.hide) { // if currently selected item is not visible, move to previous visible
 			this.selectorMove('up');
-			if (this.get(this.selectedIndex).hide) { // if there is no previous visible item, move to the next visible item
+			if (this.getItem(this.selectedIndex).hide) { // if there is no previous visible item, move to the next visible item
 				this.selectorMove('down');
 			}
 			// if no item is visible, dont do anything
 		}
-		if (this.get(this.selectedIndex).noFilter) { // if is filter active and selected item is "go back", try select next visible item
+		if (this.getItem(this.selectedIndex).noFilter) { // if is filter active and selected item is "go back", try select next visible item
 			this.selectorMove('down');
 		}
 		loadedStructure.filtering = false;

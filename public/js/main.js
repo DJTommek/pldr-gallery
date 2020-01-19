@@ -80,7 +80,7 @@ function itemPrev(stopPresentation) {
 	videoPause();
 	S.selectorMove('up');
 	// if new selected item is not file, select first file and show it
-	if (S.get(S.selectedIndex).isFile === false) {
+	if (S.getItem(S.selectedIndex).isFile === false) {
 		S.selectorMove(S.getFirstFile().index);
 	}
 	S.selectorSelect();
@@ -123,9 +123,15 @@ window.onerror = function (msg, url, line, col, error) {
 
 // If hash is changed, something is being loaded (image of folder)
 $(window).on('hashchange', function (event) {
+	// save currently loaded folder but can't save File, because we dont know structure yet.
 	S.setCurrent(pathFromUrl(window.location.hash));
 	loadStructure(false, function () { // load folder structure
-		// If selected item is file, open popup with image
+		// save currently loaded folder AND currently selected file (if any) because structure is already loaded
+		S.setCurrent(pathFromUrl(window.location.hash)); // save file if is opened in popup
+
+		/**
+		 * Open popup to show file
+		 */
 		const currentFile = S.getCurrentFile();
 		if (currentFile) { // loaded item is file
 			loadingPopup(true); // starting loading img
@@ -143,9 +149,9 @@ $(window).on('hashchange', function (event) {
 					$('#popup-location').hide();
 				}
 
-				let openUrl = S.getFileUrl(currentFile.index);
-				const downloadUrl = S.getFileUrl(currentFile.index, true);
-				if (!openUrl) { // If item has no view url, use icon to indicate it is file that has to be downloaded
+				let openUrl = currentFile.getFileUrl();
+				const downloadUrl = currentFile.getFileUrl(true);
+				if (openUrl === null) { // If item has no view url, use icon to indicate it is file that has to be downloaded
 					openUrl = downloadUrl;
 					$('#popup-icon').removeClass().addClass('fa fa-5x fa-' + currentFile.icon).fadeIn(Settings.load('animationSpeed'), function () {
 						loadingPopup(false);
@@ -155,11 +161,11 @@ $(window).on('hashchange', function (event) {
 				$('#popup-download').attr('href', downloadUrl);
 				popupOpen();
 				if (currentFile.isImage) {
-					$('#popup-image').attr('src', S.getFileUrl(currentFile.index));
+					$('#popup-image').attr('src', openUrl);
 					// fade in animation is triggered on image load
 				} else if (currentFile.isVideo) {
-					$('#popup-video source').attr('src', S.getFileUrl(currentFile.index));
-					$('#popup-video').load();
+					$('#popup-video source').attr('src', openUrl);
+					$('#popup-video')[0].load();
 				} else {
 					loadingDone();
 				}
@@ -187,9 +193,9 @@ $(window).on('hashchange', function (event) {
 			})
 		} else { // If selected item is folder, load structure of that folder
 			popupClose();
-			// get previous path
-			const item = S.getByName(decodeURI(event.originalEvent.oldURL.split('#')[1]));
-			if (item) { // founded = going back
+			// If going folder back, first try to find item, which was previously loaded
+			const item = S.getByName(pathFromUrl(decodeURI(event.originalEvent.oldURL.split('#')[1])));
+			if (item) { // founded = going back to previously opened folder. Select that folder in structure
 				S.selectorMove(item.index);
 			} else { // going to new folder, select first item
 				S.selectorMove('first');
@@ -215,7 +221,7 @@ $(function () {
 	} else {
 		window.dispatchEvent(new HashChangeEvent("hashchange"));
 	}
-	S.setCurrent(pathFromUrl(window.location.hash));
+	// S.setCurrent(pathFromUrl(window.location.hash));
 	$('[data-toggle="tooltip"]').tooltip();
 	$('#button-logout').on('click', function (event) {
 		event.preventDefault();
@@ -371,16 +377,17 @@ $(function () {
 		loadingDone(this);
 	});
 
-	$('#currentPath').on('click', '#breadcrumb-favourite.fa-star-o', function () { // Event - add to favourites
-		favouritesAdd($(this).data('path'));
+	// @TODO clickable area is smaller, because event handler is not <li> but for <span> inside, which is much smaller
+	$('#currentPath').on('click', '#breadcrumb-favourite .fa-star-o', function () { // Event - add to favourites
+		favouritesAdd(S.getCurrentFolder().path);
 		$(this).addClass('fa-star').removeClass('fa-star-o');
 		$(this).attr('title', 'Odebrat z oblíbených');
-	}).on('click', '#breadcrumb-favourite.fa-star', function () { // Event - remove from favourites
-		favouritesRemove($(this).data('path'));
+	}).on('click', '#breadcrumb-favourite .fa-star', function () { // Event - remove from favourites
+		favouritesRemove(S.getCurrentFolder().path);
 		$(this).addClass('fa-star-o').removeClass('fa-star');
 		$(this).attr('title', 'Přidat do oblíbených');
 	}).on('click', '#breadcrumb-share', function () { // Event - share URL
-		shareUrl(window.location.origin + '#' + $(this).data('path'));
+		shareUrl(window.location.origin + '#' + S.getCurrentFolder().url);
 	});
 
 	// Event - load next item if possible
@@ -414,13 +421,13 @@ function popupClose() {
 	$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise();
 	$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise();
 	loadedStructure.popup = false;
-	window.location.hash = pathToUrl(S.getCurrentFolder());
+	window.location.hash = S.getCurrentFolder().url;
 	videoPause();
 	presentationStop();
 }
 
 function presentationIsLast() {
-	return ($('#popup-next').attr('href') === '#' + S.currentPath);
+	return S.getNextFile(S.getCurrentFile().index) === null;
 }
 function presentationNext() {
 	if (presentationIsLast()) {
@@ -470,7 +477,7 @@ function favouritesAdd(path) {
 function favouritesRemove(path) {
 	let saved = Settings.load('favouriteFolders');
 	saved.removeByValue(path);
-	flashMessage('info', 'Folder "' + path + '" has been removed from favourites.');
+	flashMessage('info', 'Folder has been removed from favourites.');
 	Settings.save('favouriteFolders', saved);
 	favouritesGenerateMenu();
 }
@@ -536,7 +543,7 @@ function loadSearch(callback) {
 		url: '/api/search',
 		method: 'GET',
 		data: {
-			path: btoa(encodeURIComponent(S.getCurrentFolder())),
+			path: btoa(encodeURIComponent(S.getCurrentFolder().path)),
 			query: query
 		},
 		success: function (result) {
@@ -563,7 +570,7 @@ function loadSearch(callback) {
 }
 function loadStructure(force, callback) {
 // in case of triggering loading the same structure again (already loaded), skip it
-	if (force !== true && loadedStructure.loadedFolder === S.getCurrentFolder()) {
+	if (force !== true && loadedStructure.loadedFolder === S.getCurrentFolder().path) {
 		console.log("Structure is already loaded, skip");
 		return (typeof callback === 'function' && callback());
 	}
@@ -571,7 +578,7 @@ function loadStructure(force, callback) {
 		url: '/api/structure',
 		method: 'GET',
 		data: {
-			path: btoa(encodeURIComponent(S.getCurrentFolder()))
+			path: btoa(encodeURIComponent(S.getCurrentFolder().path))
 		},
 		success: function (result) {
 			if (result.error === true || !result.result) {
@@ -615,28 +622,33 @@ function parseStructure(items) {
 			items.files = items.files.slice(0, Settings.load('structureItemLimit'));
 		}
 	}
-	loadedStructure.loadedFolder = S.getCurrentFolder();
+	loadedStructure.loadedFolder = S.getCurrentFolder().path;
 	S.setAll(items);
+	const currentFolder = S.getCurrentFolder();
 	let maxVisible = S.getItems().length;
-	// Full path as breadcrumb in header (home / folder / in / another / folder)
+
+	/**
+	 * Generate breadcrumb urls in menu
+	 */
 	let breadcrumbHtml = '';
 	breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/"><i class="fa fa-home"></i></a></li>';
 	let breadcrumbPath = '/';
-	S.getCurrentFolderUrl(true).forEach(function (folderName) {
-		if (folderName) {
-			breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += folderName + '/') + '">' + pathFromUrl(decodeURI(folderName)) + '</a></li>';
-		}
+
+	currentFolder.paths.forEach(function (folderName, index) {
+		breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += currentFolder.urls[index] + '/') + '">' + folderName + '</a></li>';
 	});
-	// add or remove from favourites button
-	if (S.getCurrentFolder() !== '/') { // show only in non-root folders
-		const icon = favouritesIs(S.getCurrentFolder()) ? 'fa-star' : 'fa-star-o';
-		const title = favouritesIs(S.getCurrentFolder()) ? 'Odebrat z oblíbených' : 'Přidat do oblíbených';
-		breadcrumbHtml += '<li><a id="breadcrumb-favourite" class="fa fa-fw ' + icon + '" data-path="' + S.getCurrentFolder() + '" title="' + title + '"></a></li>';
+	// favourites button (add or remove)
+	if (currentFolder.path !== '/') { // show only in non-root folders
+		const icon = favouritesIs(currentFolder.path) ? 'fa-star' : 'fa-star-o';
+		const title = favouritesIs(currentFolder.path) ? 'Odebrat z oblíbených' : 'Přidat do oblíbených';
+		breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-favourite" title="' + title + '"><span class="fa fa-fw ' + icon + '"></span></a></li>';
 	}
 	// add "share url" button
-	breadcrumbHtml += '<li><a id="breadcrumb-share" class="fa fa-fw fa-share-alt" data-path="' + S.getCurrentFolderUrl() + '" title="Share URL"></a></li>';
-
+	breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-share" title="Share URL"><span class="fa fa-share-alt"></span></a></li>';
 	$('#currentPath').html(breadcrumbHtml);
+	/**
+	 * Generate structure content
+	 */
 	let content = '';
 	content += '<table class="table-striped table-condensed"><thead>';
 	content += ' <tr>';
