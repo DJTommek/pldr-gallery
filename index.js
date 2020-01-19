@@ -231,7 +231,7 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 	}
 	res.locals.userPerms = userPerms;
 
-	LOG.info('(Web) Api access ' + req.path + ', user "' + (req.user ? res.locals.user : 'x') + '"');
+	LOG.info('(Web) Api access ' + req.path + ', user "' + (res.locals.user ? res.locals.user : 'x') + '"');
 
 	// Parse, sanatize and check permissions for path if defined
 	if (req.query.path) {
