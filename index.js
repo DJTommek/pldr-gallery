@@ -296,8 +296,8 @@ webserver.get('/api/search', function (req, res) {
 		finds.folders.push({
 			path: res.locals.path,
 			noFilter: true,
-			displayText: 'Zavřít vyhledávání "' + req.query.query + '"',
-			displayIcon: 'long-arrow-left' // icon is reserved to close searching (force reload structure)
+			text: 'Zavřít vyhledávání "' + req.query.query + '"',
+			icon: 'long-arrow-left' // icon is reserved to close searching (force reload structure)
 		});
 	} catch (error) {
 		res.result.setError(error.toString()).end();
@@ -331,7 +331,7 @@ webserver.get('/api/search', function (req, res) {
 
 			let pathData = {
 				path: entryPath,
-				displayText: entryPath
+				text: entryPath
 			};
 			if (entry.dirent.isDirectory()) {
 				pathData.path += '/';
@@ -628,9 +628,9 @@ webserver.get('/api/structure', function (req, res) {
 		if (res.locals.path !== '/') {
 			folders.push({
 				path: generateGoBackPath(res.locals.path),
-				displayText: '..',
+				text: '..',
 				noFilter: true,
-				displayIcon: 'level-up',
+				icon: 'level-up',
 			});
 		}
 		globby(globSearch[0]).then(function (rawPathsFolders) {

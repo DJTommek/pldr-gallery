@@ -5,6 +5,14 @@ class Item {
 		this.url = pathToUrl(this.path);
 		this.paths = this.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
 		this.urls = this.paths.map(pathToUrl); // split path to folders and remove empty elements (if path start or end with /)
+		if (!this.text) { // do not override if set by server
+			if (this.path === '/') { // special case for root
+				this.text = this.path;
+			} else {
+				this.text = this.paths.last().escapeHtml()
+			}
+			console.log(this);
+		}
 		this.hide = false;
 		// Default values
 		this.isFolder = false;
@@ -104,7 +112,7 @@ class Structure {
 		// File is requested, try find it in structure
 		if (paths.last()) {
 			this.currentFileItem = this.getByName(path);
-			this.selectedIndex = (this.currentFileItem || 0);
+			this.selectedIndex = (this.currentFileItem ? this.currentFileItem.index : 0);
 		}
 
 		let currentFolder = ('/' + currentFolders.join('/') + '/').replace('\/\/', '/');
@@ -190,7 +198,7 @@ class Structure {
 		let self = this;
 		if (item) {
 			// Override default action with force refresh - cancel searching
-			if (item.displayIcon === 'long-arrow-left') {
+			if (item.icon === 'long-arrow-left') {
 				loadStructure(true, function () {
 					self.selectorMove();
 				});
@@ -422,7 +430,7 @@ class Structure {
 				return;
 			}
 			// display text to be compatibile with search results, otherwise it would be filtering only last part of path
-			if (self.runFilter(filterText, item.displayText || item.paths.last())) {
+			if (self.runFilter(filterText, item.text || item.paths.last())) {
 				$("#structure tbody").find('[data-index="' + item.index + '"]').show();
 				allHidden = false;
 				item.hide = false;

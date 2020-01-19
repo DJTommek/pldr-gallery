@@ -118,7 +118,7 @@ window.onerror = function (msg, url, line, col, error) {
 	$.post('/api/report', {type: 'javascript', 'raw': text});
 	alert('Nastala neočekávaná chyba. Pokud se opakuje, udělej screenshot obrazovky a kontaktuj správce.\n' + text);
 	// If you return true, then error alerts (like in older versions of Internet Explorer) will be suppressed.
-	return true;
+	// return true;
 };
 
 // If hash is changed, something is being loaded (image of folder)
@@ -157,7 +157,7 @@ $(window).on('hashchange', function (event) {
 						loadingPopup(false);
 					});
 				}
-				$('#popup-filename').text(currentFile.paths.last()).attr('href', openUrl).attr('title', currentFile.path);
+				$('#popup-filename').text(currentFile.text).attr('href', openUrl).attr('title', currentFile.path);
 				$('#popup-download').attr('href', downloadUrl);
 				popupOpen();
 				if (currentFile.isImage) {
@@ -666,7 +666,7 @@ function parseStructure(items) {
 		}
 		content += '<tr data-type="folder" data-index="' + item.index + '">';
 		content += ' <td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
-		content += ' <td><a href="#' + item.url + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
+		content += ' <td><a href="#' + item.url + '">' + item.text + '</a></td>';
 		if (S.getFiles().length) {
 			content += ' <td>&nbsp;</td>';
 			content += ' <td>&nbsp;</td>';
@@ -676,7 +676,7 @@ function parseStructure(items) {
 	S.getFiles().forEach(function (item) {
 		content += '<tr data-type="file" data-index="' + item.index + '">';
 		content += '<td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
-		content += '<td><a href="#' + item.url + '">' + (item.displayText || item.paths.last()).escapeHtml() + '</a></td>';
+		content += '<td><a href="#' + item.url + '">' + item.text + '</a></td>';
 		content += '<td>' + formatBytes(item.size, 2) + '</td>';
 		const created = item.created.human(true);
 		content += '<td title="' + created + '\nPřed ' + msToHuman(new Date() - item.created) + '">' + created.date + ' <span>' + created.time + '</span></td>';
@@ -785,7 +785,7 @@ function mapParsePhotos() {
 				mapData.markers.photos[item.index] = new google.maps.Marker({
 					map: mapData.map,
 					position: {lat: item.coordLat, lng: item.coordLon},
-					title: item.paths.last(),
+					title: item.text,
 					icon: 'images/marker-photo.png',
 					// animation: google.maps.Animation.DROP,
 				});
