@@ -94,8 +94,11 @@ webserver.all('*', function (req, res, next) {
 			return this;
 		}, toString: function () {
 			return JSON.stringify(this, null, 4);
-		}, end: function() {
+		}, end: function(httpResponseCode) {
 			this.duration = msToHuman(new Date() - requestStart);
+			if (httpResponseCode) {
+				res.status(httpResponseCode);
+			}
 			res.end(this.toString());
 		}
 	};
@@ -267,6 +270,11 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 		}
 	}
 
+    res.setTimeout(c.http.timeout, function() {
+    	LOG.error('(Web) Connection timeout for ' + req.path);
+		res.result.setError('<b>Nastala chyba</b>, zpracování požadavku trvalo serveru příliš dlouho.<br>Zkus to za chvíli znovu případně kontaktuj admina.').end(408);
+	});
+
 	next();
 });
 
@@ -307,16 +315,17 @@ webserver.get('/api/search', function (req, res) {
 	let logPrefix = '(Web) Searching "' + req.query.query + '" in path "' + res.locals.path + '"';
 	let readDirStart = new Date();
 
-	// @TODO update to node version 10.10.0+ to support fs.Dirent
-	// https://github.com/paulmillr/readdirp/issues/95
-	// https://nodejs.org/api/fs.html#fs_class_fs_dirent
-
 	// Do not use readdirp.fileFilter option because is case sensitive.
 	// Instead create custom file extensions regex with case-insensitive parameter
 	// Closed github request, Option for case-insensitive filter: https://github.com/paulmillr/readdirp/issues/47
 	readdirp(res.locals.fullPathFolder, {type: 'files_directories', depth: 10, alwaysStat: false}).on('data', function (entry) {
 		try {
-			if (entry.dirent.isFile() && !entry.basename.match(c.extensionsRegexAll)) {
+			// fallback to stats because dirent is not supported (probably node.js version is older than 10.10.0)
+			// https://github.com/paulmillr/readdirp/issues/95
+			// https://nodejs.org/api/fs.html#fs_class_fs_dirent
+			const item = entry.dirent || entry.stats;
+
+			if (item.isFile() && !entry.basename.match(c.extensionsRegexAll)) {
 				return; // file has invalid extension
 			}
 
@@ -333,7 +342,7 @@ webserver.get('/api/search', function (req, res) {
 				path: entryPath,
 				text: entryPath
 			};
-			if (entry.dirent.isDirectory()) {
+			if (item.isDirectory()) {
 				pathData.path += '/';
 				finds.folders.push(pathData);
 			} else { // is file, load detailed info

@@ -56,6 +56,8 @@ let CONFIG = {
         protocol: 'https',
         // port of webserver
         port: 443,
+        // maximum time reserverd for one request (in miliseconds)
+        timeout: 30 * 1000,
         login: {
             // cookie name
             name: 'google-login',

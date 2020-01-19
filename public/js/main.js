@@ -548,14 +548,14 @@ function loadSearch(callback) {
 		},
 		success: function (result) {
 			if (result.error === true || !result.result) {
-				alert((result.message || 'Chyba během hledání. Kontaktuj autora.'));
+				flashMessage('danger', result.message || 'Chyba během hledání. Kontaktuj autora.', false);
 			} else {
 				parseStructure(result.result);
 				S.selectorMove('first');
 			}
 		},
-		error: function () {
-			alert('Chyba během načítání dat. Kontaktuj autora.');
+		error: function (result) {
+			flashMessage('danger', result.responseJSON ? result.responseJSON.message : 'Chyba během hledání. Kontaktuj autora.', false);
 		},
 		beforeSend: function () {
 			loadingStructure(true);

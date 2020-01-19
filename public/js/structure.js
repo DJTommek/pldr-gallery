@@ -1,7 +1,19 @@
 class Item {
+	// Values defined by server (more defined dynamically)
+	path = '/';
+	// Default values
+	isFolder = false;
+	isFile = false;
+	ext = '';
+	isImage = false;
+	isVideo = false;
+	isZip = false;
+	isPdf = false;
+
 	constructor(index, item) {
 		Object.assign(this, item);
 		this.index = index;
+
 		this.url = pathToUrl(this.path);
 		this.paths = this.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
 		this.urls = this.paths.map(pathToUrl); // split path to folders and remove empty elements (if path start or end with /)
@@ -11,17 +23,8 @@ class Item {
 			} else {
 				this.text = this.paths.last().escapeHtml()
 			}
-			console.log(this);
 		}
 		this.hide = false;
-		// Default values
-		this.isFolder = false;
-		this.isFile = false;
-		this.ext = '';
-		this.isImage = false;
-		this.isVideo = false;
-		this.isZip = false;
-		this.isPdf = false;
 	}
 }
 
@@ -38,11 +41,11 @@ class File extends Item {
 		super(...args);
 		this.created = new Date(this.created);
 		this.isFile = true;
-		this.ext = this.paths.last().split('.').last();
-		this.isImage = (['jpg', 'jpeg', 'png', 'bmp', 'gif'].indexOf(this.paths.last().split('.').pop().toLowerCase()) >= 0);
-		this.isVideo = (['mp4', 'webm', 'ogv'].indexOf(this.paths.last().split('.').pop().toLowerCase()) >= 0);
-		this.isZip = (['zip', 'zip64', '7z', 'rar', 'gz'].indexOf(this.paths.last().split('.').pop().toLowerCase()) >= 0);
-		this.isPdf = (['pdf'].indexOf(this.paths.last().split('.').pop().toLowerCase()) >= 0);
+		this.ext = this.paths.last().split('.').last().toLowerCase();
+		this.isImage = (['jpg', 'jpeg', 'png', 'bmp', 'gif'].indexOf(this.ext) >= 0);
+		this.isVideo = (['mp4', 'webm', 'ogv'].indexOf(this.ext) >= 0);
+		this.isZip = (['zip', 'zip64', '7z', 'rar', 'gz'].indexOf(this.ext) >= 0);
+		this.isPdf = (['pdf'].indexOf(this.ext) >= 0);
 		if (this.icon) {
 			 // icon is set by server, do not override
 		} else if (this.isImage) {
@@ -103,7 +106,6 @@ class Structure {
 	 */
 	setCurrent(path) {
 		path = decodeURI(path).replace(/^#/, '');
-		console.warn('Set current(' + path + ')');
 
 		let paths = path.split('/');
 		let currentFolders = paths.slice(1, paths.length - 1); // slice first and last elements from array
