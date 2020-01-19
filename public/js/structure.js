@@ -1,3 +1,57 @@
+class Item {
+	constructor(index, item) {
+		Object.assign(this, item);
+		this.index = index;
+		this.url = pathToUrl(this.path);
+		this.paths = this.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
+		this.hide = false;
+		// Default values
+		this.isFolder = false;
+		this.isFile = false;
+		this.ext = '';
+		this.isImage = false;
+		this.isVideo = false;
+		this.isZip = false;
+		this.isPdf = false;
+	}
+}
+class Folder extends Item {
+	constructor(...args) {
+		super(...args);
+		this.isFolder = true;
+		this.icon = (this.icon || 'folder-open');
+	}
+
+}
+class File extends Item {
+	constructor(...args) {
+		super(...args);
+		this.created = new Date(this.created);
+		this.isFile = true;
+		this.ext = this.paths.last().split('.').last();
+		this.isImage = (['jpg', 'jpeg', 'png', 'bmp', 'gif'].indexOf(this.paths.last().split('.').pop().toLowerCase()) >= 0);
+		this.isVideo = (['mp4', 'webm', 'ogv'].indexOf(this.paths.last().split('.').pop().toLowerCase()) >= 0);
+		this.isZip = (['zip', 'zip64', '7z', 'rar', 'gz'].indexOf(this.paths.last().split('.').pop().toLowerCase()) >= 0);
+		this.isPdf = (['pdf'].indexOf(this.paths.last().split('.').pop().toLowerCase()) >= 0);
+		if (this.icon) {
+			 // icon is set by server, do not override
+		} else if (this.isImage) {
+			this.icon = 'file-image-o';
+		} else if (this.isVideo) {
+			this.icon = 'file-video-o';
+		} else if (this.isZip) {
+			this.icon = 'file-archive-o';
+		} else if (this.isPdf) {
+			this.icon = 'file-pdf-o';
+		} else {
+			this.icon = 'file-o';
+		}
+	}
+}
+
+/**
+ * Manage loaded items, currently selected item
+ */
 class Structure {
 	constructor() {
 		// currently loaded folder
@@ -10,44 +64,92 @@ class Structure {
 
 		this.selectedIndex = 0;
 	}
+	/*
+	 * Manage currently loaded path
+	 */
+	setCurrent(path) {
+		path = decodeURI(path).replace(/^#/, '');
+		let paths = path.split('/');
+		this.currentPath = path;
+		this.currentFolders = paths.slice(1, paths.length - 1); // slice first and last elements from array
+		this.currentFolder = ('/' + this.currentFolders.join('/') + '/').replace('\/\/', '/');
+		// URL versions
+		this.currentFoldersUrl = this.currentFolders.map(pathToUrl);
+		this.currentFolderUrl = pathToUrl(this.currentFolder);
+
+		Settings.save('hashBeforeUnload', this.currentFolder)
+	}
+
+	/**
+	 * Import all data into structure and generate all necessary data
+	 * @param items
+	 */
+	setAll(items) {
+		// clear all previous data
+		this.items = [];
+		this.files = [];
+		this.folders = [];
+		let index = 0;
+		items.folders.forEach(function (item) {
+			this.folders.push(new Folder(index, item));
+			index++;
+		}, this);
+		items.files.forEach(function (item) {
+			this.files.push(new File(index, item));
+			index++;
+		}, this);
+		this.items = this.folders.concat(this.files);
+	}
+
+	/**
+	 * Manage moving selected item in structure
+	 *
+	 * @param direction
+	 */
 	selectorMove(direction) {
-		var item = null;
+		let item = null;
+		console.warn('Selector Move: ' + direction);
 		switch (direction) {
-			default: // Posun na určitý prvek (číslo)
+			default: // Move to specific item defined by index number
 				if (Number.isInteger(direction) && direction >= 0 && direction < this.items.length) {
 					this.selectedIndex = direction;
 				}
 				break;
-			case 'first': // Posun na první prvek
+			case 'first': // Move into first item
 				item = this.getFirst();
 				break;
-			case 'up': // Posun o prvek výše než je aktuálně vybraný
+			case 'up': // Move to previous item than currently selected
 				item = this.getPrevious(this.selectedIndex);
 				break;
-			case 'down': // Posun o prvek níže než je aktuálně vybraný
+			case 'down': // Move to next item than currently selected
 				item = this.getNext(this.selectedIndex);
 				break;
-			case 'last': // Posun na poslední prvek
+			case 'last': //  // Move to last item
 				item = this.getLast();
 				break;
 		}
 		if (item) {
 			this.selectedIndex = item.index;
 		}
-		// css is indexing from one
+		// Mark selected item into HTML
+		// css is indexing from one not zero
 		$('#structure table tbody tr.structure-selected').removeClass('structure-selected');
 		$('#structure table tbody tr:nth-child(' + (this.selectedIndex + 1) + ')').addClass('structure-selected');
 		try {
 			// center view to the selected item
-			// scrollIntoView není jquery funkce, takže pomocí [0] získáme první DOM element
+			// Note: scrollIntoView is not jQuery function but DOM
 			$('#structure table tbody tr.structure-selected')[0].scrollIntoView({
 				block: 'center'
 			});
 		} catch (e) {
-			// @HACK Be quiet! (probably just not supported)
+			// Be quiet! (probably just not supported)
 		}
 	}
 
+	/**
+	 * Run action on element (set item name into URL)
+	 * In case of searching force-reload structure
+	 */
 	selectorSelect() {
 		let item = this.get(this.selectedIndex);
 		let self = this;
@@ -63,66 +165,38 @@ class Structure {
 		}
 	}
 
-	setAll(items) {
-		// clear all previous data
-		this.items = [];
-		this.files = [];
-		this.folders = [];
-		let index = 0;
-		items.folders.forEach(function (item) {
-			item.index = index;
-			item.url = pathToUrl(item.path);
-			item.paths = item.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
-			item.isFolder = true;
-			item.isFile = false;
-			item.ext = '';
-			item.isImage = false;
-			item.isVideo = false;
-			item.hide = false;
-			item.icon = (item.displayIcon || 'folder-open');
-			this.folders.push(item);
-			index++;
-		}, this);
-		items.files.forEach(function (item) {
-			item.index = index;
-			item.url = pathToUrl(item.path);
-			item.paths = item.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
-			item.created = new Date(item.created);
-			item.isFolder = false;
-			item.isFile = true;
-			item.ext = item.paths.last().split('.').last();
-			item.isImage = (['jpg', 'jpeg', 'png', 'bmp', 'gif'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
-			item.isVideo = (['mp4', 'webm', 'ogv'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
-			item.isZip = (['zip', 'zip64', '7z', 'rar', 'gz'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
-			item.isPdf = (['pdf'].indexOf(item.paths.last().split('.').pop().toLowerCase()) >= 0);
-			item.hide = false;
-			if (item.displayIcon) {
-				item.icon = item.displayIcon;
-			} else if (item.isImage) {
-				item.icon = 'file-image-o';
-			} else if (item.isVideo) {
-				item.icon = 'file-video-o';
-			} else if (item.isZip) {
-				item.icon = 'file-archive-o';
-			} else if (item.isPdf) {
-				item.icon = 'file-pdf-o';
-			} else {
-				item.icon = 'file-o';
-			}
-			this.files.push(item);
-			index++;
-		}, this);
-		this.items = items.folders.concat(items.files);
-	}
+	/**
+	 * Get all folders loaded into structure
+	 *
+	 * @returns []
+	 */
 	getFolders() {
 		return this.folders;
 	}
+
+	/**
+	 * Get all files loaded into structure
+	 *
+	 * @returns []
+	 */
 	getFiles() {
 		return this.files;
 	}
+
+	/**
+	 * Get all items (both files and folders) loaded into structure
+	 *
+	 * @returns []
+	 */
 	getItems() {
 		return this.items;
 	}
+
+	/**
+	 * Get item by index
+	 * @param index
+	 * @returns {*|null}
+	 */
 	get(index) {
 		return this.items[index] || null;
 	}
@@ -215,22 +289,6 @@ class Structure {
 		return result;
 
 	}
-
-	/*
-	 * Manage currently loaded path
-	 */
-	setCurrent(path) {
-		path = decodeURI(path).replace(/^#/, '');
-		let paths = path.split('/');
-		this.currentPath = path;
-		this.currentFolders = paths.slice(1, paths.length - 1); // slice first and last elements from array
-		this.currentFolder = ('/' + this.currentFolders.join('/') + '/').replace('\/\/', '/');
-		// URL versions
-		this.currentFoldersUrl = this.currentFolders.map(pathToUrl);
-		this.currentFolderUrl = pathToUrl(this.currentFolder);
-
-		Settings.save('hashBeforeUnload', this.currentFolder)
-	}
 	getCurrentFolder(returnArray) {
 		if (returnArray === true) {
 			return this.currentFolders;
@@ -244,26 +302,31 @@ class Structure {
 		return this.currentFolderUrl;
 	}
 	getCurrentFile() {
-		var item = this.getByName(this.currentPath);
+		const item = this.getByName(this.currentPath);
 		return (item && item.isFile) ? item : null;
 	}
-	// return true if matches
-	// @TODO - move it into the functions?
-	runFilter(filterText, value) {
-		if (filterText.match(/^\/.+\/$/)) { // check, if string has delimiters is regex, at least /./
-			filterText = filterText.slice(1, -1); // remove delimiters, new RegExp will add automatically
-			var filterRegex = new RegExp(filterText);
-			return filterRegex.test(value);
+	//
+	/**
+	 * Check text against item name. Regex is supported.
+	 *
+	 * @param searching
+	 * @param text
+	 * @returns {boolean} true if matches, false otherwise
+	 */
+	runFilter(searching, text) {
+		if (searching.match(/^\/.+\/$/)) { // check, if string has delimiters is regex, at least /./
+			searching = searching.slice(1, -1); // remove delimiters, new RegExp will add automatically
+			return (new RegExp(searching)).test(text);
 		} else {
-			filterText = filterText.toLowerCase().trim();
-			return (value.toLowerCase().trim().indexOf(filterText) !== -1);
+			searching = searching.toLowerCase().trim();
+			return (text.toLowerCase().trim().indexOf(searching) !== -1);
 		}
 	}
 	/**
 	 * Hide items which dont match to the filter text
 	 */
 	filter() {
-		var self = this;
+		const self = this;
 		//Important note: Filter can change only if modal is closed.
 		if (loadedStructure.modal) {
 			console.warn('Filtering is not possible, modal window is active');
@@ -273,7 +336,7 @@ class Structure {
 			console.warn('Filtering is already running, new filtering cancelled');
 			return;
 		}
-		var filterText = $('#filter input').val().toLowerCase();
+		const filterText = $('#filter input').val().toLowerCase();
 		if (filterText.match(/^\/.+\/$/)) { // check, if string has delimiters is regex, at least /./
 			// @TODO in case of regexp error, filter might be triggered twice so this alert message too
 			try { // try if regex is valid before running filter
@@ -286,8 +349,8 @@ class Structure {
 			}
 		}
 		loadedStructure.filtering = true;
-		var allHidden = true;
-		var visible = 0;
+		let allHidden = true;
+		let visible = 0;
 		this.getItems().forEach(function (item) {
 			// Do not touch on "go back" item! Should be visible all times
 			if (item.noFilter) {
@@ -310,7 +373,7 @@ class Structure {
 			$('#filter input').removeClass('is-invalid');
 		}
 		$('#filter .filtered').text(visible);
-		var item = this.get(this.selectedIndex);
+		const item = this.get(this.selectedIndex);
 		if (!item) { // new opened folder is empty, do not move with selector
 			loadedStructure.filtering = false;
 			return;

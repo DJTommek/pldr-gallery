@@ -778,10 +778,8 @@ function mapParsePhotos() {
 					// animation: google.maps.Animation.DROP,
 				});
 				mapData.mapBounds.extend(mapData.markers.photos[item.index].position);
-				console.log("item loaded");
 			}
 		});
-		console.log("fit bounds");
 		mapData.map.fitBounds(mapData.mapBounds);
 		if (showMap === false) {
 			$('#map').hide();
