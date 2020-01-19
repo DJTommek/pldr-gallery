@@ -380,17 +380,7 @@ $(function () {
 		$(this).addClass('fa-star-o').removeClass('fa-star');
 		$(this).attr('title', 'Přidat do oblíbených');
 	}).on('click', '#breadcrumb-share', function () { // Event - share URL
-		const niceUrl = window.location.origin + '#' + $(this).data('path');
-		if (copyToClipboard(niceUrl)) {
-			flashMessage('info', 'URL was copied.')
-		} else {
-			// noinspection JSJQueryEfficiency - delete previous flash error message (if any) before showing new
-			$('#breadcrumb-share-flash').parent().remove();
-			// show error with pre-selected input filled with URL
-			flashMessage('danger', '<p><b>Error</b> while copying URL, copy it manually via <kbd class="nobr"><kbd>CTRL</kbd> + <kbd>C</kbd></kbd></p><input id="breadcrumb-share-flash" type="text" value="' + niceUrl + '">', false);
-			// noinspection JSJQueryEfficiency
-			$('#breadcrumb-share-flash').trigger('focus').trigger('select');
-		}
+		shareUrl(window.location.origin + '#' + $(this).data('path'));
 	});
 
 	// Event - load next item if possible
@@ -400,6 +390,11 @@ $(function () {
 	// Event - load previous item if possible
 	$('#popup-prev, #popup-footer-prev').on('click', function () {
 		itemPrev(true);
+	});
+
+	// Event - share file url
+	$('#popup-share').on('click', function () {
+		shareUrl(window.location.origin + '#' + S.getCurrentFile().url);
 	});
 
 	$('#modal-settings').on('show.bs.modal', function () {
@@ -794,3 +789,15 @@ function mapParsePhotos() {
 	}, 100);
 }
 
+function shareUrl(niceUrl) {
+	if (copyToClipboard(niceUrl)) {
+		flashMessage('info', 'URL was copied.')
+	} else {
+		// noinspection JSJQueryEfficiency - delete previous flash error message (if any) before showing new
+		$('#breadcrumb-share-flash').parent().remove();
+		// show error with pre-selected input filled with URL
+		flashMessage('danger', '<p><b>Error</b> while copying URL, copy it manually via <kbd class="nobr"><kbd>CTRL</kbd> + <kbd>C</kbd></kbd></p><input id="breadcrumb-share-flash" type="text" value="' + niceUrl + '">', false);
+		// noinspection JSJQueryEfficiency
+		$('#breadcrumb-share-flash').trigger('focus').trigger('select');
+	}
+}
