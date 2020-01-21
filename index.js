@@ -33,16 +33,16 @@ LOG.info('***STARTING***');
 
 try {
 	let folderStats = FS.statSync(c.path);
-	if (folderStats.isFile()) {
-		throw 'it is file';
+	if (folderStats.isDirectory() === false) {
+		throw new Error('it is not directory');
 	}
 	let items = FS.readdirSync(c.path);
 	if (items.length === 0) {
-		throw 'No items in base folder.';
+		throw new Error('no items in base folder');
 	}
 	LOG.info('(Start) Defined base path "' + c.path + '" is valid with ' + items.length + ' items.');
 } catch (error) {
-	LOG.fatal('(Start) Defined base path "' + c.path + '" is invalid. Error: ' + error);
+	LOG.fatal('(Start) Defined base path "' + c.path + '" is invalid. Error: ' + error.message);
 }
 
 function getUptime() {
@@ -186,17 +186,17 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 
 		// cookie dont exists or is invalid
 		if (!token || !token.match("^[a-f0-9]{40}$")) {
-			throw 'Musis se <a href="/login">prihlasit</a>.';
+			throw new Error('Musis se <a href="/login">prihlasit</a>.');
 		}
 		let cookieFilePath = c.http.login.tokensPath + token + '.txt';
 		// check for cookie on the server filesystem
 		if (!FS.existsSync(cookieFilePath)) {
-			throw 'Cookie na serveru neexistuje, musis se znovu <a href="/login">prihlasit</a>.';
+			throw new Error('Cookie na serveru neexistuje, musis se znovu <a href="/login">prihlasit</a>.');
 		}
 		// check for cookie validity on the server
 		let fileStats = FS.statSync(cookieFilePath);
 		if ((fileStats.atime.getTime() + c.http.login.validity) - new Date().getTime() < 0) {
-			throw 'Platnost cookie vyprsela, musis se znovu <a href="/login">prihlasit</a>.';
+			throw new Error('Platnost cookie vyprsela, musis se znovu <a href="/login">prihlasit</a>.');
 		}
 
 		// Everything is ok
@@ -216,7 +216,7 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 	try {
 		let passwordCookie = req.cookies['pmg-passwords'];
 		if (!passwordCookie) {
-			throw 'No password cookie is available';
+			throw new Error('No password cookie is available');
 		}
 		passwordCookie.split(',').forEach(function (pass) {
 			userPerms = perms.getPass(pass).concat(userPerms);
@@ -243,7 +243,7 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 			res.locals.queryPath = path;
 
 			if (perms.test(res.locals.userPerms, path) === false) {
-				throw 'User do not have permissions to path"' + path + '"'; // user dont have permission to this path
+				throw new Error('User do not have permissions to path "' + path + '"'); // user dont have permission to this path
 			}
 
 			let fullPath = HFS.pathJoin(c.path, path);
@@ -254,19 +254,19 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 				if (fileStats.isDirectory()) {
 					res.locals.fullPathFolder = fullPath;
 				} else {
-					throw 'Requested path "' + path + '" is not folder';
+					throw new Error('Requested path "' + path + '" is not folder');
 				}
 			} else { // Requested path wants file
 				if (fileStats.isFile()) {
 					res.locals.fullPathFile = fullPath;
 				} else {
-					throw 'Requested path "' + path + '" is not file';
+					throw new Error('Requested path "' + path + '" is not file');
 				}
 			}
 			res.locals.path = path;
 		} catch (error) {
 			// log to debug because anyone can generate invalid paths
-			LOG.debug('(Web) Requested invalid path "' + req.query.path + '", error: ' + error + '.');
+			LOG.debug('(Web) Requested invalid path "' + req.query.path + '", error: ' + error.message + '.');
 		}
 	}
 
@@ -290,25 +290,23 @@ webserver.get('/api/search', function (req, res) {
 	res.statusCode = 200;
 	res.setHeader("Content-Type", "application/json");
 	let finds = {
-		folders: [],
-		files: []
-	};
-	try {
-		if (!req.query.query) {
-			throw 'Error: no search input';
-		}
-		if (!res.locals.fullPathFolder) {
-			throw 'Error: no path';
-		}
-
-		finds.folders.push({
+		folders: [{ // always show "close searching" button
 			path: res.locals.path,
 			noFilter: true,
 			text: 'Zavřít vyhledávání "' + req.query.query + '"',
 			icon: 'long-arrow-left' // icon is reserved to close searching (force reload structure)
-		});
+		}],
+		files: []
+	};
+	try {
+		if (!req.query.query) {
+			throw new Error('no search query');
+		}
+		if (!res.locals.fullPathFolder) {
+			throw new Error('no path');
+		}
 	} catch (error) {
-		res.result.setError(error.toString()).end();
+		res.result.setError('Error while searching: ' + error.message).end();
 		return;
 	}
 
@@ -375,14 +373,14 @@ webserver.get('/api/download', function (req, res) {
 	res.statusCode = 200;
 	try {
 		if (!res.locals.fullPathFile) {
-			throw 'neplatna-cesta';
+			throw new Error('invalid or missing path');
 		}
 		res.set('Content-Disposition', 'inline;filename="' + res.locals.fullPathFile.split('/').pop() + '"');
 		LOG.info('(Web) Streaming file to download: ' + res.locals.fullPathFile);
 		return FS.createReadStream(res.locals.fullPathFile).pipe(res);
 	} catch (error) {
 		res.statusCode = 404;
-		res.result.setError('soubor-neexistuje').end();
+		res.result.setError('Error while loading file: ' + error.message).end();
 	}
 });
 
@@ -397,8 +395,8 @@ webserver.get('/api/download', function (req, res) {
 webserver.get('/api/password', function (req, res) {
 	res.setHeader("Content-Type", "application/json");
 	res.statusCode = 200;
+	let cookiePasswords = req.cookies['pmg-passwords'];
 	try {
-		let cookiePasswords = req.cookies['pmg-passwords'];
 		// If no password parameter is set, return list of all passwords
 		if (!req.query.password) {
 			let passwordPerms = [];
@@ -410,13 +408,19 @@ webserver.get('/api/password', function (req, res) {
 					});
 				});
 			}
-			res.result.setResult(passwordPerms, 'List of saved passwords.').end();
-			return;
+			return res.result.setResult(passwordPerms, 'List of saved passwords.').end();
 		}
+	} catch (error) {
+		let errorMsg = 'Error while loading list of saved passwords: ' + error.message;
+		LOG.error(errorMsg);
+		return res.result.setError(errorMsg).end();
+	}
+
+	try {
 		// Passsword parameter is set. Check, if there are any permission to this cookie
 		let passwordPerms = perms.getPass(req.query.password);
 		if (passwordPerms.length === 0) {
-			throw 'Invalid password.';
+			throw new Error('invalid password.');
 		}
 		// Password is valid, save it into cookie (or create it if not set before)
 		if (cookiePasswords) {
@@ -443,7 +447,7 @@ webserver.get('/api/password', function (req, res) {
 			res.redirect('/');
 		}
 	} catch (error) {
-		res.result.setError(error).end();
+		res.result.setError('Error while checking password: ' + error.message).end();
 	}
 	res.result.end();
 });
@@ -499,7 +503,7 @@ webserver.get('/api/video', function (req, res) {
 	res.statusCode = 200;
 	try {
 		if (!res.locals.fullPathFile) {
-			throw 'Invalid video path'
+			throw new Error('Invalid video path');
 		}
 		const fileSize = FS.statSync(res.locals.fullPathFile).size;
 		const range = req.headers.range;
@@ -524,7 +528,7 @@ webserver.get('/api/video', function (req, res) {
 		}
 	} catch (error) {
 		res.statusCode = 404;
-		res.result.setError('File - Zadaná cesta není platná').end();
+		res.result.setError('Error while loading video: ' + error.message).end();
 	}
 });
 
@@ -541,15 +545,15 @@ webserver.get('/api/logout', function (req, res) {
 	res.statusCode = 200;
 	try {
 		if (!res.locals.user) { // is logged (it means cookie is valid)
-			throw 'Not logged in.';
+			throw new Error('Not logged in.');
 		}
 		let token = req.cookies[c.http.login.name];
 		try {
 			// remove cookie from server file
 			FS.unlinkSync(c.http.login.tokensPath + token + '.txt');
 		} catch (error) {
-			LOG.error('Cant delete token "' + token + '". ' + error);
-			throw 'Cant delete token. More info in log.';
+			LOG.error('Cant delete token "' + token + '", error: ' + error);
+			throw new Error('Cant delete token. More info in log.');
 		}
 		res.result.setResult('Cookie was deleted');
 	} catch (error) {
