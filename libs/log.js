@@ -1,5 +1,6 @@
-var fs = require('fs');
-var readline = require('readline');
+const FS = require('fs');
+const PATH = require('path');
+const readline = require('readline');
 module.exports.INFO = 0;
 module.exports.ERROR = 1;
 module.exports.MSG = 2;
@@ -10,142 +11,170 @@ module.exports.FATAL_ERROR = 6;
 module.exports.UNCAUGHT_EXCEPTION = 7;
 module.exports.WARNING = 8;
 
+const logsPath = './log/';
+const baseLogFileFormat = '{date}';
+const fileExtension = 'txt';
+const defaultLogData = {
+    fileFormat: '{date}',
+    messageFormat: '{message}',
+    messageSuffix: '',
+    toMainLog: true,
+    console: true,
+    quit: false,
+    color: '',
+};
+
+const logsData = {
+    [this.INFO]: {
+    },
+    [this.WARNING]: {
+        fileFormat: '{date}_warning',
+        color: '\x1b[33m', // yellow
+    },
+    [this.ERROR]: {
+        fileFormat: '{date}_error',
+        color: '\x1b[31m', // red
+    },
+    [this.FATAL_ERROR]: {
+        fileFormat: '{date}_error',
+        messageFormat: '[FATAL ERROR] {message}',
+        color: '\x1b[31m', // red
+        quit: true,
+    },
+    [this.UNCAUGHT_EXCEPTION]: {
+        fileFormat: '{date}_exception',
+        messageFormat: '[UNCAUGHT EXCEPTION] {message}',
+        color: '\x1b[31m', // red
+    },
+    [this.MSG]: {
+        fileFormat: 'messages/message_{date}',
+        mainLog: false,
+        console: false,
+    },
+    [this.WEBSERVER]: {
+        fileFormat: 'webserver/webserver_{date}',
+        mainLog: false,
+        console: false,
+    },
+    [this.SQL]: {
+        fileFormat: 'sql/sql_{date}',
+        mainLog: false,
+        console: false,
+    },
+    [this.DEBUG]: {
+        fileFormat: '{date}_debug',
+        mainLog: false,
+    },
+};
+
+/*
+ * Shortcuts
+ */
 module.exports.info = function (msg, parameters) {
     this.log(msg, this.INFO, parameters);
-}
+};
 module.exports.error = function (msg, parameters) {
     this.log(msg, this.ERROR, parameters);
-}
+};
 module.exports.msg = function (msg, parameters) {
     this.log(msg, this.MSG, parameters);
-}
+};
 module.exports.debug = function (msg, parameters) {
     this.log(msg, this.DEBUG, parameters);
-}
+};
 module.exports.webserver = function (msg, parameters) {
     this.log(msg, this.WEBSERVER, parameters);
-}
+};
 module.exports.sql = function (msg, parameters) {
     this.log(msg, this.SQL, parameters);
-}
+};
 module.exports.fatal = function (msg, parameters) {
     this.log(msg, this.FATAL_ERROR, parameters);
-}
+};
 module.exports.warning = function (msg, parameters) {
     this.log(msg, this.WARNING, parameters);
+};
+
+/**
+ * Get full LogParams.
+ * - get default values
+ * - overwrite with values set by specific severity (if any)
+ * - overwrite with values set externally (if any)
+ *
+ * @param {number} severity
+ * @param {{}} [customParams]
+ * @returns {{}}
+ */
+function defineLogParameters(severity, customParams) {
+    // do not override default object, create new instead and merge new parameters
+    let logParams = Object.assign({}, defaultLogData, logsData[severity]);
+    logParams['severity'] = severity;
+
+    // override pre-defined settings with custom parameters
+    if (customParams) {
+        Object.assign(logParams, customParams);
+    }
+    return logParams;
 }
 
-module.exports.log = function (msg, type, parameters)
+/**
+ * Log to console and/or file
+ *
+ * @param message
+ * @param {number} severity
+ * @param {{}} [params]
+ */
+module.exports.log = function (message, severity, params)
 {
-    if (!parameters) {
-        parameters = {};
+    const logParams = defineLogParameters(severity, params);
+    const datetime = new Date().human(true);
+    const content = '[' + datetime.toString() + '] ' + logParams.messageFormat.formatUnicorn({'message': message});
+
+    // Show log in console
+    if (logParams.console) {
+        console.log(logParams.color + content + '\x1b[0m');
     }
-    var datetime = new Date().human(true);
-
-    var basePath = './log/';
-    var filePath = basePath;
-    var mainLog = true;
-    var toConsole = true;
-    var quit = false;
-    var color = '';
-
-    switch (type) {
-        case this.ERROR:
-            mainLog = true;
-            filePath += datetime.date + '_error';
-            color = '\x1b[31m'; // red
-            break;
-        case this.WARNING:
-            mainLog = true;
-            filePath += datetime.date + '_warning';
-            color = '\x1b[33m'; // yellow
-            break;
-        case this.FATAL_ERROR:
-            mainLog = true;
-            filePath += datetime.date + '_error';
-            quit = true;
-            msg = '[FATAL ERROR] ' + msg;
-            color = '\x1b[31m'; // red
-            break;
-        case this.UNCAUGHT_EXCEPTION:
-            mainLog = false;
-            toConsole = true;
-            filePath += datetime.date + '_exception';
-            color = '\x1b[31m'; // red
-            break;
-        case this.MSG:
-            mainLog = false;
-            toConsole = false;
-            filePath += 'messages/message_' + datetime.date;
-            break;
-        case this.WEBSERVER:
-            mainLog = false;
-            toConsole = false;
-            filePath += 'webserver/webserver_' + datetime.date;
-            break;
-        case this.DEBUG:
-            mainLog = false;
-            filePath += datetime.date + '_debug';
-            break;
-        case this.SQL:
-            mainLog = false;
-            toConsole = false;
-            filePath += 'sql/sql_' + datetime.date;
-            break;
-        case this.INFO:
-        default:
-            mainLog = true;
-            toConsole = true;
-            break;
+    // Log into mainlog file
+    if (logParams.toMainLog) {
+        FS.appendFileSync(logsPath + baseLogFileFormat.formatUnicorn({'date': datetime.date}) + '.txt', content + '\n', 'utf8');
     }
-
-    var log = '[' + datetime.date + ' ' + datetime.time + '.' + datetime.milisecond + '] ' + msg;
-
-    // override default logging to console
-    if (parameters.console === true) {
-        toConsole = true;
-    } else if (parameters.console === false) {
-        toConsole = false;
-    }
-
-    if (toConsole) {
-        console.log(color + log + '\x1b[0m');
-    }
+    // Log into separated log file if requested
     try {
-        if (mainLog) {
-            fs.appendFileSync(basePath + datetime.date + '.txt', log + '\n', 'utf8');
-        }
-    } catch (error) {
-        console.error('Cant log into mainlog: [This message is not saved]');
-        console.error(error);
-    }
-    try {
-        if (filePath !== basePath) {
-            fs.appendFileSync(filePath + '.txt', log + '\n', 'utf8');
+        if (logParams.fileFormat) {
+            const file = logsPath + logParams.fileFormat.formatUnicorn({'date': datetime.date}) + '.' + fileExtension;
+            FS.appendFileSync(file, content + '\n', 'utf8');
         }
     } catch (error) {
         console.error('Cant log into separate log: [This message is not saved]');
         console.error(error);
     }
-    if (quit === true) {
+    // Exit application if necessary
+    if (logParams.quit === true) {
         process.exit();
     }
-}
+};
 
-module.exports.head = function (text, type)
+module.exports.head = function (text, type, params)
 {
-    this.log('***' + text + '***', type);
-}
+    this.log('***' + text + '***', type, params);
+};
 
+/**
+ * Get list of all available logs grouped by days
+ *
+ * @TODO Needs refactoring
+ * @returns {{}}
+ */
 module.exports.getLogsList = function () {
-    var filesDay = {};
-    folders.forEach(function (folderName) {
-        fs.readdirSync(folderName).forEach(function (fileName) {
-            if (fileName.match(/\.txt$/)) {
-                var re_day = /[0-9]{4,4}\.[0-9]{2,2}\.[0-9]{2,2}/;
-                var day = re_day.exec(fileName)[0];
+    const folders = getAllFolders();
 
-                // pokud jeste neexistuje, zalozime
+    let filesDay = {};
+    folders.forEach(function (folderName) {
+        FS.readdirSync(folderName).forEach(function (fileName) {
+            if (fileName.match(/\.txt$/)) {
+                const re_day = /[0-9]{4,4}\.[0-9]{2,2}\.[0-9]{2,2}/;
+                const day = re_day.exec(fileName)[0];
+
                 if (!filesDay[day]) {
                     filesDay[day] = {};
                 }
@@ -170,27 +199,28 @@ module.exports.getLogsList = function () {
         });
     });
     return filesDay;
-}
+};
 
 /**
- * Ziskat obsah log souboru
- * 
- * @param {JSON} options
- * - *file: ktery log chceme cist
- * - limit: kolik radku chceme mit (default 1000), 0 = vsechny
- * - offset: kolik radku se ma preskocit (default 0)
- * - order: razeni logu (default 'asc'), 'desc' = nejnovejsi radky prvni
+ * Get log content
+ *
+ * @TODO Needs refactoring
+ * @param {String} file which file do we want to read
+ * @param {{}} options
+ * - limit: limit number of files (default 1000), 0 = all
+ * - offset: how many lines should be skipped (default 0)
+ * - order: order of log lines (default 'asc'), 'desc' = newest first
  * @param {function} callback
  */
-module.exports.readLog = function (options, callback)
+module.exports.readLog = function (file, options, callback)
 {
+    let fileLoad = './log/';
     try {
-        var re_file = /^([0-9]{4}\.[0-9]{2}\.[0-9]{2})(_(error|debug|exception|messages|sql|webserver))?$/
-        var fileMatch = re_file.exec(options.file);
+        const re_file = /^([0-9]{4}\.[0-9]{2}\.[0-9]{2})(_(error|debug|exception|messages|sql|webserver))?$/;
+        const fileMatch = re_file.exec(file);
         if (!fileMatch) {
-            throw 'Invalid file';
+            throw new Error('Invalid file');
         }
-        var fileLoad = './log/';
         // prefix souboru a podslozka zaroven
         if (fileMatch[3] && fileMatch[3].match(/^(messages|sql|webserver)$/)) {
             fileLoad += fileMatch[3] + '/' + fileMatch[3] + '_';
@@ -208,18 +238,18 @@ module.exports.readLog = function (options, callback)
 
     // Vychozi hodnoty
     options.limit = ((typeof options.limit === 'number' && options.limit > -1) ? options.limit : 1000);
-    // @TODO - neni implementovano ve cteni souboru
+    // @TODO - not implemented
     options.offset = ((typeof options.offset === 'number' && options.offset > -1) ? options.offset : 0);
     options.order = (options.order === 'desc' ? 'desc' : 'asc');
 
-    var fileStream = fs.createReadStream(fileLoad)
+    let fileStream = FS.createReadStream(fileLoad);
     fileStream.on('error', function (error) {
         return (typeof callback === 'function' && callback(error + ''));
     });
-    var readLogfile = readline.createInterface({
+    let readLogfile = readline.createInterface({
         input: fileStream
     });
-    var lines = [];
+    let lines = [];
     readLogfile.on('line', function (line) {
         if (options.limit > 0 && lines.length >= options.limit) {
             // Chceme jen posledních x řádků, udržujeme velikost pole
@@ -238,26 +268,59 @@ module.exports.readLog = function (options, callback)
         }
         return (typeof callback === 'function' && callback(false, lines));
     });
+};
+
+/**
+ * Get all files, which could be created
+ *
+ * @param {Date} [date]
+ * @returns {[]}
+ */
+function getAllFiles(date) {
+    if (!(date instanceof Date)) {
+        date = new Date();
+    }
+    const files = [];
+    for (let severity in logsData) {
+        severity = parseInt(severity); // numeric indexes are converted to string so it needs to be re-converted back to number
+        const datetime = date.human(true);
+        const logParameters = defineLogParameters(severity);
+        files.push(logsPath + logParameters.fileFormat.formatUnicorn({'date': datetime.date}) + '.' + fileExtension);
+    }
+    return files;
 }
 
+/**
+ * Get all folders, which should be created to Log work properly
+ *
+ * @param [date]
+ * @returns {[]}
+ */
+function getAllFolders(date) {
+    const allFiles = getAllFiles(date);
+    const folders = [];
+    allFiles.forEach(function(file) {
+        folders.pushUnique(PATH.dirname(file));
+    });
+    return folders;
+}
+
+/**
+ * Check if all necessary folders are created. If not, create them
+ */
 function checkAndCreateFolders() {
-    folders = [
-        './log',
-        './log/messages',
-        './log/sql',
-        './log/webserver'
-    ];
-    try {
-        folders.forEach(function (folder) {
-            if (!fs.existsSync(folder)) {
-                console.log('(Log) Missig folder "' + folder + '", creating new. [This message is not saved]');
-                fs.mkdirSync(folder);
+    const folders = getAllFolders();
+
+    for (const folder of folders) {
+        try {
+            if (!FS.existsSync(folder)) {
+                FS.mkdirSync(folder);
+                console.log('(Log) Folder "' + folder + '" was missing - created new. [This message is not saved]');
             }
-        });
-    } catch (error) {
-        console.error("(Log) Error while creating folders to log, more info below. [This message is not saved]");
-        console.error(error);
-        process.exit();
+        } catch (error) {
+            console.error('(Log) Error while creating folders to log: ' + error.message + ' [This message is not saved]');
+            process.exit();
+        }
     }
 }
 checkAndCreateFolders();

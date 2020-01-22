@@ -40,6 +40,28 @@ String.prototype.pad = String.prototype.pad || function (len, chr, dir)
 };
 
 /**
+ * Format string based on parameters
+ *
+ * @example "a{0}bcd{1}ef".formatUnicorn("FOO", "BAR"); // "aFOObcdBARef"
+ * @example "a{first}bcd{second}ef{first}".formatUnicorn({first: "FOO", second: "BAR"}); // "aFOObcdBARefFOO"
+ * @author https://stackoverflow.com/a/18234317/3334403
+ * @returns {string}
+ */
+String.prototype.formatUnicorn = function () {
+    "use strict";
+    let str = this.toString();
+    if (arguments.length) {
+        const t = typeof arguments[0];
+        const args = ("string" === t || "number" === t) ? Array.prototype.slice.call(arguments) : arguments[0];
+        for (let key in args) {
+			str = str.replace(new RegExp("\\{" + key + "\\}", "gi"), args[key]);
+        }
+    }
+
+    return str;
+};
+
+/**
  * Escape regex chars to use it safely in regex as string
  *
  * @returns {String}
