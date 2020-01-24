@@ -96,6 +96,13 @@ Array.prototype.last = function (last) {
 };
 
 /**
+ * Return if value is in array
+ */
+Array.prototype.inArray = function (element) {
+	return (this.indexOf(element) >= 0)
+};
+
+/**
  * Remove item from array by value
  *
  * @param item
@@ -199,6 +206,7 @@ function msToHuman(miliseconds) {
 	result += (milliseconds > 0 ? ' ' + milliseconds + 'ms' : '');
 	return result.trim();
 }
+
 /**
  * Format human readable duration string back to miliseconds
  *

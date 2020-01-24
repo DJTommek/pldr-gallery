@@ -1,6 +1,7 @@
 const FS = require('fs');
+const HFS = require('./helperFilesystem');
 const PATH = require('path');
-const readline = require('readline');
+
 module.exports.INFO = 0;
 module.exports.ERROR = 1;
 module.exports.MSG = 2;
@@ -198,73 +199,34 @@ module.exports.getLogsList = function () {
     return filesDay;
 };
 
+function isFileInAllowedFolders(path) {
+    for (const folder of getAllFolders()) {
+        if (PATH.dirname(path) === folder){
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * Get log content
  *
- * @TODO Needs refactoring
- * @param {String} file which file do we want to read
- * @param {{}} options
- * - limit: limit number of files (default 1000), 0 = all
- * - offset: how many lines should be skipped (default 0)
- * - order: order of log lines (default 'asc'), 'desc' = newest first
+ * @param {{}} options.
  * @param {function} callback
+ * @see HFS.readFileContent() for more info
+ * @throws Error in case if callback is not function
  */
-module.exports.readLog = function (file, options, callback)
+module.exports.readLog = function (options , callback)
 {
-    let fileLoad = './log/';
-    try {
-        const re_file = /^([0-9]{4}\.[0-9]{2}\.[0-9]{2})(_(error|debug|exception|messages|sql|webserver))?$/;
-        const fileMatch = re_file.exec(file);
-        if (!fileMatch) {
-            throw new Error('Invalid file');
-        }
-        // prefix souboru a podslozka zaroven
-        if (fileMatch[3] && fileMatch[3].match(/^(messages|sql|webserver)$/)) {
-            fileLoad += fileMatch[3] + '/' + fileMatch[3] + '_';
-            fileLoad += fileMatch[1];
-            // suffix souboru bez podslozky
-        } else if (fileMatch[3] && fileMatch[3].match(/^(debug|error|exception)$/)) {
-            fileLoad += fileMatch[1] + '_' + fileMatch[3];
-        } else {
-            fileLoad += fileMatch[1];
-        }
-        fileLoad += '.txt';
-    } catch (error) {
-        return (typeof callback === 'function' && callback(error));
+    if (typeof callback !== 'function') {
+        throw new Error('Param callback must be function');
+    }
+    // check if filename is in one of allowed logs folder
+    if (isFileInAllowedFolders(options.file) === false) {
+        return callback('Path "' + options.file + '" is not allowed.', []);
     }
 
-    // Vychozi hodnoty
-    options.limit = ((typeof options.limit === 'number' && options.limit > -1) ? options.limit : 1000);
-    // @TODO - not implemented
-    options.offset = ((typeof options.offset === 'number' && options.offset > -1) ? options.offset : 0);
-    options.order = (options.order === 'desc' ? 'desc' : 'asc');
-
-    let fileStream = FS.createReadStream(fileLoad);
-    fileStream.on('error', function (error) {
-        return (typeof callback === 'function' && callback(error + ''));
-    });
-    let readLogfile = readline.createInterface({
-        input: fileStream
-    });
-    let lines = [];
-    readLogfile.on('line', function (line) {
-        if (options.limit > 0 && lines.length >= options.limit) {
-            // Chceme jen posledních x řádků, udržujeme velikost pole
-            // tj. u kazdeho pridaneho prvku je potreba odstranit prvni prvek v poli
-            if (options.order === 'desc') {
-                lines.shift();
-            } else {
-                readLogfile.close();
-            }
-        }
-        lines.push(line);
-    });
-    readLogfile.on('close', function () {
-        if (options.order === 'desc') {
-            lines = lines.reverse();
-        }
-        return (typeof callback === 'function' && callback(false, lines));
-    });
+    HFS.readFileContent(options, callback);
 };
 
 /**
