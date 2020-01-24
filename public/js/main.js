@@ -123,13 +123,13 @@ window.onerror = function (msg, url, line, col, error) {
 
 // If hash is changed, something is being loaded (image of folder)
 $(window).on('hashchange', function (event) {
-	// save currently loaded folder but can't save File, because we dont know structure yet.
+	// save currently loaded folder but can't save FileItem, because we dont know structure yet.
 	S.setCurrent(pathFromUrl(window.location.hash));
 	loadStructure(false, function () { // load folder structure
 		// save currently loaded folder AND currently selected file (if any) because structure is already loaded
 		S.setCurrent(pathFromUrl(window.location.hash)); // save file if is opened in popup
 
-		/**
+		/*
 		 * Open popup to show file
 		 */
 		const currentFile = S.getCurrentFile();

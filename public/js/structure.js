@@ -28,7 +28,7 @@ class Item {
 	}
 }
 
-class Folder extends Item {
+class FolderItem extends Item {
 	constructor(...args) {
 		super(...args);
 		this.isFolder = true;
@@ -36,7 +36,7 @@ class Folder extends Item {
 	}
 }
 
-class File extends Item {
+class FileItem extends Item {
 	constructor(...args) {
 		super(...args);
 		this.created = new Date(this.created);
@@ -64,8 +64,8 @@ class File extends Item {
 	/**
 	 * Get file URL
 	 *
-	 * @param download {boolean}
-	 * @returns {string|null}
+	 * @param {boolean} [download] get download URL instead of view
+	 * @returns {null|string} URL or null if item type has no view URL
 	 */
 	getFileUrl(download = false) {
 		const decoded = btoa(encodeURIComponent(this.path));
@@ -89,9 +89,9 @@ class Structure {
 	constructor() {
 		// currently selected item index
 		this.selectedIndex = 0;
-		// currently loaded folder (always Folder object)
+		// currently loaded folder (always FolderItem object)
 		this.currentFolderItem = null;
-		// currently opened file if popup is opened (File object), null otherwise
+		// currently opened file if popup is opened (FileItem object), null otherwise
 		this.currentFileItem = null;
 
 		this.items = [];
@@ -111,14 +111,14 @@ class Structure {
 		let currentFolders = paths.slice(1, paths.length - 1); // slice first and last elements from array
 		this.currentFileItem = null;
 
-		// File is requested, try find it in structure
+		// FileItem is requested, try find it in structure
 		if (paths.last()) {
 			this.currentFileItem = this.getByName(path);
 			this.selectedIndex = (this.currentFileItem ? this.currentFileItem.index : 0);
 		}
 
 		let currentFolder = ('/' + currentFolders.join('/') + '/').replace('\/\/', '/');
-		this.currentFolderItem = new Folder(null, {
+		this.currentFolderItem = new FolderItem(null, {
 			path: currentFolder
 		});
 
@@ -136,11 +136,11 @@ class Structure {
 		this.folders = [];
 		let index = 0;
 		items.folders.forEach(function (item) {
-			this.folders.push(new Folder(index, item));
+			this.folders.push(new FolderItem(index, item));
 			index++;
 		}, this);
 		items.files.forEach(function (item) {
-			this.files.push(new File(index, item));
+			this.files.push(new FileItem(index, item));
 			index++;
 		}, this);
 		this.items = this.folders.concat(this.files);
@@ -241,7 +241,7 @@ class Structure {
 	 * Get currently loaded folder object
 	 * Note: Index is null
 	 *
-	 * @returns {Folder}
+	 * @returns {FolderItem}
 	 */
 	getCurrentFolder() {
 		return this.currentFolderItem;
@@ -250,7 +250,7 @@ class Structure {
 	/**
 	 * Get currently loaded file object
 	 *
-	 * @returns {File|null}
+	 * @returns {FileItem|null}
 	 */
 	getCurrentFile() {
 		return this.currentFileItem;
@@ -260,7 +260,7 @@ class Structure {
 	 * Get item by index
 	 *
 	 * @param index
-	 * @returns {File|Folder|null}
+	 * @returns {FileItem|FolderItem|null}
 	 */
 	getItem(index) {
 		return this.items[index] || null;
@@ -277,9 +277,9 @@ class Structure {
 	}
 
 	/**
-	 * Get first File in structure
+	 * Get first FileItem in structure
 	 *
-	 * @returns {File|null}
+	 * @returns {FileItem|null}
 	 */
 	getFirstFile() {
 		let item = this.getNext(-1);
@@ -302,7 +302,7 @@ class Structure {
 	 * Get next visible item based by index
 	 *
 	 * @param index
-	 * @returns {File|Folder|null}
+	 * @returns {FileItem|FolderItem|null}
 	 */
 	getNext(index) {
 		index++;
@@ -320,7 +320,7 @@ class Structure {
 	 * Get next visible file
 	 *
 	 * @param index
-	 * @returns {File|null}
+	 * @returns {FileItem|null}
 	 */
 	getNextFile(index) {
 		index++;
@@ -338,7 +338,7 @@ class Structure {
 	 * Get previous visible item based by index
 	 *
 	 * @param index
-	 * @returns {File|Folder|null}
+	 * @returns {FileItem|FolderItem|null}
 	 */
 	getPrevious(index) {
 		index--;
@@ -356,7 +356,7 @@ class Structure {
 	 * Get file by index
 	 *
 	 * @param index
-	 * @returns {File|null}
+	 * @returns {FileItem|null}
 	 */
 	getFile(index) {
 		let item = this.getItem(index);
