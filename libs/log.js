@@ -161,43 +161,40 @@ module.exports.head = function (text, type, params)
 
 /**
  * Get list of all available logs grouped by days
+ * Note: synchronous operations, possible slowing down
  *
- * @TODO Needs refactoring
  * @returns {{}}
  */
 module.exports.getLogsList = function () {
     const folders = getAllFolders();
-
     let filesDay = {};
-    folders.forEach(function (folderName) {
-        FS.readdirSync(folderName).forEach(function (fileName) {
-            if (fileName.match(/\.txt$/)) {
-                const re_day = /[0-9]{4,4}\.[0-9]{2,2}\.[0-9]{2,2}/;
-                const day = re_day.exec(fileName)[0];
-
-                if (!filesDay[day]) {
-                    filesDay[day] = {};
-                }
-                if (fileName.match('sql_')) {
-                    filesDay[day].sql = fileName;
-                } else if (fileName.match('webserver_')) {
-                    filesDay[day].webserver = fileName;
-                } else if (fileName.match('messages_')) {
-                    filesDay[day].messages = fileName;
-                } else if (fileName.match('_debug')) {
-                    filesDay[day].debug = fileName;
-                } else if (fileName.match('_warning')) {
-                    filesDay[day].warning = fileName;
-                } else if (fileName.match('_error')) {
-                    filesDay[day].error = fileName;
-                } else if (fileName.match('_exception')) {
-                    filesDay[day].exception = fileName;
-                } else {
-                    filesDay[day]._ = fileName;
-                }
+    folders.forEach(function (folder) {
+        // get all files from folder
+        let files;
+        try {
+            files = FS.readdirSync(folder);
+        } catch (error) {
+            return module.exports.error('Cant read dir "' + folder + '": ' + error.message);
+        }
+        // check all loaded files
+        for (const file of files) {
+            if (PATH.extname(file) !== '.' + fileExtension) {
+                continue;
             }
-        });
+            const match = /[0-9]{4}\.[0-9]{2}\.[0-9]{2}/.exec(file);
+            if (!match) {
+                continue;
+            }
+            const day = match[0];
+
+            if (!filesDay[day]) {
+                filesDay[day] = [];
+            }
+            // file is valid, save it into {day}
+            filesDay[day].push(folder + '/' + file);
+        }
     });
+
     return filesDay;
 };
 
