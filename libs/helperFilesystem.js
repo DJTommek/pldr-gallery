@@ -31,7 +31,8 @@ module.exports.pathJoin = pathJoin;
  * @param path
  */
 function pathDirname(path) {
-    return PATH.join(PATH.dirname(path), '/');
+    path = PATH.join(PATH.dirname(path), '/');
+    return path.replace(/\\/g, '/');
 }
 module.exports.pathDirname = pathDirname;
 
