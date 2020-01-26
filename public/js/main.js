@@ -408,7 +408,7 @@ $(function () {
 		$(this).addClass('fa-star-o').removeClass('fa-star');
 		$(this).attr('title', 'Přidat do oblíbených');
 	}).on('click', '#breadcrumb-share', function () { // Event - share URL
-		shareUrl(window.location.origin + '#' + S.getCurrentFolder().url);
+		shareUrl(window.location.origin + '/#' + S.getCurrentFolder().url);
 	});
 
 	// Event - load next item if possible
@@ -422,7 +422,7 @@ $(function () {
 
 	// Event - share file url
 	$('#popup-share').on('click', function () {
-		shareUrl(window.location.origin + '#' + S.getCurrentFile().url);
+		shareUrl(window.location.origin + '/#' + S.getCurrentFile().url);
 	});
 
 	$('#modal-settings').on('show.bs.modal', function () {
