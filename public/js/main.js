@@ -666,8 +666,8 @@ function loadStructure(force, callback) {
 				S.filter();
 			}
 		},
-		error: function () {
-			flashMessage('danger', (result.message || 'Serverová chyba během načítání dat. Kontaktuj autora.'), false);
+		error: function (result) {
+			flashMessage('danger', result.responseJSON ? result.responseJSON.message : 'Serverová chyba během načítání dat. Kontaktuj autora.', false);
 		},
 		beforeSend: function () {
 			loadingStructure(true);
