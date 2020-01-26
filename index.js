@@ -23,8 +23,8 @@ webserver.use(compression());
 
 const exifParser = require('exif-parser');
 
-const google = require('googleapis');
-const oauth2Client = new google.auth.OAuth2(c.google.clientId, c.google.secret, c.google.redirectUrl);
+const googleAuthLibrary = require('google-auth-library');
+const oauth2Client = new googleAuthLibrary.OAuth2Client(c.google.clientId, c.google.secret, c.google.redirectUrl);
 
 const sharp = require('sharp');
 
@@ -146,7 +146,7 @@ webserver.get(c.google.redirectPath, function (req, res) {
 			return;
 		}
 		// Check token and get user email
-		oauth2Client.verifyIdToken(tokens.id_token, c.google.clientId, function (errVerifyToken, login) {
+		oauth2Client.verifyIdToken({idToken: tokens.id_token}, function (errVerifyToken, login) {
 			if (errVerifyToken) {
 				LOG.error('(Login) Error while verifying Google token: ' + errVerifyToken);
 				res.status(500).send('Chyba behem ziskavani google tokenu. Zkus to <a href="/login">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');

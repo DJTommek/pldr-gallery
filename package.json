@@ -20,7 +20,7 @@
     "exif-parser": "https://github.com/DJTommek/exif-parser.git",
     "express": "^4.17.1",
     "globby": "^6.1.0",
-    "googleapis": "^22.2.0",
+    "google-auth-library": "^5.9.1",
     "readdirp": "^3.2.0",
     "sha1": "^1.1.1",
     "sharp": "^0.23.4",
