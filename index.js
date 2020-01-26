@@ -443,7 +443,12 @@ webserver.get('/api/password', function (req, res) {
 			// no redirect if param redirect=false
 		} else {
 			// automatic redirect to the folder
-			res.cookie('pmg-redirect', HFS.pathDirname(passwordPerms[0]), {expires: new Date(253402300000000)});
+			let redirectFolder = passwordPerms[0];
+			if (redirectFolder.slice(-1) !== '/') {
+				// this is not folder, redirect to dirname of this path
+				redirectFolder = HFS.pathDirname(redirectFolder);
+			}
+			res.cookie('pmg-redirect', redirectFolder, {expires: new Date(253402300000000)});
 			res.redirect('/');
 		}
 	} catch (error) {
