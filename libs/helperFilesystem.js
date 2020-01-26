@@ -37,6 +37,16 @@ function pathDirname(path) {
 module.exports.pathDirname = pathDirname;
 
 /**
+ * Get extname without dot
+ *
+ * @param path
+ */
+function extname(path) {
+    return PATH.extname(path).toLowerCase().replace('.', '');
+}
+module.exports.extname = extname;
+
+/**
  * Get content of file
  *
  * @param {{}} options

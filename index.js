@@ -279,6 +279,31 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 });
 
 /**
+ * Set media type for specific api endpoints
+ *
+ * @return next()
+ */
+webserver.get(['/api/image', '/api/video', '/api/audio'], function (req, res, next) {
+	if (res.locals.fullPathFile) {
+		const ext = HFS.extname(res.locals.fullPathFile);
+		const extData = c.extensionsAll[ext];
+		if (extData && extData.mediaType) {
+			res.locals.mediaType = extData.mediaType;
+		} else {
+			// fallback to default media type
+			res.locals.mediaType =
+				c.extensionsImage[ext] ? c.defaultMediaTypeImage :
+				c.extensionsVideo[ext] ? c.defaultMediaTypeVideo :
+				c.extensionsAudio[ext] ? c.defaultMediaTypeAudio :
+				c.defaultMediaTypeGeneral;
+			LOG.error('File extension "' + ext + '" has no defined media type, fallback to "' + res.locals.mediaType + '"');
+		}
+	}
+	next();
+});
+
+
+/**
  * Run user search in all files and folders
  * - case insensitive
  * - search is performed in folder, what user has loaded (param path)
@@ -375,7 +400,8 @@ webserver.get('/api/download', function (req, res) {
 		if (!res.locals.fullPathFile) {
 			throw new Error('invalid or missing path');
 		}
-		res.set('Content-Disposition', 'inline;filename="' + res.locals.fullPathFile.split('/').pop() + '"');
+
+		res.setHeader('Content-Disposition', 'inline; filename="' + encodeURI(res.locals.fullPathFile.split('/').pop()) + '"');
 		LOG.info('(Web) Streaming file to download: ' + res.locals.fullPathFile);
 		return FS.createReadStream(res.locals.fullPathFile).pipe(res);
 	} catch (error) {
@@ -465,22 +491,27 @@ webserver.get('/api/password', function (req, res) {
  */
 webserver.get('/api/image', function (req, res) {
 	res.statusCode = 200;
-	res.setHeader("Content-Type", "image/png");
 	try {
 		if (!res.locals.fullPathFile) {
 			throw new Error('Neplatná cesta nebo nemáš právo');
+		}
+		if (!c.extensionsImage[HFS.extname(res.locals.fullPathFile)]) {
+			throw new Error('Soubor nemá příponu obrázku.');
 		}
 		let imageStream = FS.createReadStream(res.locals.fullPathFile);
 		if ((req.cookies['pmg-compress'] === 'true' && req.query.compress !== 'false') || req.query.compress === 'true') {
 			imageStream = imageStream.pipe(sharp().resize(c.compress));
 		}
+
+		res.setHeader("Content-Type", res.locals.mediaType);
+
 		return imageStream.pipe(res);
 	} catch (error) {
 		res.statusCode = 404;
 		let fontSize = 40;
-		let textBuffer = new Buffer(
+		let textBuffer = new Buffer.from(
 			'<svg height="' + (fontSize) + '" width="700">' +
-			'  <text x="50%" y="30" dominant-baseline="hanging" text-anchor="middle" font-size="' + fontSize + '" fill="#fff">' + error + '</text>' +
+			'  <text x="50%" y="30" dominant-baseline="hanging" text-anchor="middle" font-size="' + fontSize + '" fill="#fff">Chyba: ' + error.message + '</text>' +
 			'</svg>'
 		);
 
@@ -498,7 +529,7 @@ webserver.get('/api/image', function (req, res) {
 /**
  * Stream video or audio into browser
  *
- * @Author https://medium.com/better-programming/video-stream-with-node-js-and-html5-320b3191a6b6
+ * @author https://medium.com/better-programming/video-stream-with-node-js-and-html5-320b3191a6b6
  * @returns video/audio stream
  */
 webserver.get(['/api/video', '/api/audio'], function (req, res) {
@@ -507,22 +538,15 @@ webserver.get(['/api/video', '/api/audio'], function (req, res) {
 		if (!res.locals.fullPathFile) {
 			throw new Error('Invalid path for streaming file');
 		}
-		const mapMediaType = {
-			// video
-			'.mp4': 'video/mp4',
-			'.webm': 'video/webm',
-			'.ogv': 'video/ogg',
-			// audio
-			'.mp3': 'audio/mpeg',
-			'.wav': 'audio/wav',
-			'.ogg': 'audio/ogg',
-		};
-		const extension = PATH.extname(res.locals.fullPathFile).toLowerCase();
-		const mediaType = mapMediaType[extension];
-		if (!mediaType) {
-			const error = 'File cannot be streamed, extension "' + extension + '" has no defined media type.';
-			LOG.error(error);
-			throw new Error(error);
+		if (!res.locals.mediaType) {
+			throw new Error('File cannot be streamed because of missing media type.');
+		}
+		const ext = HFS.extname(res.locals.fullPathFile);
+		if (req.path === '/api/video' && !c.extensionsVideo[ext]) {
+			throw new Error('File do not have file extension of video');
+		}
+		if (req.path === '/api/audio' && !c.extensionsAudio[ext]) {
+			throw new Error('File do not have file extension of audio');
 		}
 		const fileSize = FS.statSync(res.locals.fullPathFile).size;
 		const range = req.headers.range;
@@ -535,13 +559,13 @@ webserver.get(['/api/video', '/api/audio'], function (req, res) {
 				'Content-Range': `bytes ${start}-${end}/${fileSize}`,
 				'Accept-Ranges': 'bytes',
 				'Content-Length': (end - start) + 1, // chunk size
-				'Content-Type': mediaType
+				'Content-Type': res.locals.mediaType
 			});
 			file.pipe(res);
 		} else {
 			res.writeHead(200, {
 				'Content-Length': fileSize,
-				'Content-Type': mediaType
+				'Content-Type': res.locals.mediaType
 			});
 			FS.createReadStream(res.locals.fullPathFile).pipe(res);
 		}
@@ -676,13 +700,23 @@ webserver.get('/api/structure', function (req, res) {
 	const loadFilesPromise = new Promise(function (resolve) {
 
 		function getCoordsFromExifFromFile(fullPath) {
+			if (fullPath.match(c.extensionsRegexExif) === false)  {
+				return {};
+			}
+			const extData = c.extensionsAll[HFS.extname(fullPath)];
+			if (extData === undefined || typeof extData.exifBuffer !== 'number') {
+				return {};
+			}
+
+			// how big in bytes should be buffer for loading EXIF from file (depends on specification)
+			// https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.eXIf
+			// jpeg: 2^16-9 (65 527) bytes = 65.53 KB
+			// png: 2^31-1 (2 147 483 647) bytes  = 2.15 GB
+
+			// create small buffer, fill it with first x bytes from image and parse
+			let exifBuffer = new Buffer.alloc(extData.exifBuffer);
 			try {
-				if (fullPath.match(c.extensionsRegexExif) === false)  {
-					return {};
-				}
-				// create small buffer, fill it with first x bytes from image and parse
-				let exifBuffer = new Buffer.alloc(c.exifBufferSize);
-				FS.readSync(FS.openSync(fullPath, 'r'), exifBuffer, 0, c.exifBufferSize, 0);
+				FS.readSync(FS.openSync(fullPath, 'r'), exifBuffer, 0, extData.exifBuffer, 0);
 				let parsed = exifParser.create(exifBuffer).parse();
 				if (parsed.tags.GPSLatitude && parsed.tags.GPSLongitude) {
 					return {
@@ -692,7 +726,7 @@ webserver.get('/api/structure', function (req, res) {
 				}
 			} catch (error) {
 				if (error.message === 'Index out of range') {
-					LOG.warning(c.exifBufferSize + ' bytes is too small buffer for loading EXIF from file "' + fullPath + '".');
+					LOG.warning(extData.exifBuffer + ' bytes is too small buffer for loading EXIF from file "' + fullPath + '".');
 				} else if (error.message === 'Invalid JPEG section offset') {
 					// ignore, probably broken image and/or EXIF data, more info in https://github.com/bwindels/exif-parser/issues/13
 				} else {

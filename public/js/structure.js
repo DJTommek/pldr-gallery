@@ -43,11 +43,11 @@ class FileItem extends Item {
 		this.created = new Date(this.created);
 		this.isFile = true;
 		this.ext = this.paths.last().split('.').last().toLowerCase();
-		this.isImage = (['jpg', 'jpeg', 'png', 'bmp', 'gif'].indexOf(this.ext) >= 0);
-		this.isVideo = (['mp4', 'webm', 'ogv'].indexOf(this.ext) >= 0);
-		this.isAudio = (['mp3', 'wav', 'ogg'].indexOf(this.ext) >= 0);
-		this.isZip = (['zip', 'zip64', '7z', 'rar', 'gz'].indexOf(this.ext) >= 0);
-		this.isPdf = (['pdf'].indexOf(this.ext) >= 0);
+		this.isImage = ['jpg', 'jpeg', 'png', 'bmp', 'gif'].inArray(this.ext);
+		this.isVideo = ['mp4', 'webm', 'ogv'].inArray(this.ext);
+		this.isAudio = ['mp3', 'wav', 'ogg'].inArray(this.ext);
+		this.isZip = ['zip', 'zip64', '7z', 'rar', 'gz'].inArray(this.ext);
+		this.isPdf = ['pdf'].inArray(this.ext);
 		if (this.icon) {
 			 // icon is set by server, do not override
 		} else if (this.isImage) {
