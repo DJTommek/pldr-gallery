@@ -140,6 +140,7 @@ $(window).on('hashchange', function (event) {
 
 	// load folder structure
 	loadStructure(false, function () {
+
 		// save currently loaded folder AND currently selected file (if any) because structure is already loaded
 		S.setCurrent(pathFromUrl(window.location.hash)); // save file if is opened in popup
 
@@ -149,6 +150,7 @@ $(window).on('hashchange', function (event) {
 		const currentFile = S.getCurrentFile();
 		if (currentFile) { // loaded item is file
 			loadingPopup(true); // starting loading img
+			S.historyAdd(currentFile);
 
 			$('html head title').text(currentFile.path + ' ☁ ' + $('html head title').data('original-title'));
 
@@ -214,14 +216,30 @@ $(window).on('hashchange', function (event) {
 			})
 		} else { // If selected item is folder, load structure of that folder
 			popupClose();
-			// If going folder back, first try to find item, which was previously loaded
-			const item = S.getByName(pathFromUrl(decodeURI(event.originalEvent.oldURL.split('#')[1])));
-			if (item) { // founded = going back to previously opened folder. Select that folder in structure
-				S.selectorMove(item.index);
-			} else { // going to new folder, select first item
-				S.selectorMove('first');
+			S.historyAdd(S.getCurrentFolder());
+
+			// Detect which file should be loaded
+			let selectIndex = 0;
+			const previousItem = S.historyGet().last(2);
+			if (previousItem instanceof FolderItem) {
+				// changing folder (item should always be something)
+				// deeper - this will find "go back" folder
+				// closer to root - this will find previously opened folder
+				const item = S.getByName(previousItem.path);
+				if (item) {
+					selectIndex = item.index;
+				}
+			} else if (previousItem instanceof FileItem) {
+				// Popup was just closed, dont change selected index
+				selectIndex = S.selectedIndex;
 			}
-			// @TODO fix reloading items in map even when folder hasn't changed
+			S.selectorMove(selectIndex);
+		}
+
+		// if there is no history or last two history items has different folders
+		const history1 = S.historyGet().last(1);
+		const history2 = S.historyGet().last(2);
+		if (!history1 || !history2 || history1.folder !== history2.folder) {
 			mapParsePhotos();
 		}
 	});

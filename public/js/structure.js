@@ -1,7 +1,8 @@
 class Item {
-	// Values defined by server (more defined dynamically)
+	// Values defined by server (more might be defined dynamically)
 	path = '/';
 	// Default values
+	folder = '/';
 	isFolder = false;
 	isFile = false;
 	ext = '';
@@ -17,6 +18,14 @@ class Item {
 
 		this.url = pathToUrl(this.path);
 		this.paths = this.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
+
+		// folder path of item, where is located.
+		// In case of FolderItem it is the same as this.path
+		// In case of FileItem it is like this.path but without file name
+		let folders = this.path.split('/');
+		folders.pop();
+		this.folder = folders.join('/') + '/';
+
 		this.urls = this.paths.map(pathToUrl); // split path to folders and remove empty elements (if path start or end with /)
 		if (!this.text) { // do not override if set by server
 			if (this.path === '/') { // special case for root
@@ -105,7 +114,31 @@ class Structure {
 		this.files = [];
 		this.folders = [];
 
+		this.history = [];
 	}
+
+	/**
+	 * Save visited item to history
+	 *
+	 * @param {FileItem|FolderItem} item
+	 */
+	historyAdd(item) {
+		this.history.push(item);
+		// keep memory clean by saving only last x items
+		if (this.history.length > 10) {
+			this.history = this.history.slice(-10);
+		}
+	}
+
+	/**
+	 * Return list of visited items
+	 *
+	 * @returns {[FileItem|FolderItem]}
+	 */
+	historyGet() {
+		return this.history;
+	}
+
 	/**
 	 * Set currently loaded path
 	 *
@@ -120,6 +153,7 @@ class Structure {
 
 		// FileItem is requested, try find it in structure
 		if (paths.last()) {
+			// on first structure load is always null but after each file item load is FileItem
 			this.currentFileItem = this.getByName(path);
 			this.selectedIndex = (this.currentFileItem ? this.currentFileItem.index : 0);
 		}
