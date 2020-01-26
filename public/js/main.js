@@ -134,7 +134,12 @@ window.onerror = function (msg, url, line, col, error) {
 $(window).on('hashchange', function (event) {
 	// save currently loaded folder but can't save FileItem, because we dont know structure yet.
 	S.setCurrent(pathFromUrl(window.location.hash));
-	loadStructure(false, function () { // load folder structure
+
+	// Update browser title as browsing folders or files
+	$('html head title').text(S.getCurrentFolder().path + ' ☁ ' + $('html head title').data('original-title'));
+
+	// load folder structure
+	loadStructure(false, function () {
 		// save currently loaded folder AND currently selected file (if any) because structure is already loaded
 		S.setCurrent(pathFromUrl(window.location.hash)); // save file if is opened in popup
 
@@ -144,6 +149,9 @@ $(window).on('hashchange', function (event) {
 		const currentFile = S.getCurrentFile();
 		if (currentFile) { // loaded item is file
 			loadingPopup(true); // starting loading img
+
+			$('html head title').text(currentFile.path + ' ☁ ' + $('html head title').data('original-title'));
+
 			Promise.all([
 				// Before continuing loading next item first has to hide previous,
 				// otherwise while fading out it will flash new item
@@ -219,10 +227,17 @@ $(window).on('hashchange', function (event) {
 	});
 });
 
+/**
+ * Webpage loading is done
+ */
 $(function () {
 	loadAndResize();
 	updateLoginButtons();
 	favouritesGenerateMenu();
+
+	// Save original title into data property
+	$('html head title').data('original-title', $('html head title').text());
+
 	// If is set redirect, load this
 	if (Cookies.get('pmg-redirect')) {
 		window.location.hash = pathToUrl(Cookies.get('pmg-redirect'));
@@ -249,6 +264,7 @@ $(function () {
 			});
 		}
 	});
+
 	$('#popup-close, #popup-content').on('click', function () {
 		popupClose();
 	});
