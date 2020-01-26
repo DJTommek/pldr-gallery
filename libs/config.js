@@ -9,11 +9,12 @@ let CONFIG = {
     extensionsExif: ['jpg', 'jpeg', 'png'],
     // loading into <video> tag
     extensionsVideo: ['mp4', 'webm', 'ogv'],
+    // loading into <audio> tag
+    extensionsAudio: ['mp3', 'wav', 'ogg'],
     // allowing to download
     extensionsDownload: [
 		'zip', 'zip64', '7z', 'rar', 'gz',
 		'pdf', 'doc', 'docx', 'xls', 'xlsx',
-		'mp3', // @TODO - move to audioExtensions
         'avi' // video but can't be played in browser
 	],
     extensionsRegexAll: null, // generated from array above
@@ -75,6 +76,7 @@ CONFIG = merge(CONFIG, require('./config.local.js'));
 CONFIG.extensionsAll = [].concat(
     CONFIG.extensionsImage,
     CONFIG.extensionsVideo,
+    CONFIG.extensionsAudio,
     CONFIG.extensionsDownload,
 );
 CONFIG.extensionsRegexAll = new RegExp('\.(' + CONFIG.extensionsAll.join('|') + ')$', 'i');

@@ -134,6 +134,7 @@ jwerty.key('space', function (e) {
 	} else if (loadedStructure.popup) {
 		e.preventDefault(); // do not type in filter
 		videoToggle();
+		audioToggle();
 	} else {
 		// filter is focused, dont do anything special
 	}

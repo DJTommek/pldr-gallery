@@ -47,6 +47,13 @@ function loadingDone(element) {
 				}
 				videoPlay();
 			}
+		} else if ($(element).is('audio')) {
+			if (loadedStructure.presentationRunning) { // presentation is enabled
+				if (presentationIsLast()) {
+					presentationStop(); // manually stop presentation to toggle play button immediately
+				}
+				audioPlay();
+			}
 		} else if ($(element).is('img')) {
 			if (loadedStructure.presentationRunning) { // presentation is enabled
 				if (presentationIsLast()) {
@@ -78,6 +85,7 @@ function itemPrev(stopPresentation) {
 	}
 	presentationClearTimeout(); // to prevent running multiple presentation timeouts at the same time
 	videoPause();
+	audioPause();
 	S.selectorMove('up');
 	// if new selected item is not file, select first file and show it
 	if (S.getItem(S.selectedIndex).isFile === false) {
@@ -91,6 +99,7 @@ function itemNext(stopPresentation) {
 	}
 	presentationClearTimeout(); // to prevent running multiple presentation timeouts at the same time
 	videoPause();
+	audioPause();
 	S.selectorMove('down');
 	S.selectorSelect();
 }
@@ -139,6 +148,7 @@ $(window).on('hashchange', function (event) {
 				// Before continuing loading next item first has to hide previous,
 				// otherwise while fading out it will flash new item
 				$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise(),
+				$('#popup-audio').fadeOut(Settings.load('animationSpeed')).promise(),
 				$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise(),
 				$('#popup-icon').fadeOut(Settings.load('animationSpeed')).promise(),
 			]).then(function () {
@@ -166,6 +176,9 @@ $(window).on('hashchange', function (event) {
 				} else if (currentFile.isVideo) {
 					$('#popup-video source').attr('src', openUrl);
 					$('#popup-video')[0].load();
+				} else if (currentFile.isAudio) {
+					$('#popup-audio source').attr('src', openUrl);
+					$('#popup-audio')[0].load();
 				} else {
 					loadingDone();
 				}
@@ -372,6 +385,14 @@ $(function () {
 		}
 	});
 
+	$('#popup-audio').on('loadeddata', function () {
+		loadingDone(this);
+	}).on('ended', function () {
+		if (loadedStructure.presentationRunning) {
+			presentationNext();
+		}
+	});
+
 	// loading is done when img is loaded
 	$('#popup-image').on('load', function () {
 		loadingDone(this);
@@ -505,23 +526,51 @@ function videoToggle() {
 			videoPause();
 		}
 	} catch (exception) {
-// In case of invalid src (for example)
+		// In case of invalid src (for example)
 	}
 }
 function videoPause() {
 	try {
 		$('#popup-video')[0].pause();
 	} catch (exception) {
-// In case of invalid src (for example)
+		// In case of invalid src (for example)
 	}
 }
 function videoPlay() {
 	try {
 		$('#popup-video')[0].play();
 	} catch (exception) {
-// In case of invalid src (for example)
+		// In case of invalid src (for example)
 	}
 }
+
+function audioToggle() {
+	try {
+		if ($('#popup-audio')[0].paused) {
+			audioPlay();
+		} else {
+			audioPause();
+		}
+	} catch (exception) {
+		// In case of invalid src (for example)
+	}
+}
+function audioPause() {
+	try {
+		$('#popup-audio')[0].pause();
+	} catch (exception) {
+		// In case of invalid src (for example)
+	}
+}
+function audioPlay() {
+	try {
+		$('#popup-audio')[0].play();
+	} catch (exception) {
+		// In case of invalid src (for example)
+	}
+}
+
+
 function updateLoginButtons() {
 	if (Cookies.get('google-login')) { // logged in
 		$('#button-login').hide();

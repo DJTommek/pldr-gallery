@@ -7,6 +7,7 @@ class Item {
 	ext = '';
 	isImage = false;
 	isVideo = false;
+	isAudio = false;
 	isZip = false;
 	isPdf = false;
 
@@ -44,6 +45,7 @@ class FileItem extends Item {
 		this.ext = this.paths.last().split('.').last().toLowerCase();
 		this.isImage = (['jpg', 'jpeg', 'png', 'bmp', 'gif'].indexOf(this.ext) >= 0);
 		this.isVideo = (['mp4', 'webm', 'ogv'].indexOf(this.ext) >= 0);
+		this.isAudio = (['mp3', 'wav', 'ogg'].indexOf(this.ext) >= 0);
 		this.isZip = (['zip', 'zip64', '7z', 'rar', 'gz'].indexOf(this.ext) >= 0);
 		this.isPdf = (['pdf'].indexOf(this.ext) >= 0);
 		if (this.icon) {
@@ -52,6 +54,8 @@ class FileItem extends Item {
 			this.icon = 'file-image-o';
 		} else if (this.isVideo) {
 			this.icon = 'file-video-o';
+		} else if (this.isAudio) {
+			this.icon = 'file-audio-o';
 		} else if (this.isZip) {
 			this.icon = 'file-archive-o';
 		} else if (this.isPdf) {
@@ -74,6 +78,9 @@ class FileItem extends Item {
 		}
 		if (this.isVideo) {
 			return '/api/video?path=' + decoded;
+		}
+		if (this.isAudio) {
+			return '/api/audio?path=' + decoded;
 		}
 		if (this.isImage) {
 			return '/api/image?path=' + decoded;

@@ -538,6 +538,45 @@ webserver.get('/api/video', function (req, res) {
 });
 
 /**
+ * Stream audio into browser
+ *
+ * @author copied from /api/video
+ * @returns audio stream
+ */
+webserver.get('/api/audio', function (req, res) {
+	res.statusCode = 200;
+	try {
+		if (!res.locals.fullPathFile) {
+			throw new Error('Invalid audio path');
+		}
+		const fileSize = FS.statSync(res.locals.fullPathFile).size;
+		const range = req.headers.range;
+		if (range) {
+			const parts = range.replace(/bytes=/, "").split("-");
+			const start = parseInt(parts[0], 10);
+			const end = (parts[1] ? parseInt(parts[1], 10) : fileSize - 1);
+			const file = FS.createReadStream(res.locals.fullPathFile, {start, end});
+			res.writeHead(206, {
+				'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+				'Accept-Ranges': 'bytes',
+				'Content-Length': (end - start) + 1, // chunk size
+				'Content-Type': 'audio/mpeg'
+			});
+			file.pipe(res);
+		} else {
+			res.writeHead(200, {
+				'Content-Length': fileSize,
+				'Content-Type': 'audio/mpeg'
+			});
+			FS.createReadStream(res.locals.fullPathFile).pipe(res);
+		}
+	} catch (error) {
+		res.statusCode = 404;
+		res.result.setError('Error while loading audio: ' + error.message).end();
+	}
+});
+
+/**
  * Google logout
  * - remove cookie from the server (cant be used anymore)
  * - request browser to remove it from browser
