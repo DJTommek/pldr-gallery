@@ -781,6 +781,7 @@ function loadingStructure(loading) {
 		$('#filter .search').prop('disabled', true);
 	}
 	if (loading === false) {
+		$('#map').hide();
 		// new structure will override loading icon but remove it manually in case of error
 		$('.structure-selected td:nth-child(2) a i').remove();
 		$('#filter input').prop('disabled', false);
@@ -834,13 +835,7 @@ function mapInit()
  * by periodic checking. After detecting, that map are already loaded, interval is stopped
  */
 function mapParsePhotos() {
-	// Keep checking
-	const loadMapIntervalId = setInterval(function() {
-		if (mapData.map) { // maps are loaded
-			clearInterval(loadMapIntervalId);
-		} else {
-			return; // try again later
-		}
+	function loadMap() {
 		let showMap = false;
 		mapData.mapBounds = new google.maps.LatLngBounds();
 		// remove old markers
@@ -864,9 +859,22 @@ function mapParsePhotos() {
 			}
 		});
 		mapData.map.fitBounds(mapData.mapBounds);
+
+		// there is nothing to show on the map so disable it
 		if (showMap === false) {
 			$('#map').hide();
 		}
+	}
+
+	loadMap();
+	// Keep checking
+	const loadMapIntervalId = setInterval(function() {
+		if (mapData.map) { // maps are loaded
+			clearInterval(loadMapIntervalId);
+		} else {
+			return; // try again later
+		}
+		loadMap();
 	}, 100);
 }
 
