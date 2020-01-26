@@ -635,14 +635,9 @@ webserver.get('/api/structure', function (req, res) {
 		return;
 	}
 
-	const globSearch = [
-		res.locals.fullPathFolder + '*/',
-		res.locals.fullPathFolder + '*.*',
-	];
-
 	const loadFoldersPromise = new Promise(function (resolve) {
 		let folders = [];
-		// if requested folder is not root add one item to go back
+		// if requested folder is not root, add one FolderItem to go back
 		if (res.locals.path !== '/') {
 			folders.push({
 				path: generateGoBackPath(res.locals.path),
@@ -651,21 +646,13 @@ webserver.get('/api/structure', function (req, res) {
 				icon: 'level-up',
 			});
 		}
-		globby(globSearch[0]).then(function (rawPathsFolders) {
+		globby(res.locals.fullPathFolder + '*', {markDirectories: true, onlyDirectories: true}).then(function (rawPathsFolders) {
 			rawPathsFolders.forEach(function (path) {
-				try {
-					let pathStats = FS.lstatSync(path);
-					path = HFS.pathNormalize(path, c.path);
-					if (perms.test(res.locals.userPerms, path) === false) {
-						return;
-					}
-					if (pathStats.isDirectory()) {
-						folders.push({
-							path: path
-						});
-					}
-				} catch (error) {
-					LOG.debug('[Globby] Cant get stats from folder "' + path + '": ' + error.message);
+				path = HFS.pathNormalize(path, c.path);
+				if (perms.test(res.locals.userPerms, path)) {
+					folders.push({
+						path: path
+					});
 				}
 			});
 			resolve(folders);
@@ -702,7 +689,7 @@ webserver.get('/api/structure', function (req, res) {
 		}
 
 		let files = [];
-		globby(globSearch[1], {nodir: true}).then(function (rawPathsFiles) {
+		globby(res.locals.fullPathFolder + '*', {onlyFiles: true}).then(function (rawPathsFiles) {
 			rawPathsFiles.forEach(function (fullPath) {
 				try {
 					const pathStats = FS.lstatSync(fullPath);
@@ -710,18 +697,19 @@ webserver.get('/api/structure', function (req, res) {
 					if (perms.test(res.locals.userPerms, dynamicPath) === false) {
 						return;
 					}
-					if (pathStats.isFile() && dynamicPath.match(c.extensionsRegexAll)) {
-						let pathData = {
-							path: dynamicPath,
-							size: pathStats.size,
-							created: pathStats.ctime,
-						};
-						// try to load coordinates from EXIF and merge them into path data
-						pathData = Object.assign(pathData, getCoordsFromExifFromFile(fullPath));
-						files.push(pathData);
+					if (dynamicPath.match(c.extensionsRegexAll) === null) {
+						return;
 					}
+					let pathData = {
+						path: dynamicPath,
+						size: pathStats.size,
+						created: pathStats.ctime,
+					};
+					// try to load coordinates from EXIF and merge them into path data
+					pathData = Object.assign(pathData, getCoordsFromExifFromFile(fullPath));
+					files.push(pathData);
 				} catch (error) {
-					LOG.error('[Globby] Cant get stats from file "' + PATH + '": ' + error);
+					LOG.error('[Globby] Error while processing file: "' + PATH + '": ' + error.message);
 				}
 			});
 			return resolve(files);

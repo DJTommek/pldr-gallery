@@ -19,7 +19,7 @@
     "cookie-parser": "^1.4.4",
     "exif-parser": "https://github.com/DJTommek/exif-parser.git",
     "express": "^4.17.1",
-    "globby": "^6.1.0",
+    "globby": "^11.0.0",
     "google-auth-library": "^5.9.1",
     "readdirp": "^3.2.0",
     "sha1": "^1.1.1",
