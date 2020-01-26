@@ -580,10 +580,12 @@ function updateLoginButtons() {
 		$('#button-login').hide();
 		$('#button-logout').show();
 		$('#navbar .dropdown .dropdown-toggle i').addClass('fa-user').removeClass('fa-bars');
+		$('#dynamic-styles').text('.logged-in {display: inherit;} .logged-out {display: none;}');
 	} else {
 		$('#button-login').show();
 		$('#button-logout').hide();
 		$('#navbar .dropdown .dropdown-toggle i').addClass('fa-bars').removeClass('fa-user');
+		$('#dynamic-styles').text('.logged-out {display: inherit;} .logged-in {display: none;}');
 	}
 }
 function loadSearch(callback) {
