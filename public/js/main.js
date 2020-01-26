@@ -440,10 +440,12 @@ function popupClose() {
 	// This will prevent waiting (promise) on re-opening popup window:
 	// animation in promise will skip if elements are already faded out
 	$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise();
+	$('#popup-audio').fadeOut(Settings.load('animationSpeed')).promise();
 	$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise();
 	loadedStructure.popup = false;
 	window.location.hash = S.getCurrentFolder().url;
 	videoPause();
+	audioPause();
 	presentationStop();
 }
 
@@ -467,6 +469,8 @@ function presentationStart() {
 	// if video, first play it
 	if (S.getCurrentFile().isVideo) {
 		videoPlay();
+	} else if (S.getCurrentFile().isAudio) {
+		audioPlay();
 	} else {
 		itemNext(false);
 	}

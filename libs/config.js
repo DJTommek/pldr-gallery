@@ -1,8 +1,6 @@
 const merge = require('lodash.merge');
 
 let CONFIG = {
-    // showing in structure
-    extensionsAll: [], // generated from other extensions
     // loading into <img> tag
     extensionsImage: ['jpg', 'jpeg', 'png', 'bmp', 'gif'],
     // try to load EXIF data
@@ -17,6 +15,8 @@ let CONFIG = {
 		'pdf', 'doc', 'docx', 'xls', 'xlsx',
         'avi' // video but can't be played in browser
 	],
+    // showing in structure
+    extensionsAll: [], // generated from other extensions
     extensionsRegexAll: null, // generated from array above
     extensionsRegexExif: null, // generated from array above
 

@@ -466,9 +466,6 @@ webserver.get('/api/password', function (req, res) {
 webserver.get('/api/image', function (req, res) {
 	res.statusCode = 200;
 	res.setHeader("Content-Type", "image/png");
-	res.result.toString = function () {
-		return './public/image-errors/' + this.message + '.png';
-	};
 	try {
 		if (!res.locals.fullPathFile) {
 			throw new Error('Neplatná cesta nebo nemáš právo');
@@ -499,16 +496,33 @@ webserver.get('/api/image', function (req, res) {
 });
 
 /**
- * Stream video into browser
+ * Stream video or audio into browser
  *
  * @Author https://medium.com/better-programming/video-stream-with-node-js-and-html5-320b3191a6b6
- * @returns video stream
+ * @returns video/audio stream
  */
-webserver.get('/api/video', function (req, res) {
+webserver.get(['/api/video', '/api/audio'], function (req, res) {
 	res.statusCode = 200;
 	try {
 		if (!res.locals.fullPathFile) {
-			throw new Error('Invalid video path');
+			throw new Error('Invalid path for streaming file');
+		}
+		const mapMediaType = {
+			// video
+			'.mp4': 'video/mp4',
+			'.webm': 'video/webm',
+			'.ogv': 'video/ogg',
+			// audio
+			'.mp3': 'audio/mpeg',
+			'.wav': 'audio/wav',
+			'.ogg': 'audio/ogg',
+		};
+		const extension = PATH.extname(res.locals.fullPathFile).toLowerCase();
+		const mediaType = mapMediaType[extension];
+		if (!mediaType) {
+			const error = 'File cannot be streamed, extension "' + extension + '" has no defined media type.';
+			LOG.error(error);
+			throw new Error(error);
 		}
 		const fileSize = FS.statSync(res.locals.fullPathFile).size;
 		const range = req.headers.range;
@@ -521,58 +535,19 @@ webserver.get('/api/video', function (req, res) {
 				'Content-Range': `bytes ${start}-${end}/${fileSize}`,
 				'Accept-Ranges': 'bytes',
 				'Content-Length': (end - start) + 1, // chunk size
-				'Content-Type': 'video/mp4'
+				'Content-Type': mediaType
 			});
 			file.pipe(res);
 		} else {
 			res.writeHead(200, {
 				'Content-Length': fileSize,
-				'Content-Type': 'video/mp4'
+				'Content-Type': mediaType
 			});
 			FS.createReadStream(res.locals.fullPathFile).pipe(res);
 		}
 	} catch (error) {
 		res.statusCode = 404;
-		res.result.setError('Error while loading video: ' + error.message).end();
-	}
-});
-
-/**
- * Stream audio into browser
- *
- * @author copied from /api/video
- * @returns audio stream
- */
-webserver.get('/api/audio', function (req, res) {
-	res.statusCode = 200;
-	try {
-		if (!res.locals.fullPathFile) {
-			throw new Error('Invalid audio path');
-		}
-		const fileSize = FS.statSync(res.locals.fullPathFile).size;
-		const range = req.headers.range;
-		if (range) {
-			const parts = range.replace(/bytes=/, "").split("-");
-			const start = parseInt(parts[0], 10);
-			const end = (parts[1] ? parseInt(parts[1], 10) : fileSize - 1);
-			const file = FS.createReadStream(res.locals.fullPathFile, {start, end});
-			res.writeHead(206, {
-				'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-				'Accept-Ranges': 'bytes',
-				'Content-Length': (end - start) + 1, // chunk size
-				'Content-Type': 'audio/mpeg'
-			});
-			file.pipe(res);
-		} else {
-			res.writeHead(200, {
-				'Content-Length': fileSize,
-				'Content-Type': 'audio/mpeg'
-			});
-			FS.createReadStream(res.locals.fullPathFile).pipe(res);
-		}
-	} catch (error) {
-		res.statusCode = 404;
-		res.result.setError('Error while loading audio: ' + error.message).end();
+		res.result.setError('Error while loading file to stream: ' + error.message).end();
 	}
 });
 
