@@ -873,6 +873,23 @@ function mapParsePhotos() {
 					icon: 'images/marker-photo.png',
 					// animation: google.maps.Animation.DROP,
 				});
+				// Show infoWindow
+				mapData.markers.photos[item.index].addListener('mouseover', function() {
+					const link = 'https://www.google.cz/maps/place/' + item.coordLat + ',' + item.coordLon;
+					mapData.infowindow.setContent('<div id="map-info-window"><div>' +
+						'<button onClick="S.selectorMove(' + item.index + '); S.selectorSelect();" style="width: 100%" class="btn btn-primary btn-sm">' + item.text + '</button>' +
+						'<b>Souřadnice:</b> ' +
+						'<a href="' + link + '" target="_blank" title="Google maps">' +  item.coordLat + ', ' + item.coordLon + '</a>' +
+					'</div></div>');
+					mapData.infowindow.open(mapData.map, this);
+				});
+				// Open file in popup
+				mapData.markers.photos[item.index].addListener('click', function() {
+					S.selectorMove(item.index);
+					S.selectorSelect();
+				});
+
+
 				mapData.mapBounds.extend(mapData.markers.photos[item.index].position);
 			}
 		});
