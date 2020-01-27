@@ -106,6 +106,22 @@ webserver.all('*', function (req, res, next) {
 });
 
 /**
+ * Load main index file
+ */
+webserver.get('/', function (req, res) {
+	FS.readFile('./private/index.html', function(error, data) {
+		if (error) {
+			LOG.error('Cannot load index file: ' + error.message);
+			res.result.setError('Error while loading main file, try again later and contact author.').end();
+			return;
+		}
+		let fileContent = data.toString();
+		fileContent = fileContent.replace('{{GOOGLE_MAPS_API_KEY}}', c.google.mapApiKey);
+		res.send(fileContent);
+	});
+});
+
+/**
  * Google logout - just redirect, more info in "/api/logout"
  */
 webserver.get('/logout', function (req, res) {
