@@ -861,11 +861,12 @@ function mapInit()
  * by periodic checking. After detecting, that map are already loaded, interval is stopped
  */
 function mapParsePhotos() {
-	function loadMap() {
-		if (mapData.map) { // maps are loaded
-			clearInterval(loadMapIntervalId);
-		} else {
+	let loadMapIntervalId = null;
+	function updateMapData() {
+		if (mapData.map === null) {
 			return; // try again later
+		} else { // map is loaded, stop interval
+			clearInterval(loadMapIntervalId);
 		}
 		let showMap = false;
 		mapData.mapBounds = new google.maps.LatLngBounds();
@@ -916,10 +917,11 @@ function mapParsePhotos() {
 		}
 	}
 
-	loadMap();
-	// Keep checking
-	const loadMapIntervalId = setInterval(function() {
-		loadMap();
+	// try to load map
+	updateMapData();
+	// start checking if map can be loaded
+	loadMapIntervalId = setInterval(function() {
+		updateMapData();
 	}, 100);
 }
 
