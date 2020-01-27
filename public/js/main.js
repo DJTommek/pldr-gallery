@@ -862,6 +862,11 @@ function mapInit()
  */
 function mapParsePhotos() {
 	function loadMap() {
+		if (mapData.map) { // maps are loaded
+			clearInterval(loadMapIntervalId);
+		} else {
+			return; // try again later
+		}
 		let showMap = false;
 		mapData.mapBounds = new google.maps.LatLngBounds();
 		// remove old markers
@@ -914,11 +919,6 @@ function mapParsePhotos() {
 	loadMap();
 	// Keep checking
 	const loadMapIntervalId = setInterval(function() {
-		if (mapData.map) { // maps are loaded
-			clearInterval(loadMapIntervalId);
-		} else {
-			return; // try again later
-		}
 		loadMap();
 	}, 100);
 }
