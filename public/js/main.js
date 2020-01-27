@@ -180,9 +180,10 @@ $(window).on('hashchange', function (event) {
 				$('#popup-filename').text(currentFile.text).attr('href', openUrl).attr('title', currentFile.path);
 				$('#popup-download').attr('href', downloadUrl);
 				popupOpen();
+				let openInfoWindowMarker = null;
 				if (currentFile.isImage) {
 					$('#popup-image').attr('src', openUrl);
-					// fade in animation is triggered on image load
+					openInfoWindowMarker = mapData.markers.photos[currentFile.index] || null;
 				} else if (currentFile.isVideo) {
 					$('#popup-video source').attr('src', openUrl);
 					$('#popup-video')[0].load();
@@ -191,6 +192,13 @@ $(window).on('hashchange', function (event) {
 					$('#popup-audio')[0].load();
 				} else {
 					loadingDone();
+				}
+
+				// If currently opened Item in popup has marker, open InfoWindow in map
+				if (openInfoWindowMarker) {
+					new google.maps.event.trigger(openInfoWindowMarker, 'click');
+				} else {
+					mapData.infoWindow.close();
 				}
 
 				// @TODO upgrade counter to respect filter
@@ -840,7 +848,7 @@ function mapInit()
     console.log("map loaded");
 
     // init info window
-    mapData.infowindow = new google.maps.InfoWindow({
+    mapData.infoWindow = new google.maps.InfoWindow({
         content: 'Nastala chyba'
     });
 }
@@ -874,30 +882,32 @@ function mapParsePhotos() {
 					// animation: google.maps.Animation.DROP,
 				});
 				// Show infoWindow
-				mapData.markers.photos[item.index].addListener('mouseover', function() {
+				mapData.markers.photos[item.index].addListener('click', function() {
 					const link = 'https://www.google.cz/maps/place/' + item.coordLat + ',' + item.coordLon;
-					mapData.infowindow.setContent('<div id="map-info-window"><div>' +
+					mapData.infoWindow.setContent('<div id="map-info-window"><div>' +
 						'<button onClick="S.selectorMove(' + item.index + '); S.selectorSelect();" style="width: 100%" class="btn btn-primary btn-sm">' + item.text + '</button>' +
 						'<b>Souřadnice:</b> ' +
 						'<a href="' + link + '" target="_blank" title="Google maps">' +  item.coordLat + ', ' + item.coordLon + '</a>' +
 					'</div></div>');
-					mapData.infowindow.open(mapData.map, this);
+					mapData.infoWindow.open(mapData.map, this);
 				});
-				// Open file in popup
-				mapData.markers.photos[item.index].addListener('click', function() {
-					S.selectorMove(item.index);
-					S.selectorSelect();
-				});
-
 
 				mapData.mapBounds.extend(mapData.markers.photos[item.index].position);
 			}
 		});
 		mapData.map.fitBounds(mapData.mapBounds);
-
 		// there is nothing to show on the map so disable it
 		if (showMap === false) {
 			$('#map').hide();
+		} else {
+			// open InfoWindow in map if currently opened Item is FileItem with coordinates (marker)
+			const item = S.historyGet().last();
+			if (item) {
+				const marker = mapData.markers.photos[item.index];
+				if (marker) {
+					new google.maps.event.trigger(marker, 'click');
+				}
+			}
 		}
 	}
 
