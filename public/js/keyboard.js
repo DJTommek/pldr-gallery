@@ -167,7 +167,7 @@ jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
 		popupClose();
 	} else { // go back
 		let item = S.getFirst();
-		if (item.displayText === '..') { // @HACK should be some property to recognize "go back"
+		if (item.text === '..') { // @HACK should be some property to recognize "go back"
 			S.selectorMove(item.index);
 			S.selectorSelect();
 		}
