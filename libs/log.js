@@ -1,5 +1,5 @@
 const FS = require('fs');
-const HFS = require('./helperFilesystem');
+const HFS = require('./helperFileSystem');
 const PATH = require('path');
 
 module.exports.INFO = 0;

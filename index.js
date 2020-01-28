@@ -5,8 +5,7 @@ const sha1 = require('sha1');
 
 const globby = require('globby');
 const FS = require("fs");
-const PATH = require('path');
-const HFS = require('./libs/helperFilesystem');
+const HFS = require('./libs/helperFileSystem');
 const readdirp = require('readdirp');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -778,7 +777,7 @@ webserver.get('/api/structure', function (req, res) {
 					pathData = Object.assign(pathData, getCoordsFromExifFromFile(fullPath));
 					files.push(pathData);
 				} catch (error) {
-					LOG.error('[Globby] Error while processing file: "' + PATH + '": ' + error.message);
+					LOG.error('[Globby] Error while processing file: "' + fullPath + '": ' + error.message);
 				}
 			});
 			files.sort(sortItemsByPath);

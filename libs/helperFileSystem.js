@@ -73,11 +73,10 @@ function getFileLines(options , callback)
         }
         // check optional parameter offset
         if (options.offset) {
-            // @TODO - not implemented
-            throw new Error('Param options.offset is not implemented.');
             if (typeof options.offset !== 'number' || options.offset < 0) {
                 throw new Error('Param options.offset is not valid. It must be positive number.');
             }
+            throw new Error('Param options.offset is not implemented.'); // @TODO implement offset
         } else { // set default value
             options.offset = 1000;
         }
