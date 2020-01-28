@@ -79,4 +79,81 @@ describe('Test all functions from functions.js', function() {
         assert.equal('dont change'.formatUnicorn(null), 'dont change');
         assert.equal('dont change'.formatUnicorn(1), 'dont change');
     });
+
+    it('String.escapeRegex()', function () {
+        // @TODO
+    });
+
+    it('String.escapeHtml()', function () {
+        // @TODO
+    });
+
+    it('Array.last()', function () {
+        assert.equal(['a'].last(), 'a');
+        assert.equal(['a'].last(1), 'a');
+        assert.equal(['a', 'b'].last(2), 'a');
+        assert.equal(['a', 'b'].last(1), 'b');
+        assert.deepStrictEqual([['a', 'b']].last(1), ['a', 'b']);
+        assert.deepStrictEqual(['a', ['a', 'b']].last(1), ['a', 'b']);
+        assert.deepStrictEqual(['a', ['a', 'b']].last(2), 'a');
+
+        assert.equal([].last(), undefined);
+        assert.equal([].last(1), undefined);
+        assert.equal(['a'].last(2), undefined);
+        // should throw error
+        // @TODO add tests
+        // assert.equal([].last(0), undefined); // Error: Parameter "last" has to be positive number.
+    });
+
+    it('Array.inArray()', function () {
+        // @TODO
+    });
+
+    it('Array.removeByValue()', function () {
+        // @TODO
+    });
+
+    it('Array.pushUnique()', function () {
+        // @TODO
+    });
+
+    it('formatBytes()', function () {
+        // @TODO
+    });
+
+    it('isNumeric()', function () {
+        // @TODO
+    });
+
+    it('msToHuman()', function () {
+        // @TODO
+    });
+
+    it('humanToMs()', function () {
+        // @TODO
+    });
+
+    it('convertDMSToDD()', function () {
+        // @TODO
+    });
+
+    it('sanatizePath()', function () {
+        // @TODO
+    });
+
+    it('generateGoBackPath()', function () {
+        // @TODO
+    });
+
+    it('pathToUrl()', function () {
+        // @TODO
+    });
+
+    it('pathFromUrl()', function () {
+        // @TODO
+    });
+
+    it('copyToClipboard()', function () {
+        // @TODO
+    });
 });

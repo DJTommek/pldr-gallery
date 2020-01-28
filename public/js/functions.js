@@ -106,12 +106,18 @@ String.prototype.escapeHtml = String.prototype.escapeHtml || function ()
 };
 
 /**
- * Return last element of array
- * @TODO might be better returning -1?
- * @TODO Check if array is not empty, then return null or error?
+ * Return last element of array without updating array itself
+ *
+ * @param {Number} [last] which index from last element
+ * @return {*|undefined} last element of array or undefined
  */
 Array.prototype.last = function (last) {
-	return this[this.length - (last || 1)];
+	if (last === undefined) {
+		last = 1;
+	} else if (typeof last !== 'number' || last < 1) {
+		throw new Error('Parameter "last" has to be positive number.')
+	}
+	return this[this.length - last];
 };
 
 /**
