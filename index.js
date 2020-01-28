@@ -689,6 +689,10 @@ webserver.get('/api/structure', function (req, res) {
 		return;
 	}
 
+	function sortItemsByPath(a, b) {
+		return a.path.toLowerCase().localeCompare(b.path.toLowerCase());
+	}
+
 	const loadFoldersPromise = new Promise(function (resolve) {
 		let folders = [];
 		// if requested folder is not root, add one FolderItem to go back
@@ -709,6 +713,7 @@ webserver.get('/api/structure', function (req, res) {
 					});
 				}
 			});
+			folders.sort(sortItemsByPath);
 			resolve(folders);
 		});
 	});
@@ -776,6 +781,7 @@ webserver.get('/api/structure', function (req, res) {
 					LOG.error('[Globby] Error while processing file: "' + PATH + '": ' + error.message);
 				}
 			});
+			files.sort(sortItemsByPath);
 			return resolve(files);
 		});
 	});
