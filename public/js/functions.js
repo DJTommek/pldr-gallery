@@ -5,16 +5,34 @@ String.prototype.replaceAll = function (search, replacement) {
  * Pad string
  *
  * @param {int} len
- * @param {String} chr character to pad
- * @param {String} dir (left, both, right)
+ * @param {String} [chr] character to pad
+ * @param {String} [dir] (left, both, right = default)
  * @returns {String}
  */
-String.prototype.pad = String.prototype.pad || function (len, chr, dir)
+String.prototype.pad = String.prototype.pad || function (length, string, type)
 {
 	let str = this;
-	len = (typeof len === 'number') ? len : 0;
-	chr = (typeof chr === 'string') ? chr : ' ';
-	dir = (/left|right|both/i).test(dir) ? dir : 'right';
+
+	// validation of length
+	if (typeof length !== 'number' || length < 1) {
+		throw new Error('Parameter "length" has to be positive number.')
+	}
+
+	// validation of string
+	if (string === undefined) {
+		string = ' ' // default character is space
+	} else if (typeof string !== 'string' || string.length < 1) {
+		throw new Error('Parameter "string" has to be string of non-zero length')
+	}
+
+	// validation of type (direction)
+	const allowedTypes = ['left', 'right', 'both'];
+	if (type === undefined) {
+		type = 'right' // default type is 'right'
+	} else if (allowedTypes.inArray(type) === false) {
+		throw new Error('Parameter "type" has to be "' + allowedTypes.join('" or "') + '".')
+	}
+
 	const repeat = function (c, l) { // inner "character" and "length"
 		let repeat = '';
 		while (repeat.length < l) {
@@ -22,18 +40,19 @@ String.prototype.pad = String.prototype.pad || function (len, chr, dir)
 		}
 		return repeat.substr(0, l);
 	};
-	const diff = len - str.length;
+
+	const diff = length - str.length;
 	if (diff > 0) {
-		switch (dir) {
+		switch (type) {
 			case 'left':
-				str = '' + repeat(chr, diff) + str;
+				str = '' + repeat(string, diff) + str;
 				break;
 			case 'both':
-				const half = repeat(chr, Math.ceil(diff / 2));
-				str = (half + str + half).substr(1, len);
+				const half = repeat(string, Math.ceil(diff / 2));
+				str = (half + str + half).substr(0, length);
 				break;
-			default: // and "right"
-				str = '' + str + repeat(chr, diff);
+			case 'right': // and "right"
+				str = '' + str + repeat(string, diff);
 		}
 	}
 	return str;
