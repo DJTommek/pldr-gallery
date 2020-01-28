@@ -1,3 +1,4 @@
+require('../public/js/functions.js');
 const assert = require('assert');
 const perms = require('../libs/permissions.js');
 
@@ -16,9 +17,14 @@ describe('Permissions', function() {
   });
   it('Demo permissions (false)', function() {
     assert.equal(perms.test(['/demo/'], '/dem'), false);
-    // assert.equal(perms.test(['/demo/'], '/footer.html'), false);
-    // assert.equal(perms.test(['/demo/'], '/blademo/'), false);
-    // assert.equal(perms.test(['/demo/'], '/deblamo/'), false);
-    // assert.equal(perms.test(['/demo/'], '/demobla/'), false);
+    assert.equal(perms.test(['/demo/'], '/dem/'), false);
+    assert.equal(perms.test(['/demo/'], '/footer.html'), false);
+    assert.equal(perms.test(['/demo/'], '/blademo/'), false);
+    assert.equal(perms.test(['/demo/'], '/deblamo/'), false);
+    assert.equal(perms.test(['/demo/'], '/demobla/'), false);
+  });
+  it('Multiple permissions (true)', function() {
+    assert.equal(perms.test(['/demo/', '/haha/'], '/dem'), false);
+    assert.equal(perms.test(['footer.html'], '/footer.html'), false);
   });
 });

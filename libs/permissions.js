@@ -55,7 +55,7 @@ function permissionCheck(perms, path) {
     perms.some(function (perm) {
         if ((path).indexOf(perm) === 0
             ||
-            (perm.indexOf(path)) === 0
+            (perm.indexOf(path + '/')) === 0
         ) {
             return result = true;
         }
