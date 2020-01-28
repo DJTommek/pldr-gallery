@@ -1,8 +1,8 @@
 require('../public/js/functions.js');
 const assert = require('assert');
 
-describe('Functions', function() {
-    it('String.replaceAll', function() {
+describe('Test all functions from functions.js', function() {
+    it('String.replaceAll()', function() {
         assert.equal('text without spaces'.replaceAll(' ', '-'), 'text-without-spaces');
         assert.equal('text without spaces'.replaceAll(' ', ''), 'textwithoutspaces');
         assert.equal('don\'t change this text'.replaceAll('+', 'FOO'), 'don\'t change this text');
@@ -14,7 +14,7 @@ describe('Functions', function() {
         assert.equal('in this text replace some characters with exclamation mark'.replaceAll(/[acg]/, '!'), 'in this text repl!!e some !h!r!!ters with ex!l!m!tion m!rk');
     });
 
-    it('String.pad', function () {
+    it('String.pad()', function () {
         // pad default (right)
         assert.equal('pad right'.pad(15), 'pad right      ');
         assert.equal('pad right char'.pad(20, '0'), 'pad right char000000');
@@ -61,5 +61,22 @@ describe('Functions', function() {
         // 'string'.pad(1, ' ', 'bla') // Error: Parameter "type" has to be "left" or "right" or "both".
         // 'string'.pad(1, ' ', 'LEFT') // Error: Parameter "type" has to be "left" or "right" or "both".
         // 'string'.pad(1, ' ', 'center') // Error: Parameter "type" has to be "left" or "right" or "both".
+    });
+
+    it('String.formatUnicorn()', function () {
+        const result = 'pldrGallery is cool and author is cool too';
+        assert.equal('{0} is {2} and {1} is {2} too'.formatUnicorn('pldrGallery', 'author', 'cool'), result);
+        assert.equal('{name1} is {what} and {name2} is {what} too'.formatUnicorn({'name1': 'pldrGallery', 'name2': 'author', 'what': 'cool'}), result);
+        // non-string parameters
+        assert.equal('dont {0} change'.formatUnicorn(1), 'dont 1 change');
+        // dont change
+        assert.equal('just print {0} zero'.formatUnicorn(), 'just print {0} zero');
+        assert.equal('just print {1} one'.formatUnicorn(), 'just print {1} one');
+        assert.equal('just print {} brackets'.formatUnicorn(), 'just print {} brackets');
+        // parameters dont know what to replace
+        assert.equal('dont change'.formatUnicorn('param1', 'param2'), 'dont change');
+        assert.equal('dont change'.formatUnicorn({'bla': 'ble', 'foo': 'bar'}), 'dont change');
+        assert.equal('dont change'.formatUnicorn(null), 'dont change');
+        assert.equal('dont change'.formatUnicorn(1), 'dont change');
     });
 });
