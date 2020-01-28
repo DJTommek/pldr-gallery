@@ -121,21 +121,27 @@ Array.prototype.last = function (last) {
 };
 
 /**
- * Return if value is in array
+ * Return true if value is in array
+ *
+ * @param element
+ * @returns {boolean}
  */
 Array.prototype.inArray = function (element) {
 	return (this.indexOf(element) >= 0)
 };
 
 /**
- * Remove item from array by value
+ * Remove all item(s) from array by value
  *
- * @param item
+ * @param value
  * @returns {Array}
  */
-Array.prototype.removeByValue = function (item) {
-	let index = this.indexOf(item);
-	if (index !== -1) {
+Array.prototype.removeByValue = function (value) {
+	while (true) {
+		let index = this.indexOf(value);
+		if (index === -1) {
+			break
+		}
 		this.splice(index, 1);
 	}
 	return this;
@@ -148,7 +154,7 @@ Array.prototype.removeByValue = function (item) {
  * @returns {Array}
  */
 Array.prototype.pushUnique = function (item) {
-	if (this.indexOf(item) === -1) {
+	if (this.inArray(item) === false) {
 		this.push(item);
 	}
 	return this;
@@ -158,20 +164,27 @@ Array.prototype.pushUnique = function (item) {
  * Format bytes to human readable unit (kb, mb, gb etc) depending on how many bytes
  *
  * @author https://stackoverflow.com/a/18650828/3334403
- * @param bytes
- * @param decimals
+ * @param {Number} bytes
+ * @param {Number} [decimals]
  * @returns {string}
  */
 function formatBytes(bytes, decimals = 2) {
+	if (typeof bytes !== 'number' || bytes < 0) {
+		throw new Error('Parameter "bytes" has to be positive number.')
+	}
+	if (typeof decimals !== 'number' || decimals < 0) {
+		throw new Error('Parameter "decimals" has to be positive number.')
+	}
 	if (bytes === 0) {
-		return '0 Bytes';
+		return '0 B';
 	}
 	const k = 1024;
 	decimals = decimals < 0 ? 0 : decimals;
-	const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+	const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 	let i = Math.floor(Math.log(bytes) / Math.log(k));
 	return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
 }
+global.formatBytes = formatBytes;
 
 /**
  * Generate human readable datetime

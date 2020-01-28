@@ -106,19 +106,50 @@ describe('Test all functions from functions.js', function() {
     });
 
     it('Array.inArray()', function () {
-        // @TODO
+        assert.equal(['a'].inArray('a'), true);
+        assert.equal(['a', 'b'].inArray('a'), true);
+        assert.equal(['a', 'b'].inArray('b'), true);
+        assert.equal(['a', 1].inArray(1), true);
+
+        assert.equal(['a'].inArray('c'), false);
+        assert.equal(['a', 'b'].inArray('c'), false);
+        assert.equal(['a', 'b'].inArray('c'), false);
+        assert.equal(['a', 1].inArray('1'), false);
     });
 
     it('Array.removeByValue()', function () {
-        // @TODO
+        assert.deepStrictEqual(['a'].removeByValue('a'), []);
+        assert.deepStrictEqual(['a', 'b'].removeByValue('a'), ['b']);
+        assert.deepStrictEqual(['a', 'b', 'c'].removeByValue('b'), ['a', 'c']);
+        assert.deepStrictEqual(['a', 'a', 'b'].removeByValue('a'), ['b']); // multiple same values
     });
 
     it('Array.pushUnique()', function () {
-        // @TODO
+        assert.deepStrictEqual(['a'].pushUnique('a'), ['a']);
+        assert.deepStrictEqual(['a', 'a'].pushUnique('a'), ['a', 'a']);
+        assert.deepStrictEqual(['a'].pushUnique('b'), ['a', 'b']);
+        assert.deepStrictEqual(['a', 'a'].pushUnique('b'), ['a', 'a', 'b']);
     });
 
     it('formatBytes()', function () {
-        // @TODO
+        assert.equal(formatBytes(0), '0 B');
+        assert.equal(formatBytes(1), '1 B');
+        assert.equal(formatBytes(1023), '1023 B');
+        assert.equal(formatBytes(1024), '1 KB');
+        assert.equal(formatBytes(1025), '1 KB');
+        assert.equal(formatBytes(1025, 3), '1.001 KB');
+        assert.equal(formatBytes(1500, 0), '1 KB');
+        assert.equal(formatBytes(1500, 1), '1.5 KB');
+        assert.equal(formatBytes(1500), '1.46 KB');
+        assert.equal(formatBytes(1500, 2), '1.46 KB');
+        assert.equal(formatBytes(9999999), '9.54 MB');
+        assert.equal(formatBytes(9999999999), '9.31 GB');
+        assert.equal(formatBytes(99999999999999), '90.95 TB');
+        assert.equal(formatBytes(9999999999999999), '8.88 PB');
+        assert.equal(formatBytes(9999999999999999999), '8.67 EB');
+        assert.equal(formatBytes(99999999999999999999999), '84.7 ZB');
+        assert.equal(formatBytes(9999999999999999999999999), '8.27 YB');
+        assert.equal(formatBytes(1208925819614629174706176), '1 YB');
     });
 
     it('isNumeric()', function () {
