@@ -249,7 +249,6 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 	LOG.info('(Web) Api access ' + req.path + ', user "' + (res.locals.user || 'x') + '"');
 
 	const result = HFS.pathMasterCheck(c.path, req.query.path, res.locals.userPerms, perms.test);
-	console.log(result);
 	Object.assign(res.locals, result);
 	if (result.error) {
 		// log to debug because anyone can generate invalid paths
@@ -676,13 +675,9 @@ webserver.get('/api/structure', function (req, res) {
 				icon: 'level-up',
 			});
 		}
-		console.log(res.locals.fullPathFolder + '*');
 		globby(res.locals.fullPathFolder + '*', {markDirectories: true, onlyDirectories: true}).then(function (rawPathsFolders) {
-			console.log('fullPath folders process foreach (permissions first):');
-			console.log(res.locals.userPerms);
 			rawPathsFolders.forEach(function (fullPath) {
 				const dynamicPath = HFS.pathMakeDynamic(c.path, fullPath);
-				console.log('dynamic path: ' + dynamicPath);
 				if (perms.test(res.locals.userPerms, dynamicPath) === false) {
 					return;
 				}
@@ -738,7 +733,6 @@ webserver.get('/api/structure', function (req, res) {
 		}
 
 		let files = [];
-		console.log("res.locals.fullPathFolder");
 		globby(res.locals.fullPathFolder + '*', {onlyFiles: true}).then(function (rawPathsFiles) {
 			rawPathsFiles.forEach(function (fullPath) {
 				const dynamicPath = HFS.pathMakeDynamic(c.path, fullPath);

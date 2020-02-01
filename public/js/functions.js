@@ -307,26 +307,23 @@ function convertDMSToDD(degrees, minutes, seconds, direction) {
 }
 
 /**
- * Prevent loading files and folders
- *
- * @param {type} path
- */
-global.sanatizePath = sanatizePath;
-function sanatizePath(path) {
-	return path.replace(/(\.\.)|(^\/)/i, '');
-}
-
-/**
  * Generate folder for "go back"
  *
- * @param {type} path
+ * @see test/functions.js
+ * @param {string} path
  */
-global.generateGoBackPath = generateGoBackPath;
 function generateGoBackPath(path) {
+	if (typeof path !== 'string') {
+		throw new Error('Parameter "path" has to be string.')
+	}
+	if (path === '/') {
+		throw Error('Path can\'t be root')
+	}
 	let goBackPath = path.split('/');
 	goBackPath.splice(goBackPath.length - 2, 1);
 	return goBackPath.join('/')
 }
+global.generateGoBackPath = generateGoBackPath;
 
 /**
  * Round number with supporting floating point
@@ -335,11 +332,11 @@ function generateGoBackPath(path) {
  * @param points How many numbers behind floating point
  * @returns {number}
  */
-global.numberRound = numberRound;
 function numberRound(number, points) {
 	let precision = parseInt('1'.pad((points + 1), '0'));
 	return Math.round(number * precision) / precision;
 }
+global.numberRound = numberRound;
 
 /**
  * Generate nice URL to prevent browser escaping into ugly URL encoded

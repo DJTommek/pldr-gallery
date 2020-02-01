@@ -234,12 +234,12 @@ describe('Test all functions from functions.js', function() {
         // @TODO
     });
 
-    it('sanatizePath()', function () {
-        // @TODO
-    });
-
     it('generateGoBackPath()', function () {
-        // @TODO
+        assert.equal(generateGoBackPath('/folder1/'), '/');
+        assert.equal(generateGoBackPath('/folder1/folder2/'), '/folder1/');
+        assert.equal(generateGoBackPath('/folder1/folder2/folder3/'), '/folder1/folder2/');
+        // throw errors
+        assert.throws(() => generateGoBackPath('/'));
     });
 
     it('pathToUrl()', function () {
@@ -252,6 +252,5 @@ describe('Test all functions from functions.js', function() {
 
     it('copyToClipboard()', function () {
         // Can be tested only in browser
-        // @TODO
     });
 });
