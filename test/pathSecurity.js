@@ -54,7 +54,7 @@ describe('Handle requested path', function() {
             // requested file but it is folder
             {path: '/permissions', output: {error: 'Requested path "/permissions" is not file', queryPath: '/permissions'}},
             // requested folder but it is file
-            {path: '/secired-image-1.jpg/', output: {error: 'Requested path "/secired-image-1.jpg/" is not folder', queryPath: '/secired-image-1.jpg/'}},
+            {path: '/permissions/secured-image-1.jpg/', output: {error: 'Requested path "/permissions/secured-image-1.jpg/" is not folder', queryPath: '/permissions/secured-image-1.jpg/'}},
             // valid folders
             {path: '/', output: {fullPathFolder: './demo/', path: '/', queryPath: '/'}},
             {path: '/permissions/', output: {fullPathFolder: './demo/permissions/', path: '/permissions/', queryPath: '/permissions/'}},
@@ -70,22 +70,18 @@ describe('Handle requested path', function() {
             {path: '/special-characters/pangram - Vypätá dcéra grófa Maxwella s IQ nižším ako kôň núti čeľaď hrýzť hŕbu jabĺk/', output: {fullPathFolder: './demo/special-characters/pangram - Vypätá dcéra grófa Maxwella s IQ nižším ako kôň núti čeľaď hrýzť hŕbu jabĺk/', path: '/special-characters/pangram - Vypätá dcéra grófa Maxwella s IQ nižším ako kôň núti čeľaď hrýzť hŕbu jabĺk/', queryPath: '/special-characters/pangram - Vypätá dcéra grófa Maxwella s IQ nižším ako kôň núti čeľaď hrýzť hŕbu jabĺk/'}},
             {path: '/special-characters/pangram - У Іўі худы жвавы чорт у зялёнай камізэльцы пабег пад\'есці фаршу з юшкай/', output: {fullPathFolder: './demo/special-characters/pangram - У Іўі худы жвавы чорт у зялёнай камізэльцы пабег пад\'есці фаршу з юшкай/', path: '/special-characters/pangram - У Іўі худы жвавы чорт у зялёнай камізэльцы пабег пад\'есці фаршу з юшкай/', queryPath: '/special-characters/pangram - У Іўі худы жвавы чорт у зялёнай камізэльцы пабег пад\'есці фаршу з юшкай/'}},
             // {path: '/special-characters/', output: {fullPathFolder: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
-            // {path: '/special-characters/', output: {fullPathFolder: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
-            // {path: '/special-characters/', output: {fullPathFolder: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
-            // {path: '/special-characters/', output: {fullPathFolder: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
             // valid files
-            {path: '/secired-image-1.jpg', output: {fullPathFile: './demo/secired-image-1.jpg', path: '/secired-image-1.jpg', queryPath: '/secired-image-1.jpg'}},
+            {path: '/permissions/secured-image-1.jpg', output: {fullPathFile: './demo/permissions/secured-image-1.jpg', path: '/permissions/secured-image-1.jpg', queryPath: '/permissions/secured-image-1.jpg'}},
             {path: '/special-characters/tilde~in name.jpg', output: {fullPathFile: './demo/special-characters/tilde~in name.jpg', path: '/special-characters/tilde~in name.jpg', queryPath: '/special-characters/tilde~in name.jpg'}},
             {path: '/special-characters/plus+sign+is treted as space in frontend.jpg', output: {fullPathFile: './demo/special-characters/plus+sign+is treted as space in frontend.jpg', path: '/special-characters/plus+sign+is treted as space in frontend.jpg', queryPath: '/special-characters/plus+sign+is treted as space in frontend.jpg'}},
             // {path: '/special-characters/', output: {fullPathFile: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
-            // {path: '/special-characters/', output: {fullPathFile: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
-            // {path: '/special-characters/', output: {fullPathFile: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
-            // {path: '/special-characters/', output: {fullPathFile: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
             {path: '/special-characters/pangram - דג סקרן שט בים מאוכזב ולפתע מצא לו חברה.jpg', output: {fullPathFile: './demo/special-characters/pangram - דג סקרן שט בים מאוכזב ולפתע מצא לו חברה.jpg', path: '/special-characters/pangram - דג סקרן שט בים מאוכזב ולפתע מצא לו חברה.jpg', queryPath: '/special-characters/pangram - דג סקרן שט בים מאוכזב ולפתע מצא לו חברה.jpg'}},
         ];
+        let i = 0;
         for (const data of requestedPaths) {
             let requestedPathBase64 = (new Buffer(data.path)).toString('base64');
             assert.deepStrictEqual(HFS.pathMasterCheck(basePath, requestedPathBase64, userPerms, perms.test), data.output);
+            i++;
         }
     });
 });
