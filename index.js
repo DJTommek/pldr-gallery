@@ -39,7 +39,7 @@ try {
 	if (items.length === 0) {
 		throw new Error('no items in base folder');
 	}
-	LOG.info('(Start) Defined base path "%s' + c.path + '" is valid with ' + items.length + ' items.'.formatUnicorn());
+	LOG.info('(Start) Defined base path "' + c.path + '" is valid with ' + items.length + ' items.';
 } catch (error) {
 	LOG.fatal('(Start) Defined base path "' + c.path + '" is invalid. Error: ' + error.message);
 }
