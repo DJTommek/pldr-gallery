@@ -1,6 +1,7 @@
 const CONFIG = require('./config.js');
 const FS = require("fs");
 const LOG = require('./log.js');
+const PATH = require('path');
 
 let users = {};
 let passwords = {};
@@ -50,14 +51,17 @@ function loadPasswords(callback) {
 }
 
 exports.test = permissionCheck;
-function permissionCheck(perms, path) {
+function permissionCheck(permissions, path) {
     let result = false;
-    perms.some(function (perm) {
-        if ((path).indexOf(perm) === 0
-            ||
-            (perm.indexOf(path + '/')) === 0
-        ) {
-            return result = true;
+    permissions.some(function (permission) {
+        if (path.indexOf(permission) === 0) {
+            // requested path is fully in perms
+            result = true;
+        }
+        if (permission.indexOf(PATH.posix.join(path + '/')) === 0) {
+            // show folder, which lead to files saved deeper
+            console.log(path);
+            result = true;
         }
     });
     return result;

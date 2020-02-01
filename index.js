@@ -5,7 +5,8 @@ const sha1 = require('sha1');
 
 const globby = require('globby');
 const FS = require("fs");
-const HFS = require('./libs/helperFileSystem');
+const PATH = require('path');
+const HFS = require('./libs/helperFilesystem');
 const readdirp = require('readdirp');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -246,43 +247,16 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 	}
 	res.locals.userPerms = userPerms;
 
-	LOG.info('(Web) Api access ' + req.path + ', user "' + (res.locals.user ? res.locals.user : 'x') + '"');
+	LOG.info('(Web) Api access ' + req.path + ', user "' + (res.locals.user || 'x') + '"');
 
-	// Parse, sanatize and check permissions for path if defined
-	if (req.query.path) {
-		let path = req.query.path;
-		try {
-			// base64 decode
-			path = decodeURIComponent(Buffer.from(path, 'base64').toString());
-			path = HFS.pathNormalize(path);
-			res.locals.queryPath = path;
-
-			if (perms.test(res.locals.userPerms, path) === false) {
-				throw new Error('User do not have permissions to path "' + path + '"'); // user dont have permission to this path
-			}
-
-			let fullPath = HFS.pathJoin(c.path, path);
-			// Check if path exists
-			let fileStats = FS.lstatSync(fullPath); // throws exception if not exists or not accessible
-
-			if (fullPath.match(/\/$/)) { // requested path wants folder
-				if (fileStats.isDirectory()) {
-					res.locals.fullPathFolder = fullPath;
-				} else {
-					throw new Error('Requested path "' + path + '" is not folder');
-				}
-			} else { // Requested path wants file
-				if (fileStats.isFile()) {
-					res.locals.fullPathFile = fullPath;
-				} else {
-					throw new Error('Requested path "' + path + '" is not file');
-				}
-			}
-			res.locals.path = path;
-		} catch (error) {
-			// log to debug because anyone can generate invalid paths
-			LOG.debug('(Web) Requested invalid path "' + req.query.path + '", error: ' + error.message + '.');
-		}
+	const result = HFS.pathMasterCheck(c.path, req.query.path, res.locals.userPerms, perms.test);
+	console.log(result);
+	Object.assign(res.locals, result);
+	if (result.error) {
+		// log to debug because anyone can generate invalid paths
+		// Error handling must be done on APIs endpoints because everyone returning different format of data (JSON, image stream, video stream, audio stream...)
+		// if res.locals.path exists, everything is ok
+		LOG.debug('(Web) Requested invalid path "' + req.query.path + '", error: ' + result.error + '.', {console: true});
 	}
 
     res.setTimeout(c.http.timeout, function() {
@@ -703,17 +677,25 @@ webserver.get('/api/structure', function (req, res) {
 				icon: 'level-up',
 			});
 		}
+		console.log(res.locals.fullPathFolder + '*');
 		globby(res.locals.fullPathFolder + '*', {markDirectories: true, onlyDirectories: true}).then(function (rawPathsFolders) {
-			rawPathsFolders.forEach(function (path) {
-				path = HFS.pathNormalize(path, c.path);
-				if (perms.test(res.locals.userPerms, path)) {
-					folders.push({
-						path: path
-					});
+			console.log('fullPath folders process foreach (permissions first):');
+			console.log(res.locals.userPerms);
+			rawPathsFolders.forEach(function (fullPath) {
+				const dynamicPath = HFS.pathMakeDynamic(c.path, fullPath);
+				console.log('dynamic path: ' + dynamicPath);
+				if (perms.test(res.locals.userPerms, dynamicPath) === false) {
+					return;
 				}
+				folders.push({
+					path: dynamicPath
+				});
 			});
 			folders.sort(sortItemsByPath);
 			resolve(folders);
+		}).catch(function (error) {
+			LOG.error('[Globby] Error while processing folders in "' + res.locals.fullPathFolder + '": ' + error.message);
+			resolve([]);
 		});
 	});
 
@@ -757,31 +739,37 @@ webserver.get('/api/structure', function (req, res) {
 		}
 
 		let files = [];
+		console.log("res.locals.fullPathFolder");
 		globby(res.locals.fullPathFolder + '*', {onlyFiles: true}).then(function (rawPathsFiles) {
 			rawPathsFiles.forEach(function (fullPath) {
+				const dynamicPath = HFS.pathMakeDynamic(c.path, fullPath);
+				if (perms.test(res.locals.userPerms, dynamicPath) === false) {
+					return;
+				}
+				if (dynamicPath.match(c.extensionsRegexAll) === null) {
+					return;
+				}
+				let pathStats = null;
 				try {
-					const pathStats = FS.lstatSync(fullPath);
-					const dynamicPath = HFS.pathNormalize(fullPath, c.path);
-					if (perms.test(res.locals.userPerms, dynamicPath) === false) {
-						return;
-					}
-					if (dynamicPath.match(c.extensionsRegexAll) === null) {
-						return;
-					}
-					let pathData = {
-						path: dynamicPath,
-						size: pathStats.size,
-						created: pathStats.ctime,
-					};
-					// try to load coordinates from EXIF and merge them into path data
-					pathData = Object.assign(pathData, getCoordsFromExifFromFile(fullPath));
-					files.push(pathData);
+					pathStats = FS.lstatSync(fullPath);
 				} catch (error) {
 					LOG.error('[Globby] Error while processing file: "' + fullPath + '": ' + error.message);
+					return;
 				}
+				let pathData = {
+					path: dynamicPath,
+					size: pathStats.size,
+					created: pathStats.ctime,
+				};
+				// try to load coordinates from EXIF and merge them into path data
+				pathData = Object.assign(pathData, getCoordsFromExifFromFile(fullPath));
+				files.push(pathData);
 			});
 			files.sort(sortItemsByPath);
 			return resolve(files);
+		}).catch(function (error) {
+			LOG.error('[Globby] Error while processing files in "' + res.locals.fullPathFolder + '": ' + error.message);
+			resolve([]);
 		});
 	});
 

@@ -1,3 +1,16 @@
+/**
+ * If some function should be accessed in node.js backend, must be also defined in "global"-
+ * There is nothing like that in browser and to preserve browser errors, create empty object for it.
+ */
+global = (typeof global === 'undefined') ? {} : global;
+
+/**
+ * Replace all elements in string
+ *
+ * @param search
+ * @param replacement
+ * @returns {string}
+ */
 String.prototype.replaceAll = function (search, replacement) {
 	return this.split(search).join(replacement);
 };
@@ -161,32 +174,6 @@ Array.prototype.pushUnique = function (item) {
 };
 
 /**
- * Format bytes to human readable unit (kb, mb, gb etc) depending on how many bytes
- *
- * @author https://stackoverflow.com/a/18650828/3334403
- * @param {Number} bytes
- * @param {Number} [decimals]
- * @returns {string}
- */
-function formatBytes(bytes, decimals = 2) {
-	if (typeof bytes !== 'number' || bytes < 0) {
-		throw new Error('Parameter "bytes" has to be positive number.')
-	}
-	if (typeof decimals !== 'number' || decimals < 0) {
-		throw new Error('Parameter "decimals" has to be positive number.')
-	}
-	if (bytes === 0) {
-		return '0 B';
-	}
-	const k = 1024;
-	decimals = decimals < 0 ? 0 : decimals;
-	const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-	let i = Math.floor(Math.log(bytes) / Math.log(k));
-	return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
-}
-global.formatBytes = formatBytes;
-
-/**
  * Generate human readable datetime
  *
  * @param returnObject return object instead string
@@ -215,12 +202,38 @@ Date.prototype.human = function (returnObject = false) {
 };
 
 /**
+ * Format bytes to human readable unit (kb, mb, gb etc) depending on how many bytes
+ *
+ * @author https://stackoverflow.com/a/18650828/3334403
+ * @param {Number} bytes
+ * @param {Number} [decimals]
+ * @returns {string}
+ */
+function formatBytes(bytes, decimals = 2) {
+	if (typeof bytes !== 'number' || bytes < 0) {
+		throw new Error('Parameter "bytes" has to be positive number.')
+	}
+	if (typeof decimals !== 'number' || decimals < 0) {
+		throw new Error('Parameter "decimals" has to be positive number.')
+	}
+	if (bytes === 0) {
+		return '0 B';
+	}
+	const k = 1024;
+	decimals = decimals < 0 ? 0 : decimals;
+	const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+	let i = Math.floor(Math.log(bytes) / Math.log(k));
+	return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
+}
+global.formatBytes = formatBytes;
+
+/**
  * Check, if value is numeric (number as string)
  */
-global.isNumeric = isNumeric;
 function isNumeric(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
 }
+global.isNumeric = isNumeric;
 
 /**
  * Format miliseconds to human redable string, 10d 2h 52m 684ms

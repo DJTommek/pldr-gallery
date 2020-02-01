@@ -100,7 +100,8 @@ let CONFIG = {
         enabled: true,
         fit: 'inside',
         width: 1024,
-        height: 1024
+        height: 1024,
+        withoutEnlargement: true
     },
 
     /**
