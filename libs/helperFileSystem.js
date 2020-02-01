@@ -1,6 +1,7 @@
 const FS = require('fs');
 const PATH = require('path');
 const readline = require('readline');
+
 /**
  * Exactly as PATH.posix.normalize but replacing backslashes with UNIX slashes (\ -> /)
  *
@@ -8,9 +9,22 @@ const readline = require('readline');
  * @param {string} path
  * @returns {string}
  */
-PATH.posix.normalizeForce = function(path) {
-    return this.posix.normalize(path.replace(/\\/g, '/'));
-};
+function normalizeForce(path) {
+    return PATH.posix.normalize(path.replace(/\\/g, '/'));
+}
+module.exports.normalizeForce = normalizeForce;
+
+/**
+ * Exactly as PATH.posix.resolve but replacing backslashes with UNIX slashes (\ -> /)
+ *
+ * @see PATH.posix.resolve()
+ * @param {string} path
+ * @returns {string}
+ */
+function resolveForce(path) {
+    return PATH.posix.resolve(path).replace(/\\/g, '/');
+}
+module.exports.resolveForce = resolveForce;
 
 /**
  * Unite path to UNIX type even on Windows
