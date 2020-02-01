@@ -23,7 +23,7 @@ describe('Handle requested path', function() {
      */
     function runAssert(path, perms, output) {
         // it is nicer to read in classic string instead of base64 format. So tests are written in nice format and converted to base64 here
-        const requestedPathBase64 = (new Buffer(path)).toString('base64');
+        const requestedPathBase64 = (new Buffer.from(path)).toString('base64');
         let dynamicOutput = {};
         let absoluteOutput = {};
         // convert all placeholders in all output object strings with dynamic and absolute paths, depending what test is currently running
