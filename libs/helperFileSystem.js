@@ -201,11 +201,8 @@ function pathMasterCheck(basePath, requestedPathBase64, userPermissions, permsTe
         result.error = 'User do not have permissions to path "' + path + '"';
         return result;
     }
-    console.log(basePath);
-    console.log(path);
     const fullPath = (basePath + '' + path).replace(/\/{2,}/, '/');
     // const fullPath = PATH.posix.join(basePath, '/', path);
-    console.log(fullPath);
     let fileStats;
     try {
         fileStats = FS.lstatSync(fullPath); // throws exception if not exists or not accessible
@@ -218,14 +215,17 @@ function pathMasterCheck(basePath, requestedPathBase64, userPermissions, permsTe
             result.fullPathFolder = fullPath;
         } else {
             result.error = 'Requested path "' + path + '" is not folder';
+            return result
         }
     } else { // Requested path wants file
         if (fileStats.isFile()) {
             result.fullPathFile = fullPath;
         } else {
             result.error = 'Requested path "' + path + '" is not file';
+            return result;
         }
     }
+    // Everything is good to go
     result.path = path;
     return result;
 }

@@ -60,7 +60,6 @@ function permissionCheck(permissions, path) {
         }
         if (permission.indexOf(PATH.posix.join(path + '/')) === 0) {
             // show folder, which lead to files saved deeper
-            console.log(path);
             result = true;
         }
     });
