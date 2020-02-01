@@ -5,7 +5,6 @@ const sha1 = require('sha1');
 
 const globby = require('globby');
 const FS = require("fs");
-const PATH = require('path');
 const HFS = require('./libs/helperFilesystem');
 const readdirp = require('readdirp');
 const bodyParser = require('body-parser');
@@ -40,7 +39,7 @@ try {
 	if (items.length === 0) {
 		throw new Error('no items in base folder');
 	}
-	LOG.info('(Start) Defined base path "' + c.path + '" is valid with ' + items.length + ' items.');
+	LOG.info('(Start) Defined base path "%s' + c.path + '" is valid with ' + items.length + ' items.'.formatUnicorn());
 } catch (error) {
 	LOG.fatal('(Start) Defined base path "' + c.path + '" is invalid. Error: ' + error.message);
 }
