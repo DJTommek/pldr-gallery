@@ -1,0 +1,49 @@
+<h3>Permission</h3>
+<p>
+	For me is crucial to have shared only some of folders.
+	But some closest members should have access to everything.
+	Also I want to share some folders to social network or chat, but without knowing who is in the chat.
+</p>
+<h3>Security</h3>
+<p>
+	All folders and files are visible and accessible ONLY if you have permission for them. That means, even if you know URL, you cannot access them, don't matter if it is folder, image, audio, header etc.<br>
+	You can test it in this playground. For example, <a href="/api/image?path=JTJGcGVybWlzc2lvbnMlMkZ0b3RhbHktc2VjdXJlZC1pbWFnZS5qcGc=" target="_blank">this is direct</a> link to one of files in this folder. This will work ONLY if you have master password (more info below).
+</p>
+<h3>User permissions</h3>
+<p>
+	Do you want share some folder only to your wife? Easy, just look on the examples in <b>.pmg_perms</b> in root folder.<br>
+	<span class="text-info"><i class="fa fa-info-circle"></i> Sorry, there is no way how to show live demo of this :( You have to install and test yourself.</span>
+</p>
+<h3>Passwords</h3>
+<p>
+	Items can be also shared via passwords, just add some in <b>.pmg_passwords</b> in root folder.
+	There are some examples below how to see more items in the structure.<br>
+	If is password valid, you will be redirected to that folder automatically.
+</p>
+<ol style="max-width: 900px; margin:0 auto; text-align: left">
+	<li>As you probably noticed, there is no footer. If you want to see it, just use password "<a href="/api/password?password=permissions-show-footer">permissions-show-footer</a>"</li>
+	<li>Also, there are no folders in here... But let see some of them with password "<a href="/api/password?password=more permissions!">more permissions!</a>". This will also redirect you into one of these folders.</li>
+	<li>
+		Lets see some files with password "<a href="/api/password?password=secured images">secured images</a>". Permissions in this case are defined with prefix.<br>
+		<small>Btw. did you noticed, that there is space in this password? In previous password there is exclamation mark. Only ; and , characters are not allowed as password.</small>
+	</li>
+	<li>Password "<a href="/api/password?password=aaaaaaaa" target="_blank">aaaaaaaa</a>" don't exists.</li>
+	<li>To access every file with master password, use "<a href="/api/password?password=access-to-everything">access-to-everything</a>".</li>
+</ol>
+<p>
+	<br>
+	To see saved password, just visit bottom section of settings (or see JSON formatted <a href="/api/password" target="_blank">here</a>)
+</p>
+<p>
+	To clear saved passwords, just clear your cookies (specifically <b>pmg-passwords</b>).<br>
+	I know that you are probably lazy almost as I'm so I prepared button for this.. :)<br>
+	<button class="btn btn-outline-danger btn-sm" id="perm-test-clear">Clear passwords</button>
+</p>
+<script>
+	$(function() {
+		$('#perm-test-clear').on('click', function() {
+			Cookies.remove('pmg-passwords');
+			loadStructure(true);
+		});
+	});
+</script>

@@ -1,0 +1,48 @@
+<h3>Demo footer</h3>
+<p>
+	Some content, blah blah. HTML <b>tags</b> <u><i>are <br>fully</i> supported</u>. Even <a href="https://tomas.palider.cz/" target="_blank" title="Tomas Palider">link to author's page</a>!
+</p>
+<hr>
+<p style="text-align: right;">
+	Even <span style="text-transform: uppercase;">css styles works</span> here.
+</p>
+<h3>Conditional text visibility</h3>
+<p>
+	Text below is visible depends on if you are logged or not, just use class <b>.logged-in</b> or <b>.logged-out</b>:<br>
+	<span class="text-warning"><i class="fa fa-warning"></i> Visibility is maintained via javascript (you can still see both texts it in source code) so don't hide anything sensitive here!</span>
+</p>
+<p>
+	<span class="logged-in">This text is visible only to users, who are logged in.</span>
+	<span class="logged-out">This text is visible only to users, who are <b>not</b> logged in.</span>
+</p>
+<h3>Javascript</h3>
+<p>
+	<button class="btn btn-primary" onClick="alert('Javascript is working!')">Push to test javascript!</button>
+	<button class="btn btn-danger" id="footer-test-button-muhehe">Dont touch this button!</button>
+</p>
+<p>
+	<button class="btn btn-outline-info" onClick="S.selectorSelect(0); S.selectorSelect()">[<i class="fa fa-level-up"></i>..] - Go folder back </button>
+</p>
+<script>
+	$('#footer-test-button-muhehe').on('click', function() {
+		const element = this;
+		$(element).append(' <i class="fa fa-circle-o-notch fa-spin"></i>').attr('disabled', 'disabled');
+		flashMessage('info', 'Self-destruct sequence initiated. 5...', 4);
+		setTimeout(function() {
+			flashMessage('info', '... 4 ...', 1);
+		}, 4000);
+		setTimeout(function() {
+			flashMessage('warning', '... 3 ...', 1);
+		}, 5000);
+		setTimeout(function() {
+			flashMessage('warning', '... 2 ...', 1);
+		}, 6000);
+		setTimeout(function() {
+			flashMessage('danger', '... 1 ...', 2);
+		}, 7000);
+		setTimeout(function() {
+			flashMessage('danger', '<b>$fd##@@da!sf###@</b><br>Javascript malfunction, self-destruct aborted!', false);
+			$(element).removeAttr('disabled').text($(element).text()); // remove spin icon
+		}, 9000);
+	});
+</script>

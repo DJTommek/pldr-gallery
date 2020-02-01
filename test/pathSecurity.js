@@ -52,12 +52,12 @@ describe('Handle requested path', function() {
             // folder missing
             {path: '/demo/', output: {error: 'Cant load "/demo/", error: ENOENT: no such file or directory, lstat \'./demo/demo/\'', queryPath: '/demo/'}},
             // requested file but it is folder
-            {path: '/non-logged', output: {error: 'Requested path "/non-logged" is not file', queryPath: '/non-logged'}},
+            {path: '/permissions', output: {error: 'Requested path "/permissions" is not file', queryPath: '/permissions'}},
             // requested folder but it is file
-            {path: '/image-1.jpg/', output: {error: 'Requested path "/image-1.jpg/" is not folder', queryPath: '/image-1.jpg/'}},
+            {path: '/secired-image-1.jpg/', output: {error: 'Requested path "/secired-image-1.jpg/" is not folder', queryPath: '/secired-image-1.jpg/'}},
             // valid folders
             {path: '/', output: {fullPathFolder: './demo/', path: '/', queryPath: '/'}},
-            {path: '/non-logged/', output: {fullPathFolder: './demo/non-logged/', path: '/non-logged/', queryPath: '/non-logged/'}},
+            {path: '/permissions/', output: {fullPathFolder: './demo/permissions/', path: '/permissions/', queryPath: '/permissions/'}},
             {path: '/special-characters/', output: {fullPathFolder: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
             {path: '/special-characters/اللغة العربية‎‎/', output: {fullPathFolder: './demo/special-characters/اللغة العربية‎‎/', path: '/special-characters/اللغة العربية‎‎/', queryPath: '/special-characters/اللغة العربية‎‎/'}},
             {path: '/special-characters/arabian-اللغة العربية‎‎/', output: {fullPathFolder: './demo/special-characters/arabian-اللغة العربية‎‎/', path: '/special-characters/arabian-اللغة العربية‎‎/', queryPath: '/special-characters/arabian-اللغة العربية‎‎/'}},
@@ -74,7 +74,8 @@ describe('Handle requested path', function() {
             // {path: '/special-characters/', output: {fullPathFolder: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
             // {path: '/special-characters/', output: {fullPathFolder: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
             // valid files
-            {path: '/image-1.jpg', output: {fullPathFile: './demo/image-1.jpg', path: '/image-1.jpg', queryPath: '/image-1.jpg'}},
+            {path: '/secired-image-1.jpg', output: {fullPathFile: './demo/secired-image-1.jpg', path: '/secired-image-1.jpg', queryPath: '/secired-image-1.jpg'}},
+            {path: '/special-characters/tilde~in name.jpg', output: {fullPathFile: './demo/special-characters/tilde~in name.jpg', path: '/special-characters/tilde~in name.jpg', queryPath: '/special-characters/tilde~in name.jpg'}},
             {path: '/special-characters/plus+sign+is treted as space in frontend.jpg', output: {fullPathFile: './demo/special-characters/plus+sign+is treted as space in frontend.jpg', path: '/special-characters/plus+sign+is treted as space in frontend.jpg', queryPath: '/special-characters/plus+sign+is treted as space in frontend.jpg'}},
             // {path: '/special-characters/', output: {fullPathFile: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},
             // {path: '/special-characters/', output: {fullPathFile: './demo/special-characters/', path: '/special-characters/', queryPath: '/special-characters/'}},

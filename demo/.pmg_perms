@@ -1,0 +1,36 @@
+## Example users permissions file ##
+# 'x' is non-logged user. 
+# If is user logged, User permissions (if has any) are merged with these from user 'x'
+# Rules: 
+# - lines starting with # are ignored
+# - user is written as email address provided from Google login
+# - permission has to start with space and slash after that
+# - use only POSIX paths (without backward slashes), no dynamic paths
+# - after section (user + permissions) has to be blank line
+
+# allow some folders to everyone
+x
+ /empty folder/
+ /files/
+ /header and footer/
+ /permissions/header.html
+ /sort-test/
+ /special-characters/
+ /header.html
+ /footer.html
+# allow every file and folder in root, that begins "image-"
+ /image-
+
+# allow some folders to user:
+foo@bar.com
+ /permissions/secured-folder/
+ /permissions/secured-folder-only-header/header.html
+
+# Multiple user with exact same permissions
+foo2@bar.com
+foo3@bar.com
+ /permissions/secured-folder/
+
+#access-to-everything
+admin@mail.com
+ /
