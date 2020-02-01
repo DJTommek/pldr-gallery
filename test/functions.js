@@ -42,25 +42,24 @@ describe('Test all functions from functions.js', function() {
         assert.equal('a'.pad(6, '!-', 'both'), '!-!a!-');
         assert.equal('a'.pad(7, '!-', 'both'), '!-!a!-!');
         assert.equal('pad center'.pad(20, '-', 'both'), '-----pad center-----');
-        // @TODO testing invalid parameters (should throw error)
         // length parameter
-        // 'string'.pad() // Error: Parameter "length" has to be positive number.
-        // 'string'.pad(0) // Error: Parameter "length" has to be positive number.
-        // 'string'.pad(-1) // Error: Parameter "length" has to be positive number.
-        // 'string'.pad(null) // Error: Parameter "length" has to be positive number.
-        // 'string'.pad('') // Error: Parameter "length" has to be positive number.
-        // 'string'.pad({}) // Error: Parameter "length" has to be positive number.
+        assert.throws('string'.pad);
+        assert.throws(() => 'string'.pad(0));
+        assert.throws(() => 'string'.pad(-1));
+        assert.throws(() => 'string'.pad(null));
+        assert.throws(() => 'string'.pad(''));
+        assert.throws(() => 'string'.pad({}));
         // string parameters
-        // 'string'.pad(1, '') // Error: Parameter "string" has to be string of non-zero length
-        // 'string'.pad(1, 1) // Error: Parameter "string" has to be string of non-zero length
-        // 'string'.pad(1, null)  // Error: Parameter "string" has to be string of non-zero length
-        // 'string'.pad(1, {}) // Error: Parameter "string" has to be string of non-zero length
-        // 'string'.pad(1, /[0-9]/) // Error: Parameter "string" has to be string of non-zero length
+        assert.throws(() => 'string'.pad(1, ''));
+        assert.throws(() => 'string'.pad(1, 1));
+        assert.throws(() => 'string'.pad(1, null));
+        assert.throws(() => 'string'.pad(1, {}));
+        assert.throws(() => 'string'.pad(1, /[0-9]/));
         // type parameters
-        // 'string'.pad(1, ' ', null) // Error: Parameter "type" has to be "left" or "right" or "both".
-        // 'string'.pad(1, ' ', 'bla') // Error: Parameter "type" has to be "left" or "right" or "both".
-        // 'string'.pad(1, ' ', 'LEFT') // Error: Parameter "type" has to be "left" or "right" or "both".
-        // 'string'.pad(1, ' ', 'center') // Error: Parameter "type" has to be "left" or "right" or "both".
+        assert.throws(() => 'string'.pad(1, ' ', null));
+        assert.throws(() => 'string'.pad(1, ' ', 'bla'));
+        assert.throws(() => 'string'.pad(1, ' ', 'LEFT'));
+        assert.throws(() => 'string'.pad(1, ' ', 'center'));
     });
 
     it('String.formatUnicorn()', function () {
@@ -68,7 +67,7 @@ describe('Test all functions from functions.js', function() {
         assert.equal('{0} is {2} and {1} is {2} too'.formatUnicorn('pldrGallery', 'author', 'cool'), result);
         assert.equal('{name1} is {what} and {name2} is {what} too'.formatUnicorn({'name1': 'pldrGallery', 'name2': 'author', 'what': 'cool'}), result);
         // non-string parameters
-        assert.equal('dont {0} change'.formatUnicorn(1), 'dont 1 change');
+        assert.equal('change {0} this'.formatUnicorn(1), 'change 1 this');
         // dont change
         assert.equal('just print {0} zero'.formatUnicorn(), 'just print {0} zero');
         assert.equal('just print {1} one'.formatUnicorn(), 'just print {1} one');
@@ -101,8 +100,7 @@ describe('Test all functions from functions.js', function() {
         assert.equal([].last(1), undefined);
         assert.equal(['a'].last(2), undefined);
         // should throw error
-        // @TODO add tests
-        // assert.equal([].last(0), undefined); // Error: Parameter "last" has to be positive number.
+        assert.throws(() => [].last(0));
     });
 
     it('Array.inArray()', function () {
@@ -185,6 +183,7 @@ describe('Test all functions from functions.js', function() {
     });
 
     it('copyToClipboard()', function () {
+        // Can be tested only in browser
         // @TODO
     });
 });
