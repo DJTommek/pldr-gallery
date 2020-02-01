@@ -243,6 +243,12 @@ global.isNumeric = isNumeric;
  */
 global.msToHuman = msToHuman;
 function msToHuman(miliseconds) {
+	if (typeof miliseconds !== 'number' || miliseconds < 0) {
+		throw new Error('Parameter "miliseconds" has to be positive number.');
+	}
+	if (miliseconds === 0) {
+		return '0ms';
+	}
 	const milliseconds = Math.floor((miliseconds) % 1000);
 	const seconds = Math.floor((miliseconds / (1000)) % 60);
 	const minutes = Math.floor((miliseconds / (1000 * 60)) % 60);
@@ -261,20 +267,24 @@ function msToHuman(miliseconds) {
 /**
  * Format human readable duration string back to miliseconds
  *
- * @param {int} miliseconds
+ * @TODO throw error if input string is not valid human readable duration
+ * @param {string} human readable duration
  * @returns {String}
  */
 global.humanToMs = humanToMs;
-function humanToMs(humanString) {
+function humanToMs(human) {
+	if (typeof human !== 'string') {
+		throw new Error('Parameter "human" has to be string.');
+	}
 	let result = 0;
 	[
 		[/([0-9]+)d/, 1000 * 60 * 60 * 24],
 		[/([0-9]+)h/, 1000 * 60 * 60],
-		[/([0-9]+)m/, 1000 * 60],
+		[/([0-9]+)m([^s]|$)/, 1000 * 60],
 		[/([0-9]+)s/, 1000],
 		[/([0-9]+)ms/, 1]
 	].forEach(function (timeData) {
-		const timeValue = timeData[0].exec(humanString);
+		const timeValue = timeData[0].exec(human);
 		if (timeValue) {
 			result += timeValue[1] * timeData[1];
 		}

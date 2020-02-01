@@ -155,11 +155,79 @@ describe('Test all functions from functions.js', function() {
     });
 
     it('msToHuman()', function () {
-        // @TODO
+        // all units
+        assert.equal(msToHuman(503263836), '5d 19h 47m 43s 836ms');
+        // exact times
+        assert.equal(msToHuman(1), '1ms');
+        assert.equal(msToHuman(1000), '1s');
+        assert.equal(msToHuman(60000), '1m');
+        assert.equal(msToHuman(3600000), '1h');
+        assert.equal(msToHuman(86400000), '1d');
+        // skipping some units
+        assert.equal(msToHuman(3720000), '1h 2m'); // skipping seconds and miliseconds
+        assert.equal(msToHuman(3720010), '1h 2m 10ms'); // skipping seconds
+        assert.equal(msToHuman(3601000), '1h 1s'); // skipping minutes and miliseconds
+        assert.equal(msToHuman(3600005), '1h 5ms'); // skipping minutes and seconds
+        assert.equal(msToHuman(86400555), '1d 555ms'); // skipping hours, minutes and seconds
+        assert.equal(msToHuman(86455555), '1d 55s 555ms'); // skipping hours and minutes
+        assert.equal(msToHuman(86460555), '1d 1m 555ms'); // skipping hours and seconds
+        // going higher and higher...
+        assert.equal(msToHuman(0), '0ms');
+        assert.equal(msToHuman(10), '10ms');
+        assert.equal(msToHuman(100), '100ms');
+        assert.equal(msToHuman(10000), '10s');
+        assert.equal(msToHuman(10050), '10s 50ms');
+        assert.equal(msToHuman(100000), '1m 40s');
+        assert.equal(msToHuman(1000000), '16m 40s');
+        assert.equal(msToHuman(10000000), '2h 46m 40s');
+        assert.equal(msToHuman(100000000), '1d 3h 46m 40s');
+        assert.equal(msToHuman(1000000000), '11d 13h 46m 40s');
+        assert.equal(msToHuman(10000000000), '115d 17h 46m 40s');
+        // throw errors
+        assert.throws(() => msToHuman());
+        assert.throws(() => msToHuman('11'));
+        assert.throws(() => msToHuman('fdasfds'));
+        assert.throws(() => msToHuman([0]));
     });
 
     it('humanToMs()', function () {
-        // @TODO
+        assert.equal(humanToMs('0ms'), 0);
+        assert.equal(humanToMs('5d 20h 19m 40s 173ms'), 505180173);
+        // going higher and higher...
+        assert.equal(humanToMs('1ms'), 1);
+        assert.equal(humanToMs('1s'), 1000);
+        assert.equal(humanToMs('1m'), 60000);
+        assert.equal(humanToMs('1h'), 3600000);
+        assert.equal(humanToMs('1d'), 86400000);
+        // skipping some units
+        assert.equal(humanToMs('1h 2m'), 3720000);
+        assert.equal(humanToMs('1h 2m 10ms'), 3720010);
+        assert.equal(humanToMs('1h 1s'), 3601000);
+        assert.equal(humanToMs('1h 5ms'), 3600005);
+        assert.equal(humanToMs('1d 555ms'), 86400555);
+        assert.equal(humanToMs('1d 55s 555ms'), 86455555);
+        assert.equal(humanToMs('1d 1m 555ms'), 86460555);
+        // going higher and higher...
+        assert.equal(humanToMs('0ms'), 0);
+        assert.equal(humanToMs('10ms'), 10);
+        assert.equal(humanToMs('100ms'), 100);
+        assert.equal(humanToMs('10s'), 10000);
+        assert.equal(humanToMs('10s 50ms'), 10050);
+        assert.equal(humanToMs('1m 40s'), 100000);
+        assert.equal(humanToMs('16m 40s'), 1000000);
+        assert.equal(humanToMs('2h 46m 40s'), 10000000);
+        assert.equal(humanToMs('1d 3h 46m 40s'), 100000000);
+        assert.equal(humanToMs('11d 13h 46m 40s'), 1000000000);
+        assert.equal(humanToMs('115d 17h 46m 40s'), 10000000000);
+
+        // invalid values (subject to change, might throw error in the future)
+        assert.equal(humanToMs('0fasfsd ms'), 0);
+        assert.equal(humanToMs('fasfsd'), 0);
+        // throw errors
+        assert.throws(() => humanToMs());
+        assert.throws(() => humanToMs(0));
+        assert.throws(() => humanToMs(999));
+        assert.throws(() => humanToMs([0]));
     });
 
     it('convertDMSToDD()', function () {
