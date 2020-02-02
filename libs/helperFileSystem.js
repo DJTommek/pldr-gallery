@@ -221,7 +221,13 @@ function pathMasterCheck(basePath, requestedPathBase64, userPermissions, permsTe
     try {
         fileStats = FS.lstatSync(fullPath); // throws exception if not exists or not accessible
     } catch (error) {
-        result.error = 'Cant load "' + path + '", error: ' + error.message;
+        if (error.code === 'ENOTDIR') {
+            // requesting file but with suffixed slash, for example ./demo/
+            // this is thrown only on UNIX. Windows don't care.
+            result.error = 'Requested path "' + path + '" is not folder';
+        } else {
+            result.error = 'Cant load "' + path + '", error: ' + error.message;
+        }
         return result;
     }
     if (fullPath.match(/\/$/)) { // requested path wants folder

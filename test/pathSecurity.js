@@ -1,7 +1,7 @@
 require('../public/js/functions.js');
 const assert = require('assert');
 const PERMS = require('../libs/permissions.js');
-const HFS = require('../libs/helperFilesystem.js');
+const HFS = require('../libs/helperFileSystem.js');
 
 describe('Handle requested path', function() {
     const ERROR_BACKSLASH = 'Backslash is not allowed';

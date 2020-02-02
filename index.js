@@ -5,7 +5,7 @@ const sha1 = require('sha1');
 
 const globby = require('globby');
 const FS = require("fs");
-const HFS = require('./libs/helperFilesystem');
+const HFS = require('./libs/helperFileSystem');
 const readdirp = require('readdirp');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');

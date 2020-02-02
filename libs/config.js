@@ -156,12 +156,11 @@ let CONFIG = {
 };
 
 // load local config and merge values into this config
-const localConfigPath = './config.local.js';
-if (!FS.existsSync(localConfigPath)) {
+if (!FS.existsSync('./libs/config.local.js')) {
     console.error('Missing local config file.\nRename "config.local.example.js" in "libs" folder to "config.local.js" to continue.');
     process.exit();
 }
-CONFIG = merge(CONFIG, require(localConfigPath));
+CONFIG = merge(CONFIG, require('./config.local.js'));
 
 // generate list of allowed file extensions
 CONFIG.extensionsAll = merge(CONFIG.extensionsAll,
