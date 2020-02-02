@@ -1,4 +1,4 @@
 log/
 tokens/
-*.local.*
+config.local.js
 node_modules
