@@ -228,10 +228,16 @@ function formatBytes(bytes, decimals = 2) {
 global.formatBytes = formatBytes;
 
 /**
- * Check, if value is numeric (number as string)
+ * Check, if value can be converted to number
+ *
+ * @param {*} numeric
+ * @returns {boolean}
  */
-function isNumeric(n) {
-	return !isNaN(parseFloat(n)) && isFinite(n);
+function isNumeric(numeric) {
+	if (Array.isArray(numeric)) {
+		return false;
+	}
+	return !isNaN(parseFloat(numeric)) && isFinite(numeric);
 }
 global.isNumeric = isNumeric;
 
@@ -339,18 +345,17 @@ function numberRound(number, points) {
 global.numberRound = numberRound;
 
 /**
- * Generate nice URL to prevent browser escaping into ugly URL encoded
+ * Generate nice URL without URL decoding
  *
  * /demo/folder with+spaces and+plus signs/
  * ->
  * /demo/folder+with\+spaces+and\+plus+signs/
  */
 function pathToUrl(path) {
-	// escape + signs
-	path = path.replace(/([^\\])\+/g, '$1\\+');
-	// replace ' ' with +
+	path = path.replace(/\+/g, '\\+');
 	return path.replaceAll(' ', '+');
 }
+global.pathToUrl = pathToUrl;
 
 /**
  * Get path from nice URL
@@ -365,6 +370,7 @@ function pathFromUrl(path) {
 	// remove escaping \\+ to get +
 	return path.replaceAll('\\+', '+');
 }
+global.pathFromUrl = pathFromUrl;
 
 /**
  * Copy text into clipboard.

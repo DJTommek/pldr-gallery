@@ -15,7 +15,7 @@ describe('Test all functions from functions.js', function() {
     });
 
     it('String.pad()', function () {
-        // pad default (right)
+        // pad default
         assert.equal('pad right'.pad(15), 'pad right      ');
         assert.equal('pad right char'.pad(20, '0'), 'pad right char000000');
         assert.equal('pad right chars'.pad(20, 'ab'), 'pad right charsababa');
@@ -151,7 +151,33 @@ describe('Test all functions from functions.js', function() {
     });
 
     it('isNumeric()', function () {
-        // @TODO
+        // true
+        assert.equal(isNumeric(0), true);
+        assert.equal(isNumeric('0'), true);
+        assert.equal(isNumeric(-0), true);
+        assert.equal(isNumeric('-0'), true);
+        assert.equal(isNumeric(1), true);
+        assert.equal(isNumeric('1'), true);
+        assert.equal(isNumeric(-1), true);
+        assert.equal(isNumeric('-1'), true);
+        assert.equal(isNumeric(1.1), true);
+        assert.equal(isNumeric('1.1'), true);
+        assert.equal(isNumeric(-1.1), true);
+        assert.equal(isNumeric('-1.1'), true);
+        assert.equal(isNumeric(99999), true);
+        assert.equal(isNumeric('99999'), true);
+        // false
+        assert.equal(isNumeric(''), false);
+        assert.equal(isNumeric('some string'), false);
+        assert.equal(isNumeric('some string 1'), false);
+        assert.equal(isNumeric('1 some string 1'), false);
+        assert.equal(isNumeric([1]), false);
+        assert.equal(isNumeric([1, 5]), false);
+        assert.equal(isNumeric({'1': 1}), false);
+        assert.equal(isNumeric({'1': 1, '5': 1}), false);
+        assert.equal(isNumeric({'1': '1', '5': '1'}), false);
+        assert.equal(isNumeric(Infinity), false);
+        assert.equal(isNumeric(-Infinity), false);
     });
 
     it('msToHuman()', function () {
@@ -243,11 +269,29 @@ describe('Test all functions from functions.js', function() {
     });
 
     it('pathToUrl()', function () {
-        // @TODO
+        assert.equal(pathToUrl('/'), '/');
+        assert.equal(pathToUrl('/folder with spaces/'), '/folder+with+spaces/');
+        assert.equal(pathToUrl('/folder+with+plus/'), '/folder\\+with\\+plus/');
+        assert.equal(pathToUrl('/ěščřžýáíé/'), '/ěščřžýáíé/');
+        assert.equal(pathToUrl('/+ěščřžýáíé/'), '/\\+ěščřžýáíé/');
+        assert.equal(pathToUrl('+'), '\\+');
+        assert.equal(pathToUrl('+bla'), '\\+bla');
+        assert.equal(pathToUrl('bla+bla'), 'bla\\+bla');
+        assert.equal(pathToUrl('bla+'), 'bla\\+');
+        assert.equal(pathToUrl('/demo/folder with+spaces and+plus signs/'), '/demo/folder+with\\+spaces+and\\+plus+signs/');
     });
 
     it('pathFromUrl()', function () {
-        // @TODO
+        assert.equal(pathFromUrl('/'), '/');
+        assert.equal(pathFromUrl('/folder+with+spaces/'), '/folder with spaces/');
+        assert.equal(pathFromUrl('/folder\\+with\\+plus/'), '/folder+with+plus/');
+        assert.equal(pathFromUrl('/ěščřžýáíé/'), '/ěščřžýáíé/');
+        assert.equal(pathFromUrl('/\\+ěščřžýáíé/'),'/+ěščřžýáíé/');
+        assert.equal(pathFromUrl('\\+'), '+');
+        assert.equal(pathFromUrl('\\+bla'), '+bla');
+        assert.equal(pathFromUrl('bla\\+bla'), 'bla+bla');
+        assert.equal(pathFromUrl('bla\\+'), 'bla+');
+        assert.equal(pathFromUrl('/demo/folder+with\\+spaces+and\\+plus+signs/'), '/demo/folder with+spaces and+plus signs/');
     });
 
     it('copyToClipboard()', function () {
