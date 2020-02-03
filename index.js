@@ -215,7 +215,7 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 		}
 
 		// Everything is ok
-		let cookieContent = JSON.parse(FS.readFileSync(cookieFilePath));
+		let cookieContent = JSON.parse(FS.readFileSync(cookieFilePath).toString());
 
 		res.locals.user = cookieContent.email;
 		// load logged user permissions and merge with default user permissions
