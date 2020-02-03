@@ -13,7 +13,7 @@ function parsePermFile(filePath, callback) {
         }
         try {
             let perms = {};
-            let lines = data.split("\r\n");
+            let lines = data.split("\n");
             let indexes = [];
             lines.some(function (line) {
                 if (line.match(/^#/)) { // Ignore comments
