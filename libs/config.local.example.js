@@ -29,9 +29,9 @@ module.exports = {
     http: {
         // Domain, where will be redirected after Google login
         // Note: include also :port if different than 80 or 443
-        baseUrl: 'tomas.palider.cz',
-        protocol: 'https',
+        baseUrl: 'tomas.palider.cz:1117',
+        protocol: 'http',
         // port of webserver
-        port: 443,
+        port: 1117,
     },
 };
