@@ -157,7 +157,7 @@ let CONFIG = {
 
 // load local config and merge values into this config
 if (!FS.existsSync('./libs/config.local.js')) {
-    console.error('Missing local config file.\nRename "config.local.example.js" in "libs" folder to "config.local.js" to continue.');
+    console.error('Missing local config file.\nRename "/libs/config.local.example.js" to "/libs/config.local.js" to continue.');
     process.exit();
 }
 CONFIG = merge(CONFIG, require('./config.local.js'));

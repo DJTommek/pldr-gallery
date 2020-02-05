@@ -1,4 +1,3 @@
-log/
-tokens/
-config.local.js
+/libs/config.local.js
 node_modules
+package
