@@ -30,6 +30,7 @@ const sharp = require('sharp');
 const start = new Date();
 LOG.info('***STARTING***');
 
+// Check if config.path is set correctly
 try {
 	let folderStats = FS.statSync(c.path);
 	if (folderStats.isDirectory() === false) {
@@ -43,6 +44,62 @@ try {
 } catch (error) {
 	LOG.fatal('(Start) Defined base path "' + c.path + '" is invalid. Error: ' + error.message);
 }
+
+/**
+ * Generate public/index.html
+ *
+ * - inject Google maps API key from config
+ * - run cachebuster by replacing every variable {{CACHEBUSTER_<FILE_PATH>}} with modified time in miliseconds
+ * 	 For example, if "public/main.css" was lastly modified at 2020-01-01 00:00:00, string {{CACHEBUSTER_PUBLIC_MAIN.CSS}} will be replaced with 1577833200000
+ *   In your code:
+ *   <link rel="stylesheet" href="main.css?{{CACHEBUSTER_PUBLIC_MAIN.CSS}}">
+ *   Will be replaced with:
+ *   <link rel="stylesheet" href="main.css?1577833200000">
+ */
+FS.readFile('./private/index.html', function(error, data) {
+	if (error) {
+		LOG.fatal('Cannot load private index file for generating public index.html, error: ' + error.message);
+	}
+	let promises = [];
+	let fileContent = data.toString();
+	[
+		'public/main.css',
+		'public/js/main.js',
+		'public/js/functions.js',
+		'public/js/cookie.js',
+		'public/js/settings.js',
+		'public/js/structure.js',
+		'public/js/keyboard.js'
+	].forEach(function(file) {
+		const htmlVariable = '{{CACHEBUSTER_' + file.replaceAll('/', '_').toUpperCase() + '}}';
+		promises.push(new Promise(function (resolve) {
+			FS.stat(file, function(error, data) {
+				if (error) {
+					LOG.error('Error while creating cachebuster variable for "' + file + '": ' + error.message);
+					resolve();
+					return;
+				}
+				resolve({name: htmlVariable, value: Math.floor(data.mtimeMs)});
+			});
+		}));
+	});
+
+	Promise.all(promises).then(function (data) {
+		data.forEach(function(replacePair) {
+			if (replacePair) {
+				fileContent = fileContent.replace(replacePair.name, replacePair.value);
+			}
+		});
+		fileContent = fileContent.replace('{{GOOGLE_MAPS_API_KEY}}', c.google.mapApiKey);
+		FS.writeFile('./public/index.html', fileContent, function (error) {
+			if (error) {
+				LOG.fatal('Fatal error while saving generated public/index.html file: ' + error.message);
+			} else {
+				LOG.info('Main public/index.html was successfully generated.');
+			}
+		});
+	});
+});
 
 function getUptime() {
 	const diff = (new Date() - start);
@@ -105,19 +162,11 @@ webserver.all('*', function (req, res, next) {
 });
 
 /**
- * Load main index file
+ * Public repository should handle loading root folder by loading index.html so this route should not be never matched.
  */
 webserver.get('/', function (req, res) {
-	FS.readFile('./private/index.html', function(error, data) {
-		if (error) {
-			LOG.error('Cannot load index file: ' + error.message);
-			res.result.setError('Error while loading main file, try again later and contact author.').end();
-			return;
-		}
-		let fileContent = data.toString();
-		fileContent = fileContent.replace('{{GOOGLE_MAPS_API_KEY}}', c.google.mapApiKey);
-		res.send(fileContent);
-	});
+	res.result.setError('Fatal error occured, index file is missing. Contact administrator.').end(500);
+	LOG.error('Index file is missing, check log if file was generated and was created in "public/index.html"');
 });
 
 /**
