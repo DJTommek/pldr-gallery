@@ -1,22 +1,22 @@
 # pldrGallery
-Standalone Node.js Express application for nice and quick browsing your multimedia files.
+Standalone Node.js Express application for nice and quick browsing of your multimedia files.
 
 ## Live demo
 http://gallery.redilap.cz/#/demo/
 
-Exactly this demo is included in source code, just follow Installation instruction.
+This exact demo is included in the source code, just follow Installation instructions.
 
 ## Installation
 1. Clone repository
 1. Run `npm install`
-1. Rename `/lib/config.local.example.js` to `/lib/config.local.js` (optional: edit default values)
+1. Rename `libs/config.local.example.js` to `libs/config.local.js` (optional: edit default values)
 1. Run `node index.js`
 1. Open http://localhost:1117/
 
 ## Requirements
 Installed **Node.js 12.14.1+**
 
-Note: it should work with lower versions as 8 and 10 but some functions as searching might not work as expected
+Note: it should work with older versions (8, 10), but some functions such as searching might not work as expected.
 
 ## Features
 - Fast browsing of folders and files on your hard drive without any need to reload the page
