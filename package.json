@@ -1,18 +1,18 @@
 {
   "name": "pldr-gallery",
   "version": "1.0.0",
-  "description": "Complex gallery",
+  "description": "Standalone Node.js Express application for nice and quick browsing your multimedia files.",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://DJTommek@bitbucket.org/DJTommek/pldrgallery.git"
+    "url": "https://github.com/DJTommek/pldr-gallery/"
   },
   "author": "Tomas Palider <tomas@palider.cz>",
-  "license": "ISC",
-  "homepage": "https://bitbucket.org/DJTommek/pldrgallery#readme",
+  "license": "GNU General Public License v3.0",
+  "homepage": "https://github.com/DJTommek/pldr-gallery/",
   "dependencies": {
     "body-parser": "latest",
     "compression": "^1.7.4",
