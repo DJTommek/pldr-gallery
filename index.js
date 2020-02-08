@@ -382,11 +382,11 @@ webserver.get('/api/search', function (req, res) {
 			// https://nodejs.org/api/fs.html#fs_class_fs_dirent
 			const item = entry.dirent || entry.stats;
 
-			if (item.isFile() && !entry.basename.match(c.extensionsRegexAll)) {
+			if (item.isFile() && entry.basename.match(FileExtensionMapper.regexAll) === null) {
 				return; // file has invalid extension
 			}
 
-			let entryPath = HFS.pathNormalize(entry.fullPath, c.path);
+			let entryPath = HFS.pathNormalize(entry.fullPath, HFS.pathJoin(__dirname, c.path));
 			if (entry.basename.toLowerCase().indexOf(req.query.query.toLowerCase()) === -1) {
 				return; // not match with searched query
 			}
@@ -743,7 +743,7 @@ webserver.get('/api/structure', function (req, res) {
 	const loadFilesPromise = new Promise(function (resolve) {
 
 		function getCoordsFromExifFromFile(fullPath) {
-			if (fullPath.match(c.extensionsRegexExif) === false)  {
+			if (fullPath.match(FileExtensionMapper.regexExif) === null)  {
 				return {};
 			}
 			const extData = FileExtensionMapper.get(HFS.extname(fullPath));
@@ -786,7 +786,7 @@ webserver.get('/api/structure', function (req, res) {
 				if (perms.test(res.locals.userPerms, dynamicPath) === false) {
 					return;
 				}
-				if (dynamicPath.match(c.extensionsRegexAll) === null) {
+				if (dynamicPath.match(FileExtensionMapper.regexAll) === null) {
 					return;
 				}
 				let pathStats = null;

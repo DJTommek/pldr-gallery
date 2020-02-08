@@ -45,12 +45,12 @@ let CONFIG = {
         killPassword: '4pTvuKygmguBm19z4CjB'
     },
     http: {
-        // domain, where will be redirected after Google login
+        // Domain, where will be redirected after Google login
         // Note: include also :port if different than 80 or 443
-        baseUrl: 'tomas.palider.cz',
-        protocol: 'https',
+        baseUrl: 'tomas.palider.cz:1117',
+        protocol: 'http',
         // port of webserver
-        port: 443,
+        port: 1117,
         // maximum time reserverd for one request (in miliseconds)
         timeout: 30 * 1000,
         login: {
@@ -70,9 +70,6 @@ if (!FS.existsSync('./libs/config.local.js')) {
     process.exit();
 }
 CONFIG = merge(CONFIG, require('./config.local.js'));
-
-CONFIG.extensionsRegexAll = new RegExp('\\.(' + Object.keys(FileExtensionMapper.all).join('|') + ')$', 'i');
-CONFIG.extensionsRegexExif = new RegExp('\\.(' + Object.keys(FileExtensionMapper.getImageExif()).join('|') + ')$', 'i');
 
 // create URL to redirect to login with Google
 CONFIG.google.redirectUrl = CONFIG.http.protocol + '://' + CONFIG.http.baseUrl + CONFIG.google.redirectPath;

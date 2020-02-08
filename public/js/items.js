@@ -77,8 +77,8 @@ class FolderItem extends Item {
 		if (this.text !== this.paths.last()) {
 			result.text = this.text;
 		}
-		if (this.hide === true) {
-			result.hide = this.hide;
+		if (this.noFilter === true) {
+			result.noFilter = this.noFilter;
 		}
 		return result
 	}
@@ -146,8 +146,8 @@ class FileItem extends Item {
 		if (this.text !== this.paths.last()) {
 			result.text = this.text;
 		}
-		if (this.hide === true) {
-			result.hide = this.hide;
+		if (this.noFilter === true) {
+			result.noFilter = this.noFilter;
 		}
 		if (this.coordLat && this.coordLon) {
 			result.coordLat = this.coordLat;
@@ -301,7 +301,9 @@ FileExtensionMapper.downloads = {
 	},
 };
 FileExtensionMapper.all = {...FileExtensionMapper.images, ...FileExtensionMapper.videos, ...FileExtensionMapper.audios, ...FileExtensionMapper.downloads};
-
+FileExtensionMapper.regexAll = new RegExp('\\.(' + Object.keys(FileExtensionMapper.all).join('|') + ')$', 'i');
+FileExtensionMapper.regexExif = new RegExp('\\.(' + Object.keys(FileExtensionMapper.getImageExif()).join('|') + ')$', 'i');
+console.log(FileExtensionMapper.regexAll);
 /**
  * This file is used also in nodejs backend, so these classes must be defined in "global"
  */
