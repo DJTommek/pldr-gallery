@@ -1,6 +1,7 @@
 require('./public/js/functions.js');
 const c = require('./libs/config.js');
 const LOG = require('./libs/log.js');
+require('./public/js/items.js');
 const sha1 = require('sha1');
 
 const globby = require('globby');
@@ -68,6 +69,7 @@ FS.readFile('./private/index.html', function(error, data) {
 		'public/js/functions.js',
 		'public/js/cookie.js',
 		'public/js/settings.js',
+		'public/js/items.js',
 		'public/js/structure.js',
 		'public/js/keyboard.js'
 	].forEach(function(file) {
@@ -322,17 +324,13 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 webserver.get(['/api/image', '/api/video', '/api/audio'], function (req, res, next) {
 	if (res.locals.fullPathFile) {
 		const ext = HFS.extname(res.locals.fullPathFile);
-		const extData = c.extensionsAll[ext];
+		const extData = FileExtensionMapper.get(ext);
 		if (extData && extData.mediaType) {
 			res.locals.mediaType = extData.mediaType;
 		} else {
-			// fallback to default media type
-			res.locals.mediaType =
-				c.extensionsImage[ext] ? c.defaultMediaTypeImage :
-				c.extensionsVideo[ext] ? c.defaultMediaTypeVideo :
-				c.extensionsAudio[ext] ? c.defaultMediaTypeAudio :
-				c.defaultMediaTypeGeneral;
-			LOG.error('File extension "' + ext + '" has no defined media type, fallback to "' + res.locals.mediaType + '"');
+			const error = 'File extension "' + ext + '" has no defined media type.';
+			LOG.error(error);
+			res.result.setError(error).end(500);
 		}
 	}
 	next();
@@ -355,7 +353,7 @@ webserver.get('/api/search', function (req, res) {
 			path: res.locals.path,
 			noFilter: true,
 			text: 'Zavřít vyhledávání "' + req.query.query + '"',
-			icon: 'long-arrow-left' // icon is reserved to close searching (force reload structure)
+			icon: Icons.CLOSE_SEARCHING,
 		}],
 		files: []
 	};
@@ -531,7 +529,8 @@ webserver.get('/api/image', function (req, res) {
 		if (!res.locals.fullPathFile) {
 			throw new Error('Neplatná cesta nebo nemáš právo');
 		}
-		if (!c.extensionsImage[HFS.extname(res.locals.fullPathFile)]) {
+		const extensionData = FileExtensionMapper.getImage(HFS.extname(res.locals.fullPathFile));
+		if (!extensionData) {
 			throw new Error('Soubor nemá příponu obrázku.');
 		}
 		let imageStream = FS.createReadStream(res.locals.fullPathFile);
@@ -578,10 +577,9 @@ webserver.get(['/api/video', '/api/audio'], function (req, res) {
 			throw new Error('File cannot be streamed because of missing media type.');
 		}
 		const ext = HFS.extname(res.locals.fullPathFile);
-		if (req.path === '/api/video' && !c.extensionsVideo[ext]) {
+		if (req.path === '/api/video' && !FileExtensionMapper.getVideo(ext)) {
 			throw new Error('File do not have file extension of video');
-		}
-		if (req.path === '/api/audio' && !c.extensionsAudio[ext]) {
+		} else if (req.path === '/api/audio' && !FileExtensionMapper.getAudio(ext)) {
 			throw new Error('File do not have file extension of audio');
 		}
 		const fileSize = FS.statSync(res.locals.fullPathFile).size;
@@ -717,12 +715,12 @@ webserver.get('/api/structure', function (req, res) {
 		let folders = [];
 		// if requested folder is not root, add one FolderItem to go back
 		if (res.locals.path !== '/') {
-			folders.push({
+			folders.push(new FolderItem(null, {
 				path: generateGoBackPath(res.locals.path),
 				text: '..',
 				noFilter: true,
-				icon: 'level-up',
-			});
+				icon: Icons.FOLDER_GO_BACK,
+			}).serialize());
 		}
 		globby(res.locals.fullPathFolder + '*', {markDirectories: true, onlyDirectories: true}).then(function (rawPathsFolders) {
 			rawPathsFolders.forEach(function (fullPath) {
@@ -730,9 +728,9 @@ webserver.get('/api/structure', function (req, res) {
 				if (perms.test(res.locals.userPerms, dynamicPath) === false) {
 					return;
 				}
-				folders.push({
+				folders.push(new FolderItem(null, {
 					path: dynamicPath
-				});
+				}).serialize());
 			});
 			folders.sort(sortItemsByPath);
 			resolve(folders);
@@ -748,7 +746,7 @@ webserver.get('/api/structure', function (req, res) {
 			if (fullPath.match(c.extensionsRegexExif) === false)  {
 				return {};
 			}
-			const extData = c.extensionsAll[HFS.extname(fullPath)];
+			const extData = FileExtensionMapper.get(HFS.extname(fullPath));
 			if (extData === undefined || typeof extData.exifBuffer !== 'number') {
 				return {};
 			}
@@ -798,14 +796,14 @@ webserver.get('/api/structure', function (req, res) {
 					LOG.error('[Globby] Error while processing file: "' + fullPath + '": ' + error.message);
 					return;
 				}
-				let pathData = {
+				let fileItem = new FileItem(null, {
 					path: dynamicPath,
 					size: pathStats.size,
 					created: pathStats.ctime,
-				};
+				});
 				// try to load coordinates from EXIF and merge them into path data
-				pathData = Object.assign(pathData, getCoordsFromExifFromFile(fullPath));
-				files.push(pathData);
+				fileItem = Object.assign(fileItem, getCoordsFromExifFromFile(fullPath));
+				files.push(fileItem.serialize());
 			});
 			files.sort(sortItemsByPath);
 			return resolve(files);

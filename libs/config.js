@@ -6,102 +6,11 @@
 const FS = require('fs');
 
 const merge = require('lodash.merge');
+require('./../public/js/items');
 
 let CONFIG = {
-    // loading into <img> tag
-    extensionsImage: {
-        apng: {
-            'mediaType': 'image/apng',
-        },
-        bmp: {
-            'mediaType': 'image/bmp',
-        },
-        gif: {
-            'mediaType': 'image/gif',
-        },
-        ico: {
-            'mediaType': 'image/x-icon',
-        },
-        cur: {
-            'mediaType': 'image/x-icon',
-        },
-        jpg: {
-            'mediaType': 'image/jpeg',
-            'exif': true,
-            'exifBuffer': 65527
-        },
-        jpeg: {
-            'mediaType': 'image/jpeg',
-            'exif': true,
-            'exifBuffer': 65527
-        },
-        jfif: {
-            'mediaType': 'image/jpeg',
-            'exif': true,
-            'exifBuffer': 65527
-        },
-        pjpeg: {
-            'mediaType': 'image/jpeg',
-            'exif': true,
-            'exifBuffer': 65527
-        },
-        pjp: {
-            'mediaType': 'image/jpeg',
-            'exif': true,
-            'exifBuffer': 65527
-        },
-        png: {
-            'mediaType': 'image/png',
-            'exif': true,
-            'exifBuffer': 150000
-        },
-        svg: {
-            'mediaType': 'image/svg+xml',
-        },
-        webp: {
-            'mediaType': 'image/webp',
-        },
-    },
-    // loading into <video> tag
-    extensionsVideo: {
-        mp4: {
-            'mediaType': 'video/mp4',
-        },
-        webm: {
-            'mediaType': 'video/webm',
-        },
-        ogv: {
-            'mediaType': 'video/ogg',
-        },
-    },
-    // loading into <audio> tag
-    extensionsAudio: {
-        mp3: {
-            'mediaType': 'audio/mpeg',
-        },
-        wav: {
-            'mediaType': 'audio/wav',
-        },
-        ogg: {
-            'mediaType': 'audio/ogg',
-        },
-    },
-    // allowing to download
-    extensionsDownload: {
-        zip: {}, zip64: {}, '7z': {}, rar: {}, gz: {},
-        pdf: {}, doc: {}, docx: {}, xls: {}, xlsx: {},
-        avi: {}, // video but can't be played in browser
-    },
-    // showing in structure
-    extensionsAll: {}, // generated from other extensions
     extensionsRegexAll: null, // generated from array above
     extensionsRegexExif: null, // generated from array above
-    // try to load EXIF data
-    extensionsExif: [], // generated automatically
-    defaultMediaTypeImage: 'image/png',
-    defaultMediaTypeVideo: 'video/mp4',
-    defaultMediaTypeAudio: 'audio/mpeg',
-    defaultMediaTypeGeneral: 'application/octet-stream',
 
     compress: {
         enabled: true,
@@ -162,23 +71,9 @@ if (!FS.existsSync('./libs/config.local.js')) {
 }
 CONFIG = merge(CONFIG, require('./config.local.js'));
 
-// generate list of allowed file extensions
-CONFIG.extensionsAll = merge(CONFIG.extensionsAll,
-    CONFIG.extensionsImage,
-    CONFIG.extensionsVideo,
-    CONFIG.extensionsAudio,
-    CONFIG.extensionsDownload
-);
-CONFIG.extensionsRegexAll = new RegExp('\\.(' + Object.keys(CONFIG.extensionsAll).join('|') + ')$', 'i');
+CONFIG.extensionsRegexAll = new RegExp('\\.(' + Object.keys(FileExtensionMapper.all).join('|') + ')$', 'i');
+CONFIG.extensionsRegexExif = new RegExp('\\.(' + Object.keys(FileExtensionMapper.getImageExif()).join('|') + ')$', 'i');
 
-// generate list of files, from which are allowed to try load EXIF info
-for (const extension in CONFIG.extensionsImage) {
-    if (CONFIG.extensionsImage[extension]['exif'] === true) {
-        CONFIG.extensionsExif.pushUnique(extension);
-    }
-}
-
-CONFIG.extensionsRegexExif = new RegExp('\.(' + CONFIG.extensionsExif.join('|') + ')$', 'i');
 // create URL to redirect to login with Google
 CONFIG.google.redirectUrl = CONFIG.http.protocol + '://' + CONFIG.http.baseUrl + CONFIG.google.redirectPath;
 

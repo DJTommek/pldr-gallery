@@ -1,103 +1,3 @@
-class Item {
-	// Values defined by server (more might be defined dynamically)
-	path = '/';
-	// Default values
-	folder = '/';
-	isFolder = false;
-	isFile = false;
-	ext = '';
-	isImage = false;
-	isVideo = false;
-	isAudio = false;
-	isZip = false;
-	isPdf = false;
-
-	constructor(index, item) {
-		Object.assign(this, item);
-		this.index = index;
-
-		this.url = pathToUrl(this.path);
-		this.paths = this.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
-
-		// folder path of item, where is located.
-		// In case of FolderItem it is the same as this.path
-		// In case of FileItem it is like this.path but without file name
-		let folders = this.path.split('/');
-		folders.pop();
-		this.folder = folders.join('/') + '/';
-
-		this.urls = this.paths.map(pathToUrl); // split path to folders and remove empty elements (if path start or end with /)
-		if (!this.text) { // do not override if set by server
-			if (this.path === '/') { // special case for root
-				this.text = this.path;
-			} else {
-				this.text = this.paths.last().escapeHtml()
-			}
-		}
-		this.hide = false;
-	}
-}
-
-class FolderItem extends Item {
-	constructor(...args) {
-		super(...args);
-		this.isFolder = true;
-		this.icon = (this.icon || 'folder-open');
-	}
-}
-
-class FileItem extends Item {
-	constructor(...args) {
-		super(...args);
-		this.created = new Date(this.created);
-		this.isFile = true;
-		this.ext = this.paths.last().split('.').last().toLowerCase();
-		this.isImage = ['jpg', 'jpeg', 'png', 'bmp', 'gif'].inArray(this.ext);
-		this.isVideo = ['mp4', 'webm', 'ogv'].inArray(this.ext);
-		this.isAudio = ['mp3', 'wav', 'ogg'].inArray(this.ext);
-		this.isZip = ['zip', 'zip64', '7z', 'rar', 'gz'].inArray(this.ext);
-		this.isPdf = ['pdf'].inArray(this.ext);
-		if (this.icon) {
-			 // icon is set by server, do not override
-		} else if (this.isImage) {
-			this.icon = 'file-image-o';
-		} else if (this.isVideo) {
-			this.icon = 'file-video-o';
-		} else if (this.isAudio) {
-			this.icon = 'file-audio-o';
-		} else if (this.isZip) {
-			this.icon = 'file-archive-o';
-		} else if (this.isPdf) {
-			this.icon = 'file-pdf-o';
-		} else {
-			this.icon = 'file-o';
-		}
-	}
-
-	/**
-	 * Get file URL
-	 *
-	 * @param {boolean} [download] get download URL instead of view
-	 * @returns {null|string} URL or null if item type has no view URL
-	 */
-	getFileUrl(download = false) {
-		const decoded = btoa(encodeURIComponent(this.path));
-		if (download === true) {
-			return '/api/download?path=' + decoded;
-		}
-		if (this.isVideo) {
-			return '/api/video?path=' + decoded;
-		}
-		if (this.isAudio) {
-			return '/api/audio?path=' + decoded;
-		}
-		if (this.isImage) {
-			return '/api/image?path=' + decoded;
-		}
-		return null;
-	}
-}
-
 /**
  * Manage loaded items, currently selected item
  */
@@ -241,7 +141,7 @@ class Structure {
 		let self = this;
 		if (item) {
 			// Override default action with force refresh - cancel searching
-			if (item.icon === 'long-arrow-left') {
+			if (item.icon === Icons.CLOSE_SEARCHING) {
 				loadStructure(true, function () {
 					self.selectorMove();
 				});
