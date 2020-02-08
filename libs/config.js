@@ -6,7 +6,7 @@
 const FS = require('fs');
 
 const merge = require('lodash.merge');
-require('./../public/js/items');
+require('./../public/js/structure');
 
 let CONFIG = {
     extensionsRegexAll: null, // generated from array above

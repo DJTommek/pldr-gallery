@@ -1,7 +1,7 @@
 require('./public/js/functions.js');
 const c = require('./libs/config.js');
 const LOG = require('./libs/log.js');
-require('./public/js/items.js');
+require('./public/js/structure.js');
 const sha1 = require('sha1');
 
 const globby = require('globby');
@@ -69,7 +69,6 @@ FS.readFile('./private/index.html', function(error, data) {
 		'public/js/functions.js',
 		'public/js/cookie.js',
 		'public/js/settings.js',
-		'public/js/items.js',
 		'public/js/structure.js',
 		'public/js/keyboard.js'
 	].forEach(function(file) {
@@ -324,7 +323,7 @@ webserver.get('/api/[a-z]+', function (req, res, next) {
 webserver.get(['/api/image', '/api/video', '/api/audio'], function (req, res, next) {
 	if (res.locals.fullPathFile) {
 		const ext = HFS.extname(res.locals.fullPathFile);
-		const extData = FileExtensionMapper.get(ext);
+		const extData = (new FileExtensionMapper).get(ext);
 		if (extData && extData.mediaType) {
 			res.locals.mediaType = extData.mediaType;
 		} else {
@@ -353,7 +352,7 @@ webserver.get('/api/search', function (req, res) {
 			path: res.locals.path,
 			noFilter: true,
 			text: 'Zavřít vyhledávání "' + req.query.query + '"',
-			icon: Icons.CLOSE_SEARCHING,
+			icon: (new Icons).CLOSE_SEARCHING,
 		}],
 		files: []
 	};
@@ -382,7 +381,7 @@ webserver.get('/api/search', function (req, res) {
 			// https://nodejs.org/api/fs.html#fs_class_fs_dirent
 			const item = entry.dirent || entry.stats;
 
-			if (item.isFile() && entry.basename.match(FileExtensionMapper.regexAll) === null) {
+			if (item.isFile() && entry.basename.match((new FileExtensionMapper).regexAll) === null) {
 				return; // file has invalid extension
 			}
 
@@ -529,7 +528,7 @@ webserver.get('/api/image', function (req, res) {
 		if (!res.locals.fullPathFile) {
 			throw new Error('Neplatná cesta nebo nemáš právo');
 		}
-		const extensionData = FileExtensionMapper.getImage(HFS.extname(res.locals.fullPathFile));
+		const extensionData = (new FileExtensionMapper).getImage(HFS.extname(res.locals.fullPathFile));
 		if (!extensionData) {
 			throw new Error('Soubor nemá příponu obrázku.');
 		}
@@ -577,9 +576,9 @@ webserver.get(['/api/video', '/api/audio'], function (req, res) {
 			throw new Error('File cannot be streamed because of missing media type.');
 		}
 		const ext = HFS.extname(res.locals.fullPathFile);
-		if (req.path === '/api/video' && !FileExtensionMapper.getVideo(ext)) {
+		if (req.path === '/api/video' && !(new FileExtensionMapper).getVideo(ext)) {
 			throw new Error('File do not have file extension of video');
-		} else if (req.path === '/api/audio' && !FileExtensionMapper.getAudio(ext)) {
+		} else if (req.path === '/api/audio' && !(new FileExtensionMapper).getAudio(ext)) {
 			throw new Error('File do not have file extension of audio');
 		}
 		const fileSize = FS.statSync(res.locals.fullPathFile).size;
@@ -719,7 +718,7 @@ webserver.get('/api/structure', function (req, res) {
 				path: generateGoBackPath(res.locals.path),
 				text: '..',
 				noFilter: true,
-				icon: Icons.FOLDER_GO_BACK,
+				icon: (new Icons).FOLDER_GO_BACK,
 			}).serialize());
 		}
 		globby(res.locals.fullPathFolder + '*', {markDirectories: true, onlyDirectories: true}).then(function (rawPathsFolders) {
@@ -743,10 +742,10 @@ webserver.get('/api/structure', function (req, res) {
 	const loadFilesPromise = new Promise(function (resolve) {
 
 		function getCoordsFromExifFromFile(fullPath) {
-			if (fullPath.match(FileExtensionMapper.regexExif) === null)  {
+			if (fullPath.match((new FileExtensionMapper).regexExif) === null)  {
 				return {};
 			}
-			const extData = FileExtensionMapper.get(HFS.extname(fullPath));
+			const extData = (new FileExtensionMapper).get(HFS.extname(fullPath));
 			if (extData === undefined || typeof extData.exifBuffer !== 'number') {
 				return {};
 			}
@@ -786,7 +785,7 @@ webserver.get('/api/structure', function (req, res) {
 				if (perms.test(res.locals.userPerms, dynamicPath) === false) {
 					return;
 				}
-				if (dynamicPath.match(FileExtensionMapper.regexAll) === null) {
+				if (dynamicPath.match((new FileExtensionMapper).regexAll) === null) {
 					return;
 				}
 				let pathStats = null;
