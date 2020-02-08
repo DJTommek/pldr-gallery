@@ -9,9 +9,6 @@ const merge = require('lodash.merge');
 require('./../public/js/structure');
 
 let CONFIG = {
-    extensionsRegexAll: null, // generated from array above
-    extensionsRegexExif: null, // generated from array above
-
     compress: {
         enabled: true,
         fit: 'inside',
@@ -28,13 +25,17 @@ let CONFIG = {
     // Windows absolute: c:/photos/
     // UNIX absolute: /photos/
     // Relative: ./photos/
-    path: '',
+    path: './demo/',
     google: {
         // Generate your own "OAuth client ID" credentials for Web application on
         // https://console.developers.google.com/apis/credentials
         clientId: '012345678901-0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d.apps.googleusercontent.com',
         secret: 'aBcDeFgHiJkLmNoPqRsTuVwX',
-        redirectPath: '/login', // this should't be updated
+
+        // Domain, where will be redirected after Google login
+        // Note: include also :port if different than 80 on http or 443 on https
+        redirectUrl: 'http://tomas.palider.cz:3000/login',
+
         // Generate your own "API key" for Google maps
         // https://console.developers.google.com/apis/credentials
         mapApiKey: 'AIzblahblahblahblahblahblahblahblahblah',
@@ -42,15 +43,19 @@ let CONFIG = {
     security: {
         // password for emergency killing application via /api/kill?password=<killPassword>
         // Note: if you start Node.js via "https://www.npmjs.com/package/forever" this will work as "restart" instead of kill
-        killPassword: '4pTvuKygmguBm19z4CjB'
+        killPassword: '4pTvuKygmguBm19z4CjB',
     },
     http: {
-        // Domain, where will be redirected after Google login
-        // Note: include also :port if different than 80 or 443
-        baseUrl: 'tomas.palider.cz:1117',
-        protocol: 'http',
-        // port of webserver
-        port: 1117,
+        // port of non-secured webserver
+        port: 3000,
+        ssl: {
+            // if SSL is enabled both HTTP and HTTPS servers are started, but HTTP have 301 redirecting to HTTPS
+            enable: false,
+            // in Linux you can generate Lets encrypt certificate via https://certbot.eff.org/
+            keyPath: '/etc/letsencrypt/live/your-domain.name/privkey.pem',
+            certPath: '/etc/letsencrypt/live/your-domain.name/cert.pem',
+            port: 3001,
+        },
         // maximum time reserverd for one request (in miliseconds)
         timeout: 30 * 1000,
         login: {
@@ -59,7 +64,7 @@ let CONFIG = {
             // expiration in miliseconds of user token (after last use)
             validity: 30 * 24 * 60 * 60 * 1000,
             // path to save logged users tokens
-            tokensPath: './tokens/'
+            tokensPath: './tokens/',
         },
     },
 };
@@ -70,8 +75,5 @@ if (!FS.existsSync('./libs/config.local.js')) {
     process.exit();
 }
 CONFIG = merge(CONFIG, require('./config.local.js'));
-
-// create URL to redirect to login with Google
-CONFIG.google.redirectUrl = CONFIG.http.protocol + '://' + CONFIG.http.baseUrl + CONFIG.google.redirectPath;
 
 module.exports = CONFIG;

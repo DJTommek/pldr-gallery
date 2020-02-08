@@ -12,6 +12,9 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const perms = require('./libs/permissions.js');
 perms.load();
+
+const http = require('http');
+const https = require('https');
 const express = require('express');
 const compression = require('compression');
 const webserver = express();
@@ -185,7 +188,7 @@ webserver.get('/logout', function (req, res) {
  * @return HTML text if error
  * @return redirect if ok
  */
-webserver.get(c.google.redirectPath, function (req, res) {
+webserver.get('/login', function (req, res) {
 	res.clearCookie(c.http.login.name);
 	let code = req.query.code;
 	// Non-logged user (dont have cookie) wants to login. Generate Google login URL and redirect to it.
@@ -844,7 +847,31 @@ webserver.get('/api/structure', function (req, res) {
 	});
 });
 
-// Start webserver server
-webserver.listen(c.http.port, function () {
-	LOG.info('(HTTP) Server listening on port ' + c.http.port);
-});
+/**
+ * Start HTTP(S) server(s)
+ */
+if (c.http.ssl.enable === true) {
+	LOG.info('(Webserver) SSL is enabled, starting both HTTP and HTTPS servers...');
+	// Start HTTPS server
+	https.createServer({
+		key: FS.readFileSync(c.http.ssl.keyPath),
+		cert: FS.readFileSync(c.http.ssl.certPath),
+	}, webserver).listen(c.http.ssl.port, function() {
+		LOG.info('(Webserver) Secured HTTPS server listening on port :' + c.http.ssl.port + '.');
+	});
+	// Start HTTP server to redirect all traffic to HTTPS
+	http.createServer(function(req, res) {
+		// if is used default port, dont add it at the end. URL starting with https is enough for browsers
+		const newPort = (c.http.ssl.port === 443) ? '' : ':' + c.http.ssl.port;
+		res.writeHead(301, {'Location': 'https://' + req.headers['host'].replace(new RegExp(':' + c.http.port + '$'), '') + newPort + req.url});
+		res.end();
+	}).listen(c.http.port, function() {
+		LOG.info('(Webserver) Non-secured HTTP server listening on port :' + c.http.port + ' but all traffic will be automatically redirected to https.');
+	});
+} else {
+	LOG.info('(Webserver) SSL is disabled, starting only HTTP server...');
+
+	http.createServer(webserver).listen(c.http.port, function() {
+		LOG.info('(Webserver) Non-secured HTTP server listening on port :' + c.http.port + '.');
+	});
+}

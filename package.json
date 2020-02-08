@@ -21,10 +21,10 @@
     "express": "^4.17.1",
     "globby": "^11.0.0",
     "google-auth-library": "^5.9.1",
+    "lodash.merge": "^4.6.2",
     "readdirp": "^3.2.0",
     "sha1": "^1.1.1",
-    "sharp": "^0.23.4",
-    "lodash.merge": "^4.6.2"
+    "sharp": "^0.23.4"
   },
   "devDependencies": {
     "mocha": "^7.0.0"
