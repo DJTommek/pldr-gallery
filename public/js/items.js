@@ -303,7 +303,7 @@ FileExtensionMapper.downloads = {
 FileExtensionMapper.all = {...FileExtensionMapper.images, ...FileExtensionMapper.videos, ...FileExtensionMapper.audios, ...FileExtensionMapper.downloads};
 FileExtensionMapper.regexAll = new RegExp('\\.(' + Object.keys(FileExtensionMapper.all).join('|') + ')$', 'i');
 FileExtensionMapper.regexExif = new RegExp('\\.(' + Object.keys(FileExtensionMapper.getImageExif()).join('|') + ')$', 'i');
-console.log(FileExtensionMapper.regexAll);
+
 /**
  * This file is used also in nodejs backend, so these classes must be defined in "global"
  */
