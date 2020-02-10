@@ -75,5 +75,7 @@ if (!FS.existsSync('./libs/config.local.js')) {
     process.exit();
 }
 CONFIG = merge(CONFIG, require('./config.local.js'));
+CONFIG.start = new Date();
+
 
 module.exports = CONFIG;

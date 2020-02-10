@@ -250,3 +250,10 @@ function pathMasterCheck(basePath, requestedPathBase64, userPermissions, permsTe
     return result;
 }
 module.exports.pathMasterCheck = pathMasterCheck;
+
+function getEndpointPath(filePath) {
+    const file = PATH.basename(filePath, '.js');
+    const folder = PATH.basename(PATH.dirname(filePath));
+    return PATH.posix.join('/', folder, file);
+}
+module.exports.getEndpointPath = getEndpointPath;
