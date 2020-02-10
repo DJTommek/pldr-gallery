@@ -5,6 +5,9 @@ const LOG = require(process.cwd() + '/libs/log.js');
 const sharp = require('sharp');
 
 module.exports = function (webserver, endpoint) {
+
+	require(__dirname + '/helpers/getMediaType.js')(webserver, endpoint);
+
 	/**
 	 * Stream image.
 	 * Image can be compressed via cookie. This can be overriden via GET compress=true or false

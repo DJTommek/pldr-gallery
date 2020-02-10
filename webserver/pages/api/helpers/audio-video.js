@@ -3,6 +3,9 @@ const FS = require('fs');
 const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
 const LOG = require(process.cwd() + '/libs/log.js');
 module.exports = function (webserver, endpointPath) {
+
+	require(__dirname + '/getMediaType.js')(webserver, endpointPath);
+
 	/**
 	 * Stream video or audio into browser
 	 *

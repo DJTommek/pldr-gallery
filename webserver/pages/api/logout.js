@@ -25,13 +25,14 @@ module.exports = function (webserver, endpoint) {
 				FS.unlinkSync(c.http.login.tokensPath + token + '.txt');
 			} catch (error) {
 				LOG.error('Cant delete token "' + token + '", error: ' + error);
-				throw new Error('Cant delete token. More info in log.');
+				throw new Error('Cant delete token, error was saved');
 			}
 			res.result.setResult('Cookie was deleted');
 		} catch (error) {
-			res.result.setError(error.message || error);
+			res.result.setError('Logout unsuccessfull: ' + error.message);
 		}
-		res.clearCookie(c.http.login.name); // send request to browser to remove cookie
+	 	// Even if some error occured, cookie will be deleted (send request to browser to remove cookie)
+		res.clearCookie(c.http.login.name);
 		res.result.end();
 	});
 };

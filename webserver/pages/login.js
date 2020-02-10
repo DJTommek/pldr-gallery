@@ -7,6 +7,7 @@ const googleAuthLibrary = require('google-auth-library');
 const oauth2Client = new googleAuthLibrary.OAuth2Client(c.google.clientId, c.google.secret, c.google.redirectUrl);
 
 module.exports = function (webserver, endpoint) {
+
 	/**
 	 * Google login:
 	 * - redirect to the google login page (if no req.query.code is available)

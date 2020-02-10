@@ -9,6 +9,7 @@ const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
 const perms = require(process.cwd() + '/libs/permissions.js');
 
 module.exports = function (webserver, baseEndpoint) {
+
 	/**
 	 * Main API middleware:
 	 * - validate login cookie (if user logged)
@@ -16,7 +17,7 @@ module.exports = function (webserver, baseEndpoint) {
 	 *
 	 * @returns next()
 	 */
-	webserver.get(baseEndpoint + '[a-z]+', function (req, res, next) {
+	webserver.get(baseEndpoint + '/[a-z]+', function (req, res, next) {
 		// Load default user permissions
 		let userPerms = perms.getUser('x');
 		// Try load perms for logged user
@@ -90,33 +91,13 @@ module.exports = function (webserver, baseEndpoint) {
 	});
 
 	/**
-	 * Set media type for specific api endpoints
-	 *
-	 * @return next()
-	 */
-	webserver.get([baseEndpoint + 'image', baseEndpoint + 'video', baseEndpoint + 'audio'], function (req, res, next) {
-		if (res.locals.fullPathFile) {
-			const ext = HFS.extname(res.locals.fullPathFile);
-			const extData = (new FileExtensionMapper).get(ext);
-			if (extData && extData.mediaType) {
-				res.locals.mediaType = extData.mediaType;
-			} else {
-				const error = 'File extension "' + ext + '" has no defined media type.';
-				LOG.error(error);
-				res.result.setError(error).end(500);
-			}
-		}
-		next();
-	});
-
-	/**
-	 * load and initialize all APIs in folder
+	 * Load and initialize all *.js files from folder named like this file (without extension)
 	 */
 	const path = PATH.join(__dirname, baseEndpoint);
 	let endpoints = [];
 	FS.readdirSync(path).forEach(function (file) {
 		if (file.match(/^[a-z\-]+\.js$/)) {
-			const endpoint = PATH.posix.join(baseEndpoint + PATH.basename(file, '.js'));
+			const endpoint = PATH.posix.join(baseEndpoint, PATH.basename(file, '.js'));
 			endpoints.push(endpoint);
 			require(HFS.pathJoin(path, file))(webserver, endpoint);
 		}

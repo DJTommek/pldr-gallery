@@ -77,33 +77,26 @@ webserver.get('/', function (req, res) {
 });
 
 /**
- * Google logout - just redirect, more info in "/api/logout"
- */
-webserver.get('/logout', function (req, res) {
-	res.redirect('/api/logout');
-});
-
-/**
- * Google logout - just redirect, more info in "/api/login"
- */
-webserver.get('/login', function (req, res) {
-	res.redirect('/api/login');
-});
-
-/**
- * Load all dynamic endpoints
+ * Load and initialize all *.js files from /webserver/pages folder
  */
 const path = PATH.join(__dirname, 'pages');
-console.log(path);
 let endpoints = [];
 FS.readdirSync(path).forEach(function (file) {
 	if (file.match(/^[a-z\-]+\.js$/)) {
-		const baseEndpoint = PATH.posix.join('/' + PATH.basename(file, '.js') + '/');
+		const baseEndpoint = PATH.posix.join('/' + PATH.basename(file, '.js'));
 		endpoints.push(baseEndpoint);
 		require(HFS.pathJoin(path, file))(webserver, baseEndpoint);
 	}
 });
-LOG.info('(Webserver) Loaded ' + endpoints.length + ' base dynamic endpoint(s): ' + endpoints.join(', '));
+LOG.info('(Webserver) Loaded ' + endpoints.length + ' page(s): ' + endpoints.join(', '));
+
+/**
+ * 404: Not found handler
+ */
+webserver.use(function (req, res) {
+	res.result.setError('404: Page not found').end(404);
+});
+
 
 /**
  * Start HTTP(S) server(s)
