@@ -180,7 +180,7 @@ $(window).on('hashchange', function (event) {
 						loadingPopup(false);
 					});
 				}
-				$('#popup-filename').text(currentFile.text).attr('href', openUrl).attr('title', currentFile.path);
+				$('#popup-filename').text(currentFile.text).attr('href', openUrl);
 				$('#popup-download').attr('href', downloadUrl);
 				popupOpen();
 				let openInfoWindowMarker = null;
@@ -279,7 +279,7 @@ $(function () {
 		window.dispatchEvent(new HashChangeEvent("hashchange"));
 	}
 	// S.setCurrent(pathFromUrl(window.location.hash));
-	$('[data-toggle="tooltip"]').tooltip();
+	$('[data-toggle="tooltip"]').tooltip({html: true});
 	$('#button-logout').on('click', function (event) {
 		event.preventDefault();
 		if (confirm('Opravdu se chceš odhlásit?')) {
@@ -747,7 +747,7 @@ function parseStructure(items) {
 	 * Generate breadcrumb urls in menu
 	 */
 	let breadcrumbHtml = '';
-	breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/"><i class="fa fa-home"></i></a></li>';
+	breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/" title="Go to root folder" data-toggle="tooltip"><i class="fa fa-home"></i></a></li>';
 	let breadcrumbPath = '/';
 
 	currentFolder.paths.forEach(function (folderName, index) {
@@ -757,10 +757,10 @@ function parseStructure(items) {
 	if (currentFolder.path !== '/') { // show only in non-root folders
 		const icon = favouritesIs(currentFolder.path) ? 'fa-star' : 'fa-star-o';
 		const title = favouritesIs(currentFolder.path) ? 'Odebrat z oblíbených' : 'Přidat do oblíbených';
-		breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-favourite" title="' + title + '"><span class="fa fa-fw ' + icon + '"></span></a></li>';
+		breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-favourite" title="' + title + '" data-toggle="tooltip"><span class="fa fa-fw ' + icon + '"></span></a></li>';
 	}
 	// add "share url" button
-	breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-share" title="Share URL"><span class="fa fa-share-alt"></span></a></li>';
+	breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-share" title="Copy URL" data-toggle="tooltip"><span class="fa fa-share-alt"></span></a></li>';
 	$('#currentPath').html(breadcrumbHtml);
 	/**
 	 * Generate structure content
@@ -795,7 +795,7 @@ function parseStructure(items) {
 		content += '<td><a href="#' + item.url + '">' + item.text + '</a></td>';
 		content += '<td>' + formatBytes(item.size, 2) + '</td>';
 		const created = item.created.human(true);
-		content += '<td title="' + created + '\nPřed ' + msToHuman(new Date() - item.created) + '">' + created.date + ' <span>' + created.time + '</span></td>';
+		content += '<td title="' + created + '<br>Před ' + msToHuman(new Date() - item.created) + '" data-toggle="tooltip">' + created.date + ' <span>' + created.time + '</span></td>';
 		content += '</tr>';
 	});
 	if (maxVisible === 0) {
@@ -831,6 +831,7 @@ function loadingStructure(loading) {
 		$('.structure-selected td:nth-child(2) a i').remove();
 		$('#filter input').prop('disabled', false);
 		$('#filter .search').prop('disabled', false);
+		$('[data-toggle="tooltip"]').tooltip({html: true}); // update all tooltips after structure is (re)loaded
 	}
 }
 
@@ -842,6 +843,7 @@ function loadingPopup(loading) {
 	if (loading === false) {
 		loadedStructure.loading = false;
 		$('#popup-loading').hide();
+		$('[data-toggle="tooltip"]').tooltip();
 	}
 	return loadedStructure.loading;
 }

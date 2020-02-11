@@ -86,27 +86,27 @@
 
 
 	<div id="popup-footer" class="list-inline">
-		<a id="popup-download" target="_blank" class="list-inline-item float-left"><i class="fa fa-download" aria-hidden="true"></i></a>
-		<a id="popup-share" target="_blank" class="list-inline-item float-left">
+		<a id="popup-download" target="_blank" class="list-inline-item float-left" title="Download file" data-toggle="tooltip"><i class="fa fa-download" aria-hidden="true"></i></a>
+		<a id="popup-share" target="_blank" class="list-inline-item float-left" title="Copy URL" data-toggle="tooltip">
 			<i class="fa fa-share-alt fa-fw"></i>
 		</a>
-		<a id="popup-location" target="_blank" style="display: none;" class="list-inline-item float-left">
+		<a id="popup-location" target="_blank" style="display: none;" class="list-inline-item float-left" title="Open in Google maps" data-toggle="tooltip">
 			<i class="fa fa-map-marker fa-fw"></i>
 		</a>
-		<a id="popup-filename" target="_blank" class="list-inline-item float-left">filename</a>
+		<a id="popup-filename" target="_blank" class="list-inline-item float-left" title="Open file in new tab (Enter)"  data-toggle="tooltip">@Generated - Filename</a>
 
-		<span id="popup-close" class="list-inline-item float-right">
+		<span id="popup-close" class="list-inline-item float-right" title="Close popup (Esc)" data-toggle="tooltip">
 					<i class="fa fa-close fa-lg"></i>
 				</span>
-		<a id="popup-footer-next" class="list-inline-item popup-footer-button float-right d-none d-md-block">
+		<a id="popup-footer-next" class="list-inline-item popup-footer-button float-right d-none d-md-block" title="Next file (Arrow right)" data-toggle="tooltip">
 			<i class="fa fa-angle-right fa-lg"></i>
 		</a>
-		<a id="popup-footer-presentation" class="list-inline-item popup-footer-button float-right d-none d-md-block" data-toggle="tooltip" data-placement="top" title="Prezentační mód">
+		<a id="popup-footer-presentation" class="list-inline-item popup-footer-button float-right d-none d-md-block" data-toggle="tooltip" data-placement="top" title="Presentation mode<br>(CTRL + Space)">
 			<span id="popup-counter"></span>
 			<i id="popup-footer-presentation-start" class="fa fa-play-circle fa-lg"></i>
 			<i id="popup-footer-presentation-stop" class="fa fa-stop-circle fa-lg" style="display: none;"></i>
 		</a>
-		<a class="list-inline-item popup-footer-button float-right d-none d-md-block" id="popup-footer-prev">
+		<a class="list-inline-item popup-footer-button float-right d-none d-md-block" id="popup-footer-prev" title="Previous file (Arrow left)" data-toggle="tooltip">
 			<i class="fa fa-angle-left fa-lg"></i>
 		</a>
 	</div>
