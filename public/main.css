@@ -3,31 +3,36 @@ body {
 	padding: 0 10px 10px; /* padding top because navbar looks weird without reseting to zero */
 	margin: 0 auto 3em; /* margin bottom because of popup-footer */
 }
+
 #flash-message {
-    width: 60%;
-    max-width: 50em;
-    margin: 40px auto;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 15px;
+	width: 60%;
+	max-width: 50em;
+	margin: 40px auto;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	padding: 15px;
 	text-align: center;
 	z-index: 2000; /* should be above everything */
 }
+
 #popup-footer,
 #navbar {
-    background-color: #f8f9fa;
+	background-color: #f8f9fa;
 }
+
 /* Make breadcrumb smaller */
 #navbar .breadcrumb {
-    padding: 0.5em 1em;
-    margin-bottom: 0.5em;
+	padding: 0.5em 1em;
+	margin-bottom: 0.5em;
 }
+
 /* Bigger area of clickable links */
 #navbar .breadcrumb li a {
-    padding: 1em 0;
+	padding: 1em 0;
 }
+
 #navbar .breadcrumb #breadcrumb-favourite,
 #navbar .breadcrumb #breadcrumb-share {
 	cursor: pointer;
@@ -40,92 +45,106 @@ body {
 
 /* Zarovnat text v dropdownu */
 #navbar .dropdown-item {
-    text-align: right;
+	text-align: right;
 }
+
 #filter {
-    width: 15rem;
+	width: 15rem;
 }
+
 /* Ikonka ma minimalni sirku */
 #structure table {
-    width: 100%;
+	width: 100%;
 }
+
 /* Cely radek je klikaci odkaz */
 #structure table tbody tr td {
-    cursor: pointer;
-    line-height: 2rem;
+	cursor: pointer;
+	line-height: 2rem;
 }
+
 #structure table tbody tr td a {
-    display: block;
-    width: 100%;
-    height: 100%;
+	display: block;
+	width: 100%;
+	height: 100%;
 }
+
 #structure table tbody tr td a:hover {
-    text-decoration: none;
+	text-decoration: none;
 }
+
 /* Ikonka ma minimalni sirku */
 #structure table tbody tr td:nth-child(1) {
-    width: 1em; /* ikonka si stejně minimální šířku vynutí jakou zrovna potřebuje */
+	width: 1em; /* ikonka si stejně minimální šířku vynutí jakou zrovna potřebuje */
 }
+
 /* Nazev souboru či složky */
 #structure table tbody tr td:nth-child(2) {
 }
+
 /* Velikost souboru */
 #structure table thead tr th:nth-child(3),
 #structure table tbody tr td:nth-child(3) {
-    text-align: right;
-    width: 7rem;
-    padding: 0 10px;
-    white-space: nowrap;
+	text-align: right;
+	width: 7rem;
+	padding: 0 10px;
+	white-space: nowrap;
 }
+
 /* Vytvořeno */
 /* Dont show time on smaller devices */
 #structure table thead tr th:nth-child(4),
 #structure table tbody tr td:nth-child(4) {
-    width: 6rem;
+	width: 6rem;
 }
+
 #structure table tbody tr td:nth-child(4) span {
-    display: none;
+	display: none;
 }
+
 @media (min-width: 768px) {
-    #structure table thead tr th:nth-child(4),
-    #structure table tbody tr td:nth-child(4) {
-        width: 9rem;
-    }
-    #structure table tbody tr td:nth-child(4) span {
-        display: inline !important;
-    }
+	#structure table thead tr th:nth-child(4),
+	#structure table tbody tr td:nth-child(4) {
+		width: 9rem;
+	}
+
+	#structure table tbody tr td:nth-child(4) span {
+		display: inline !important;
+	}
 }
 
 #structure-header,
 #structure-footer {
-	text-align:	center;
+	text-align: center;
 }
 
 
 /* aktualne oznaceny radek */
 .structure-selected,
 #structure table tbody tr:hover {
-    background-color: #c0c0c0 !important;
+	background-color: #c0c0c0 !important;
 }
 
 /**
  * Popup start
  */
 #popup {
-    position: fixed;
+	position: fixed;
 	top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1030; /* has to be bigger than #navbar */
-    background: rgba(0,0,0,0.5);
-    transition: background-color .3s ease-in-out;
-    text-align: center;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1030; /* has to be bigger than #navbar */
+	background: rgba(0, 0, 0, 0.5);
+	transition: background-color .3s ease-in-out;
+	text-align: center;
 }
+
 #popup-content {
 	width: 100%;
 	height: 100%;
 }
+
 #popup-image,
 #popup-video,
 #popup-audio,
@@ -141,15 +160,16 @@ body {
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	transform: translate(-50%,-50%);
+	transform: translate(-50%, -50%);
 }
+
 #popup-audio {
 	width: 75%;
 	z-index: 2; /* has to be above #popup-prev and #popup-next */
 }
 
 #popup-footer {
-    height: 3em;
+	height: 3em;
 	width: 100%;
 	max-width: 1920px;
 	bottom: 0;
@@ -159,6 +179,7 @@ body {
 	margin: 0 auto;
 
 }
+
 #popup-footer .list-inline-item {
 	height: 3em;
 	min-width: 2.5em;
@@ -168,9 +189,11 @@ body {
 	cursor: pointer;
 	margin: 0;
 }
-#popup-footer .list-inline-item:hover{
-	background: rgba(255,255,255,0.1);
+
+#popup-footer .list-inline-item:hover {
+	background: rgba(255, 255, 255, 0.1);
 }
+
 /**
  * prev/next buttons from lightbox tutorial
  * @Author https://www.w3schools.com/howto/howto_js_lightbox.asp
@@ -193,24 +216,29 @@ body {
 	background-color: rgba(0, 0, 0, 0.3);
 	color: white;
 }
+
 #popup-next:hover,
 #popup-prev:hover {
 	color: white;
 	text-decoration: none;
 }
+
 #popup-next {
 	right: 0;
 	border-radius: 0.5em 0 0 0.5em;
 }
+
 #popup-prev {
 	left: 0;
 	border-radius: 0 0.5em 0.5em 0;
 }
+
 /* On hover, add a black background color with a little bit see-through */
 #popup-prev:hover,
 #popup-next:hover {
 	background-color: rgba(0, 0, 0, 0.5);
 }
+
 /**
  * Popup end
  */
@@ -242,38 +270,46 @@ input[type=checkbox] {
 	body.theme-dark #navbar,
 	body.theme-dark #popup-footer,
 	body.theme-dark #navbar .dropdown-menu,
-    body.theme-dark .modal-content {
+	body.theme-dark .modal-content {
 		background-color: #343a40;
 	}
+
 	body.theme-dark #navbar .dropdown-item:focus,
 	body.theme-dark #navbar .dropdown-item:hover,
 	body.theme-dark #navbar .breadcrumb {
 		background-color: #616161;
 	}
+
 	body.theme-dark #filter input,
 	body.theme-dark #filter .input-group-text {
 		border: black;
 		color: #909090;
 		background-color: black;
 	}
+
 	body.theme-dark .table-striped > tbody > tr:nth-of-type(odd) {
 		background-color: #212121;
 	}
+
 	body.theme-dark {
 		background-color: black;
 		color: #909090;
 	}
+
 	body.theme-dark a:not(.btn) {
 		color: orange;
 	}
+
 	body.theme-dark .progress-bar {
 		background-color: orange;
 	}
+
 	body.theme-dark .structure-selected,
 	body.theme-dark #structure table tbody tr:hover {
 		background-color: #616161 !important;
 	}
+
 	body.theme-dark hr {
-		border-top: 1px solid rgba(255,255,255,.3);
+		border-top: 1px solid rgba(255, 255, 255, .3);
 	}
 }

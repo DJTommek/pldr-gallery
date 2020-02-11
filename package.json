@@ -1,32 +1,32 @@
 {
-  "name": "pldr-gallery",
-  "version": "1.0.0",
-  "description": "Standalone Node.js Express application for nice and quick browsing your multimedia files.",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/DJTommek/pldr-gallery/"
-  },
-  "author": "Tomas Palider <tomas@palider.cz>",
-  "license": "GNU General Public License v3.0",
-  "homepage": "https://github.com/DJTommek/pldr-gallery/",
-  "dependencies": {
-    "body-parser": "latest",
-    "compression": "^1.7.4",
-    "cookie-parser": "^1.4.4",
-    "exif-parser": "https://github.com/DJTommek/exif-parser.git",
-    "express": "^4.17.1",
-    "globby": "^11.0.0",
-    "google-auth-library": "^5.9.1",
-    "lodash.merge": "^4.6.2",
-    "readdirp": "^3.2.0",
-    "sha1": "^1.1.1",
-    "sharp": "^0.23.4"
-  },
-  "devDependencies": {
-    "mocha": "^7.0.0"
-  }
+	"name": "pldr-gallery",
+	"version": "1.0.0",
+	"description": "Standalone Node.js Express application for nice and quick browsing your multimedia files.",
+	"main": "index.js",
+	"scripts": {
+		"test": "mocha"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/DJTommek/pldr-gallery/"
+	},
+	"author": "Tomas Palider <tomas@palider.cz>",
+	"license": "GNU General Public License v3.0",
+	"homepage": "https://github.com/DJTommek/pldr-gallery/",
+	"dependencies": {
+		"body-parser": "latest",
+		"compression": "^1.7.4",
+		"cookie-parser": "^1.4.4",
+		"exif-parser": "https://github.com/DJTommek/exif-parser.git",
+		"express": "^4.17.1",
+		"globby": "^11.0.0",
+		"google-auth-library": "^5.9.1",
+		"lodash.merge": "^4.6.2",
+		"readdirp": "^3.2.0",
+		"sha1": "^1.1.1",
+		"sharp": "^0.23.4"
+	},
+	"devDependencies": {
+		"mocha": "^7.0.0"
+	}
 }

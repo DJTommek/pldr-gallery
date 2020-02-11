@@ -22,8 +22,7 @@ String.prototype.replaceAll = function (search, replacement) {
  * @param {String} [dir] (left, both, right = default)
  * @returns {String}
  */
-String.prototype.pad = String.prototype.pad || function (length, string, type)
-{
+String.prototype.pad = String.prototype.pad || function (length, string, type) {
 	let str = this;
 
 	// validation of length
@@ -80,17 +79,17 @@ String.prototype.pad = String.prototype.pad || function (length, string, type)
  * @returns {string}
  */
 String.prototype.formatUnicorn = function () {
-    "use strict";
-    let str = this.toString();
-    if (arguments.length) {
-        const t = typeof arguments[0];
-        const args = ("string" === t || "number" === t) ? Array.prototype.slice.call(arguments) : arguments[0];
-        for (let key in args) {
+	"use strict";
+	let str = this.toString();
+	if (arguments.length) {
+		const t = typeof arguments[0];
+		const args = ("string" === t || "number" === t) ? Array.prototype.slice.call(arguments) : arguments[0];
+		for (let key in args) {
 			str = str.replace(new RegExp("\\{" + key + "\\}", "gi"), args[key]);
-        }
-    }
+		}
+	}
 
-    return str;
+	return str;
 };
 
 /**
@@ -98,8 +97,7 @@ String.prototype.formatUnicorn = function () {
  *
  * @returns {String}
  */
-String.prototype.escapeRegex = String.prototype.escapeRegex || function ()
-{
+String.prototype.escapeRegex = String.prototype.escapeRegex || function () {
 	return this.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 };
 
@@ -108,8 +106,7 @@ String.prototype.escapeRegex = String.prototype.escapeRegex || function ()
  *
  * @author https://stackoverflow.com/a/6234804/3334403
  */
-String.prototype.escapeHtml = String.prototype.escapeHtml || function ()
-{
+String.prototype.escapeHtml = String.prototype.escapeHtml || function () {
 	return this
 		.replace(/&/g, "&amp;")
 		.replace(/</g, "&lt;")
@@ -225,6 +222,7 @@ function formatBytes(bytes, decimals = 2) {
 	let i = Math.floor(Math.log(bytes) / Math.log(k));
 	return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
 }
+
 global.formatBytes = formatBytes;
 
 /**
@@ -239,6 +237,7 @@ function isNumeric(numeric) {
 	}
 	return !isNaN(parseFloat(numeric)) && isFinite(numeric);
 }
+
 global.isNumeric = isNumeric;
 
 /**
@@ -248,6 +247,7 @@ global.isNumeric = isNumeric;
  * @returns {String}
  */
 global.msToHuman = msToHuman;
+
 function msToHuman(miliseconds) {
 	if (typeof miliseconds !== 'number' || miliseconds < 0) {
 		throw new Error('Parameter "miliseconds" has to be positive number.');
@@ -278,6 +278,7 @@ function msToHuman(miliseconds) {
  * @returns {String}
  */
 global.humanToMs = humanToMs;
+
 function humanToMs(human) {
 	if (typeof human !== 'string') {
 		throw new Error('Parameter "human" has to be string.');
@@ -304,6 +305,7 @@ function humanToMs(human) {
  * https://stackoverflow.com/a/1140335
  */
 global.convertDMSToDD = convertDMSToDD;
+
 function convertDMSToDD(degrees, minutes, seconds, direction) {
 	let dd = numberRound(degrees + minutes / 60 + seconds / (60 * 60), 6);
 	if (direction === "S" || direction === "W") {
@@ -329,6 +331,7 @@ function generateGoBackPath(path) {
 	goBackPath.splice(goBackPath.length - 2, 1);
 	return goBackPath.join('/')
 }
+
 global.generateGoBackPath = generateGoBackPath;
 
 /**
@@ -342,6 +345,7 @@ function numberRound(number, points) {
 	let precision = parseInt('1'.pad((points + 1), '0'));
 	return Math.round(number * precision) / precision;
 }
+
 global.numberRound = numberRound;
 
 /**
@@ -355,6 +359,7 @@ function pathToUrl(path) {
 	path = path.replace(/\+/g, '\\+');
 	return path.replaceAll(' ', '+');
 }
+
 global.pathToUrl = pathToUrl;
 
 /**
@@ -370,6 +375,7 @@ function pathFromUrl(path) {
 	// remove escaping \\+ to get +
 	return path.replaceAll('\\+', '+');
 }
+
 global.pathFromUrl = pathFromUrl;
 
 /**

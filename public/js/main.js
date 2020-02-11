@@ -9,13 +9,13 @@ const loadedStructure = {
 	presentationIntervalId: null,
 };
 const mapData = {
-    map: null,
-    mapBounds: null,
-    markers: {
-        photos: {},
-    },
-    selectedMarker: null,
-    infoWindow: null
+	map: null,
+	mapBounds: null,
+	markers: {
+		photos: {},
+	},
+	selectedMarker: null,
+	infoWindow: null
 };
 
 const S = new Structure();
@@ -79,6 +79,7 @@ function itemPrev10(stopPresentation) {
 	}
 	itemPrev(stopPresentation);
 }
+
 function itemPrev(stopPresentation) {
 	if (stopPresentation === true) {
 		presentationStop();
@@ -93,6 +94,7 @@ function itemPrev(stopPresentation) {
 	}
 	S.selectorSelect();
 }
+
 function itemNext(stopPresentation) {
 	if (stopPresentation === true) {
 		presentationStop();
@@ -103,6 +105,7 @@ function itemNext(stopPresentation) {
 	S.selectorMove('down');
 	S.selectorSelect();
 }
+
 function itemNext10(stopPresentation) {
 	for (let i = 0; i < 9; i++) { // only 9 times. 10th time is in itemNext()
 		S.selectorMove('down');
@@ -335,7 +338,7 @@ $(function () {
 			Settings.save(input.name, input.value)
 		});
 		// un-checked checkbox inputs are not in serializedArray, needs to be handled separately
-		$('#form-settings input[type="checkbox"]').each(function() {
+		$('#form-settings input[type="checkbox"]').each(function () {
 			Settings.save($(this).attr('name'), $(this).is(':checked'))
 		});
 		// set compress variable into cookie on save
@@ -410,9 +413,9 @@ $(function () {
 				html += '<p>' + htmlPasswords.join('<br>') + '</p>';
 				$('#settings-passwords-list').append(html);
 			});
-		}).fail(function(response) {
+		}).fail(function (response) {
 			flashMessage('danger', 'Error <b>' + response.status + '</b> while loading passwords: <b>' + response.statusText + '</b>');
-		}).always(function() {
+		}).always(function () {
 			setTimeout(function () {
 				$(button).html('Načíst hesla').prop('disabled', false);
 			}, 500);
@@ -473,10 +476,12 @@ $(function () {
 		loadedStructure.settings = false;
 	});
 });
+
 function popupOpen() {
 	loadedStructure.popup = true;
 	$('#popup').fadeIn(Settings.load('animationSpeed'));
 }
+
 function popupClose() {
 	$('#popup').fadeOut(Settings.load('animationSpeed'));
 	// This will prevent waiting (promise) on re-opening popup window:
@@ -494,6 +499,7 @@ function popupClose() {
 function presentationIsLast() {
 	return S.getNextFile(S.getCurrentFile().index) === null;
 }
+
 function presentationNext() {
 	if (presentationIsLast()) {
 		presentationStop();
@@ -501,6 +507,7 @@ function presentationNext() {
 	}
 	itemNext(false);
 }
+
 function presentationStart() {
 	if (presentationIsLast()) {
 		return; // there are no more items to go so dont even start the presentation
@@ -517,15 +524,18 @@ function presentationStart() {
 		itemNext(false);
 	}
 }
+
 function presentationStop() {
 	$('#popup-footer-presentation-start').show();
 	$('#popup-footer-presentation-stop').hide();
 	loadedStructure.presentationRunning = false;
 	presentationClearTimeout();
 }
+
 function presentationClearTimeout() {
 	clearTimeout(loadedStructure.presentationIntervalId);
 }
+
 function presentationToggle() {
 	if (loadedStructure.presentationRunning) {
 		presentationStop();
@@ -541,6 +551,7 @@ function favouritesAdd(path) {
 	Settings.save('favouriteFolders', saved);
 	favouritesGenerateMenu();
 }
+
 function favouritesRemove(path) {
 	let saved = Settings.load('favouriteFolders');
 	saved.removeByValue(path);
@@ -548,16 +559,18 @@ function favouritesRemove(path) {
 	Settings.save('favouriteFolders', saved);
 	favouritesGenerateMenu();
 }
+
 function favouritesIs(path) {
 	return (Settings.load('favouriteFolders').indexOf(path) >= 0)
 }
+
 function favouritesGenerateMenu() {
 	$('#navbar-hamburger-dropdown .dropdown-menu .favourites-submenu').remove();
 	const saved = Settings.load('favouriteFolders');
 	if (saved.length > 0) {
 		$('#navbar-hamburger-dropdown .dropdown-menu').append('<div class="dropdown-divider favourites-submenu"></div>');
 	}
-	saved.forEach(function(savedFolder) {
+	saved.forEach(function (savedFolder) {
 		$('#navbar-hamburger-dropdown .dropdown-menu').append(
 			'<a class="dropdown-item favourites-submenu" href="#' + pathToUrl(savedFolder) + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>'
 		);
@@ -575,6 +588,7 @@ function videoToggle() {
 		// In case of invalid src (for example)
 	}
 }
+
 function videoPause() {
 	try {
 		$('#popup-video')[0].pause();
@@ -582,6 +596,7 @@ function videoPause() {
 		// In case of invalid src (for example)
 	}
 }
+
 function videoPlay() {
 	try {
 		$('#popup-video')[0].play();
@@ -601,6 +616,7 @@ function audioToggle() {
 		// In case of invalid src (for example)
 	}
 }
+
 function audioPause() {
 	try {
 		$('#popup-audio')[0].pause();
@@ -608,6 +624,7 @@ function audioPause() {
 		// In case of invalid src (for example)
 	}
 }
+
 function audioPlay() {
 	try {
 		$('#popup-audio')[0].play();
@@ -630,6 +647,7 @@ function updateLoginButtons() {
 		$('#dynamic-styles').text('.logged-out {display: inherit;} .logged-in {display: none;}');
 	}
 }
+
 function loadSearch(callback) {
 	let query = $('#filter input').val().trim();
 	if (!query) {
@@ -665,6 +683,7 @@ function loadSearch(callback) {
 		}
 	});
 }
+
 function loadStructure(force, callback) {
 // in case of triggering loading the same structure again (already loaded), skip it
 	if (force !== true && loadedStructure.loadedFolder === S.getCurrentFolder().path) {
@@ -680,8 +699,8 @@ function loadStructure(force, callback) {
 		success: function (result) {
 			if (result.error === true || !result.result) {
 				flashMessage('danger', (
-					(result.message || 'Chyba během načítání dat. Kontaktuj autora.') +
-					'<br>Zkus se <a href="/login" class="alert-link">přihlásit</a> nebo jít <a href="#" class="alert-link">domů</a>.'
+						(result.message || 'Chyba během načítání dat. Kontaktuj autora.') +
+						'<br>Zkus se <a href="/login" class="alert-link">přihlásit</a> nebo jít <a href="#" class="alert-link">domů</a>.'
 					), false
 				);
 			} else {
@@ -814,6 +833,7 @@ function loadingStructure(loading) {
 		$('#filter .search').prop('disabled', false);
 	}
 }
+
 function loadingPopup(loading) {
 	if (loading === true) {
 		loadedStructure.loading = true;
@@ -826,8 +846,7 @@ function loadingPopup(loading) {
 	return loadedStructure.loading;
 }
 
-function flashMessage(type, text, fade = 4, target = '#flash-message')
-{
+function flashMessage(type, text, fade = 4, target = '#flash-message') {
 	let html = '<div class="alert alert-' + type + '" id="alert' + loadedStructure.flashIndex + '" role="alert">';
 	html += '<button class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + text + '</div>';
 	$(target).prepend(html);
@@ -839,18 +858,17 @@ function flashMessage(type, text, fade = 4, target = '#flash-message')
 	loadedStructure.flashIndex++;
 }
 
-function mapInit()
-{
-    mapData.map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 7,
-        center: new google.maps.LatLng(49.6, 15.2), // Czechia
-    });
-    console.log("map loaded");
+function mapInit() {
+	mapData.map = new google.maps.Map(document.getElementById('map'), {
+		zoom: 7,
+		center: new google.maps.LatLng(49.6, 15.2), // Czechia
+	});
+	console.log("map loaded");
 
-    // init info window
-    mapData.infoWindow = new google.maps.InfoWindow({
-        content: 'Nastala chyba'
-    });
+	// init info window
+	mapData.infoWindow = new google.maps.InfoWindow({
+		content: 'Nastala chyba'
+	});
 }
 
 /**
@@ -862,6 +880,7 @@ function mapInit()
  */
 function mapParsePhotos() {
 	let loadMapIntervalId = null;
+
 	function updateMapData() {
 		if (mapData.map === null) {
 			return; // try again later
@@ -871,12 +890,12 @@ function mapParsePhotos() {
 		let showMap = false;
 		mapData.mapBounds = new google.maps.LatLngBounds();
 		// remove old markers
-		$.each(mapData.markers.photos, function(index, data) {
+		$.each(mapData.markers.photos, function (index, data) {
 			data.setMap(null);
 			delete mapData.markers.photos[index];
 		});
 		// create new markers and insert them into map
-		S.getFiles().forEach(function(item) {
+		S.getFiles().forEach(function (item) {
 			if (item.coordLat && item.coordLon) {
 				$('#map').show();
 				showMap = true; // at least one item has coordinates
@@ -888,13 +907,13 @@ function mapParsePhotos() {
 					// animation: google.maps.Animation.DROP,
 				});
 				// Show infoWindow
-				mapData.markers.photos[item.index].addListener('click', function() {
+				mapData.markers.photos[item.index].addListener('click', function () {
 					const link = 'https://www.google.cz/maps/place/' + item.coordLat + ',' + item.coordLon;
 					mapData.infoWindow.setContent('<div id="map-info-window"><div>' +
 						'<button onClick="S.selectorMove(' + item.index + '); S.selectorSelect();" style="width: 100%" class="btn btn-primary btn-sm">' + item.text + '</button>' +
 						'<b>Souřadnice:</b> ' +
-						'<a href="' + link + '" target="_blank" title="Google maps">' +  item.coordLat + ', ' + item.coordLon + '</a>' +
-					'</div></div>');
+						'<a href="' + link + '" target="_blank" title="Google maps">' + item.coordLat + ', ' + item.coordLon + '</a>' +
+						'</div></div>');
 					mapData.infoWindow.open(mapData.map, this);
 				});
 
@@ -920,7 +939,7 @@ function mapParsePhotos() {
 	// try to load map
 	updateMapData();
 	// start checking if map can be loaded
-	loadMapIntervalId = setInterval(function() {
+	loadMapIntervalId = setInterval(function () {
 		updateMapData();
 	}, 100);
 }

@@ -29,7 +29,7 @@
 		var i = 0;
 		var result = {};
 		for (; i < arguments.length; i++) {
-			var attributes = arguments[ i ];
+			var attributes = arguments[i];
 			for (var key in attributes) {
 				result[key] = attributes[key];
 			}
@@ -70,7 +70,7 @@
 
 				if (!converter.write) {
 					value = encodeURIComponent(String(value))
-							.replace(/%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent);
+						.replace(/%(23|24|26|2B|3A|3C|3E|3D|2F|3F|40|5B|5D|5E|60|7B|7D|7C)/g, decodeURIComponent);
 				} else {
 					value = converter.write(value, key);
 				}
@@ -118,8 +118,8 @@
 				try {
 					var name = parts[0].replace(rdecode, decodeURIComponent);
 					cookie = converter.read ?
-							converter.read(cookie, name) : converter(cookie, name) ||
-							cookie.replace(rdecode, decodeURIComponent);
+						converter.read(cookie, name) : converter(cookie, name) ||
+						cookie.replace(rdecode, decodeURIComponent);
 
 					if (this.json) {
 						try {
@@ -165,5 +165,6 @@
 		return api;
 	}
 
-	return init(function () {});
+	return init(function () {
+	});
 }));

@@ -51,6 +51,7 @@ class Item {
 		}
 		this.hide = false;
 	}
+
 	toString() {
 		return this.path;
 	}
@@ -92,7 +93,7 @@ class FileItem extends Item {
 		this.created = new Date(this.created);
 		this.isFile = true;
 		this.ext = this.paths.last().split('.').last().toLowerCase();
-		this.isImage = ((new FileExtensionMapper).getImage(this.ext) !== null) ;
+		this.isImage = ((new FileExtensionMapper).getImage(this.ext) !== null);
 		this.isVideo = ((new FileExtensionMapper).getVideo(this.ext) !== null);
 		this.isAudio = ((new FileExtensionMapper).getAudio(this.ext) !== null);
 		if (args.icon) {
@@ -555,6 +556,7 @@ class Structure {
 		}
 		return null;
 	}
+
 	// get last visible item
 	getLast() {
 		// initial index has to be greater than index of last item
@@ -590,7 +592,7 @@ class Structure {
 		if (index > this.items.length) {
 			return null;
 		}
-		let  item = this.getItem(index);
+		let item = this.getItem(index);
 		if (item && item.hide === false && item.isFile) {
 			return item;
 		}
@@ -642,6 +644,7 @@ class Structure {
 		return result;
 
 	}
+
 	/**
 	 * Check text against item name. Regex is supported.
 	 *

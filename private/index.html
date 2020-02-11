@@ -1,197 +1,201 @@
 <html lang="cs">
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-        <title>pldrGallery</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link rel="stylesheet" href="main.css?{{CACHEBUSTER_PUBLIC_MAIN.CSS}}">
-    </head>
-    <body>
-        <script>
-			/* set dark theme as soon as possible to prevent blink of white theme */
-			try {
-				if (localStorage.getItem("pldr-settings-theme") === 'dark') {
-					let element = document.getElementsByTagName("body")[0];
-					element.classList.add("theme-dark");
-				}
-			} catch (error) {
-				// Local storage is not working (disabled, unsupported, ...)
-			}
-        </script>
-		<div id="flash-message">
-		</div>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<title>pldrGallery</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="main.css?{{CACHEBUSTER_PUBLIC_MAIN.CSS}}">
+</head>
+<body>
+<script>
+	/* set dark theme as soon as possible to prevent blink of white theme */
+	try {
+		if (localStorage.getItem("pldr-settings-theme") === 'dark') {
+			let element = document.getElementsByTagName("body")[0];
+			element.classList.add("theme-dark");
+		}
+	} catch (error) {
+		// Local storage is not working (disabled, unsupported, ...)
+	}
+</script>
+<div id="flash-message">
+</div>
 
-        <div>
-            <nav class="navbar sticky-top" id="navbar">
-                <ol id="currentPath" class="breadcrumb">
-                    <li class="breadcrumb-item active"><a href="#/"><i class="fa fa-home"></i></a></li>
-                </ol>
-                <form class="form-inline my-0">
-                    <div class="input-group" id="filter">
-                        <input type="search" class="form-control" placeholder="Filter" disabled/>
-                        <div class="input-group-append">
+<div>
+	<nav class="navbar sticky-top" id="navbar">
+		<ol id="currentPath" class="breadcrumb">
+			<li class="breadcrumb-item active"><a href="#/"><i class="fa fa-home"></i></a></li>
+		</ol>
+		<form class="form-inline my-0">
+			<div class="input-group" id="filter">
+				<input type="search" class="form-control" placeholder="Filter" disabled/>
+				<div class="input-group-append">
                             <span class="input-group-text">
                                 <span class="filtered"><i class="fa fa-circle-o-notch fa-spin"></i></span>
                                 /
                                 <span class="total"><i class="fa fa-circle-o-notch fa-spin"></i></span>
                             </span>
-                        </div>
-                        <div class="input-group-append" data-toggle="tooltip" data-placement="bottom" title="Vyhledat i v podsložkách (ctrl+enter)">
-                            <button class="btn btn-outline-secondary search" type="button"><i class="fa fa-search"></i></button>
-                        </div>
-                    </div>
-
-                    <div class="dropdown" id="navbar-hamburger-dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbar-dropdown-button" role="button" data-toggle="dropdown" aria-expanded="false">
-                            <i class="fa fa-bars fa-fw"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" id="button-login" href="/login">Přihlásit <i class="fa fa-sign-in fa-fw"></i></a>
-                            <a class="dropdown-item" id="button-logout" href="#" style="display: none;">Odhlásit <i class="fa fa-sign-out fa-fw"></i></a>
-                            <a class="dropdown-item" data-toggle="modal" data-target="#modal-settings" href="#">Nastavení <i class="fa fa-wrench fa-fw"></i></a>
-						</div>
-                    </div>
-                </form>
-            </nav>
-			<noscript><h2 class="text-center">V prohlížeči je nutné povolit Javascript</h2></noscript>
-			<div id="structure-header"></div>
-            <div id="structure"></div>
-			<div id="structure-footer"></div>
-			<div id="map" style="display: none;"></div>
-        </div>
-
-		<div id="popup" style="display: none;">
-			<div id="popup-content">
-				<i id="popup-loading" class="fa fa-circle-o-notch fa-spin fa-5x"></i>
-
-				<img id="popup-image" style="display:none;" alt="@TODO" src="">
-
-				<!-- class is dynamic -->
-				<i id="popup-icon" aria-hidden="true" style="display:none;"></i>
-
-				<video id="popup-video" controls style="display:none;">
-					<source type="video/mp4" src="">
-				</video>
-
-				<audio id="popup-audio" controls style="display:none;">
-					<source type="audio/mpeg" src="">
-				</audio>
-			</div>
-			<a id="popup-prev" href="#"><i class="fa fa-angle-left fa-lg"></i></a>
-			<a id="popup-next" href="#"><i class="fa fa-angle-right fa-lg"></i></a>
-
-
-			<div id="popup-footer" class="list-inline">
-				<a id="popup-download" target="_blank" class="list-inline-item float-left"><i class="fa fa-download" aria-hidden="true"></i></a>
-				<a id="popup-share" target="_blank" class="list-inline-item float-left">
-					<i class="fa fa-share-alt fa-fw"></i>
-				</a>
-				<a id="popup-location" target="_blank" style="display: none;" class="list-inline-item float-left">
-					<i class="fa fa-map-marker fa-fw"></i>
-				</a>
-				<a id="popup-filename" target="_blank" class="list-inline-item float-left">filename</a>
-
-				<span id="popup-close" class="list-inline-item float-right">
-					<i class="fa fa-close fa-lg"></i>
-				</span>
-				<a id="popup-footer-next" class="list-inline-item popup-footer-button float-right d-none d-md-block">
-					<i class="fa fa-angle-right fa-lg"></i>
-				</a>
-				<a id="popup-footer-presentation" class="list-inline-item popup-footer-button float-right d-none d-md-block" data-toggle="tooltip" data-placement="top" title="Prezentační mód">
-					<span id="popup-counter"></span>
-					<i id="popup-footer-presentation-start" class="fa fa-play-circle fa-lg"></i>
-					<i id="popup-footer-presentation-stop" class="fa fa-stop-circle fa-lg" style="display: none;"></i>
-				</a>
-				<a class="list-inline-item popup-footer-button float-right d-none d-md-block" id="popup-footer-prev">
-					<i class="fa fa-angle-left fa-lg"></i>
-				</a>
-			</div>
-		</div>
-
-		<div id="modal-settings" class="modal fade" tabindex="-1" role="dialog">
-			<div class="modal-dialog modal-lg">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title"><i class="fa fa-wrench"></i> Nastavení</h5>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body">
-						<form id="form-settings">
-
-							<div class="form-group" id="settings-theme">
-								<i class="fa fa-lightbulb-o fa-fw"></i> Téma:
-								<div class="custom-control custom-radio">
-								  	<input type="radio" id="settings-theme-default" name="theme" value="default" class="custom-control-input">
-								  	<label class="custom-control-label" for="settings-theme-default">Rozsvítit</label>
-								</div>
-								<div class="custom-control custom-radio">
-								  	<input type="radio" id="settings-theme-dark" name="theme" value="dark" class="custom-control-input">
-								  	<label class="custom-control-label" for="settings-theme-dark">Zhasnout</label>
-								</div>
-							</div>
-
-							<div class="form-group" id="settings-compress">
-								<div class="custom-control custom-checkbox">
-								  	<input type="checkbox" name="compress" class="custom-control-input" id="settings-compress-checkbox">
-								  	<label class="custom-control-label" for="settings-compress-checkbox">Šetřit data</label>
-								</div>
-								<small class="form-text text-muted">Obrázky budou zmenšeny na velikost max 1024 x 1024 pixelů při zachování poměru stran. V plné velikosti je možné je otevřít skrze ikonu <i class="fa fa-download" aria-hidden="true"></i> vlevo dole.</small>
-							</div>
-
-							<div class="form-group">
-								<label for="settings-animationSpeed">Rychlost animací (v milisekundách):</label>
-								<input type="number" required name="animationSpeed" id="settings-animationSpeed" class="form-control" min="0" max="10000">
-								<small class="form-text text-muted">0 = bez animací, 250 = výchozí hodnota</small>
-							</div>
-
-							<div class="form-group">
-								<label for="settings-structureItemLimit">Maximální počet zobrazovaných položek ve složce:</label>
-								<input type="number" required name="structureItemLimit" id="settings-structureItemLimit" class="form-control" min="0">
-								<small class="form-text text-muted">
-									0 = všechny, 1000 = výchozí hodnota<br>
-									<i class="fa fa-warning"></i> Pokud má složka příliš velké množství položek a tato hodnota bude taktéž vysoká, může načítání chvíli trvat popř může zpomalit či úplně zablokovat prohlížeč.
-								</small>
-							</div>
-
-							<div class="form-group">
-								<label for="settings-presentationSpeed">Rychlost přehrávání prezentace (v milisekundách):</label>
-								<input type="number" required name="presentationSpeed" id="settings-presentationSpeed" class="form-control" min="0">
-								<small class="form-text text-muted">
-									0 = okamžitě po načtení, 5000 = výchozí hodnota<br>
-								</small>
-							</div>
-
-							<button type="submit" id="settings-save" class="btn btn-primary">Uložit</button>
-						</form>
-					</div>
-					<div class="modal-header">
-						<h5 class="modal-title"><i class="fa fa-key"></i> Uložená hesla</h5>
-					</div>
-					<div class="modal-body">
-						<p>
-							Zde se zobrazí hesla a k nim příslušné adresáře, které odemykají.
-						</p>
-						<button type="button" id="settings-passwords-load" class="btn btn-primary">Načíst</button>
-						<p id="settings-passwords-nothing" style="display: none;">Na tomto zařízení nejsou uložená žádná hesla.</p>
-						<div id="settings-passwords-list"></div>
-					</div>
+				</div>
+				<div class="input-group-append" data-toggle="tooltip" data-placement="bottom" title="Vyhledat i v podsložkách (ctrl+enter)">
+					<button class="btn btn-outline-secondary search" type="button"><i class="fa fa-search"></i></button>
 				</div>
 			</div>
+
+			<div class="dropdown" id="navbar-hamburger-dropdown">
+				<a class="nav-link dropdown-toggle" href="#" id="navbar-dropdown-button" role="button" data-toggle="dropdown" aria-expanded="false">
+					<i class="fa fa-bars fa-fw"></i>
+				</a>
+				<div class="dropdown-menu dropdown-menu-right">
+					<a class="dropdown-item" id="button-login" href="/login">Přihlásit
+						<i class="fa fa-sign-in fa-fw"></i></a>
+					<a class="dropdown-item" id="button-logout" href="#" style="display: none;">Odhlásit
+						<i class="fa fa-sign-out fa-fw"></i></a>
+					<a class="dropdown-item" data-toggle="modal" data-target="#modal-settings" href="#">Nastavení
+						<i class="fa fa-wrench fa-fw"></i></a>
+				</div>
+			</div>
+		</form>
+	</nav>
+	<noscript><h2 class="text-center">V prohlížeči je nutné povolit Javascript</h2></noscript>
+	<div id="structure-header"></div>
+	<div id="structure"></div>
+	<div id="structure-footer"></div>
+	<div id="map" style="display: none;"></div>
+</div>
+
+<div id="popup" style="display: none;">
+	<div id="popup-content">
+		<i id="popup-loading" class="fa fa-circle-o-notch fa-spin fa-5x"></i>
+
+		<img id="popup-image" style="display:none;" alt="@TODO" src="">
+
+		<!-- class is dynamic -->
+		<i id="popup-icon" aria-hidden="true" style="display:none;"></i>
+
+		<video id="popup-video" controls style="display:none;">
+			<source type="video/mp4" src="">
+		</video>
+
+		<audio id="popup-audio" controls style="display:none;">
+			<source type="audio/mpeg" src="">
+		</audio>
+	</div>
+	<a id="popup-prev" href="#"><i class="fa fa-angle-left fa-lg"></i></a>
+	<a id="popup-next" href="#"><i class="fa fa-angle-right fa-lg"></i></a>
+
+
+	<div id="popup-footer" class="list-inline">
+		<a id="popup-download" target="_blank" class="list-inline-item float-left"><i class="fa fa-download" aria-hidden="true"></i></a>
+		<a id="popup-share" target="_blank" class="list-inline-item float-left">
+			<i class="fa fa-share-alt fa-fw"></i>
+		</a>
+		<a id="popup-location" target="_blank" style="display: none;" class="list-inline-item float-left">
+			<i class="fa fa-map-marker fa-fw"></i>
+		</a>
+		<a id="popup-filename" target="_blank" class="list-inline-item float-left">filename</a>
+
+		<span id="popup-close" class="list-inline-item float-right">
+					<i class="fa fa-close fa-lg"></i>
+				</span>
+		<a id="popup-footer-next" class="list-inline-item popup-footer-button float-right d-none d-md-block">
+			<i class="fa fa-angle-right fa-lg"></i>
+		</a>
+		<a id="popup-footer-presentation" class="list-inline-item popup-footer-button float-right d-none d-md-block" data-toggle="tooltip" data-placement="top" title="Prezentační mód">
+			<span id="popup-counter"></span>
+			<i id="popup-footer-presentation-start" class="fa fa-play-circle fa-lg"></i>
+			<i id="popup-footer-presentation-stop" class="fa fa-stop-circle fa-lg" style="display: none;"></i>
+		</a>
+		<a class="list-inline-item popup-footer-button float-right d-none d-md-block" id="popup-footer-prev">
+			<i class="fa fa-angle-left fa-lg"></i>
+		</a>
+	</div>
+</div>
+
+<div id="modal-settings" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"><i class="fa fa-wrench"></i> Nastavení</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form id="form-settings">
+
+					<div class="form-group" id="settings-theme">
+						<i class="fa fa-lightbulb-o fa-fw"></i> Téma:
+						<div class="custom-control custom-radio">
+							<input type="radio" id="settings-theme-default" name="theme" value="default" class="custom-control-input">
+							<label class="custom-control-label" for="settings-theme-default">Rozsvítit</label>
+						</div>
+						<div class="custom-control custom-radio">
+							<input type="radio" id="settings-theme-dark" name="theme" value="dark" class="custom-control-input">
+							<label class="custom-control-label" for="settings-theme-dark">Zhasnout</label>
+						</div>
+					</div>
+
+					<div class="form-group" id="settings-compress">
+						<div class="custom-control custom-checkbox">
+							<input type="checkbox" name="compress" class="custom-control-input" id="settings-compress-checkbox">
+							<label class="custom-control-label" for="settings-compress-checkbox">Šetřit data</label>
+						</div>
+						<small class="form-text text-muted">Obrázky budou zmenšeny na velikost max 1024 x 1024 pixelů při zachování poměru stran. V plné velikosti je možné je otevřít skrze ikonu
+							<i class="fa fa-download" aria-hidden="true"></i> vlevo dole.</small>
+					</div>
+
+					<div class="form-group">
+						<label for="settings-animationSpeed">Rychlost animací (v milisekundách):</label>
+						<input type="number" required name="animationSpeed" id="settings-animationSpeed" class="form-control" min="0" max="10000">
+						<small class="form-text text-muted">0 = bez animací, 250 = výchozí hodnota</small>
+					</div>
+
+					<div class="form-group">
+						<label for="settings-structureItemLimit">Maximální počet zobrazovaných položek ve složce:</label>
+						<input type="number" required name="structureItemLimit" id="settings-structureItemLimit" class="form-control" min="0">
+						<small class="form-text text-muted">
+							0 = všechny, 1000 = výchozí hodnota<br>
+							<i class="fa fa-warning"></i> Pokud má složka příliš velké množství položek a tato hodnota bude taktéž vysoká, může načítání chvíli trvat popř může zpomalit či úplně zablokovat prohlížeč.
+						</small>
+					</div>
+
+					<div class="form-group">
+						<label for="settings-presentationSpeed">Rychlost přehrávání prezentace (v milisekundách):</label>
+						<input type="number" required name="presentationSpeed" id="settings-presentationSpeed" class="form-control" min="0">
+						<small class="form-text text-muted">
+							0 = okamžitě po načtení, 5000 = výchozí hodnota<br>
+						</small>
+					</div>
+
+					<button type="submit" id="settings-save" class="btn btn-primary">Uložit</button>
+				</form>
+			</div>
+			<div class="modal-header">
+				<h5 class="modal-title"><i class="fa fa-key"></i> Uložená hesla</h5>
+			</div>
+			<div class="modal-body">
+				<p>
+					Zde se zobrazí hesla a k nim příslušné adresáře, které odemykají.
+				</p>
+				<button type="button" id="settings-passwords-load" class="btn btn-primary">Načíst</button>
+				<p id="settings-passwords-nothing" style="display: none;">Na tomto zařízení nejsou uložená žádná hesla.</p>
+				<div id="settings-passwords-list"></div>
+			</div>
 		</div>
-		<script defer type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-		<script defer type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-		<script defer type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
-		<script defer type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jwerty/0.3.2/jwerty.min.js"></script>
-		<script defer type="text/javascript" src="js/functions.js?{{CACHEBUSTER_PUBLIC_JS_FUNCTIONS.JS}}"></script>
-		<script defer type="text/javascript" src="js/cookie.js?{{CACHEBUSTER_PUBLIC_JS_COOKIE.JS}}"></script>
-		<script defer type="text/javascript" src="js/settings.js?{{CACHEBUSTER_PUBLIC_JS_SETTINGS.JS}}"></script>
-		<script defer type="text/javascript" src="js/structure.js?{{CACHEBUSTER_PUBLIC_JS_STRUCTURE.JS}}"></script>
-		<script defer type="text/javascript" src="js/main.js?{{CACHEBUSTER_PUBLIC_JS_MAIN.JS}}"></script>
-		<script defer type="text/javascript" src="js/keyboard.js?{{CACHEBUSTER_PUBLIC_JS_KEYBOARD.JS}}"></script>
-		<script async defer src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_MAPS_API_KEY}}&callback=mapInit"></script>
-	</body>
+	</div>
+</div>
+<script defer type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script defer type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script defer type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<script defer type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jwerty/0.3.2/jwerty.min.js"></script>
+<script defer type="text/javascript" src="js/functions.js?{{CACHEBUSTER_PUBLIC_JS_FUNCTIONS.JS}}"></script>
+<script defer type="text/javascript" src="js/cookie.js?{{CACHEBUSTER_PUBLIC_JS_COOKIE.JS}}"></script>
+<script defer type="text/javascript" src="js/settings.js?{{CACHEBUSTER_PUBLIC_JS_SETTINGS.JS}}"></script>
+<script defer type="text/javascript" src="js/structure.js?{{CACHEBUSTER_PUBLIC_JS_STRUCTURE.JS}}"></script>
+<script defer type="text/javascript" src="js/main.js?{{CACHEBUSTER_PUBLIC_JS_MAIN.JS}}"></script>
+<script defer type="text/javascript" src="js/keyboard.js?{{CACHEBUSTER_PUBLIC_JS_KEYBOARD.JS}}"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_MAPS_API_KEY}}&callback=mapInit"></script>
+</body>
 </html>
 <style id="dynamic-styles"></style>

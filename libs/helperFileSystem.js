@@ -10,8 +10,9 @@ const readline = require('readline');
  * @returns {string}
  */
 function normalizeForce(path) {
-    return PATH.posix.normalize(path.replace(/\\/g, '/'));
+	return PATH.posix.normalize(path.replace(/\\/g, '/'));
 }
+
 module.exports.normalizeForce = normalizeForce;
 
 /**
@@ -22,8 +23,9 @@ module.exports.normalizeForce = normalizeForce;
  * @returns {string}
  */
 function resolveForce(path) {
-    return PATH.posix.resolve(path).replace(/\\/g, '/');
+	return PATH.posix.resolve(path).replace(/\\/g, '/');
 }
+
 module.exports.resolveForce = resolveForce;
 
 /**
@@ -35,12 +37,13 @@ module.exports.resolveForce = resolveForce;
  * @returns {string}
  */
 function pathNormalize(path, dynamic) {
-    path = PATH.posix.normalize(path);
-    if (typeof dynamic === 'string' && PATH.isAbsolute(dynamic)) {
-        path = path.replace(pathNormalize(dynamic), '/');
-    }
-    return path;
+	path = PATH.posix.normalize(path);
+	if (typeof dynamic === 'string' && PATH.isAbsolute(dynamic)) {
+		path = path.replace(pathNormalize(dynamic), '/');
+	}
+	return path;
 }
+
 module.exports.pathNormalize = pathNormalize;
 
 /**
@@ -52,30 +55,32 @@ module.exports.pathNormalize = pathNormalize;
  * @returns {string}
  */
 function pathMakeDynamic(fullBasePath, fullPath) {
-    // if (PATH.isAbsolute(fullBasePath) === false) {
-    //     console.log('fullBasePath (' + fullBasePath + ') is not absolute. Add ./ to fullPath (' + fullPath + ')');
-    //     fullPath = './' + fullPath;
-    // }
-    // console.log(fullPath);
-    // console.log(PATH.isAbsolute(fullBasePath));
-    // if (PATH.isAbsolute(fullBasePath) === false) {
-    //     console.log(fullBasePath);
-    //     throw new Error('Param "fullBasePath" must be absolute path');
-    // }
-    // if (PATH.isAbsolute(fullPath) === false) {
-    //     console.log(fullPath);
-    //     throw new Error('Param "fullPath" must be absolute path');
-    // }
-    if (fullPath.indexOf(fullBasePath) !== 0) {
-        throw new Error('Param "basePath" dont have same base structure as "fullBasePath"');
-    }
-    return fullPath.replace(fullBasePath, '/');
+	// if (PATH.isAbsolute(fullBasePath) === false) {
+	//     console.log('fullBasePath (' + fullBasePath + ') is not absolute. Add ./ to fullPath (' + fullPath + ')');
+	//     fullPath = './' + fullPath;
+	// }
+	// console.log(fullPath);
+	// console.log(PATH.isAbsolute(fullBasePath));
+	// if (PATH.isAbsolute(fullBasePath) === false) {
+	//     console.log(fullBasePath);
+	//     throw new Error('Param "fullBasePath" must be absolute path');
+	// }
+	// if (PATH.isAbsolute(fullPath) === false) {
+	//     console.log(fullPath);
+	//     throw new Error('Param "fullPath" must be absolute path');
+	// }
+	if (fullPath.indexOf(fullBasePath) !== 0) {
+		throw new Error('Param "basePath" dont have same base structure as "fullBasePath"');
+	}
+	return fullPath.replace(fullBasePath, '/');
 }
+
 module.exports.pathMakeDynamic = pathMakeDynamic;
 
 function pathJoin(...paths) {
-    return pathNormalize(PATH.join(...paths));
+	return pathNormalize(PATH.join(...paths));
 }
+
 module.exports.pathJoin = pathJoin;
 
 /**
@@ -84,9 +89,10 @@ module.exports.pathJoin = pathJoin;
  * @param path
  */
 function pathDirname(path) {
-    path = PATH.join(PATH.dirname(path), '/');
-    return path.replace(/\\/g, '/');
+	path = PATH.join(PATH.dirname(path), '/');
+	return path.replace(/\\/g, '/');
 }
+
 module.exports.pathDirname = pathDirname;
 
 /**
@@ -95,8 +101,9 @@ module.exports.pathDirname = pathDirname;
  * @param path
  */
 function extname(path) {
-    return PATH.extname(path).toLowerCase().replace('.', '');
+	return PATH.extname(path).toLowerCase().replace('.', '');
 }
+
 module.exports.extname = extname;
 
 /**
@@ -109,70 +116,70 @@ module.exports.extname = extname;
  * - {number} [order] order of log lines (default 'ASC' = oldest first)
  * @param {function(string|null, Array)} callback
  */
-function getFileLines(options , callback)
-{
-    try {
-        // check required parametr file name
-        if (!options || !options.file) {
-            throw new Error('Param "options.file" is required.');
-        }
-        // check optional parameter limit
-        if (options.limit) {
-            if (typeof options.limit !== 'number' || options.limit < 0) {
-                throw new Error('Param options.limit is not valid. It must be positive number.');
-            }
-        } else { // set default value
-            options.limit = 1000;
-        }
-        // check optional parameter offset
-        if (options.offset) {
-            if (typeof options.offset !== 'number' || options.offset < 0) {
-                throw new Error('Param options.offset is not valid. It must be positive number.');
-            }
-            throw new Error('Param options.offset is not implemented.'); // @TODO implement offset
-        } else { // set default value
-            options.offset = 1000;
-        }
-        // check optional parameter order
-        const allowedOrders = ['asc', 'desc'];
-        if (options.order) {
-            if (allowedOrders.inArray(options.order) === false) {
-                throw new Error('Param options.order is not valid. It must be "' + allowedOrders.join('" or "') + '".');
-            }
-        } else { // set default value
-            options.order = allowedOrders[0];
-        }
-    } catch (error) {
-        return callback(error.message, []);
-    }
+function getFileLines(options, callback) {
+	try {
+		// check required parametr file name
+		if (!options || !options.file) {
+			throw new Error('Param "options.file" is required.');
+		}
+		// check optional parameter limit
+		if (options.limit) {
+			if (typeof options.limit !== 'number' || options.limit < 0) {
+				throw new Error('Param options.limit is not valid. It must be positive number.');
+			}
+		} else { // set default value
+			options.limit = 1000;
+		}
+		// check optional parameter offset
+		if (options.offset) {
+			if (typeof options.offset !== 'number' || options.offset < 0) {
+				throw new Error('Param options.offset is not valid. It must be positive number.');
+			}
+			throw new Error('Param options.offset is not implemented.'); // @TODO implement offset
+		} else { // set default value
+			options.offset = 1000;
+		}
+		// check optional parameter order
+		const allowedOrders = ['asc', 'desc'];
+		if (options.order) {
+			if (allowedOrders.inArray(options.order) === false) {
+				throw new Error('Param options.order is not valid. It must be "' + allowedOrders.join('" or "') + '".');
+			}
+		} else { // set default value
+			options.order = allowedOrders[0];
+		}
+	} catch (error) {
+		return callback(error.message, []);
+	}
 
-    let fileStream = FS.createReadStream(options.file);
-    fileStream.on('error', function (error) {
-        return callback(error.message, []);
-    });
-    let readLogfile = readline.createInterface({
-        input: fileStream
-    });
-    let lines = [];
-    readLogfile.on('line', function (line) {
-        if (options.limit > 0 && lines.length >= options.limit) {
-            // Chceme jen posledních x řádků, udržujeme velikost pole
-            // tj. u kazdeho pridaneho prvku je potreba odstranit prvni prvek v poli
-            if (options.order === 'desc') {
-                lines.shift();
-            } else {
-                readLogfile.close();
-            }
-        }
-        lines.push(line);
-    });
-    readLogfile.on('close', function () {
-        if (options.order === 'desc') {
-            lines = lines.reverse();
-        }
-        callback(null, lines);
-    });
+	let fileStream = FS.createReadStream(options.file);
+	fileStream.on('error', function (error) {
+		return callback(error.message, []);
+	});
+	let readLogfile = readline.createInterface({
+		input: fileStream
+	});
+	let lines = [];
+	readLogfile.on('line', function (line) {
+		if (options.limit > 0 && lines.length >= options.limit) {
+			// Chceme jen posledních x řádků, udržujeme velikost pole
+			// tj. u kazdeho pridaneho prvku je potreba odstranit prvni prvek v poli
+			if (options.order === 'desc') {
+				lines.shift();
+			} else {
+				readLogfile.close();
+			}
+		}
+		lines.push(line);
+	});
+	readLogfile.on('close', function () {
+		if (options.order === 'desc') {
+			lines = lines.reverse();
+		}
+		callback(null, lines);
+	});
 }
+
 module.exports.readFileContent = getFileLines;
 
 /**
@@ -187,73 +194,75 @@ module.exports.readFileContent = getFileLines;
  * If attribute "path" is defined everything is ok. Also one of "fullPathFolder" or "fullPathFile" is defined too, depends on request
  */
 function pathMasterCheck(basePath, requestedPathBase64, userPermissions, permsTest) {
-    let result = {};
-    if (typeof requestedPathBase64 !== 'string') {
-        result.error = 'Parameter "requestedPathBase64" has to be string.';
-        return result;
-    }
-    let path = requestedPathBase64;
-    path = decodeURIComponent(Buffer.from(path, 'base64').toString());
-    result.queryPath = path;
-    if (path.includes('\\')) { // Windows backslashes are not supported - everything has to be written in POSIX (UNIX) way.
-        result.error = 'Backslash is not allowed';
-        return result;
-    } else if (path.indexOf('/') !== 0) {
-        result.error = 'Query path has to start with forward slash';
-        return result;
-    } else if (path.includes('*')) { // this char is used for matching any number of characters (see npm module micromatch)
-        result.error = 'Asterisk is not allowed';
-        return result;
-    } else if (path.includes('?')) { // this char is used for matching any character (see npm module micromatch)
-        result.error = 'Questionmark is not allowed';
-        return result;
-    } else if (path.includes('/../') || path.includes('/./')) {
-        result.error = 'Dynamic path is not allowed';
-        return result;
-    } else if (permsTest(userPermissions, path) === false) {
-        // path is already normalized
-        result.error = 'User do not have permissions to path "' + path + '"';
-        return result;
-    }
-    const fullPath = (basePath + '' + path).replace(/\/{2,}/, '/');
-    // const fullPath = PATH.posix.join(basePath, '/', path);
-    let fileStats;
-    try {
-        fileStats = FS.lstatSync(fullPath); // throws exception if not exists or not accessible
-    } catch (error) {
-        if (error.code === 'ENOTDIR') {
-            // requesting file but with suffixed slash, for example ./demo/
-            // this is thrown only on UNIX. Windows don't care.
-            result.error = 'Requested path "' + path + '" is not folder';
-        } else {
-            result.error = 'Cant load "' + path + '", error: ' + error.message;
-        }
-        return result;
-    }
-    if (fullPath.match(/\/$/)) { // requested path wants folder
-        if (fileStats.isDirectory()) {
-            result.fullPathFolder = fullPath;
-        } else {
-            result.error = 'Requested path "' + path + '" is not folder';
-            return result
-        }
-    } else { // Requested path wants file
-        if (fileStats.isFile()) {
-            result.fullPathFile = fullPath;
-        } else {
-            result.error = 'Requested path "' + path + '" is not file';
-            return result;
-        }
-    }
-    // Everything is good to go
-    result.path = path;
-    return result;
+	let result = {};
+	if (typeof requestedPathBase64 !== 'string') {
+		result.error = 'Parameter "requestedPathBase64" has to be string.';
+		return result;
+	}
+	let path = requestedPathBase64;
+	path = decodeURIComponent(Buffer.from(path, 'base64').toString());
+	result.queryPath = path;
+	if (path.includes('\\')) { // Windows backslashes are not supported - everything has to be written in POSIX (UNIX) way.
+		result.error = 'Backslash is not allowed';
+		return result;
+	} else if (path.indexOf('/') !== 0) {
+		result.error = 'Query path has to start with forward slash';
+		return result;
+	} else if (path.includes('*')) { // this char is used for matching any number of characters (see npm module micromatch)
+		result.error = 'Asterisk is not allowed';
+		return result;
+	} else if (path.includes('?')) { // this char is used for matching any character (see npm module micromatch)
+		result.error = 'Questionmark is not allowed';
+		return result;
+	} else if (path.includes('/../') || path.includes('/./')) {
+		result.error = 'Dynamic path is not allowed';
+		return result;
+	} else if (permsTest(userPermissions, path) === false) {
+		// path is already normalized
+		result.error = 'User do not have permissions to path "' + path + '"';
+		return result;
+	}
+	const fullPath = (basePath + '' + path).replace(/\/{2,}/, '/');
+	// const fullPath = PATH.posix.join(basePath, '/', path);
+	let fileStats;
+	try {
+		fileStats = FS.lstatSync(fullPath); // throws exception if not exists or not accessible
+	} catch (error) {
+		if (error.code === 'ENOTDIR') {
+			// requesting file but with suffixed slash, for example ./demo/
+			// this is thrown only on UNIX. Windows don't care.
+			result.error = 'Requested path "' + path + '" is not folder';
+		} else {
+			result.error = 'Cant load "' + path + '", error: ' + error.message;
+		}
+		return result;
+	}
+	if (fullPath.match(/\/$/)) { // requested path wants folder
+		if (fileStats.isDirectory()) {
+			result.fullPathFolder = fullPath;
+		} else {
+			result.error = 'Requested path "' + path + '" is not folder';
+			return result
+		}
+	} else { // Requested path wants file
+		if (fileStats.isFile()) {
+			result.fullPathFile = fullPath;
+		} else {
+			result.error = 'Requested path "' + path + '" is not file';
+			return result;
+		}
+	}
+	// Everything is good to go
+	result.path = path;
+	return result;
 }
+
 module.exports.pathMasterCheck = pathMasterCheck;
 
 function getEndpointPath(filePath) {
-    const file = PATH.basename(filePath, '.js');
-    const folder = PATH.basename(PATH.dirname(filePath));
-    return PATH.posix.join('/', folder, file);
+	const file = PATH.basename(filePath, '.js');
+	const folder = PATH.basename(PATH.dirname(filePath));
+	return PATH.posix.join('/', folder, file);
 }
+
 module.exports.getEndpointPath = getEndpointPath;
