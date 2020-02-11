@@ -57,7 +57,7 @@ webserver.all('*', function (req, res, next) {
 			return this;
 		}, toString: function () {
 			return JSON.stringify(this, null, 4);
-		}, end: function(httpResponseCode) {
+		}, end: function (httpResponseCode) {
 			this.duration = msToHuman(new Date() - requestStart);
 			if (httpResponseCode) {
 				res.status(httpResponseCode);
@@ -107,22 +107,22 @@ if (c.http.ssl.enable === true) {
 	https.createServer({
 		key: FS.readFileSync(c.http.ssl.keyPath),
 		cert: FS.readFileSync(c.http.ssl.certPath),
-	}, webserver).listen(c.http.ssl.port, function() {
+	}, webserver).listen(c.http.ssl.port, function () {
 		LOG.info('(Webserver) Secured HTTPS server listening on port :' + c.http.ssl.port + '.');
 	});
 	// Start HTTP server to redirect all traffic to HTTPS
-	http.createServer(function(req, res) {
+	http.createServer(function (req, res) {
 		// if is used default port, dont add it at the end. URL starting with https is enough for browsers
 		const newPort = (c.http.ssl.port === 443) ? '' : ':' + c.http.ssl.port;
 		res.writeHead(301, {'Location': 'https://' + req.headers['host'].replace(new RegExp(':' + c.http.port + '$'), '') + newPort + req.url});
 		res.end();
-	}).listen(c.http.port, function() {
+	}).listen(c.http.port, function () {
 		LOG.info('(Webserver) Non-secured HTTP server listening on port :' + c.http.port + ' but all traffic will be automatically redirected to https.');
 	});
 } else {
 	LOG.info('(Webserver) SSL is disabled, starting only HTTP server...');
 
-	http.createServer(webserver).listen(c.http.port, function() {
+	http.createServer(webserver).listen(c.http.port, function () {
 		LOG.info('(Webserver) Non-secured HTTP server listening on port :' + c.http.port + '.');
 	});
 }
@@ -138,7 +138,7 @@ if (c.http.ssl.enable === true) {
  *   Will be replaced with:
  *   <link rel="stylesheet" href="main.css?1577833200000">
  */
-FS.readFile('./private/index.html', function(error, data) {
+FS.readFile('./private/index.html', function (error, data) {
 	if (error) {
 		LOG.fatal('Cannot load private index file for generating public index.html, error: ' + error.message);
 	}
@@ -152,10 +152,10 @@ FS.readFile('./private/index.html', function(error, data) {
 		'public/js/settings.js',
 		'public/js/structure.js',
 		'public/js/keyboard.js'
-	].forEach(function(file) {
+	].forEach(function (file) {
 		const htmlVariable = '{{CACHEBUSTER_' + file.replaceAll('/', '_').toUpperCase() + '}}';
 		promises.push(new Promise(function (resolve) {
-			FS.stat(file, function(error, data) {
+			FS.stat(file, function (error, data) {
 				if (error) {
 					LOG.error('Error while creating cachebuster variable for "' + file + '": ' + error.message);
 					resolve();
@@ -167,7 +167,7 @@ FS.readFile('./private/index.html', function(error, data) {
 	});
 
 	Promise.all(promises).then(function (data) {
-		data.forEach(function(replacePair) {
+		data.forEach(function (replacePair) {
 			if (replacePair) {
 				fileContent = fileContent.replace(replacePair.name, replacePair.value);
 			}

@@ -1,5 +1,5 @@
 module.exports = function (webserver, baseEndpoint) {
-	
+
 	/**
 	 * Google logout - just redirect, more info in "/api/logout"
 	 */

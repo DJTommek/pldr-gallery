@@ -32,7 +32,7 @@ module.exports = function (webserver, endpoint) {
 		} catch (error) {
 			res.result.setError('Logout unsuccessfull: ' + error.message);
 		}
-	 	// Even if some error occured, cookie will be deleted (send request to browser to remove cookie)
+		// Even if some error occured, cookie will be deleted (send request to browser to remove cookie)
 		res.clearCookie(c.http.login.name);
 		res.result.end();
 	});

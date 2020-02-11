@@ -3,7 +3,7 @@ const FS = require('fs');
 const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
 const LOG = require(process.cwd() + '/libs/log.js');
 
-module.exports = function(webserver, endpoint) {
+module.exports = function (webserver, endpoint) {
 
 	/**
 	 * Show uptime data
