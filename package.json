@@ -28,5 +28,19 @@
 	},
 	"devDependencies": {
 		"mocha": "^7.0.0"
+	},
+	"nodemonConfig": {
+		"ignore": [
+			".git",
+			"node_modules/*",
+			"demo/*",
+			"test/*",
+			"log/*",
+			"tokens/*"
+		],
+		"watch": [
+			"*.js",
+			"private/index.html"
+		]
 	}
 }
