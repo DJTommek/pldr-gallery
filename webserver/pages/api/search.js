@@ -6,6 +6,7 @@ const readdirp = require('readdirp');
 const perms = require(process.cwd() + '/libs/permissions.js');
 
 module.exports = function (webserver, endpoint) {
+
 	/**
 	 * Run user search in all files and folders
 	 * - case insensitive

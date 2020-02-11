@@ -5,6 +5,7 @@ const LOG = require(process.cwd() + '/libs/log.js');
 const perms = require(process.cwd() + '/libs/permissions.js');
 
 module.exports = function (webserver, endpoint) {
+
 	/**
 	 * Check and/or update passwords
 	 * If no parameter is set, list of passwords and permissions to these passwords is returned

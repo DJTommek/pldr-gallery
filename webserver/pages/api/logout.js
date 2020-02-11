@@ -4,6 +4,7 @@ const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
 const LOG = require(process.cwd() + '/libs/log.js');
 
 module.exports = function (webserver, endpoint) {
+
 	/**
 	 * Google logout
 	 * - remove cookie from the server (cant be used anymore)
