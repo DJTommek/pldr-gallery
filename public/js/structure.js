@@ -1,31 +1,33 @@
 class Icons {
-	FOLDER = 'folder-open'; // default for folders
-	FOLDER_GO_BACK = 'level-up';
+	constructor() {
+		this.FOLDER = 'folder-open'; // default for folders
+		this.FOLDER_GO_BACK = 'level-up';
 
-	FILE = 'file-o'; // default for files
-	IMAGE = 'file-image-o';
-	VIDEO = 'file-video-o';
-	AUDIO = 'file-audio-o';
-	ARCHIVE = 'file-archive-o';
-	PDF = 'file-pdf-o';
+		this.FILE = 'file-o'; // default for files
+		this.IMAGE = 'file-image-o';
+		this.VIDEO = 'file-video-o';
+		this.AUDIO = 'file-audio-o';
+		this.ARCHIVE = 'file-archive-o';
+		this.PDF = 'file-pdf-o';
 
-	CLOSE_SEARCHING = 'long-arrow-left'; // icon is reserved to close searching (force reload structure)
+		this.CLOSE_SEARCHING = 'long-arrow-left'; // icon is reserved to close searching (force reload structure)
 
-	DEFAULT_FILES = [this.FILE, this.IMAGE, this.VIDEO, this.AUDIO, this.PDF, this.ARCHIVE];
+		this.DEFAULT_FILES = [this.FILE, this.IMAGE, this.VIDEO, this.AUDIO, this.PDF, this.ARCHIVE];
+	}
 }
 
 class Item {
-	path = '/';
-	// Default values
-	folder = '/';
-	isFolder = false;
-	isFile = false;
-	ext = '';
-	isImage = false;
-	isVideo = false;
-	isAudio = false;
-
 	constructor(index, item) {
+		this.path = '/';
+		// Default values
+		this.folder = '/';
+		this.isFolder = false;
+		this.isFile = false;
+		this.ext = '';
+		this.isImage = false;
+		this.isVideo = false;
+		this.isAudio = false;
+
 		Object.assign(this, item);
 		this.index = index;
 
@@ -186,123 +188,125 @@ class FileExtensionMapper {
 	}
 
 	// loading into <img> tag
-	images = {
-		apng: {
-			'mediaType': 'image/apng',
-			'icon': (new Icons).IMAGE,
-		},
-		bmp: {
-			'mediaType': 'image/bmp',
-			'icon': (new Icons).IMAGE,
-		},
-		gif: {
-			'mediaType': 'image/gif',
-			'icon': (new Icons).IMAGE,
-		},
-		ico: {
-			'mediaType': 'image/x-icon',
-			'icon': (new Icons).IMAGE,
-		},
-		cur: {
-			'mediaType': 'image/x-icon',
-			'icon': (new Icons).IMAGE,
-		},
-		jpg: {
-			'mediaType': 'image/jpeg',
-			'icon': (new Icons).IMAGE,
-			'exifBuffer': 65527
-		},
-		jpeg: {
-			'mediaType': 'image/jpeg',
-			'icon': (new Icons).IMAGE,
-			'exifBuffer': 65527
-		},
-		jfif: {
-			'mediaType': 'image/jpeg',
-			'icon': (new Icons).IMAGE,
-			'exifBuffer': 65527
-		},
-		pjpeg: {
-			'mediaType': 'image/jpeg',
-			'icon': (new Icons).IMAGE,
-			'exifBuffer': 65527
-		},
-		pjp: {
-			'mediaType': 'image/jpeg',
-			'icon': (new Icons).IMAGE,
-			'exifBuffer': 65527
-		},
-		png: {
-			'mediaType': 'image/png',
-			'icon': (new Icons).IMAGE,
-			'exifBuffer': 150000
-		},
-		svg: {
-			'mediaType': 'image/svg+xml',
-			'icon': (new Icons).IMAGE,
-		},
-		webp: {
-			'mediaType': 'image/webp',
-			'icon': (new Icons).IMAGE,
-		},
-	};
-	// loading into <video> tag
-	videos = {
-		mp4: {
-			'mediaType': 'video/mp4',
-			'icon': (new Icons).VIDEO,
-		},
-		webm: {
-			'mediaType': 'video/webm',
-			'icon': (new Icons).VIDEO,
-		},
-		ogv: {
-			'mediaType': 'video/ogg',
-			'icon': (new Icons).VIDEO,
-		},
-	};
-	// loading into <audio> tag
-	audios = {
-		mp3: {
-			'mediaType': 'audio/mpeg',
-			'icon': (new Icons).AUDIO,
-		},
-		wav: {
-			'mediaType': 'audio/wav',
-			'icon': (new Icons).AUDIO,
-		},
-		ogg: {
-			'mediaType': 'audio/ogg',
-			'icon': (new Icons).AUDIO,
-		},
-	};
-	// allowing to download
-	downloads = {
-		zip: {
-			icon: (new Icons).ARCHIVE,
-		},
-		zip64: {
-			icon: (new Icons).ARCHIVE,
-		},
-		'7z': {
-			icon: (new Icons).ARCHIVE,
-		},
-		rar: {
-			icon: (new Icons).ARCHIVE,
-		},
-		gz: {
-			icon: (new Icons).ARCHIVE,
-		},
-		pdf: {
-			'icon': (new Icons).PDF
-		}, doc: {}, docx: {}, xls: {}, xlsx: {},
-		avi: { // video but can't be played in browser
-			'icon': (new Icons).VIDEO,
-		},
-	};
-	all = {...this.images, ...this.videos, ...this.audios, ...this.downloads};
-	regexAll = new RegExp('\\.(' + Object.keys(this.all).join('|') + ')$', 'i');
-	regexExif = new RegExp('\\.(' + Object.keys(this.getImageExif()).join('|') + ')$', 'i');
+	constructor() {
+		this.images = {
+			apng: {
+				'mediaType': 'image/apng',
+				'icon': (new Icons).IMAGE,
+			},
+			bmp: {
+				'mediaType': 'image/bmp',
+				'icon': (new Icons).IMAGE,
+			},
+			gif: {
+				'mediaType': 'image/gif',
+				'icon': (new Icons).IMAGE,
+			},
+			ico: {
+				'mediaType': 'image/x-icon',
+				'icon': (new Icons).IMAGE,
+			},
+			cur: {
+				'mediaType': 'image/x-icon',
+				'icon': (new Icons).IMAGE,
+			},
+			jpg: {
+				'mediaType': 'image/jpeg',
+				'icon': (new Icons).IMAGE,
+				'exifBuffer': 65527
+			},
+			jpeg: {
+				'mediaType': 'image/jpeg',
+				'icon': (new Icons).IMAGE,
+				'exifBuffer': 65527
+			},
+			jfif: {
+				'mediaType': 'image/jpeg',
+				'icon': (new Icons).IMAGE,
+				'exifBuffer': 65527
+			},
+			pjpeg: {
+				'mediaType': 'image/jpeg',
+				'icon': (new Icons).IMAGE,
+				'exifBuffer': 65527
+			},
+			pjp: {
+				'mediaType': 'image/jpeg',
+				'icon': (new Icons).IMAGE,
+				'exifBuffer': 65527
+			},
+			png: {
+				'mediaType': 'image/png',
+				'icon': (new Icons).IMAGE,
+				'exifBuffer': 150000
+			},
+			svg: {
+				'mediaType': 'image/svg+xml',
+				'icon': (new Icons).IMAGE,
+			},
+			webp: {
+				'mediaType': 'image/webp',
+				'icon': (new Icons).IMAGE,
+			},
+		};
+		// loading into <video> tag
+		this.videos = {
+			mp4: {
+				'mediaType': 'video/mp4',
+				'icon': (new Icons).VIDEO,
+			},
+			webm: {
+				'mediaType': 'video/webm',
+				'icon': (new Icons).VIDEO,
+			},
+			ogv: {
+				'mediaType': 'video/ogg',
+				'icon': (new Icons).VIDEO,
+			},
+		};
+		// loading into <audio> tag
+		this.audios = {
+			mp3: {
+				'mediaType': 'audio/mpeg',
+				'icon': (new Icons).AUDIO,
+			},
+			wav: {
+				'mediaType': 'audio/wav',
+				'icon': (new Icons).AUDIO,
+			},
+			ogg: {
+				'mediaType': 'audio/ogg',
+				'icon': (new Icons).AUDIO,
+			},
+		};
+		// allowing to download
+		this.downloads = {
+			zip: {
+				icon: (new Icons).ARCHIVE,
+			},
+			zip64: {
+				icon: (new Icons).ARCHIVE,
+			},
+			'7z': {
+				icon: (new Icons).ARCHIVE,
+			},
+			rar: {
+				icon: (new Icons).ARCHIVE,
+			},
+			gz: {
+				icon: (new Icons).ARCHIVE,
+			},
+			pdf: {
+				'icon': (new Icons).PDF
+			}, doc: {}, docx: {}, xls: {}, xlsx: {},
+			avi: { // video but can't be played in browser
+				'icon': (new Icons).VIDEO,
+			},
+		};
+		this.all = {...this.images, ...this.videos, ...this.audios, ...this.downloads};
+		this.regexAll = new RegExp('\\.(' + Object.keys(this.all).join('|') + ')$', 'i');
+		this.regexExif = new RegExp('\\.(' + Object.keys(this.getImageExif()).join('|') + ')$', 'i');
+	}
 }
 
 
