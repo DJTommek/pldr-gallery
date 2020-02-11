@@ -685,7 +685,7 @@ function loadSearch(callback) {
 }
 
 function loadStructure(force, callback) {
-// in case of triggering loading the same structure again (already loaded), skip it
+	// in case of triggering loading the same structure again (already loaded), skip it
 	if (force !== true && loadedStructure.loadedFolder === S.getCurrentFolder().path) {
 		console.log("Structure is already loaded, skip");
 		return (typeof callback === 'function' && callback());
@@ -725,7 +725,7 @@ function loadStructure(force, callback) {
 }
 
 function parseStructure(items) {
-// in case of triggering loading the same structure again (already loaded), skip it
+	// in case of triggering loading the same structure again (already loaded), skip it
 	updateLoginButtons(); // might be logged out
 	let limited = false;
 	const realTotal = items.folders.length + items.files.length;

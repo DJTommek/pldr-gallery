@@ -10,26 +10,31 @@
 		All folders and files are visible and accessible ONLY if you have permission for them.
 		This means that even if you know the URL, you cannot access them, no matter if it is a folder, image, audio, header or any other file.<br>
 		You can test it in this playground.
-		For example, <a href="/api/image?path=JTJGcGVybWlzc2lvbnMlMkZ0b3RhbHktc2VjdXJlZC1pbWFnZS5qcGc=" target="_blank">this is a direct</a> link to one of the files in this folder.
+		For example,
+		<a href="/api/image?path=JTJGcGVybWlzc2lvbnMlMkZ0b3RhbHktc2VjdXJlZC1pbWFnZS5qcGc=" target="_blank">this is a direct</a> link to one of the files in this folder.
 		You can not see it yet, because you don't have permission for it (yet, keep reading).
 	</p>
 	<h3>User permissions</h3>
 	<p>
-		Do you want share some folder only with your significant other? Easy, just look at the examples in <b>.pmg_perms</b> in the root folder.
+		Do you want share some folder only with your significant other? Easy, just look at the examples in
+		<b>.pmg_perms</b> in the root folder.
 		Note that the file is hidden, and therefore it will not show in the gallery.<br>
 		<span class="text-info"><i class="fa fa-info-circle"></i> Sorry, there is no way how to show a live demo of this :( You have to install and test this application by yourself.</span>
 	</p>
 	<h3>Passwords</h3>
 	<p>
-		Items can be also shared via passwords, just add some to the <b>.pmg_passwords</b> in root folder. Passwords work like easy to remember sharing links.
+		Items can be also shared via passwords, just add some to the
+		<b>.pmg_passwords</b> in root folder. Passwords work like easy to remember sharing links.
 		When a user visits a password link, the password will be saved in his browser cookies, and the server will show the hidden files to him.
 		Each password can unlock serveral folders or files.<br>
 		There are some examples below, that will reveal more items in the structure.<br>
 		If a password is valid, you will be redirected to the correct folder automatically.
 	</p>
 	<ol style="max-width: 900px; margin:0 auto; text-align: left">
-		<li>As you probably noticed, there is no footer. If you want to see it, just use password "<a href="/api/password?password=permissions-show-footer">permissions-show-footer</a>"</li>
-		<li>Also, there are no folders in here... But let's see some of them with password "<a href="/api/password?password=more permissions!">more permissions!</a>". This will also redirect you into one of these folders.</li>
+		<li>As you probably noticed, there is no footer. If you want to see it, just use password "<a href="/api/password?password=permissions-show-footer">permissions-show-footer</a>"
+		</li>
+		<li>Also, there are no folders in here... But let's see some of them with password "<a href="/api/password?password=more permissions!">more permissions!</a>". This will also redirect you into one of these folders.
+		</li>
 		<li>
 			Lets see some files with password "<a href="/api/password?password=secured images">secured images</a>".
 			Permissions in this case are defined with a prefix, so all files with the given prefix will be shown.<br>
@@ -37,11 +42,13 @@
 				Only <kbd>;</kbd> and <kbd>,</kbd> characters are not allowed in a password.</small>
 		</li>
 		<li>Password "<a href="/api/password?password=aaaaaaaa" target="_blank">aaaaaaaa</a>" don't exists.</li>
-		<li>To access every file with master password, use "<a href="/api/password?password=access-to-everything">access-to-everything</a>".</li>
+		<li>To access every file with master password, use "<a href="/api/password?password=access-to-everything">access-to-everything</a>".
+		</li>
 	</ol>
 	<p>
 		<br>
-		Saved passwords can be seen in the bottom section of settings (or see JSON formatted <a href="/api/password" target="_blank">here</a>).
+		Saved passwords can be seen in the bottom section of settings (or see JSON formatted
+		<a href="/api/password" target="_blank">here</a>).
 	</p>
 	<p>
 		To clear saved passwords, just clear your cookies (specifically <b>pmg-passwords</b>).<br>
@@ -50,8 +57,8 @@
 	</p>
 </div>
 <script>
-	$(function() {
-		$('#perm-test-clear').on('click', function() {
+	$(function () {
+		$('#perm-test-clear').on('click', function () {
 			Cookies.remove('pmg-passwords');
 			loadStructure(true);
 			flashMessage('info', 'Paswords were cleared and structure was reloaded.');
