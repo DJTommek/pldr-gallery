@@ -24,13 +24,13 @@ body {
 
 /* Make breadcrumb smaller */
 #navbar .breadcrumb {
-	padding: 0.5em 1em;
-	margin-bottom: 0.5em;
+	/*padding: 0.5em 1em;*/
+	/*margin-bottom: 0.5em;*/
 }
 
 /* Bigger area of clickable links */
 #navbar .breadcrumb li a {
-	padding: 1em 0;
+	/*padding: 1em 0;*/
 }
 
 #navbar .breadcrumb #breadcrumb-favourite,
@@ -51,6 +51,16 @@ body {
 #filter {
 	width: 15rem;
 }
+/* while in collapsed */
+@media (max-width: 768px) {
+	#navbar ul.navbar-nav {
+		text-align: right;
+	}
+	#filter {
+		width: 100%;
+	}
+}
+
 
 /* Ikonka ma minimalni sirku */
 #structure table {

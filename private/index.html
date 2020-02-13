@@ -23,41 +23,68 @@
 </div>
 
 <div>
-	<nav class="navbar sticky-top" id="navbar">
+	<nav class="navbar navbar-expand-md sticky-top" id="navbar">
 		<ol id="currentPath" class="breadcrumb">
 			<li class="breadcrumb-item active"><a href="#/"><i class="fa fa-home"></i></a></li>
 		</ol>
-		<form class="form-inline my-0">
-			<div class="input-group" id="filter">
-				<input type="search" class="form-control" placeholder="Filter" disabled/>
-				<div class="input-group-append">
-                            <span class="input-group-text">
-                                <span class="filtered"><i class="fa fa-circle-o-notch fa-spin"></i></span>
-                                /
-                                <span class="total"><i class="fa fa-circle-o-notch fa-spin"></i></span>
-                            </span>
-				</div>
-				<div class="input-group-append" data-toggle="tooltip" data-placement="bottom" title="Vyhledat i v podsložkách (ctrl+enter)">
-					<button class="btn btn-outline-secondary search" type="button"><i class="fa fa-search"></i></button>
-				</div>
-			</div>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			Menu <span class="navbar-toggler-icon"></span>
+		</button>
 
-			<div class="dropdown" id="navbar-hamburger-dropdown">
-				<a class="nav-link dropdown-toggle" href="#" id="navbar-dropdown-button" role="button" data-toggle="dropdown" aria-expanded="false">
-					<i class="fa fa-bars fa-fw"></i>
-				</a>
-				<div class="dropdown-menu dropdown-menu-right">
-					<a class="dropdown-item" id="button-login" href="/login">Přihlásit
-						<i class="fa fa-sign-in fa-fw"></i></a>
-					<a class="dropdown-item" id="button-logout" href="#" style="display: none;">Odhlásit
-						<i class="fa fa-sign-out fa-fw"></i></a>
-					<a class="dropdown-item" data-toggle="modal" data-target="#modal-settings" href="#">Nastavení
-						<i class="fa fa-wrench fa-fw"></i></a>
+		<div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+			<form class="form-inline my-2 my-lg-0">
+				<div class="input-group" id="filter">
+					<input type="search" class="form-control" placeholder="Filter" disabled/>
+					<div class="input-group-append">
+					<span class="input-group-text">
+						<span class="filtered"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+						/
+						<span class="total"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+					</span>
+					</div>
+					<div class="input-group-append" title="Vyhledat i v podsložkách (ctrl+enter)" data-toggle="tooltip">
+						<button class="btn btn-outline-secondary search" type="button"><i class="fa fa-search"></i>
+						</button>
+					</div>
 				</div>
-			</div>
-		</form>
+			</form>
+
+			<ul class="navbar-nav">
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="modal" data-target="#modal-settings" href="#">
+						<span class="d-md-none d-lg-none d-xl-none">Copy URL</span> <i class="fa fa-share-alt fa-fw"></i>
+					</a>
+				</li>
+				<li class="nav-item" title="Favourites">
+					<div class="dropdown" id="navbar-hamburger-dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="navbar-dropdown-button" role="button" data-toggle="dropdown" aria-expanded="false">
+							<span class="d-md-none d-lg-none d-xl-none">Favourites</span> <i class="fa fa-star"></i>
+						</a>
+						<div class="dropdown-menu dropdown-menu-right">
+							<a class="dropdown-item" href="#">Add to favourites <i class="fa fa-fw fa-star"></i></a>
+						</div>
+					</div>
+				</li>
+				<li class="nav-item" title="Settings">
+					<a class="nav-link" data-toggle="modal" data-target="#modal-settings" href="#">
+						<span class="d-md-none d-lg-none d-xl-none">Settings</span> <i class="fa fa-wrench fa-fw"></i>
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" id="button-login" href="/login" title="Login">
+						<span class="d-md-none d-lg-none d-xl-none">Sign in</span> <i class="fa fa-sign-in fa-fw"></i>
+					</a>
+					<a class="nav-link" id="button-logout" href="/logout" style="display: none;" title="Logout">
+						<span class="d-md-none d-lg-none d-xl-none">Sign out</span> <i class="fa fa-sign-out fa-fw"></i>
+					</a>
+				</li>
+			</ul>
+		</div>
 	</nav>
-	<noscript><h2 class="text-center">V prohlížeči je nutné povolit Javascript</h2></noscript>
+
+	<noscript>
+		<h2 class="text-center">V prohlížeči je nutné povolit Javascript</h2>
+	</noscript>
 	<div id="structure-header"></div>
 	<div id="structure"></div>
 	<div id="structure-footer"></div>
@@ -93,7 +120,7 @@
 		<a id="popup-location" target="_blank" style="display: none;" class="list-inline-item float-left" title="Open in Google maps" data-toggle="tooltip">
 			<i class="fa fa-map-marker fa-fw"></i>
 		</a>
-		<a id="popup-filename" target="_blank" class="list-inline-item float-left" title="Open file in new tab (Enter)"  data-toggle="tooltip">@Generated - Filename</a>
+		<a id="popup-filename" target="_blank" class="list-inline-item float-left" title="Open file in new tab (Enter)" data-toggle="tooltip">@Generated - Filename</a>
 
 		<span id="popup-close" class="list-inline-item float-right" title="Close popup (Esc)" data-toggle="tooltip">
 					<i class="fa fa-close fa-lg"></i>
