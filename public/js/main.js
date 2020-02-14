@@ -262,7 +262,6 @@ $(window).on('hashchange', function (event) {
 $(function () {
 	loadAndResize();
 	updateLoginButtons();
-	favouritesGenerateMenu();
 
 	// Save original title into data property
 	$('html head title').data('original-title', $('html head title').text());
@@ -297,7 +296,7 @@ $(function () {
 	$('#popup-close, #popup-content').on('click', function () {
 		popupClose();
 	});
-	$('#filter .search').on('click', function (event) {
+	$('#navbar-filter .search').on('click', function (event) {
 		event.preventDefault();
 		loadSearch();
 	});
@@ -443,17 +442,15 @@ $(function () {
 		loadingDone(this);
 	});
 
-	// @TODO clickable area is smaller, because event handler is not <li> but for <span> inside, which is much smaller
-	$('#currentPath').on('click', '#breadcrumb-favourite .fa-star-o', function () { // Event - add to favourites
-		favouritesAdd(S.getCurrentFolder().path);
-		$(this).addClass('fa-star').removeClass('fa-star-o');
-		$(this).attr('title', 'Odebrat z oblíbených');
-	}).on('click', '#breadcrumb-favourite .fa-star', function () { // Event - remove from favourites
-		favouritesRemove(S.getCurrentFolder().path);
-		$(this).addClass('fa-star-o').removeClass('fa-star');
-		$(this).attr('title', 'Přidat do oblíbených');
-	}).on('click', '#breadcrumb-share', function () { // Event - share URL
+	$('#navbar').on('click', '#navbar-share', function (event) { // Event - share URL
+		event.preventDefault();
 		shareUrl(window.location.origin + '/#' + S.getCurrentFolder().url);
+	}).on('click', '#navbar-favourites-add', function (event) { // Event - add to favourites
+		event.preventDefault();
+		favouritesAdd(S.getCurrentFolder().path);
+	}).on('click', '#navbar-favourites-remove', function (event) { // Event - remove from favourites
+		event.preventDefault();
+		favouritesRemove(S.getCurrentFolder().path);
 	});
 
 	// Event - load next item if possible
@@ -465,7 +462,7 @@ $(function () {
 		itemPrev(true);
 	});
 
-	// Event - share file url
+	// Event - share file url from popup
 	$('#popup-share').on('click', function () {
 		shareUrl(window.location.origin + '/#' + S.getCurrentFile().url);
 	});
@@ -547,7 +544,7 @@ function presentationToggle() {
 function favouritesAdd(path) {
 	let saved = Settings.load('favouriteFolders');
 	saved.pushUnique(path);
-	flashMessage('info', 'Folder has been added to favourites. Check <i class="fa fa-bars fa-fw"></i> menu.');
+	flashMessage('info', 'Folder has been added to favourites.');
 	Settings.save('favouriteFolders', saved);
 	favouritesGenerateMenu();
 }
@@ -564,17 +561,32 @@ function favouritesIs(path) {
 	return (Settings.load('favouriteFolders').indexOf(path) >= 0)
 }
 
+/**
+ * Remove all generated items in navbar favourites dropdown content and generate new data
+ * Also update navbar favourites button to reflect if currently opened path is saved or not
+ */
 function favouritesGenerateMenu() {
-	$('#navbar-hamburger-dropdown .dropdown-menu .favourites-submenu').remove();
+	// Update navbar dropdown content
+	$('#navbar-dropdown-content .dropdown-item-favourites').remove();
 	const saved = Settings.load('favouriteFolders');
-	if (saved.length > 0) {
-		$('#navbar-hamburger-dropdown .dropdown-menu').append('<div class="dropdown-divider favourites-submenu"></div>');
+	if (saved.length === 0) { // nothing is saved
+		$('#navbar-dropdown-content').append('<div class="dropdown-item dropdown-item-favourites disabled">No saved items</div>');
 	}
 	saved.forEach(function (savedFolder) {
-		$('#navbar-hamburger-dropdown .dropdown-menu').append(
-			'<a class="dropdown-item favourites-submenu" href="#' + pathToUrl(savedFolder) + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>'
-		);
+		$('#navbar-dropdown-content').append('<a class="dropdown-item dropdown-item-favourites" href="#' + pathToUrl(savedFolder) + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>');
 	});
+
+	// Update navbar favourites button and toggle showing add to and remove from favourites
+	const currentFolderPath = S.getCurrentFolder().path;
+	if (favouritesIs(currentFolderPath)) { // show button only to remove from favourites
+		$('#navbar-favourites-button i.fa').addClass('fa-star').removeClass('fa-star-o');
+		$('#navbar-favourites-add').hide();
+		$('#navbar-favourites-remove').show();
+	} else { // show button only to add to favourites
+		$('#navbar-favourites-button i.fa').addClass('fa-star-o').removeClass('fa-star');
+		$('#navbar-favourites-add').show();
+		$('#navbar-favourites-remove').hide();
+	}
 }
 
 function videoToggle() {
@@ -638,18 +650,16 @@ function updateLoginButtons() {
 	if (Cookies.get('google-login')) { // logged in
 		$('#button-login').hide();
 		$('#button-logout').show();
-		$('#navbar .dropdown .dropdown-toggle i').addClass('fa-user').removeClass('fa-bars');
 		$('#dynamic-styles').text('.logged-in {display: inherit;} .logged-out {display: none;}');
 	} else {
 		$('#button-login').show();
 		$('#button-logout').hide();
-		$('#navbar .dropdown .dropdown-toggle i').addClass('fa-bars').removeClass('fa-user');
 		$('#dynamic-styles').text('.logged-out {display: inherit;} .logged-in {display: none;}');
 	}
 }
 
 function loadSearch(callback) {
-	let query = $('#filter input').val().trim();
+	let query = $('#navbar-filter input').val().trim();
 	if (!query) {
 		console.log("Search query is empty, cancel search request");
 		return;
@@ -674,11 +684,11 @@ function loadSearch(callback) {
 		},
 		beforeSend: function () {
 			loadingStructure(true);
-			$('#filter .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
+			$('#navbar-filter .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
 		},
 		complete: function () {
 			loadingStructure(false);
-			$('#filter .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
+			$('#navbar-filter .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
 			(typeof callback === 'function' && callback());
 		}
 	});
@@ -707,7 +717,7 @@ function loadStructure(force, callback) {
 				$('#structure-header').html(result.result.header || '');
 				$('#structure-footer').html(result.result.footer || '');
 				parseStructure(result.result);
-				$('#filter input').val('');
+				$('#navbar-filter input').val('');
 				S.filter();
 			}
 		},
@@ -753,14 +763,9 @@ function parseStructure(items) {
 	currentFolder.paths.forEach(function (folderName, index) {
 		breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += currentFolder.urls[index] + '/') + '">' + folderName + '</a></li>';
 	});
-	// favourites button (add or remove)
-	if (currentFolder.path !== '/') { // show only in non-root folders
-		const icon = favouritesIs(currentFolder.path) ? 'fa-star' : 'fa-star-o';
-		const title = favouritesIs(currentFolder.path) ? 'Odebrat z oblíbených' : 'Přidat do oblíbených';
-		breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-favourite" title="' + title + '" data-toggle="tooltip"><span class="fa fa-fw ' + icon + '"></span></a></li>';
-	}
-	// add "share url" button
-	breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-share" title="Copy URL" data-toggle="tooltip"><span class="fa fa-share-alt"></span></a></li>';
+
+	favouritesGenerateMenu();
+
 	$('#currentPath').html(breadcrumbHtml);
 	/**
 	 * Generate structure content
@@ -812,25 +817,25 @@ function parseStructure(items) {
 	}
 	content += '</tbody></table>';
 	$('#structure').html(content);
-	$('#filter .total').text(maxVisible);
-	$('#filter .filtered').text(maxVisible);
+	$('#navbar-filter .total').text(maxVisible);
+	$('#navbar-filter .filtered').text(maxVisible);
 }
 
 function loadingStructure(loading) {
 	if (loading === true) {
 		// add loading icon to specific item in structure
 		$('.structure-selected td:nth-child(2) a').prepend('<i class="fa fa-circle-o-notch fa-spin"></i> ');
-		$('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-		$('#filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-		$('#filter input').prop('disabled', true);
-		$('#filter .search').prop('disabled', true);
+		$('#navbar-filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+		$('#navbar-filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+		$('#navbar-filter input').prop('disabled', true);
+		$('#navbar-filter .search').prop('disabled', true);
 	}
 	if (loading === false) {
 		$('#map').hide();
 		// new structure will override loading icon but remove it manually in case of error
 		$('.structure-selected td:nth-child(2) a i').remove();
-		$('#filter input').prop('disabled', false);
-		$('#filter .search').prop('disabled', false);
+		$('#navbar-filter input').prop('disabled', false);
+		$('#navbar-filter .search').prop('disabled', false);
 		$('[data-toggle="tooltip"]').tooltip({html: true}); // update all tooltips after structure is (re)loaded
 	}
 }
@@ -948,7 +953,7 @@ function mapParsePhotos() {
 
 function shareUrl(niceUrl) {
 	if (copyToClipboard(niceUrl)) {
-		flashMessage('info', 'URL was copied.')
+		flashMessage('info', 'URL was copied to clipboard.')
 	} else {
 		// noinspection JSJQueryEfficiency - delete previous flash error message (if any) before showing new
 		$('#breadcrumb-share-flash').parent().remove();

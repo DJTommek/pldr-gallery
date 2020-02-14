@@ -110,8 +110,8 @@ jwerty.key('enter', function (e) {
 		}
 		// @TODO video open in fullscreen (also disable move left and right)
 	} else {
-		if ($("#filter .search").is(":focus")) {
-			$('#filter .search').trigger('click');
+		if ($("#navbar-filter .search").is(":focus")) {
+			$('#navbar-filter .search').trigger('click');
 		} else {
 			S.selectorSelect();
 		}
@@ -124,7 +124,7 @@ jwerty.key('ctrl+enter', function (e) {
 	} else if (loadedStructure.popup) {
 
 	} else {
-		$('#filter .search').trigger('click');
+		$('#navbar-filter .search').trigger('click');
 	}
 });
 
@@ -180,12 +180,12 @@ $(window).on('keypress', function () {
 	} else if (loadedStructure.popup) {
 
 	} else {
-		$('#filter input').focus();
+		$('#navbar-filter input').focus();
 	}
 });
 
 let filterTimeout = null;
-$('#filter input').on('keyup change', function (event) {
+$('#navbar-filter input').on('keyup change', function (event) {
 	// do not run filter if are used keys to move in structure
 	if ([
 		//undefined, // triggered on "change",
@@ -199,7 +199,7 @@ $('#filter input').on('keyup change', function (event) {
 	].indexOf(event.keyCode) >= 0) {
 		return;
 	}
-	$('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>'); // @TODO in case of filtering, this "loading" might stuck
+	$('#navbar-filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>'); // @TODO in case of filtering, this "loading" might stuck
 	// Run filter after a little bit of inactivity
 	// @Author: https://schier.co/blog/2014/12/08/wait-for-user-to-stop-typing-using-javascript.html
 	clearTimeout(filterTimeout);

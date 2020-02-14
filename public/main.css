@@ -1,20 +1,28 @@
 body {
 	max-width: 1900px; /* 1920 - padding */
-	padding: 0 10px 10px; /* padding top because navbar looks weird without reseting to zero */
+	padding: 0; /* padding top because navbar looks weird without reseting to zero */
 	margin: 0 auto 3em; /* margin bottom because of popup-footer */
 }
 
 #flash-message {
 	width: 60%;
 	max-width: 50em;
-	margin: 40px auto;
+	margin: 0 auto;
 	position: fixed;
-	top: 0;
+	top: 60px;
 	left: 0;
 	right: 0;
-	padding: 15px;
 	text-align: center;
 	z-index: 2000; /* should be above everything */
+}
+
+#flash-message .alert {
+	margin: 15px;
+}
+
+body a,
+body .theme-color {
+	color: #007bff; /* Bootstrap primary */
 }
 
 #popup-footer,
@@ -22,10 +30,14 @@ body {
 	background-color: #f8f9fa;
 }
 
+/*********************************/
+/**			  Navbar			**/
+/*********************************/
+
 /* Make breadcrumb smaller */
 #navbar .breadcrumb {
 	padding: 0.5em 1em;
-	margin-bottom: 0.5em;
+	margin: 0;
 }
 
 /* Bigger area of clickable links */
@@ -33,24 +45,49 @@ body {
 	padding: 1em 0;
 }
 
-#navbar .breadcrumb #breadcrumb-favourite,
-#navbar .breadcrumb #breadcrumb-share {
-	cursor: pointer;
-}
-
-#breadcrumb-share-flash {
-	width: 100%;
-	text-align: center;
-}
-
-/* Zarovnat text v dropdownu */
 #navbar .dropdown-item {
 	text-align: right;
 }
 
-#filter {
+#navbar-filter {
 	width: 15rem;
 }
+
+#navbar .nav-item button {
+	border: none;
+}
+
+/* while non-collapsed navbar */
+@media (min-width: 768px) {
+	/* Normalize all elements (buttons, dropdowns...) */
+	#navbar .nav-item .nav-link {
+		margin-right: -10px;
+		margin-left: -10px;
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+
+	/* Normalize also icons inside */
+	#navbar .nav-item .nav-link i.fa {
+		width: 20px;
+		height: 20px;
+		margin: 2px;
+		padding: 2px;
+	}
+}
+
+/* while in collapsed navbar */
+@media (max-width: 767px) {
+	/* all items should be in full width */
+	#navbar-filter,
+	#navbar .nav-item button {
+		width: 100%;
+	}
+}
+
+/*********************************/
+/**			Structure			**/
+/*********************************/
 
 /* Ikonka ma minimalni sirku */
 #structure table {
@@ -116,6 +153,7 @@ body {
 #structure-header,
 #structure-footer {
 	text-align: center;
+	margin: 1em;
 }
 
 
@@ -280,8 +318,8 @@ input[type=checkbox] {
 		background-color: #616161;
 	}
 
-	body.theme-dark #filter input,
-	body.theme-dark #filter .input-group-text {
+	body.theme-dark #navbar-filter input,
+	body.theme-dark #navbar-filter .input-group-text {
 		border: black;
 		color: #909090;
 		background-color: black;
@@ -296,12 +334,9 @@ input[type=checkbox] {
 		color: #909090;
 	}
 
-	body.theme-dark a:not(.btn) {
+	body.theme-dark a:not(.btn),
+	body.theme-dark .theme-color {
 		color: orange;
-	}
-
-	body.theme-dark .progress-bar {
-		background-color: orange;
 	}
 
 	body.theme-dark .structure-selected,
