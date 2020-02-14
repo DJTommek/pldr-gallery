@@ -7,13 +7,16 @@ body {
 #flash-message {
 	width: 60%;
 	max-width: 50em;
-	margin: 40px auto;
+	margin: 0 auto;
 	position: fixed;
-	top: 0;
+	top: 60px;
 	left: 0;
 	right: 0;
-	padding: 15px;
 	text-align: center;
+}
+
+#flash-message .alert {
+	margin: 15px;
 	z-index: 2000; /* should be above everything */
 }
 
@@ -22,25 +25,33 @@ body {
 	background-color: #f8f9fa;
 }
 
+
+/*********************************/
+/**			  Navbar			**/
+/*********************************/
+
+
 /* Make breadcrumb smaller */
 #navbar .breadcrumb {
-	/*padding: 0.5em 1em;*/
-	/*margin-bottom: 0.5em;*/
+	padding: 0.5em 1em;
+	margin: 0;
 }
 
 /* Bigger area of clickable links */
 #navbar .breadcrumb li a {
-	/*padding: 1em 0;*/
+	padding: 1em 0;
 }
 
-#navbar .breadcrumb #breadcrumb-favourite,
-#navbar .breadcrumb #breadcrumb-share {
-	cursor: pointer;
+#navbar .nav-item {
+	margin: 1px;
+	/*padding-top: 0.5em;*/
 }
 
-#breadcrumb-share-flash {
-	width: 100%;
-	text-align: center;
+
+@media (min-width: 768px) {
+	#navbar li.nav-item.dropdown {
+		/*padding-top: 0.5em;*/
+	}
 }
 
 /* Zarovnat text v dropdownu */
@@ -51,16 +62,44 @@ body {
 #filter {
 	width: 15rem;
 }
-/* while in collapsed */
+#navbar .nav-item .nav-link {
+	margin-right: -10px;
+	margin-left: -10px;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+#navbar .nav-item .nav-link i.fa {
+	width: 20px;
+	height: 20px;
+	margin: 2px;
+	padding: 2px;
+}
+
+/* color as <a> */
+#navbar .btn-outline-secondary,
+#navbar button:nth-child(1), /* only to "add to favourites" button, not carot*/
+#navbar .btn-group {
+	color: orange;
+}
+
+/* while in collapsed navbar */
 @media (max-width: 768px) {
 	#navbar ul.navbar-nav {
 		text-align: right;
 	}
-	#filter {
+
+	/* all items should be in full width*/
+	#filter,
+	#navbar .nav-item .btn-outline-secondary,
+	#navbar .nav-item button:nth-child(1), /* only to "add to favourites" button, not carot*/
+	#navbar .nav-item .btn-group {
 		width: 100%;
 	}
 }
 
+/*********************************/
+/**			Structure			**/
+/*********************************/
 
 /* Ikonka ma minimalni sirku */
 #structure table {

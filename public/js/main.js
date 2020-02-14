@@ -262,7 +262,7 @@ $(window).on('hashchange', function (event) {
 $(function () {
 	loadAndResize();
 	updateLoginButtons();
-	favouritesGenerateMenu();
+	// favouritesGenerateMenu();
 
 	// Save original title into data property
 	$('html head title').data('original-title', $('html head title').text());
@@ -443,16 +443,18 @@ $(function () {
 		loadingDone(this);
 	});
 
-	// @TODO clickable area is smaller, because event handler is not <li> but for <span> inside, which is much smaller
-	$('#currentPath').on('click', '#breadcrumb-favourite .fa-star-o', function () { // Event - add to favourites
+	$('#navbar').on('click', '#navbar-favourites-add', function (event) { // Event - add to favourites
+		event.preventDefault();
 		favouritesAdd(S.getCurrentFolder().path);
-		$(this).addClass('fa-star').removeClass('fa-star-o');
-		$(this).attr('title', 'Odebrat z oblíbených');
-	}).on('click', '#breadcrumb-favourite .fa-star', function () { // Event - remove from favourites
+		// $(this).addClass('fa-star').removeClass('fa-star-o');
+		// $(this).attr('title', 'Odebrat z oblíbených');
+	}).on('click', '#navbar-favourites-remove', function (event) { // Event - remove from favourites
+		event.preventDefault();
 		favouritesRemove(S.getCurrentFolder().path);
-		$(this).addClass('fa-star-o').removeClass('fa-star');
-		$(this).attr('title', 'Přidat do oblíbených');
-	}).on('click', '#breadcrumb-share', function () { // Event - share URL
+		// $(this).addClass('fa-star-o').removeClass('fa-star');
+		// $(this).attr('title', 'Přidat do oblíbených');
+	}).on('click', '#navbar-share', function (event) { // Event - share URL
+		event.preventDefault();
 		shareUrl(window.location.origin + '/#' + S.getCurrentFolder().url);
 	});
 
@@ -547,7 +549,7 @@ function presentationToggle() {
 function favouritesAdd(path) {
 	let saved = Settings.load('favouriteFolders');
 	saved.pushUnique(path);
-	flashMessage('info', 'Folder has been added to favourites. Check <i class="fa fa-bars fa-fw"></i> menu.');
+	flashMessage('info', 'Folder has been added to favourites.');
 	Settings.save('favouriteFolders', saved);
 	favouritesGenerateMenu();
 }
@@ -565,16 +567,25 @@ function favouritesIs(path) {
 }
 
 function favouritesGenerateMenu() {
-	$('#navbar-hamburger-dropdown .dropdown-menu .favourites-submenu').remove();
+	$('#navbar-dropdown-content .dropdown-item-favourites').remove();
 	const saved = Settings.load('favouriteFolders');
-	if (saved.length > 0) {
-		$('#navbar-hamburger-dropdown .dropdown-menu').append('<div class="dropdown-divider favourites-submenu"></div>');
+	if (saved.length === 0) {
+		$('#navbar-dropdown-content').append('<div class="dropdown-item dropdown-item-favourites disabled">No saved items</div>');
 	}
 	saved.forEach(function (savedFolder) {
-		$('#navbar-hamburger-dropdown .dropdown-menu').append(
-			'<a class="dropdown-item favourites-submenu" href="#' + pathToUrl(savedFolder) + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>'
+		$('#navbar-dropdown-content').append(
+			'<a class="dropdown-item dropdown-item-favourites" href="#' + pathToUrl(savedFolder) + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>'
 		);
 	});
+
+	const currentFolderPath = S.getCurrentFolder().path;
+	if (favouritesIs(currentFolderPath)) { // show button only to remove from favourites
+		$('#navbar-favourites-add').hide();
+		$('#navbar-favourites-remove').show();
+	} else { // show button only to add to favourites
+		$('#navbar-favourites-add').show();
+		$('#navbar-favourites-remove').hide();
+	}
 }
 
 function videoToggle() {
@@ -638,12 +649,12 @@ function updateLoginButtons() {
 	if (Cookies.get('google-login')) { // logged in
 		$('#button-login').hide();
 		$('#button-logout').show();
-		$('#navbar .dropdown .dropdown-toggle i').addClass('fa-user').removeClass('fa-bars');
+		// $('#navbar .dropdown .dropdown-toggle i').addClass('fa-user').removeClass('fa-bars');
 		$('#dynamic-styles').text('.logged-in {display: inherit;} .logged-out {display: none;}');
 	} else {
 		$('#button-login').show();
 		$('#button-logout').hide();
-		$('#navbar .dropdown .dropdown-toggle i').addClass('fa-bars').removeClass('fa-user');
+		// $('#navbar .dropdown .dropdown-toggle i').addClass('fa-bars').removeClass('fa-user');
 		$('#dynamic-styles').text('.logged-out {display: inherit;} .logged-in {display: none;}');
 	}
 }
@@ -753,14 +764,16 @@ function parseStructure(items) {
 	currentFolder.paths.forEach(function (folderName, index) {
 		breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += currentFolder.urls[index] + '/') + '">' + folderName + '</a></li>';
 	});
-	// favourites button (add or remove)
-	if (currentFolder.path !== '/') { // show only in non-root folders
-		const icon = favouritesIs(currentFolder.path) ? 'fa-star' : 'fa-star-o';
-		const title = favouritesIs(currentFolder.path) ? 'Odebrat z oblíbených' : 'Přidat do oblíbených';
-		breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-favourite" title="' + title + '" data-toggle="tooltip"><span class="fa fa-fw ' + icon + '"></span></a></li>';
-	}
+
+	favouritesGenerateMenu();
+
+	// if (currentFolder.path !== '/') { // show only in non-root folders
+	// 	const icon = favouritesIs(currentFolder.path) ? 'fa-star' : 'fa-star-o';
+	// 	const title = favouritesIs(currentFolder.path) ? 'Odebrat z oblíbených' : 'Přidat do oblíbených';
+	// 	breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-favourite" title="' + title + '" data-toggle="tooltip"><span class="fa fa-fw ' + icon + '"></span></a></li>';
+	// }
 	// add "share url" button
-	breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-share" title="Copy URL" data-toggle="tooltip"><span class="fa fa-share-alt"></span></a></li>';
+	// breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-share" title="Copy URL" data-toggle="tooltip"><span class="fa fa-share-alt"></span></a></li>';
 	$('#currentPath').html(breadcrumbHtml);
 	/**
 	 * Generate structure content

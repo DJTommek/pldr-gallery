@@ -19,8 +19,8 @@
 		// Local storage is not working (disabled, unsupported, ...)
 	}
 </script>
-<div id="flash-message">
-</div>
+
+<div id="flash-message"></div>
 
 <div>
 	<nav class="navbar navbar-expand-md sticky-top" id="navbar">
@@ -50,32 +50,52 @@
 			</form>
 
 			<ul class="navbar-nav">
+				<!-- Share -->
 				<li class="nav-item">
-					<a class="nav-link" data-toggle="modal" data-target="#modal-settings" href="#">
-						<span class="d-md-none d-lg-none d-xl-none">Copy URL</span> <i class="fa fa-share-alt fa-fw"></i>
+					<a class="nav-link" href="#" id="navbar-share">
+						<button class="btn btn-outline-secondary">
+							<span class="d-md-none d-lg-none">Copy URL</span>
+							<i class="fa fa-share-alt fa-fw"></i>
+						</button>
 					</a>
 				</li>
-				<li class="nav-item" title="Favourites">
-					<div class="dropdown" id="navbar-hamburger-dropdown">
-						<a class="nav-link dropdown-toggle" href="#" id="navbar-dropdown-button" role="button" data-toggle="dropdown" aria-expanded="false">
-							<span class="d-md-none d-lg-none d-xl-none">Favourites</span> <i class="fa fa-star"></i>
-						</a>
-						<div class="dropdown-menu dropdown-menu-right">
-							<a class="dropdown-item" href="#">Add to favourites <i class="fa fa-fw fa-star"></i></a>
-						</div>
+
+				<!-- Favourites -->
+				<li class="nav-item dropdown" title="Favourites">
+					<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" id="navbar-dropdown-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<span class="d-md-none">Favourites</span>&nbsp;<i class="fa fa-star-o"></i>
+					</button>
+
+					<div class="dropdown-menu dropdown-menu-right" id="navbar-dropdown-content">
+						<a class="dropdown-item" style="display: none;" href="#" id="navbar-favourites-add">Add to favourites</a>
+						<a class="dropdown-item" style="display: none;" href="#" id="navbar-favourites-remove">Remove from favourites</a>
+						<div class="dropdown-divider"></div>
 					</div>
+
 				</li>
+
+				<!-- Settings -->
 				<li class="nav-item" title="Settings">
 					<a class="nav-link" data-toggle="modal" data-target="#modal-settings" href="#">
-						<span class="d-md-none d-lg-none d-xl-none">Settings</span> <i class="fa fa-wrench fa-fw"></i>
+						<button class="btn btn-outline-secondary">
+							<span class="d-md-none d-lg-none">Settings</span>
+							<i class="fa fa-wrench fa-fw"></i>
+						</button>
 					</a>
 				</li>
+				<!-- Login and logout -->
 				<li class="nav-item">
 					<a class="nav-link" id="button-login" href="/login" title="Login">
-						<span class="d-md-none d-lg-none d-xl-none">Sign in</span> <i class="fa fa-sign-in fa-fw"></i>
+						<button class="btn btn-outline-secondary">
+							<span class="d-md-none d-lg-none">Sign in</span>
+							<i class="fa fa-sign-in fa-fw"></i>
+						</button>
 					</a>
 					<a class="nav-link" id="button-logout" href="/logout" style="display: none;" title="Logout">
-						<span class="d-md-none d-lg-none d-xl-none">Sign out</span> <i class="fa fa-sign-out fa-fw"></i>
+						<button class="btn btn-outline-secondary">
+							<span class="d-md-none d-lg-none">Sign out</span>
+							<i class="fa fa-sign-out fa-fw"></i>
+						</button>
 					</a>
 				</li>
 			</ul>
