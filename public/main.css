@@ -1,6 +1,6 @@
 body {
 	max-width: 1900px; /* 1920 - padding */
-	padding: 0 10px 10px; /* padding top because navbar looks weird without reseting to zero */
+	padding: 0; /* padding top because navbar looks weird without reseting to zero */
 	margin: 0 auto 3em; /* margin bottom because of popup-footer */
 }
 
@@ -48,19 +48,6 @@ body .theme-color {
 	padding: 1em 0;
 }
 
-#navbar .nav-item {
-	margin: 1px;
-	/*padding-top: 0.5em;*/
-}
-
-
-@media (min-width: 768px) {
-	#navbar li.nav-item.dropdown {
-		/*padding-top: 0.5em;*/
-	}
-}
-
-/* Zarovnat text v dropdownu */
 #navbar .dropdown-item {
 	text-align: right;
 }
@@ -68,45 +55,35 @@ body .theme-color {
 #filter {
 	width: 15rem;
 }
+
 #navbar .nav-item button {
 	border: none;
 }
 
-#navbar .nav-item .nav-link i.fa {
-	width: 20px;
-	height: 20px;
-	margin: 2px;
-	padding: 2px;
-}
-
-/* color as <a> */
-#navbar .btn-outline-secondary,
-#navbar button:nth-child(1), /* only to "add to favourites" button, not carot*/
-#navbar .btn-group {
-	/*color: orange;*/
-}
-
 /* while non-collapsed navbar */
 @media (min-width: 768px) {
+	/* Normalize all elements (buttons, dropdowns...) */
 	#navbar .nav-item .nav-link {
 		margin-right: -10px;
 		margin-left: -10px;
 		padding-top: 0;
 		padding-bottom: 0;
 	}
+
+	/* Normalize also icons inside */
+	#navbar .nav-item .nav-link i.fa {
+		width: 20px;
+		height: 20px;
+		margin: 2px;
+		padding: 2px;
+	}
 }
 
 /* while in collapsed navbar */
 @media (max-width: 767px) {
-	#navbar ul.navbar-nav {
-		text-align: right;
-	}
-
-	/* all items should be in full width*/
+	/* all items should be in full width */
 	#filter,
-	#navbar .nav-item .btn-outline-secondary,
-	#navbar .nav-item button:nth-child(1), /* only to "add to favourites" button, not carot*/
-	#navbar .nav-item .btn-group {
+	#navbar .nav-item button {
 		width: 100%;
 	}
 }
@@ -179,6 +156,7 @@ body .theme-color {
 #structure-header,
 #structure-footer {
 	text-align: center;
+	margin: 1em;
 }
 
 

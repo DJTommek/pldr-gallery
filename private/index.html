@@ -22,96 +22,94 @@
 
 <div id="flash-message"></div>
 
-<div>
-	<nav class="navbar navbar-expand-md sticky-top" id="navbar">
-		<ol id="currentPath" class="breadcrumb">
-			<li class="breadcrumb-item active"><a href="#/"><i class="fa fa-home"></i></a></li>
-		</ol>
-		<button class="btn navbar-toggler theme-color" type="button" data-toggle="collapse" data-target="#navbar-collapse-content">
-			Menu <i class="fa fa-bars"></i>
-		</button>
+<nav class="navbar navbar-expand-md sticky-top" id="navbar">
+	<ol id="currentPath" class="breadcrumb">
+		<li class="breadcrumb-item active"><a href="#/"><i class="fa fa-home"></i></a></li>
+	</ol>
+	<button class="btn navbar-toggler theme-color" type="button" data-toggle="collapse" data-target="#navbar-collapse-content">
+		Menu <i class="fa fa-bars"></i>
+	</button>
 
-		<div class="collapse navbar-collapse justify-content-end" id="navbar-collapse-content">
-			<form class="form-inline my-2 my-lg-0">
-				<div class="input-group" id="filter">
-					<input type="search" class="form-control" placeholder="Filter" disabled/>
-					<div class="input-group-append">
+	<div class="collapse navbar-collapse justify-content-end" id="navbar-collapse-content">
+		<form class="form-inline my-2 my-lg-0">
+			<div class="input-group" id="filter">
+				<input type="search" class="form-control" placeholder="Filter" disabled/>
+				<div class="input-group-append">
 					<span class="input-group-text">
 						<span class="filtered"><i class="fa fa-circle-o-notch fa-spin"></i></span>
 						/
 						<span class="total"><i class="fa fa-circle-o-notch fa-spin"></i></span>
 					</span>
-					</div>
-					<div class="input-group-append" title="Vyhledat i v podsložkách (ctrl+enter)" data-toggle="tooltip">
-						<button class="btn btn-outline-secondary search theme-color" type="button">
-							<i class="fa fa-search"></i>
-						</button>
-					</div>
 				</div>
-			</form>
-
-			<ul class="navbar-nav">
-				<!-- Share -->
-				<li class="nav-item">
-					<a class="nav-link" href="#" id="navbar-share">
-						<button class="btn btn-outline-secondary theme-color">
-							<span class="d-md-none d-lg-none">Copy URL</span>
-							<i class="fa fa-share-alt fa-fw"></i>
-						</button>
-					</a>
-				</li>
-
-				<!-- Favourites -->
-				<li class="nav-item dropdown" title="Favourites">
-					<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split theme-color" type="button" id="navbar-favourites-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<span class="d-md-none text-decoration-link">Favourites</span>
-						<i class="fa fa-star-o"></i>
+				<div class="input-group-append" title="Vyhledat i v podsložkách (ctrl+enter)" data-toggle="tooltip">
+					<button class="btn btn-outline-secondary search theme-color" type="button">
+						<i class="fa fa-search"></i>
 					</button>
+				</div>
+			</div>
+		</form>
 
-					<div class="dropdown-menu dropdown-menu-right theme-color" id="navbar-dropdown-content">
-						<a class="dropdown-item" style="display: none;" href="#" id="navbar-favourites-add">Add to favourites</a>
-						<a class="dropdown-item" style="display: none;" href="#" id="navbar-favourites-remove">Remove from favourites</a>
-						<div class="dropdown-divider"></div>
-					</div>
+		<ul class="navbar-nav">
+			<!-- Share -->
+			<li class="nav-item">
+				<a class="nav-link" href="#" id="navbar-share">
+					<button class="btn btn-outline-secondary theme-color">
+						<span class="d-md-none d-lg-none">Copy URL</span>
+						<i class="fa fa-share-alt fa-fw"></i>
+					</button>
+				</a>
+			</li>
 
-				</li>
+			<!-- Favourites -->
+			<li class="nav-item dropdown" title="Favourites">
+				<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split theme-color" type="button" id="navbar-favourites-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<span class="d-md-none text-decoration-link">Favourites</span>
+					<i class="fa fa-star-o"></i>
+				</button>
 
-				<!-- Settings -->
-				<li class="nav-item" title="Settings">
-					<a class="nav-link" data-toggle="modal" data-target="#modal-settings" href="#">
-						<button class="btn btn-outline-secondary theme-color">
-							<span class="d-md-none">Settings</span>
-							<i class="fa fa-wrench fa-fw"></i>
-						</button>
-					</a>
-				</li>
-				<!-- Login and logout -->
-				<li class="nav-item">
-					<a class="nav-link" id="button-login" href="/login" title="Login">
-						<button class="btn btn-outline-secondary theme-color">
-							<span class="d-md-none">Sign in</span>
-							<i class="fa fa-sign-in fa-fw"></i>
-						</button>
-					</a>
-					<a class="nav-link" id="button-logout" href="/logout" style="display: none;" title="Logout">
-						<button class="btn btn-outline-secondary theme-color">
-							<span class="d-md-none d-lg-none">Sign out</span>
-							<i class="fa fa-sign-out fa-fw"></i>
-						</button>
-					</a>
-				</li>
-			</ul>
-		</div>
-	</nav>
+				<div class="dropdown-menu dropdown-menu-right theme-color" id="navbar-dropdown-content">
+					<a class="dropdown-item" style="display: none;" href="#" id="navbar-favourites-add">Add to favourites</a>
+					<a class="dropdown-item" style="display: none;" href="#" id="navbar-favourites-remove">Remove from favourites</a>
+					<div class="dropdown-divider"></div>
+				</div>
 
-	<noscript>
-		<h2 class="text-center">V prohlížeči je nutné povolit Javascript</h2>
-	</noscript>
-	<div id="structure-header"></div>
-	<div id="structure"></div>
-	<div id="structure-footer"></div>
-	<div id="map" style="display: none;"></div>
-</div>
+			</li>
+
+			<!-- Settings -->
+			<li class="nav-item" title="Settings">
+				<a class="nav-link" data-toggle="modal" data-target="#modal-settings" href="#">
+					<button class="btn btn-outline-secondary theme-color">
+						<span class="d-md-none">Settings</span>
+						<i class="fa fa-wrench fa-fw"></i>
+					</button>
+				</a>
+			</li>
+			<!-- Login and logout -->
+			<li class="nav-item">
+				<a class="nav-link" id="button-login" href="/login" title="Login">
+					<button class="btn btn-outline-secondary theme-color">
+						<span class="d-md-none">Sign in</span>
+						<i class="fa fa-sign-in fa-fw"></i>
+					</button>
+				</a>
+				<a class="nav-link" id="button-logout" href="/logout" style="display: none;" title="Logout">
+					<button class="btn btn-outline-secondary theme-color">
+						<span class="d-md-none d-lg-none">Sign out</span>
+						<i class="fa fa-sign-out fa-fw"></i>
+					</button>
+				</a>
+			</li>
+		</ul>
+	</div>
+</nav>
+
+<noscript>
+	<h2 class="text-center">V prohlížeči je nutné povolit Javascript</h2>
+</noscript>
+<div id="structure-header"></div>
+<div id="structure"></div>
+<div id="structure-footer"></div>
+<div id="map" style="display: none;"></div>
 
 <div id="popup" style="display: none;">
 	<div id="popup-content">
