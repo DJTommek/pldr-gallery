@@ -21,6 +21,12 @@ module.exports = function (webserver, endpoint) {
 			return;
 		}
 
+		let itemLimit = parseInt(req.cookies['pmg-item-limit']);
+		if (itemLimit <= 0) {
+			itemLimit = 1000;
+		}
+
+		let foldersLimitCount = 0;
 		const loadFoldersPromise = new Promise(function (resolve) {
 			let folders = [];
 			// if requested folder is not root, add one FolderItem to go back
@@ -41,18 +47,24 @@ module.exports = function (webserver, endpoint) {
 					if (perms.test(res.locals.userPerms, dynamicPath) === false) {
 						return;
 					}
+					foldersLimitCount++;
+					if (foldersLimitCount > itemLimit) {
+						return;
+					}
 					folders.push(new FolderItem(null, {
 						path: dynamicPath
 					}).serialize());
 				});
 				folders.sort(sortItemsByPath);
-				resolve(folders);
 			}).catch(function (error) {
 				LOG.error('[Globby] Error while processing folders in "' + res.locals.fullPathFolder + '": ' + error.message);
-				resolve([]);
+				folders = [];
+			}).finally(function() {
+				resolve([folders, foldersLimitCount, itemLimit, 0]);
 			});
 		});
 
+		let filesLimitCount = 0;
 		const loadFilesPromise = new Promise(function (resolve) {
 			let files = [];
 			globby(res.locals.fullPathFolder + '*', {onlyFiles: true}).then(function (rawPathsFiles) {
@@ -62,6 +74,10 @@ module.exports = function (webserver, endpoint) {
 						return;
 					}
 					if (dynamicPath.match((new FileExtensionMapper).regexAll) === null) {
+						return;
+					}
+					filesLimitCount++;
+					if (filesLimitCount > itemLimit) {
 						return;
 					}
 					let pathStats = null;
@@ -81,10 +97,11 @@ module.exports = function (webserver, endpoint) {
 					files.push(fileItem.serialize());
 				});
 				files.sort(sortItemsByPath);
-				return resolve(files);
 			}).catch(function (error) {
 				LOG.error('[Globby] Error while processing files in "' + res.locals.fullPathFolder + '": ' + error.message);
-				resolve([]);
+				files = [];
+			}).finally(function() {
+				resolve([files, filesLimitCount, itemLimit, 0]);
 			});
 		});
 
@@ -112,8 +129,14 @@ module.exports = function (webserver, endpoint) {
 			generateSpecificFilePromise('footer.html'),
 		]).then(function (data) {
 			res.result.setResult({
-				folders: data[0],
-				files: data[1],
+				folders: data[0][0],
+				foldersTotal: data[0][1],
+				foldersLimit: data[0][2],
+				foldersOffset: data[0][3],
+				files: data[1][0],
+				filesTotal: data[1][1],
+				filesLimit: data[1][2],
+				filesOffset: data[1][3],
 				header: data[2],
 				footer: data[3]
 			}).end();

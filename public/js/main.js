@@ -346,6 +346,9 @@ $(function () {
 		} else {
 			Cookies.remove('pmg-compress');
 		}
+		// set item limit variable into cookie on save
+		Cookies.set('pmg-item-limit', Settings.load('structureItemLimit'));
+
 		// show info about save to user
 		$('#settings-save')
 			.html('Uloženo <i class="fa fa-check"></i>')
@@ -362,13 +365,18 @@ $(function () {
 	});
 
 	/**
-	 * set compress variable into cookie on load
+	 * set compress variable into cookie on page load
 	 */
 	if (Settings.load('compress') === true) {
 		Cookies.set('pmg-compress', true);
 	} else {
 		Cookies.remove('pmg-compress');
 	}
+	/**
+	 * Set item limit variable into cookie on page load
+	 */
+	Cookies.set('pmg-item-limit', Settings.load('structureItemLimit'));
+
 
 	/**
 	 * Toggle dark theme
@@ -737,17 +745,7 @@ function loadStructure(force, callback) {
 function parseStructure(items) {
 	// in case of triggering loading the same structure again (already loaded), skip it
 	updateLoginButtons(); // might be logged out
-	let limited = false;
-	const realTotal = items.folders.length + items.files.length;
-	if (Settings.load('structureItemLimit') > 0 && realTotal >= Settings.load('structureItemLimit')) {
-		limited = true;
-		if (items.folders.length > Settings.load('structureItemLimit')) {
-			items.folders = items.folders.slice(0, Settings.load('structureItemLimit'));
-		}
-		if (items.files.length > Settings.load('structureItemLimit')) {
-			items.files = items.files.slice(0, Settings.load('structureItemLimit'));
-		}
-	}
+
 	loadedStructure.loadedFolder = S.getCurrentFolder().path;
 	S.setAll(items);
 	const currentFolder = S.getCurrentFolder();
@@ -785,7 +783,7 @@ function parseStructure(items) {
 		if (item.noFilter) {
 			maxVisible--;
 		}
-		content += '<tr data-type="folder" data-index="' + item.index + '">';
+		content += '<tr data-type="folder" id="item-index-' + item.index + '" data-index="' + item.index + '">';
 		content += ' <td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
 		content += ' <td><a href="#' + item.url + '">' + item.text + '</a></td>';
 		if (S.getFiles().length) {
@@ -794,8 +792,14 @@ function parseStructure(items) {
 		}
 		content += '</tr>';
 	});
+	if (items.foldersTotal > items.folders.length) {
+		content += '<tr class="structure-limited" data-type="folder">';
+		content += '<td><i class="fa fa-info fa-fw"></i></td>';
+		content += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (items.foldersTotal) + ' složek ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</td>';
+		content += '</tr>';
+	}
 	S.getFiles().forEach(function (item) {
-		content += '<tr data-type="file" data-index="' + item.index + '">';
+		content += '<tr data-type="file" id="item-index-' + item.index + '" data-index="' + item.index + '">';
 		content += '<td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
 		content += '<td><a href="#' + item.url + '">' + item.text + '</a></td>';
 		content += '<td>' + formatBytes(item.size, 2) + '</td>';
@@ -809,10 +813,10 @@ function parseStructure(items) {
 		content += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Složka je prázdná.</td>';
 		content += '</tr>';
 	}
-	if (limited) {
+	if (items.filesTotal > items.files.length) {
 		content += '<tr class="structure-limited" data-type="folder">';
 		content += '<td><i class="fa fa-info fa-fw"></i></td>';
-		content += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (realTotal) + ' položek ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</td>';
+		content += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (items.filesTotal) + ' souborů ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</td>';
 		content += '</tr>';
 	}
 	content += '</tbody></table>';
