@@ -330,7 +330,7 @@ $(function () {
 	/**
 	 * Save form values to Settings class
 	 */
-	$('#form-settings').on('submit', function (event) {
+	$('#form-settings').on('change submit', function (event) {
 		event.preventDefault();
 		// save all inputs from form into Settings
 		$(this).serializeArray().forEach(function (input) {
