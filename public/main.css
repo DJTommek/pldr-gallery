@@ -20,6 +20,12 @@ body {
 	z-index: 2000; /* should be above everything */
 }
 
+body a,
+body .theme-color {
+	color: #007bff; /* Bootstrap primary */
+}
+
+
 #popup-footer,
 #navbar {
 	background-color: #f8f9fa;
@@ -62,12 +68,10 @@ body {
 #filter {
 	width: 15rem;
 }
-#navbar .nav-item .nav-link {
-	margin-right: -10px;
-	margin-left: -10px;
-	padding-top: 0;
-	padding-bottom: 0;
+#navbar .nav-item button {
+	border: none;
 }
+
 #navbar .nav-item .nav-link i.fa {
 	width: 20px;
 	height: 20px;
@@ -79,11 +83,21 @@ body {
 #navbar .btn-outline-secondary,
 #navbar button:nth-child(1), /* only to "add to favourites" button, not carot*/
 #navbar .btn-group {
-	color: orange;
+	/*color: orange;*/
+}
+
+/* while non-collapsed navbar */
+@media (min-width: 768px) {
+	#navbar .nav-item .nav-link {
+		margin-right: -10px;
+		margin-left: -10px;
+		padding-top: 0;
+		padding-bottom: 0;
+	}
 }
 
 /* while in collapsed navbar */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
 	#navbar ul.navbar-nav {
 		text-align: right;
 	}
@@ -345,12 +359,9 @@ input[type=checkbox] {
 		color: #909090;
 	}
 
-	body.theme-dark a:not(.btn) {
+	body.theme-dark a:not(.btn),
+	body.theme-dark .theme-color {
 		color: orange;
-	}
-
-	body.theme-dark .progress-bar {
-		background-color: orange;
 	}
 
 	body.theme-dark .structure-selected,

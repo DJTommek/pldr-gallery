@@ -27,11 +27,11 @@
 		<ol id="currentPath" class="breadcrumb">
 			<li class="breadcrumb-item active"><a href="#/"><i class="fa fa-home"></i></a></li>
 		</ol>
-		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-			Menu <span class="navbar-toggler-icon"></span>
+		<button class="btn navbar-toggler theme-color" type="button" data-toggle="collapse" data-target="#navbar-collapse-content">
+			Menu <i class="fa fa-bars"></i>
 		</button>
 
-		<div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+		<div class="collapse navbar-collapse justify-content-end" id="navbar-collapse-content">
 			<form class="form-inline my-2 my-lg-0">
 				<div class="input-group" id="filter">
 					<input type="search" class="form-control" placeholder="Filter" disabled/>
@@ -43,7 +43,8 @@
 					</span>
 					</div>
 					<div class="input-group-append" title="Vyhledat i v podsložkách (ctrl+enter)" data-toggle="tooltip">
-						<button class="btn btn-outline-secondary search" type="button"><i class="fa fa-search"></i>
+						<button class="btn btn-outline-secondary search theme-color" type="button">
+							<i class="fa fa-search"></i>
 						</button>
 					</div>
 				</div>
@@ -53,7 +54,7 @@
 				<!-- Share -->
 				<li class="nav-item">
 					<a class="nav-link" href="#" id="navbar-share">
-						<button class="btn btn-outline-secondary">
+						<button class="btn btn-outline-secondary theme-color">
 							<span class="d-md-none d-lg-none">Copy URL</span>
 							<i class="fa fa-share-alt fa-fw"></i>
 						</button>
@@ -62,11 +63,12 @@
 
 				<!-- Favourites -->
 				<li class="nav-item dropdown" title="Favourites">
-					<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" id="navbar-dropdown-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<span class="d-md-none">Favourites</span>&nbsp;<i class="fa fa-star-o"></i>
+					<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split theme-color" type="button" id="navbar-favourites-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<span class="d-md-none text-decoration-link">Favourites</span>
+						<i class="fa fa-star-o"></i>
 					</button>
 
-					<div class="dropdown-menu dropdown-menu-right" id="navbar-dropdown-content">
+					<div class="dropdown-menu dropdown-menu-right theme-color" id="navbar-dropdown-content">
 						<a class="dropdown-item" style="display: none;" href="#" id="navbar-favourites-add">Add to favourites</a>
 						<a class="dropdown-item" style="display: none;" href="#" id="navbar-favourites-remove">Remove from favourites</a>
 						<div class="dropdown-divider"></div>
@@ -77,8 +79,8 @@
 				<!-- Settings -->
 				<li class="nav-item" title="Settings">
 					<a class="nav-link" data-toggle="modal" data-target="#modal-settings" href="#">
-						<button class="btn btn-outline-secondary">
-							<span class="d-md-none d-lg-none">Settings</span>
+						<button class="btn btn-outline-secondary theme-color">
+							<span class="d-md-none">Settings</span>
 							<i class="fa fa-wrench fa-fw"></i>
 						</button>
 					</a>
@@ -86,13 +88,13 @@
 				<!-- Login and logout -->
 				<li class="nav-item">
 					<a class="nav-link" id="button-login" href="/login" title="Login">
-						<button class="btn btn-outline-secondary">
-							<span class="d-md-none d-lg-none">Sign in</span>
+						<button class="btn btn-outline-secondary theme-color">
+							<span class="d-md-none">Sign in</span>
 							<i class="fa fa-sign-in fa-fw"></i>
 						</button>
 					</a>
 					<a class="nav-link" id="button-logout" href="/logout" style="display: none;" title="Logout">
-						<button class="btn btn-outline-secondary">
+						<button class="btn btn-outline-secondary theme-color">
 							<span class="d-md-none d-lg-none">Sign out</span>
 							<i class="fa fa-sign-out fa-fw"></i>
 						</button>

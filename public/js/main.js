@@ -573,16 +573,16 @@ function favouritesGenerateMenu() {
 		$('#navbar-dropdown-content').append('<div class="dropdown-item dropdown-item-favourites disabled">No saved items</div>');
 	}
 	saved.forEach(function (savedFolder) {
-		$('#navbar-dropdown-content').append(
-			'<a class="dropdown-item dropdown-item-favourites" href="#' + pathToUrl(savedFolder) + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>'
-		);
+		$('#navbar-dropdown-content').append('<a class="dropdown-item dropdown-item-favourites" href="#' + pathToUrl(savedFolder) + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>');
 	});
 
 	const currentFolderPath = S.getCurrentFolder().path;
 	if (favouritesIs(currentFolderPath)) { // show button only to remove from favourites
+		$('#navbar-favourites-button i.fa').addClass('fa-star').removeClass('fa-star-o');
 		$('#navbar-favourites-add').hide();
 		$('#navbar-favourites-remove').show();
 	} else { // show button only to add to favourites
+		$('#navbar-favourites-button i.fa').addClass('fa-star-o').removeClass('fa-star');
 		$('#navbar-favourites-add').show();
 		$('#navbar-favourites-remove').hide();
 	}
