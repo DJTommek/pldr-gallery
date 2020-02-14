@@ -677,7 +677,7 @@ class Structure {
 			console.warn('Filtering is already running, new filtering cancelled');
 			return;
 		}
-		const filterText = $('#filter input').val().toLowerCase();
+		const filterText = $('#navbar-filter input').val().toLowerCase();
 		if (filterText.match(/^\/.+\/$/)) { // check, if string has delimiters is regex, at least /./
 			// @TODO in case of regexp error, filter might be triggered twice so this alert message too
 			try { // try if regex is valid before running filter
@@ -685,7 +685,7 @@ class Structure {
 			} catch (exception) {
 				console.warn('User input filter is not valid: ' + exception.message);
 				alert('Filter is not valid: ' + exception.message);
-				$('#filter .filtered').text(0);
+				$('#navbar-filter .filtered').text(0);
 				return;
 			}
 		}
@@ -709,11 +709,11 @@ class Structure {
 			}
 		});
 		if (allHidden) { // if no item passed filter, show warning
-			$('#filter input').addClass('is-invalid');
+			$('#navbar-filter input').addClass('is-invalid');
 		} else {
-			$('#filter input').removeClass('is-invalid');
+			$('#navbar-filter input').removeClass('is-invalid');
 		}
-		$('#filter .filtered').text(visible);
+		$('#navbar-filter .filtered').text(visible);
 		const item = this.getItem(this.selectedIndex);
 		if (!item) { // new opened folder is empty, do not move with selector
 			loadedStructure.filtering = false;

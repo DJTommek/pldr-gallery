@@ -13,11 +13,11 @@ body {
 	left: 0;
 	right: 0;
 	text-align: center;
+	z-index: 2000; /* should be above everything */
 }
 
 #flash-message .alert {
 	margin: 15px;
-	z-index: 2000; /* should be above everything */
 }
 
 body a,
@@ -25,17 +25,14 @@ body .theme-color {
 	color: #007bff; /* Bootstrap primary */
 }
 
-
 #popup-footer,
 #navbar {
 	background-color: #f8f9fa;
 }
 
-
 /*********************************/
 /**			  Navbar			**/
 /*********************************/
-
 
 /* Make breadcrumb smaller */
 #navbar .breadcrumb {
@@ -52,7 +49,7 @@ body .theme-color {
 	text-align: right;
 }
 
-#filter {
+#navbar-filter {
 	width: 15rem;
 }
 
@@ -82,7 +79,7 @@ body .theme-color {
 /* while in collapsed navbar */
 @media (max-width: 767px) {
 	/* all items should be in full width */
-	#filter,
+	#navbar-filter,
 	#navbar .nav-item button {
 		width: 100%;
 	}
@@ -321,8 +318,8 @@ input[type=checkbox] {
 		background-color: #616161;
 	}
 
-	body.theme-dark #filter input,
-	body.theme-dark #filter .input-group-text {
+	body.theme-dark #navbar-filter input,
+	body.theme-dark #navbar-filter .input-group-text {
 		border: black;
 		color: #909090;
 		background-color: black;

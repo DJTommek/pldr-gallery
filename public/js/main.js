@@ -296,7 +296,7 @@ $(function () {
 	$('#popup-close, #popup-content').on('click', function () {
 		popupClose();
 	});
-	$('#filter .search').on('click', function (event) {
+	$('#navbar-filter .search').on('click', function (event) {
 		event.preventDefault();
 		loadSearch();
 	});
@@ -661,7 +661,7 @@ function updateLoginButtons() {
 }
 
 function loadSearch(callback) {
-	let query = $('#filter input').val().trim();
+	let query = $('#navbar-filter input').val().trim();
 	if (!query) {
 		console.log("Search query is empty, cancel search request");
 		return;
@@ -686,11 +686,11 @@ function loadSearch(callback) {
 		},
 		beforeSend: function () {
 			loadingStructure(true);
-			$('#filter .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
+			$('#navbar-filter .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
 		},
 		complete: function () {
 			loadingStructure(false);
-			$('#filter .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
+			$('#navbar-filter .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
 			(typeof callback === 'function' && callback());
 		}
 	});
@@ -719,7 +719,7 @@ function loadStructure(force, callback) {
 				$('#structure-header').html(result.result.header || '');
 				$('#structure-footer').html(result.result.footer || '');
 				parseStructure(result.result);
-				$('#filter input').val('');
+				$('#navbar-filter input').val('');
 				S.filter();
 			}
 		},
@@ -819,25 +819,25 @@ function parseStructure(items) {
 	}
 	content += '</tbody></table>';
 	$('#structure').html(content);
-	$('#filter .total').text(maxVisible);
-	$('#filter .filtered').text(maxVisible);
+	$('#navbar-filter .total').text(maxVisible);
+	$('#navbar-filter .filtered').text(maxVisible);
 }
 
 function loadingStructure(loading) {
 	if (loading === true) {
 		// add loading icon to specific item in structure
 		$('.structure-selected td:nth-child(2) a').prepend('<i class="fa fa-circle-o-notch fa-spin"></i> ');
-		$('#filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-		$('#filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-		$('#filter input').prop('disabled', true);
-		$('#filter .search').prop('disabled', true);
+		$('#navbar-filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+		$('#navbar-filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+		$('#navbar-filter input').prop('disabled', true);
+		$('#navbar-filter .search').prop('disabled', true);
 	}
 	if (loading === false) {
 		$('#map').hide();
 		// new structure will override loading icon but remove it manually in case of error
 		$('.structure-selected td:nth-child(2) a i').remove();
-		$('#filter input').prop('disabled', false);
-		$('#filter .search').prop('disabled', false);
+		$('#navbar-filter input').prop('disabled', false);
+		$('#navbar-filter .search').prop('disabled', false);
 		$('[data-toggle="tooltip"]').tooltip({html: true}); // update all tooltips after structure is (re)loaded
 	}
 }
