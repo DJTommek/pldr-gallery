@@ -262,7 +262,6 @@ $(window).on('hashchange', function (event) {
 $(function () {
 	loadAndResize();
 	updateLoginButtons();
-	// favouritesGenerateMenu();
 
 	// Save original title into data property
 	$('html head title').data('original-title', $('html head title').text());
@@ -443,19 +442,15 @@ $(function () {
 		loadingDone(this);
 	});
 
-	$('#navbar').on('click', '#navbar-favourites-add', function (event) { // Event - add to favourites
+	$('#navbar').on('click', '#navbar-share', function (event) { // Event - share URL
+		event.preventDefault();
+		shareUrl(window.location.origin + '/#' + S.getCurrentFolder().url);
+	}).on('click', '#navbar-favourites-add', function (event) { // Event - add to favourites
 		event.preventDefault();
 		favouritesAdd(S.getCurrentFolder().path);
-		// $(this).addClass('fa-star').removeClass('fa-star-o');
-		// $(this).attr('title', 'Odebrat z oblíbených');
 	}).on('click', '#navbar-favourites-remove', function (event) { // Event - remove from favourites
 		event.preventDefault();
 		favouritesRemove(S.getCurrentFolder().path);
-		// $(this).addClass('fa-star-o').removeClass('fa-star');
-		// $(this).attr('title', 'Přidat do oblíbených');
-	}).on('click', '#navbar-share', function (event) { // Event - share URL
-		event.preventDefault();
-		shareUrl(window.location.origin + '/#' + S.getCurrentFolder().url);
 	});
 
 	// Event - load next item if possible
@@ -467,7 +462,7 @@ $(function () {
 		itemPrev(true);
 	});
 
-	// Event - share file url
+	// Event - share file url from popup
 	$('#popup-share').on('click', function () {
 		shareUrl(window.location.origin + '/#' + S.getCurrentFile().url);
 	});
@@ -566,16 +561,22 @@ function favouritesIs(path) {
 	return (Settings.load('favouriteFolders').indexOf(path) >= 0)
 }
 
+/**
+ * Remove all generated items in navbar favourites dropdown content and generate new data
+ * Also update navbar favourites button to reflect if currently opened path is saved or not
+ */
 function favouritesGenerateMenu() {
+	// Update navbar dropdown content
 	$('#navbar-dropdown-content .dropdown-item-favourites').remove();
 	const saved = Settings.load('favouriteFolders');
-	if (saved.length === 0) {
+	if (saved.length === 0) { // nothing is saved
 		$('#navbar-dropdown-content').append('<div class="dropdown-item dropdown-item-favourites disabled">No saved items</div>');
 	}
 	saved.forEach(function (savedFolder) {
 		$('#navbar-dropdown-content').append('<a class="dropdown-item dropdown-item-favourites" href="#' + pathToUrl(savedFolder) + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>');
 	});
 
+	// Update navbar favourites button and toggle showing add to and remove from favourites
 	const currentFolderPath = S.getCurrentFolder().path;
 	if (favouritesIs(currentFolderPath)) { // show button only to remove from favourites
 		$('#navbar-favourites-button i.fa').addClass('fa-star').removeClass('fa-star-o');
@@ -767,13 +768,6 @@ function parseStructure(items) {
 
 	favouritesGenerateMenu();
 
-	// if (currentFolder.path !== '/') { // show only in non-root folders
-	// 	const icon = favouritesIs(currentFolder.path) ? 'fa-star' : 'fa-star-o';
-	// 	const title = favouritesIs(currentFolder.path) ? 'Odebrat z oblíbených' : 'Přidat do oblíbených';
-	// 	breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-favourite" title="' + title + '" data-toggle="tooltip"><span class="fa fa-fw ' + icon + '"></span></a></li>';
-	// }
-	// add "share url" button
-	// breadcrumbHtml += '<li class="breadcrumb-item"><a id="breadcrumb-share" title="Copy URL" data-toggle="tooltip"><span class="fa fa-share-alt"></span></a></li>';
 	$('#currentPath').html(breadcrumbHtml);
 	/**
 	 * Generate structure content
@@ -961,7 +955,7 @@ function mapParsePhotos() {
 
 function shareUrl(niceUrl) {
 	if (copyToClipboard(niceUrl)) {
-		flashMessage('info', 'URL was copied.')
+		flashMessage('info', 'URL was copied to clipboard.')
 	} else {
 		// noinspection JSJQueryEfficiency - delete previous flash error message (if any) before showing new
 		$('#breadcrumb-share-flash').parent().remove();
