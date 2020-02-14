@@ -10,7 +10,7 @@
 		presentationEnabled: false,
 		compress: true,
 	};
-	var Settings = {
+	const Settings = {
 		/**
 		 * Return saved (or default) value from localstorage
 		 *
@@ -18,28 +18,27 @@
 		 */
 		load: function (name) {
 			// return all values
-			if (typeof name === 'undefined') {
-				return settingsValues;
+			if (typeof name !== 'string') {
+				throw new Error('Param "name" has to be string.');
 			}
 			// return specific value
 			let value = settingsValues[name];
-			if (typeof value !== 'undefined') {
-				if (isNumeric(value)) {
-					return parseInt(value);
-				} else if (value === 'true') {
-					return true;
-				} else if (value === 'false') {
-					return false;
-				}
-				try {
-					return JSON.parse(value)
-				} catch (error) {
-					// do nothing, probably is not JSON
-				}
-				return value;
+			if (typeof value === 'undefined') {
+				throw new Error('Settings value with name "' + name + '" is not defined.');
 			}
-			console.error('Settings with name "' + name + '" does not exists, cant load.');
-			return null;
+			if (isNumeric(value)) {
+				return parseInt(value);
+			} else if (value === 'true') {
+				return true;
+			} else if (value === 'false') {
+				return false;
+			}
+			try {
+				return JSON.parse(value)
+			} catch (error) {
+				// do nothing, probably is not JSON
+			}
+			return value;
 		},
 
 		/**
@@ -51,12 +50,10 @@
 		 */
 		save: function (name, value) {
 			if (typeof name === 'undefined' || typeof value === 'undefined') {
-				console.error('Settings.save() require two parameters.');
-				return null;
+				throw new Error('Settings.save() require two parameters.');
 			}
 			if (typeof settingsValues[name] === 'undefined') {
-				console.error('Settings with name "' + name + '" does not exists, cant save.')
-				return null;
+				throw new Error('Settings with name "' + name + '" does not exists, cant save.')
 			}
 			// is Array or JSON
 			if (Array.isArray(value) || value && value.constructor === ({}).constructor) {
@@ -64,12 +61,11 @@
 			}
 			settingsValues[name] = value;
 			localStorage.setItem('pldr-settings-' + name, value);
-			return Settings.load(name);
 		},
-	}
+	};
 
 	// Save all settings to localStorage if not saved before
-	for (settingsName in settingsValues) {
+	for (const settingsName in settingsValues) {
 		let savedValue = localStorage.getItem('pldr-settings-' + settingsName);
 		if (savedValue) {
 			settingsValues[settingsName] = savedValue;
