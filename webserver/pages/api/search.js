@@ -60,7 +60,8 @@ module.exports = function (webserver, endpoint) {
 					return; // file has invalid extension
 				}
 
-				let entryPath = HFS.pathNormalize(entry.fullPath, HFS.pathJoin(__dirname, c.path));
+				// @TODO fix searching if path is dynamic
+				let entryPath = HFS.pathNormalize(entry.fullPath, c.path);
 				if (entry.basename.toLowerCase().indexOf(req.query.query.toLowerCase()) === -1) {
 					return; // not match with searched query
 				}
