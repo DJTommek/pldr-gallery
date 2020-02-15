@@ -94,6 +94,10 @@ body .theme-color {
 	width: 100%;
 }
 
+#structure table tbody tr {
+	transition: background-color 0.5s ease;
+}
+
 /* Cely radek je klikaci odkaz */
 #structure table tbody tr td {
 	cursor: pointer;
