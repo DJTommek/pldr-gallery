@@ -421,7 +421,7 @@ $(function () {
 				$('#settings-passwords-list').append(html);
 			});
 		}).fail(function (response) {
-			flashMessage('danger', 'Error <b>' + response.status + '</b> while loading passwords: <b>' + response.statusText + '</b>');
+			flashMessage('Error <b>' + response.status + '</b> while loading passwords: <b>' + response.statusText + '</b>', 'danger', false);
 		}).always(function () {
 			setTimeout(function () {
 				$(button).html('Načíst hesla').prop('disabled', false);
@@ -552,7 +552,7 @@ function presentationToggle() {
 function favouritesAdd(path) {
 	let saved = Settings.load('favouriteFolders');
 	saved.pushUnique(path);
-	flashMessage('info', 'Folder has been added to favourites.');
+	flashMessage('Folder has been added to favourites.');
 	Settings.save('favouriteFolders', saved);
 	favouritesGenerateMenu();
 }
@@ -560,7 +560,7 @@ function favouritesAdd(path) {
 function favouritesRemove(path) {
 	let saved = Settings.load('favouriteFolders');
 	saved.removeByValue(path);
-	flashMessage('info', 'Folder has been removed from favourites.');
+	flashMessage('Folder has been removed from favourites.');
 	Settings.save('favouriteFolders', saved);
 	favouritesGenerateMenu();
 }
@@ -681,14 +681,14 @@ function loadSearch(callback) {
 		},
 		success: function (result) {
 			if (result.error === true || !result.result) {
-				flashMessage('danger', result.message || 'Chyba během hledání. Kontaktuj autora.', false);
+				flashMessage(result.message || 'Chyba během hledání. Kontaktuj autora.', 'danger', false);
 			} else {
 				parseStructure(result.result);
 				S.selectorMove('first');
 			}
 		},
 		error: function (result) {
-			flashMessage('danger', result.responseJSON ? result.responseJSON.message : 'Chyba během hledání. Kontaktuj autora.', false);
+			flashMessage(result.responseJSON ? result.responseJSON.message : 'Chyba během hledání. Kontaktuj autora.', 'danger', false);
 		},
 		beforeSend: function () {
 			loadingStructure(true);
@@ -716,10 +716,10 @@ function loadStructure(force, callback) {
 		},
 		success: function (result) {
 			if (result.error === true || !result.result) {
-				flashMessage('danger', (
+				flashMessage((
 						(result.message || 'Chyba během načítání dat. Kontaktuj autora.') +
 						'<br>Zkus se <a href="/login" class="alert-link">přihlásit</a> nebo jít <a href="#" class="alert-link">domů</a>.'
-					), false
+					), 'danger', false
 				);
 			} else {
 				$('#structure-header').html(result.result.header || '');
@@ -730,7 +730,7 @@ function loadStructure(force, callback) {
 			}
 		},
 		error: function (result) {
-			flashMessage('danger', result.responseJSON ? result.responseJSON.message : 'Serverová chyba během načítání dat. Kontaktuj autora.', false);
+			flashMessage(result.responseJSON ? result.responseJSON.message : 'Serverová chyba během načítání dat. Kontaktuj autora.', 'danger', false);
 		},
 		beforeSend: function () {
 			loadingStructure(true);
@@ -857,12 +857,20 @@ function loadingPopup(loading) {
 	return loadedStructure.loading;
 }
 
-function flashMessage(type, text, fade = 4, target = '#flash-message') {
+/**
+ * Show flash message on the top of the screen
+ *
+ * @param {string} text Content of flash message
+ * @param {string} [type] format of message based on Bootstrap predefined colors (info, warning, danger, primary etc)
+ * @param {number|boolean} [fade] hide message after x miliseconds. False to disable auto-hide
+ * @param {jQuery.selector} [target] generated message will appendTo() this element
+ */
+function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message') {
 	let html = '<div class="alert alert-' + type + '" id="alert' + loadedStructure.flashIndex + '" role="alert">';
 	html += '<button class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + text + '</div>';
 	$(target).prepend(html);
 	if (fade !== false) {
-		$('#alert' + loadedStructure.flashIndex).delay(fade * 1000).fadeOut("slow", function () {
+		$('#alert' + loadedStructure.flashIndex).delay(fade).fadeOut("slow", function () {
 			$(this).remove();
 		});
 	}
@@ -957,12 +965,12 @@ function mapParsePhotos() {
 
 function shareUrl(niceUrl) {
 	if (copyToClipboard(niceUrl)) {
-		flashMessage('info', 'URL was copied to clipboard.')
+		flashMessage('URL was copied to clipboard.')
 	} else {
 		// noinspection JSJQueryEfficiency - delete previous flash error message (if any) before showing new
 		$('#breadcrumb-share-flash').parent().remove();
 		// show error with pre-selected input filled with URL
-		flashMessage('danger', '<p><b>Error</b> while copying URL, copy it manually via <kbd class="nobr"><kbd>CTRL</kbd> + <kbd>C</kbd></kbd></p><input id="breadcrumb-share-flash" type="text" value="' + niceUrl + '">', false);
+		flashMessage('<p><b>Error</b> while copying URL, copy it manually via <kbd class="nobr"><kbd>CTRL</kbd> + <kbd>C</kbd></kbd></p><input id="breadcrumb-share-flash" type="text" value="' + niceUrl + '">', 'danger', false);
 		// noinspection JSJQueryEfficiency
 		$('#breadcrumb-share-flash').trigger('focus').trigger('select');
 	}

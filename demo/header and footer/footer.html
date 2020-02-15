@@ -30,21 +30,21 @@
 	$('#footer-test-button-muhehe').on('click', function () {
 		const element = this;
 		$(element).append(' <i class="fa fa-circle-o-notch fa-spin"></i>').attr('disabled', 'disabled');
-		flashMessage('info', 'Self-destruct sequence initiated. 5...', 4);
+		flashMessage('Self-destruct sequence initiated. 5...', 'info', 4000);
 		setTimeout(function () {
-			flashMessage('info', '... 4 ...', 1);
+			flashMessage('... 4 ...', 'info', 1000);
 		}, 4000);
 		setTimeout(function () {
-			flashMessage('warning', '... 3 ...', 1);
+			flashMessage('... 3 ...', 'warning', 1000);
 		}, 5000);
 		setTimeout(function () {
-			flashMessage('warning', '... 2 ...', 1);
+			flashMessage('... 2 ...', 'warning', 1000);
 		}, 6000);
 		setTimeout(function () {
-			flashMessage('danger', '... 1 ...', 2);
+			flashMessage('... 1 ...', 'danger', 2000);
 		}, 7000);
 		setTimeout(function () {
-			flashMessage('danger', '<b>$fd##@@da!sf###@</b><br>Javascript malfunction, self-destruct aborted!', false);
+			flashMessage('<b>$fd##@@da!sf###@</b><br>Javascript malfunction, self-destruct aborted!', 'danger', false);
 			$(element).removeAttr('disabled').text($(element).text()); // remove spin icon
 		}, 9000);
 	});
