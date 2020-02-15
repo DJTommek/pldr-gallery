@@ -12,7 +12,13 @@ module.exports.FATAL_ERROR = 6;
 module.exports.UNCAUGHT_EXCEPTION = 7;
 module.exports.WARNING = 8;
 
-const logsPath = './log/';
+let logsPath = '';
+module.exports.setPath = function (path) {
+	logsPath = path;
+	checkAndCreateFolders();
+	return this;
+};
+
 const baseLogFileFormat = '{date}';
 const fileExtension = 'txt';
 const defaultLogData = {
@@ -125,6 +131,9 @@ function defineLogParameters(severity, customParams) {
  * @param {{}} [params]
  */
 module.exports.log = function (message, severity, params) {
+	if (PATH.isAbsolute(logsPath) === false) {
+		throw new Error('Base folder where to save logs is not defined. Use setPath("/some/absolute/path/") first.');
+	}
 	const logParams = defineLogParameters(severity, params);
 	const datetime = new Date().human(true);
 	const content = '[' + datetime.toString() + '] ' + logParams.messageFormat.formatUnicorn({'message': message});
@@ -278,8 +287,6 @@ function checkAndCreateFolders() {
 		}
 	}
 }
-
-checkAndCreateFolders();
 
 process.on('uncaughtException', function (error) {
 	module.exports.log(error.message + ' - more in exception log.', module.exports.ERROR);

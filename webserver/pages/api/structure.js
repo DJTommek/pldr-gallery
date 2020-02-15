@@ -1,8 +1,8 @@
-const c = require(process.cwd() + '/libs/config.js');
+const c = require(BASE_DIR_GET('/libs/config.js'));
 const FS = require('fs');
-const pathCustom = require(process.cwd() + '/libs/path.js');
-const LOG = require(process.cwd() + '/libs/log.js');
-const perms = require(process.cwd() + '/libs/permissions.js');
+const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
+const LOG = require(BASE_DIR_GET('/libs/log.js'));
+const perms = require(BASE_DIR_GET('/libs/permissions.js'));
 const globby = require('globby');
 const exifParser = require('exif-parser');
 

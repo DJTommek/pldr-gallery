@@ -1,7 +1,6 @@
-const c = require(process.cwd() + '/libs/config.js');
+const c = require(BASE_DIR_GET('/libs/config.js'));
 const FS = require('fs');
-const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
-const LOG = require(process.cwd() + '/libs/log.js');
+const LOG = require(BASE_DIR_GET('/libs/log.js'));
 const sha1 = require('sha1');
 const googleAuthLibrary = require('google-auth-library');
 const oauth2Client = new googleAuthLibrary.OAuth2Client(c.google.clientId, c.google.secret, c.google.redirectUrl);

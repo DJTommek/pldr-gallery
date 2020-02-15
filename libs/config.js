@@ -7,7 +7,7 @@ const FS = require('fs');
 const PATH = require('path');
 
 const merge = require('lodash.merge');
-require('./../public/js/structure');
+require(BASE_DIR_GET('/public/js/structure.js'));
 
 let CONFIG = {
 	compress: {
@@ -71,21 +71,21 @@ let CONFIG = {
 };
 
 // load local config and merge values into this config
-if (!FS.existsSync('./libs/config.local.js')) {
-	console.error('Missing local config file.\nRename "/libs/config.local.example.js" to "/libs/config.local.js" to continue.');
+if (!FS.existsSync(BASE_DIR_GET('/libs/config.local.js'))) {
+	console.error('\x1b[31mERROR: Missing local config file.\nRename "/libs/config.local.example.js" to "/libs/config.local.js" to continue.');
 	process.exit();
 }
-CONFIG = merge(CONFIG, require('./config.local.js'));
+CONFIG = merge(CONFIG, require(BASE_DIR_GET('/libs/config.local.js')));
 
 // Path has to contain only forward slashes to avoid platform-dependent problems
 if (CONFIG.path.includes('\\')) {
-	throw new Error('Config.path attribute can\'t contain backward slashes.');
+	console.error('\x1b[31mERROR: Config.path attribute can\'t contain backward slashes.');
+	process.exit();
 }
 
 // Convert path to absolute if is defined relative
 if (PATH.isAbsolute(CONFIG.path) === false) {
-	CONFIG.path = PATH.join(PATH.resolve(CONFIG.path), '/').replaceAll('\\', '/');
-	console.log('Path was defined relative, converted into absolute: ' + CONFIG.path);
+	CONFIG.path = BASE_DIR_GET(CONFIG.path);
 }
 
 CONFIG.start = new Date();

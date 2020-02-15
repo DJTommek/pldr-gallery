@@ -1,7 +1,7 @@
-const c = require(process.cwd() + '/libs/config.js');
+const c = require(BASE_DIR_GET('/libs/config.js'));
 const FS = require('fs');
-const pathCustom = require(process.cwd() + '/libs/path.js');
-const LOG = require(process.cwd() + '/libs/log.js');
+const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
+const LOG = require(BASE_DIR_GET('/libs/log.js'));
 module.exports = function (webserver, endpointPath) {
 
 	require(__dirname + '/getMediaType.js')(webserver, endpointPath);

@@ -1,4 +1,4 @@
-const c = require(process.cwd() + '/libs/config.js');
+const c = require(BASE_DIR_GET('/libs/config.js'));
 
 module.exports = function (webserver, endpoint) {
 

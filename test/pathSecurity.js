@@ -1,9 +1,8 @@
 require('../public/js/functions.js');
+
 const assert = require('assert');
-const PERMS = require('../libs/permissions.js');
-const HFS = require('../libs/helperFileSystem.js');
-const pathCustom = require('../libs/path.js');
-const PATH = require('path');
+const PERMS = require(BASE_DIR_GET('/libs/permissions.js'));
+const HFS = require(BASE_DIR_GET('/libs/helperFileSystem.js'));
 
 describe('Handle requested path', function () {
 	const ERROR_BACKSLASH = 'Backslash is not allowed';
@@ -13,7 +12,7 @@ describe('Handle requested path', function () {
 	const ERROR_QUESTIONMARK = 'Questionmark is not allowed';
 
 	// generate absolute URL from dynamic path
-	const absolutePath = PATH.join(PATH.resolve('./demo/'), '/').replaceAll('\\', '/');
+	const absolutePath = BASE_DIR_GET('/demo/');
 
 	/**
 	 * Run deepStrictEqual test

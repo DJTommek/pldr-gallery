@@ -1,6 +1,6 @@
-const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
-const LOG = require(process.cwd() + '/libs/log.js');
-const perms = require(process.cwd() + '/libs/permissions.js');
+const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
+const LOG = require(BASE_DIR_GET('/libs/log.js'));
+const perms = require(BASE_DIR_GET('/libs/permissions.js'));
 
 module.exports = function (webserver, endpoint) {
 
@@ -66,7 +66,7 @@ module.exports = function (webserver, endpoint) {
 				let redirectFolder = passwordPerms[0];
 				if (redirectFolder.slice(-1) !== '/') {
 					// this is not folder, redirect to dirname of this path
-					redirectFolder = HFS.pathDirname(redirectFolder);
+					redirectFolder = pathCustom.dirname(redirectFolder);
 				}
 				res.cookie('pmg-redirect', redirectFolder, {expires: new Date(253402300000000)});
 				res.redirect('/');

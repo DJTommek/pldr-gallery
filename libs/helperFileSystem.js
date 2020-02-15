@@ -4,28 +4,6 @@ const pathCustom = require('./path.js');
 const readline = require('readline');
 
 /**
- * Unite path to UNIX type even on Windows
- * - fixes relative path
- *
- * @param path
- * @param dynamic (optional) make path dynamic by removing start of path
- * @returns {string}
- */
-function pathNormalize(path, dynamic) {
-	path = PATH.posix.normalize(path);
-	if (typeof dynamic === 'string' && PATH.isAbsolute(dynamic)) {
-		path = path.replace(pathNormalize(dynamic), '/');
-	}
-	return path;
-}
-
-function pathJoin(...paths) {
-	return pathNormalize(PATH.join(...paths));
-}
-
-module.exports.pathJoin = pathJoin;
-
-/**
  * The same as PATH.dirname but keep trailing /
  *
  * @param path

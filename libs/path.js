@@ -9,7 +9,7 @@ const PATH = require('path');
  *
  * @see /test/path.js
  */
-function absoluteToRelative(absolutePath, absoluteBasePath) {
+module.exports.absoluteToRelative = function (absolutePath, absoluteBasePath) {
 	if (typeof absolutePath !== 'string' || PATH.isAbsolute(absolutePath) === false) {
 		throw new Error('Parameter "absolutePath" has to be absolute path but provided "' + absolutePath + '"');
 	}
@@ -23,9 +23,7 @@ function absoluteToRelative(absolutePath, absoluteBasePath) {
 	}
 	absolutePath = absolutePath.replace(absoluteBasePath, '/');
 	return absolutePath;
-}
-
-module.exports.absoluteToRelative = absoluteToRelative;
+};
 
 /**
  * Convert any dynamic path into absolute path. Platform independend, forward slashes only
@@ -35,8 +33,8 @@ module.exports.absoluteToRelative = absoluteToRelative;
  * @returns {string} absolute path
  *
  * @see /test/path.js
-*/
-function relativeToAbsolute(relativePath, absoluteBasePath) {
+ */
+module.exports.relativeToAbsolute = function (relativePath, absoluteBasePath) {
 	if (typeof relativePath !== 'string' || PATH.posix.isAbsolute(relativePath) === false) {
 		throw new Error('Parameter "relativePath" has to be absolute path but provided "' + relativePath + '"');
 	}
@@ -45,20 +43,57 @@ function relativeToAbsolute(relativePath, absoluteBasePath) {
 	}
 	relativePath = relativePath.replaceAll(/\\/g, '/');
 	absoluteBasePath = absoluteBasePath.replaceAll(/\\/g, '/');
-	relativePath = PATH.posix.join(absoluteBasePath, relativePath).replaceAll(/\\/g, '/');
+	relativePath = this.join(absoluteBasePath, relativePath);
 
 	return relativePath;
-}
-
-module.exports.relativeToAbsolute = relativeToAbsolute;
+};
 
 /**
  * Get extname without dot
  *
- * @param path
+ * @param {string} path
  */
-function extname(path) {
+module.exports.extname = function (path) {
 	return PATH.extname(path).toLowerCase().replace('.', '');
-}
+};
 
-module.exports.extname = extname;
+
+/**
+ * Join paths in posix compatible
+ *
+ * @param {string} paths
+ * @returns {string}
+ */
+module.exports.join = function(...paths) {
+	return PATH.join(...paths).replace(/\\/g, '/');
+};
+
+/**
+ * Get dirname with trailing slash
+ *
+ * @param {string} path
+ * @returns {string}
+ */
+module.exports.dirname = function(path) {
+	return this.join(PATH.dirname(path), '/');
+};
+
+module.exports.defineBaseDir = function(path) {
+	/**
+	 * Define base dir of app to place, where main file (usually index.js) is located.
+	 * Don't matter from which folder you run this app, BASE_DIR will be always absolute path to folder, where main file (usually index.js) is located.
+	 *
+	 * @type {string} absolute path
+	 */
+	global.BASE_DIR = module.exports.dirname(path);
+
+	/**
+	 * Generate absolute path for dynamically path
+	 *
+	 * @param path dynamic path from dir, where main file is located (usually index.js)
+	 * @returns {string} absolute path
+	 */
+	global.BASE_DIR_GET = function(path) {
+		return module.exports.join(BASE_DIR, path);
+	};
+};

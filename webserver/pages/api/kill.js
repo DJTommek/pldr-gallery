@@ -1,5 +1,5 @@
-const c = require(process.cwd() + '/libs/config.js');
-const LOG = require(process.cwd() + '/libs/log.js');
+const c = require(BASE_DIR_GET('/libs/config.js'));
+const LOG = require(BASE_DIR_GET('/libs/log.js'));
 
 module.exports = function (webserver, endpoint) {
 

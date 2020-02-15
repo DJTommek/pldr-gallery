@@ -1,9 +1,9 @@
-require(process.cwd() + '/public/js/functions.js');
-const c = require(process.cwd() + '/libs/config.js');
-const LOG = require(process.cwd() + '/libs/log.js');
+require(BASE_DIR_GET('/public/js/functions.js'));
+const c = require(BASE_DIR_GET('/libs/config.js'));
+const LOG = require(BASE_DIR_GET('/libs/log.js'));
 
 const FS = require("fs");
-const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
+const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
 const PATH = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -85,7 +85,7 @@ FS.readdirSync(path).forEach(function (file) {
 	if (file.match(/^[a-z\-]+\.js$/)) {
 		const baseEndpoint = PATH.posix.join('/' + PATH.basename(file, '.js'));
 		endpoints.push(baseEndpoint);
-		require(HFS.pathJoin(path, file))(webserver, baseEndpoint);
+		require(pathCustom.join(path, file))(webserver, baseEndpoint);
 	}
 });
 LOG.info('(Webserver) Loaded ' + endpoints.length + ' page(s): ' + endpoints.join(', '));
@@ -138,7 +138,7 @@ if (c.http.ssl.enable === true) {
  *   Will be replaced with:
  *   <link rel="stylesheet" href="main.css?1577833200000">
  */
-FS.readFile('./private/index.html', function (error, data) {
+FS.readFile(BASE_DIR_GET('/private/index.html'), function (error, data) {
 	if (error) {
 		LOG.fatal('Cannot load private index file for generating public index.html, error: ' + error.message);
 	}
@@ -155,7 +155,7 @@ FS.readFile('./private/index.html', function (error, data) {
 	].forEach(function (file) {
 		const htmlVariable = '{{CACHEBUSTER_' + file.replaceAll('/', '_').toUpperCase() + '}}';
 		promises.push(new Promise(function (resolve) {
-			FS.stat(file, function (error, data) {
+			FS.stat(BASE_DIR_GET(file), function (error, data) {
 				if (error) {
 					LOG.error('Error while creating cachebuster variable for "' + file + '": ' + error.message);
 					resolve();
@@ -173,7 +173,7 @@ FS.readFile('./private/index.html', function (error, data) {
 			}
 		});
 		fileContent = fileContent.replace('{{GOOGLE_MAPS_API_KEY}}', c.google.mapApiKey);
-		FS.writeFile('./public/index.html', fileContent, function (error) {
+		FS.writeFile(BASE_DIR_GET('/public/index.html'), fileContent, function (error) {
 			if (error) {
 				LOG.fatal('Fatal error while saving generated public/index.html file: ' + error.message);
 			} else {

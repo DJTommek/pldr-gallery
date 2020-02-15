@@ -1,13 +1,18 @@
 require('./public/js/functions.js');
-const c = require('./libs/config.js');
-const LOG = require('./libs/log.js');
+const pathCustom = require('./libs/path.js');
+pathCustom.defineBaseDir(require.main.filename);
+
+const c = require(BASE_DIR_GET('/libs/config.js'));
+
+const LOG = require(BASE_DIR_GET('/libs/log.js')).setPath(BASE_DIR_GET('/log/'));
+
 const FS = require("fs");
-const perms = require('./libs/permissions.js');
+const perms = require(BASE_DIR_GET('/libs/permissions.js'));
+perms.load();
 
 LOG.info('***STARTING***');
-perms.load();
 // Start webserver(s)
-require('./webserver/webserver.js');
+require(BASE_DIR_GET('/webserver/webserver.js'));
 
 // Check if config.path is set correctly
 try {

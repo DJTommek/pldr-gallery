@@ -1,12 +1,13 @@
-require(process.cwd() + '/public/js/functions.js');
-const c = require(process.cwd() + '/libs/config.js');
-const LOG = require(process.cwd() + '/libs/log.js');
-require(process.cwd() + '/public/js/structure.js');
+require(BASE_DIR_GET('/public/js/functions.js'));
+const c = require(BASE_DIR_GET('/libs/config.js'));
+const LOG = require(BASE_DIR_GET('/libs/log.js'));
+require(BASE_DIR_GET('/public/js/structure.js'));
 
 const FS = require('fs');
 const PATH = require('path');
-const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
-const perms = require(process.cwd() + '/libs/permissions.js');
+const HFS = require(BASE_DIR_GET('/libs/helperFileSystem.js'));
+const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
+const perms = require(BASE_DIR_GET('/libs/permissions.js'));
 
 module.exports = function (webserver, baseEndpoint) {
 
@@ -99,7 +100,7 @@ module.exports = function (webserver, baseEndpoint) {
 		if (file.match(/^[a-z\-]+\.js$/)) {
 			const endpoint = PATH.posix.join(baseEndpoint, PATH.basename(file, '.js'));
 			endpoints.push(endpoint);
-			require(HFS.pathJoin(path, file))(webserver, endpoint);
+			require(pathCustom.join(path, file))(webserver, endpoint);
 		}
 	});
 	LOG.info('(Webserver) Loaded ' + endpoints.length + ' "' + baseEndpoint + '" dynamic endpoints: ' + endpoints.join(', '));

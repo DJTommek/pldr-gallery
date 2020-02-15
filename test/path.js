@@ -1,4 +1,6 @@
 const pathCustom = require('../libs/path.js');
+pathCustom.defineBaseDir(__dirname + '../');
+
 const PATH = require('path');
 const assert = require('assert');
 
@@ -97,5 +99,50 @@ describe('Test extname() method from path.js', function () {
 		assert.equal(pathCustom.extname('/some/FILE.PNG.SYNC'), 'sync');
 		assert.equal(pathCustom.extname('/test/folder'), '');
 		assert.equal(pathCustom.extname('/test/FOLDER'), '');
+	});
+});
+
+describe('Test join() method from path.js', function () {
+	it('join()', function () {
+		assert.equal(pathCustom.join('/'), '/');
+		assert.equal(pathCustom.join('/mnt/'), '/mnt/');
+		assert.equal(pathCustom.join('/mnt'), '/mnt');
+
+		assert.equal(pathCustom.join('folder1', 'folder2'), 'folder1/folder2');
+		assert.equal(pathCustom.join('/mnt', '/'), '/mnt/');
+		assert.equal(pathCustom.join('/mnt/', '/'), '/mnt/');
+		assert.equal(pathCustom.join('/', '/mnt'), '/mnt');
+		assert.equal(pathCustom.join('/', '/mnt/'), '/mnt/');
+		assert.equal(pathCustom.join('/', 'mnt/'), '/mnt/');
+		assert.equal(pathCustom.join('/', 'mnt'), '/mnt');
+
+		assert.equal(pathCustom.join('/mnt/media', 'bla'), '/mnt/media/bla');
+		assert.equal(pathCustom.join('folder1', 'folder2', 'folder3'), 'folder1/folder2/folder3');
+
+		assert.equal(pathCustom.join('/', '/'), '/');
+		assert.equal(pathCustom.join('////', '/'), '/');
+		assert.equal(pathCustom.join('/', '////'), '/');
+		assert.equal(pathCustom.join('////', '////'), '/');
+	});
+});
+
+describe('Test dirname() method from path.js', function () {
+	it('dirname()', function () {
+		// file
+		assert.equal(pathCustom.dirname('/hello.png'), '/');
+		assert.equal(pathCustom.dirname('/some/hello.png'), '/some/');
+		assert.equal(pathCustom.dirname('/some/hello/hello.png'), '/some/hello/');
+		// folder
+		assert.equal(pathCustom.dirname('/'), '/');
+		// folder without trailing slash
+		assert.equal(pathCustom.dirname('/test'), '/');
+		assert.equal(pathCustom.dirname('/test/bla'), '/test/');
+		assert.equal(pathCustom.dirname('test/bla'), 'test/');
+		assert.equal(pathCustom.dirname('test/bla.png'), 'test/');
+		// folder with trailing slash
+		assert.equal(pathCustom.dirname('/mnt/'), '/');
+		assert.equal(pathCustom.dirname('/mnt bla/'), '/');
+		assert.equal(pathCustom.dirname('/mnt bla/image.png/'), '/mnt bla/');
+		assert.equal(pathCustom.dirname('/mnt bla/image.png/image.png'), '/mnt bla/image.png/');
 	});
 });

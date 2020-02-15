@@ -1,6 +1,6 @@
 require('../public/js/functions.js');
 const assert = require('assert');
-const perms = require('../libs/permissions.js');
+const perms = require(BASE_DIR_GET('/libs/permissions.js'));
 
 describe('Permissions', function () {
 	it('Full permissions (always true)', function () {
