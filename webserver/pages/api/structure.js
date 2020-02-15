@@ -1,6 +1,6 @@
 const c = require(process.cwd() + '/libs/config.js');
 const FS = require('fs');
-const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
+const pathCustom = require(process.cwd() + '/libs/path.js');
 const LOG = require(process.cwd() + '/libs/log.js');
 const perms = require(process.cwd() + '/libs/permissions.js');
 const globby = require('globby');
@@ -43,7 +43,7 @@ module.exports = function (webserver, endpoint) {
 				onlyDirectories: true
 			}).then(function (rawPathsFolders) {
 				rawPathsFolders.forEach(function (fullPath) {
-					const dynamicPath = HFS.pathMakeDynamic(c.path, fullPath);
+					const dynamicPath = pathCustom.absoluteToRelative(fullPath, c.path);
 					if (perms.test(res.locals.userPerms, dynamicPath) === false) {
 						return;
 					}
@@ -69,7 +69,7 @@ module.exports = function (webserver, endpoint) {
 			let files = [];
 			globby(res.locals.fullPathFolder + '*', {onlyFiles: true}).then(function (rawPathsFiles) {
 				rawPathsFiles.forEach(function (fullPath) {
-					const dynamicPath = HFS.pathMakeDynamic(c.path, fullPath);
+					const dynamicPath = pathCustom.absoluteToRelative(fullPath, c.path);
 					if (perms.test(res.locals.userPerms, dynamicPath) === false) {
 						return;
 					}
@@ -152,7 +152,7 @@ module.exports = function (webserver, endpoint) {
 		if (fullPath.match((new FileExtensionMapper).regexExif) === null) {
 			return {};
 		}
-		const extData = (new FileExtensionMapper).get(HFS.extname(fullPath));
+		const extData = (new FileExtensionMapper).get(pathCustom.extname(fullPath));
 		if (extData === undefined || typeof extData.exifBuffer !== 'number') {
 			return {};
 		}

@@ -1,7 +1,6 @@
 const c = require(process.cwd() + '/libs/config.js');
 const FS = require('fs');
-const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
-const LOG = require(process.cwd() + '/libs/log.js');
+const pathCustom = require(process.cwd() + '/libs/path.js');
 const sharp = require('sharp');
 
 module.exports = function (webserver, endpoint) {
@@ -20,7 +19,7 @@ module.exports = function (webserver, endpoint) {
 			if (!res.locals.fullPathFile) {
 				throw new Error('Neplatná cesta nebo nemáš právo');
 			}
-			const extensionData = (new FileExtensionMapper).getImage(HFS.extname(res.locals.fullPathFile));
+			const extensionData = (new FileExtensionMapper).getImage(pathCustom.extname(res.locals.fullPathFile));
 			if (!extensionData) {
 				throw new Error('Soubor nemá příponu obrázku.');
 			}

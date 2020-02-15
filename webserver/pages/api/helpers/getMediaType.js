@@ -1,6 +1,4 @@
-const c = require(process.cwd() + '/libs/config.js');
-const FS = require('fs');
-const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
+const pathCustom = require(process.cwd() + '/libs/path.js');
 const LOG = require(process.cwd() + '/libs/log.js');
 module.exports = function (webserver, endpointPath) {
 
@@ -11,7 +9,7 @@ module.exports = function (webserver, endpointPath) {
 	 */
 	webserver.get(endpointPath, function (req, res, next) {
 		if (res.locals.fullPathFile) {
-			const ext = HFS.extname(res.locals.fullPathFile);
+			const ext = pathCustom.extname(res.locals.fullPathFile);
 			const extData = (new FileExtensionMapper).get(ext);
 			if (extData && extData.mediaType) {
 				res.locals.mediaType = extData.mediaType;

@@ -1,6 +1,6 @@
 const c = require(process.cwd() + '/libs/config.js');
 const FS = require('fs');
-const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
+const pathCustom = require(process.cwd() + '/libs/path.js');
 const LOG = require(process.cwd() + '/libs/log.js');
 const readdirp = require('readdirp');
 const perms = require(process.cwd() + '/libs/permissions.js');
@@ -60,9 +60,8 @@ module.exports = function (webserver, endpoint) {
 					return; // file has invalid extension
 				}
 
-				// @TODO fix searching if path is dynamic
-				let entryPath = HFS.pathNormalize(entry.fullPath, c.path);
-				if (entry.basename.toLowerCase().indexOf(req.query.query.toLowerCase()) === -1) {
+				let entryPath = pathCustom.absoluteToRelative(entry.fullPath, c.path);
+				if (entry.basename.toLowerCase().includes(req.query.query.toLowerCase()) === false) {
 					return; // not match with searched query
 				}
 

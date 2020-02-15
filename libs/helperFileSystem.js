@@ -1,32 +1,7 @@
 const FS = require('fs');
 const PATH = require('path');
+const pathCustom = require('./path.js');
 const readline = require('readline');
-
-/**
- * Exactly as PATH.posix.normalize but replacing backslashes with UNIX slashes (\ -> /)
- *
- * @see PATH.posix.normalize()
- * @param {string} path
- * @returns {string}
- */
-function normalizeForce(path) {
-	return PATH.posix.normalize(path.replace(/\\/g, '/'));
-}
-
-module.exports.normalizeForce = normalizeForce;
-
-/**
- * Exactly as PATH.posix.resolve but replacing backslashes with UNIX slashes (\ -> /)
- *
- * @see PATH.posix.resolve()
- * @param {string} path
- * @returns {string}
- */
-function resolveForce(path) {
-	return PATH.posix.resolve(path).replace(/\\/g, '/');
-}
-
-module.exports.resolveForce = resolveForce;
 
 /**
  * Unite path to UNIX type even on Windows
@@ -43,39 +18,6 @@ function pathNormalize(path, dynamic) {
 	}
 	return path;
 }
-
-module.exports.pathNormalize = pathNormalize;
-
-/**
- * Create dynamic link
- *
- * @example /data/photos/, /data/photos/cats/ -> /cats/
- * @param {string} fullBasePath
- * @param {string} fullPath
- * @returns {string}
- */
-function pathMakeDynamic(fullBasePath, fullPath) {
-	// if (PATH.isAbsolute(fullBasePath) === false) {
-	//     console.log('fullBasePath (' + fullBasePath + ') is not absolute. Add ./ to fullPath (' + fullPath + ')');
-	//     fullPath = './' + fullPath;
-	// }
-	// console.log(fullPath);
-	// console.log(PATH.isAbsolute(fullBasePath));
-	// if (PATH.isAbsolute(fullBasePath) === false) {
-	//     console.log(fullBasePath);
-	//     throw new Error('Param "fullBasePath" must be absolute path');
-	// }
-	// if (PATH.isAbsolute(fullPath) === false) {
-	//     console.log(fullPath);
-	//     throw new Error('Param "fullPath" must be absolute path');
-	// }
-	if (fullPath.indexOf(fullBasePath) !== 0) {
-		throw new Error('Param "basePath" dont have same base structure as "fullBasePath"');
-	}
-	return fullPath.replace(fullBasePath, '/');
-}
-
-module.exports.pathMakeDynamic = pathMakeDynamic;
 
 function pathJoin(...paths) {
 	return pathNormalize(PATH.join(...paths));
@@ -94,17 +36,6 @@ function pathDirname(path) {
 }
 
 module.exports.pathDirname = pathDirname;
-
-/**
- * Get extname without dot
- *
- * @param path
- */
-function extname(path) {
-	return PATH.extname(path).toLowerCase().replace('.', '');
-}
-
-module.exports.extname = extname;
 
 /**
  * Get content of file
@@ -222,8 +153,8 @@ function pathMasterCheck(basePath, requestedPathBase64, userPermissions, permsTe
 		result.error = 'User do not have permissions to path "' + path + '"';
 		return result;
 	}
-	const fullPath = (basePath + '' + path).replace(/\/{2,}/, '/');
-	// const fullPath = PATH.posix.join(basePath, '/', path);
+
+	const fullPath = pathCustom.relativeToAbsolute(path, basePath);
 	let fileStats;
 	try {
 		fileStats = FS.lstatSync(fullPath); // throws exception if not exists or not accessible

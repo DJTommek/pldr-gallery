@@ -2,6 +2,8 @@ require('../public/js/functions.js');
 const assert = require('assert');
 const PERMS = require('../libs/permissions.js');
 const HFS = require('../libs/helperFileSystem.js');
+const pathCustom = require('../libs/path.js');
+const PATH = require('path');
 
 describe('Handle requested path', function () {
 	const ERROR_BACKSLASH = 'Backslash is not allowed';
@@ -10,12 +12,11 @@ describe('Handle requested path', function () {
 	const ERROR_ASTERISK = 'Asterisk is not allowed';
 	const ERROR_QUESTIONMARK = 'Questionmark is not allowed';
 
-	const dynamicPath = './demo/';
 	// generate absolute URL from dynamic path
-	const absolutePath = HFS.resolveForce(__dirname + '/../' + dynamicPath) + '/';
+	const absolutePath = PATH.join(PATH.resolve('./demo/'), '/').replaceAll('\\', '/');
 
 	/**
-	 * Run deepStrictEqual test with both absolute and dynamic path
+	 * Run deepStrictEqual test
 	 *
 	 * @param {string} path
 	 * @param {Array.<String>} perms
@@ -24,14 +25,11 @@ describe('Handle requested path', function () {
 	function runAssert(path, perms, output) {
 		// it is nicer to read in classic string instead of base64 format. So tests are written in nice format and converted to base64 here
 		const requestedPathBase64 = (new Buffer.from(path)).toString('base64');
-		let dynamicOutput = {};
 		let absoluteOutput = {};
 		// convert all placeholders in all output object strings with dynamic and absolute paths, depending what test is currently running
 		for (const key in output) {
-			dynamicOutput[key] = output[key].formatUnicorn(dynamicPath);
 			absoluteOutput[key] = output[key].formatUnicorn(absolutePath);
 		}
-		assert.deepStrictEqual(HFS.pathMasterCheck(dynamicPath, requestedPathBase64, perms, PERMS.test), dynamicOutput);
 		assert.deepStrictEqual(HFS.pathMasterCheck(absolutePath, requestedPathBase64, perms, PERMS.test), absoluteOutput);
 	}
 

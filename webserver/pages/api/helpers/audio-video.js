@@ -1,6 +1,6 @@
 const c = require(process.cwd() + '/libs/config.js');
 const FS = require('fs');
-const HFS = require(process.cwd() + '/libs/helperFileSystem.js');
+const pathCustom = require(process.cwd() + '/libs/path.js');
 const LOG = require(process.cwd() + '/libs/log.js');
 module.exports = function (webserver, endpointPath) {
 
@@ -21,7 +21,7 @@ module.exports = function (webserver, endpointPath) {
 			if (!res.locals.mediaType) {
 				throw new Error('File cannot be streamed because of missing media type.');
 			}
-			const ext = HFS.extname(res.locals.fullPathFile);
+			const ext = pathCustom.extname(res.locals.fullPathFile);
 			if (req.path === '/api/video' && !(new FileExtensionMapper).getVideo(ext)) {
 				throw new Error('File do not have file extension of video');
 			} else if (req.path === '/api/audio' && !(new FileExtensionMapper).getAudio(ext)) {

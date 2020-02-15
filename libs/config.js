@@ -4,6 +4,7 @@
  * For more info check out config.local.example.js
  */
 const FS = require('fs');
+const PATH = require('path');
 
 const merge = require('lodash.merge');
 require('./../public/js/structure');
@@ -75,7 +76,18 @@ if (!FS.existsSync('./libs/config.local.js')) {
 	process.exit();
 }
 CONFIG = merge(CONFIG, require('./config.local.js'));
-CONFIG.start = new Date();
 
+// Path has to contain only forward slashes to avoid platform-dependent problems
+if (CONFIG.path.includes('\\')) {
+	throw new Error('Config.path attribute can\'t contain backward slashes.');
+}
+
+// Convert path to absolute if is defined relative
+if (PATH.isAbsolute(CONFIG.path) === false) {
+	CONFIG.path = PATH.join(PATH.resolve(CONFIG.path), '/').replaceAll('\\', '/');
+	console.log('Path was defined relative, converted into absolute: ' + CONFIG.path);
+}
+
+CONFIG.start = new Date();
 
 module.exports = CONFIG;
