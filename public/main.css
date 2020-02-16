@@ -177,17 +177,36 @@ body .theme-color {
 	text-align: center;
 }
 #structure-tiles .structure-item {
+	position: relative;
 	vertical-align: top;
 	text-align: center;
 	display: inline-block;
-	width: 10em;
-	height: 10em;
-	padding: 0.5em;
+	padding: 100px; /* vertical and horizontal center */
 	margin: 0.5em;
 	cursor: pointer;
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+	border-radius: 1em;
 }
 #structure-tiles .structure-item:hover {
 	text-decoration: none;
+}
+#structure-tiles .structure-tile-item-name {
+	position: absolute;
+	display: block;
+	width: 100%;
+	bottom: 1em;
+	left: 0;
+	background-color: rgba(97, 97, 97, 0.8);
+	transition: background-color .1s ease-in-out;
+	text-align: center;
+	margin: 0 auto;
+	padding: 0.5em 0;
+	border-radius: 5px;
+}
+#structure-tiles .structure-item:hover .structure-tile-item-name {
+	background-color: rgba(97, 97, 97, 1); /* full background */
 }
 
 

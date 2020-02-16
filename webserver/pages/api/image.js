@@ -25,7 +25,18 @@ module.exports = function (webserver, endpoint) {
 			}
 			let imageStream = FS.createReadStream(res.locals.fullPathFile);
 			if ((req.cookies['pmg-compress'] === 'true' && req.query.compress !== 'false') || req.query.compress === 'true') {
-				imageStream = imageStream.pipe(sharp().resize(c.compress));
+				let compressData = Object.assign({}, c.compress);
+				if (req.query.height) {
+					compressData.height = parseInt(req.query.height);
+				}
+				if (req.query.width) {
+					compressData.width = parseInt(req.query.width);
+				}
+				if (req.query.fit) {
+					compressData.fit = req.query.fit;
+				}
+
+				imageStream = imageStream.pipe(sharp().resize(compressData));
 			}
 
 			res.setHeader("Content-Type", res.locals.mediaType);
