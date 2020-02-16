@@ -441,9 +441,8 @@ class Structure {
 			this.selectedIndex = item.index;
 		}
 		// Mark selected item into HTML
-		// css is indexing from one not zero
-		$('#structure table tbody tr.structure-selected').removeClass('structure-selected');
-		$('#item-index-' + this.selectedIndex + '').addClass('structure-selected');
+		$('.structure-selected').removeClass('structure-selected');
+		$('.item-index-' + this.selectedIndex + '').addClass('structure-selected');
 		try {
 			// center view to the selected item
 			// Note: scrollIntoView is not jQuery function but DOM

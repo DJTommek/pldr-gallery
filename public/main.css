@@ -163,9 +163,33 @@ body .theme-color {
 
 /* aktualne oznaceny radek */
 .structure-selected,
-#structure table tbody tr:hover {
+#structure table tbody tr:hover,
+#structure .structure-item:hover {
 	background-color: #c0c0c0 !important;
 }
+
+/*************************************/
+/**		Structure - tile view		**/
+/*************************************/
+
+#structure-tiles {
+	margin: 0 auto;
+	text-align: center;
+}
+#structure-tiles .structure-item {
+	vertical-align: top;
+	text-align: center;
+	display: inline-block;
+	width: 10em;
+	height: 10em;
+	padding: 0.5em;
+	margin: 0.5em;
+	cursor: pointer;
+}
+#structure-tiles .structure-item:hover {
+	text-decoration: none;
+}
+
 
 /**
  * Popup start
@@ -344,7 +368,8 @@ input[type=checkbox] {
 	}
 
 	body.theme-dark .structure-selected,
-	body.theme-dark #structure table tbody tr:hover {
+	body.theme-dark #structure table tbody tr:hover,
+	body.theme-dark #structure .structure-item:hover {
 		background-color: #616161 !important;
 	}
 
