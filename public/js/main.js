@@ -766,61 +766,103 @@ function parseStructure(items) {
 
 	$('#currentPath').html(breadcrumbHtml);
 	/**
-	 * Generate structure content
+	 * Generate structure content (rows based)
 	 */
-	let content = '';
-	content += '<table class="table-striped table-condensed"><thead>';
-	content += ' <tr>';
-	content += '  <th>&nbsp;</th>';
-	content += '  <th>Název</th>';
+	let contentRows = '';
+	contentRows += '<table class="table-striped table-condensed"><thead>';
+	contentRows += ' <tr>';
+	contentRows += '  <th>&nbsp;</th>';
+	contentRows += '  <th>Název</th>';
 	if (S.getFiles().length) {
-		content += '  <th>Velikost</th>';
-		content += '  <th>Datum</th>';
+		contentRows += '  <th>Velikost</th>';
+		contentRows += '  <th>Datum</th>';
 	}
-	content += ' </tr>';
-	content += '</thead><tbody>';
+	contentRows += ' </tr>';
+	contentRows += '</thead><tbody>';
 	S.getFolders().forEach(function (item) {
 		if (item.noFilter) {
 			maxVisible--;
 		}
-		content += '<tr data-type="folder" id="item-index-' + item.index + '" data-index="' + item.index + '">';
-		content += ' <td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
-		content += ' <td><a href="#' + item.url + '">' + item.text + '</a></td>';
+		contentRows += '<tr data-type="folder" class="item-index-' + item.index + '" data-index="' + item.index + '">';
+		contentRows += ' <td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
+		contentRows += ' <td><a href="#' + item.url + '">' + item.text + '</a></td>';
 		if (S.getFiles().length) {
-			content += ' <td>&nbsp;</td>';
-			content += ' <td>&nbsp;</td>';
+			contentRows += ' <td>&nbsp;</td>';
+			contentRows += ' <td>&nbsp;</td>';
 		}
-		content += '</tr>';
+		contentRows += '</tr>';
 	});
 	if (items.foldersTotal > items.folders.length) {
-		content += '<tr class="structure-limited" data-type="folder">';
-		content += '<td><i class="fa fa-info fa-fw"></i></td>';
-		content += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (items.foldersTotal) + ' složek ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</td>';
-		content += '</tr>';
+		contentRows += '<tr class="structure-limited" data-type="folder">';
+		contentRows += '<td><i class="fa fa-info fa-fw"></i></td>';
+		contentRows += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (items.foldersTotal) + ' složek ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</td>';
+		contentRows += '</tr>';
 	}
 	S.getFiles().forEach(function (item) {
-		content += '<tr data-type="file" id="item-index-' + item.index + '" data-index="' + item.index + '">';
-		content += '<td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
-		content += '<td><a href="#' + item.url + '">' + item.text + '</a></td>';
-		content += '<td>' + formatBytes(item.size, 2) + '</td>';
+		contentRows += '<tr data-type="file" class="item-index-' + item.index + '" data-index="' + item.index + '">';
+		contentRows += '<td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
+		contentRows += '<td><a href="#' + item.url + '">' + item.text + '</a></td>';
+		contentRows += '<td>' + formatBytes(item.size, 2) + '</td>';
 		const created = item.created.human(true);
-		content += '<td title="' + created + '<br>Před ' + msToHuman(new Date() - item.created) + '" data-toggle="tooltip">' + created.date + ' <span>' + created.time + '</span></td>';
-		content += '</tr>';
+		contentRows += '<td title="' + created + '<br>Před ' + msToHuman(new Date() - item.created) + '" data-toggle="tooltip">' + created.date + ' <span>' + created.time + '</span></td>';
+		contentRows += '</tr>';
 	});
 	if (maxVisible === 0) {
-		content += '<tr class="structure-back" data-type="folder">';
-		content += '<td><i class="fa fa-info fa-fw"></i></td>';
-		content += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Složka je prázdná.</td>';
-		content += '</tr>';
+		contentRows += '<tr class="structure-back" data-type="folder">';
+		contentRows += '<td><i class="fa fa-info fa-fw"></i></td>';
+		contentRows += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Složka je prázdná.</td>';
+		contentRows += '</tr>';
 	}
 	if (items.filesTotal > items.files.length) {
-		content += '<tr class="structure-limited" data-type="folder">';
-		content += '<td><i class="fa fa-info fa-fw"></i></td>';
-		content += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (items.filesTotal) + ' souborů ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</td>';
-		content += '</tr>';
+		contentRows += '<tr class="structure-limited" data-type="folder">';
+		contentRows += '<td><i class="fa fa-info fa-fw"></i></td>';
+		contentRows += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (items.filesTotal) + ' souborů ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</td>';
+		contentRows += '</tr>';
 	}
-	content += '</tbody></table>';
-	$('#structure').html(content);
+	contentRows += '</tbody></table>';
+
+	/**
+	 * Generate structure content (tiles based)
+	 */
+	let contentTiles = '';
+	// contentTiles += '<div class="d-flex flex-wrap">';
+	contentTiles += '<div id="structure-tiles">';
+	S.getFolders().forEach(function (item) {
+		if (item.noFilter) {
+			maxVisible--;
+		}
+		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-type="folder" data-index="' + item.index + '">';
+		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
+		contentTiles += ' <span>' + item.text + '</span>';
+		contentTiles += '</a>';
+	});
+	// if (items.foldersTotal > items.folders.length) {
+	// 	contentTiles += '<tr class="structure-limited" data-type="folder">';
+	// 	contentTiles += '<td><i class="fa fa-info fa-fw"></i></td>';
+	// 	contentTiles += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (items.foldersTotal) + ' složek ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</td>';
+	// 	contentTiles += '</tr>';
+	// }
+	S.getFiles().forEach(function (item) {
+		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-type="file" data-index="' + item.index + '">';
+		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
+		contentTiles += ' <span>' + item.text + '</span>';
+		contentTiles += '</a>';
+	});
+	// if (maxVisible === 0) {
+	// 	contentTiles += '<tr class="structure-back" data-type="folder">';
+	// 	contentTiles += '<td><i class="fa fa-info fa-fw"></i></td>';
+	// 	contentTiles += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Složka je prázdná.</td>';
+	// 	contentTiles += '</tr>';
+	// }
+	// if (items.filesTotal > items.files.length) {
+	// 	contentTiles += '<tr class="structure-limited" data-type="folder">';
+	// 	contentTiles += '<td><i class="fa fa-info fa-fw"></i></td>';
+	// 	contentTiles += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (items.filesTotal) + ' souborů ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</td>';
+	// 	contentTiles += '</tr>';
+	// }
+	contentTiles += '</div>';
+
+	$('#structure').html(contentTiles);
 	$('#navbar-filter .total').text(maxVisible);
 	$('#navbar-filter .filtered').text(maxVisible);
 }
