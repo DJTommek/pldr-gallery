@@ -832,7 +832,8 @@ function parseStructure(items) {
 			maxVisible--;
 		}
 		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-type="folder" data-index="' + item.index + '">';
-		contentTiles += ' <span class="structure-tile-item-name"><i class="fa fa-' + item.icon + ' fa-fw"></i>' + item.text + '</span>';
+		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw fa-5x structure-tile-item-icon"></i>';
+		contentTiles += ' <span class="structure-tile-item-name"></i>' + item.text + '</span>';
 		contentTiles += '</a>';
 	});
 	// if (items.foldersTotal > items.folders.length) {
@@ -844,7 +845,8 @@ function parseStructure(items) {
 	S.getFiles().forEach(function (item) {
 		const style = (item.isImage === true) ? 'background-image: url(' + (item.getFileUrl() + '&width=200&height=200&fit=cover') + ')' : '';
 		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-type="file" data-index="' + item.index + '" style="' + style + '">';
-		contentTiles += ' <span class="structure-tile-item-name"><i class="fa fa-' + item.icon + ' fa-fw"></i>' + item.text + '</span>';
+		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw fa-5x structure-tile-item-icon"></i>';
+		contentTiles += ' <span class="structure-tile-item-name"></i>' + item.text + '</span>';
 		contentTiles += '</a>';
 	});
 	// if (maxVisible === 0) {

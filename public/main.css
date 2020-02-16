@@ -162,9 +162,8 @@ body .theme-color {
 
 
 /* aktualne oznaceny radek */
-.structure-selected,
-#structure table tbody tr:hover,
-#structure .structure-item:hover {
+#structure table tbody tr.structure-selected,
+#structure table tbody tr:hover {
 	background-color: #c0c0c0 !important;
 }
 
@@ -192,21 +191,29 @@ body .theme-color {
 #structure-tiles .structure-item:hover {
 	text-decoration: none;
 }
-#structure-tiles .structure-tile-item-name {
+#structure-tiles .structure-tile-item-name,
+#structure-tiles .structure-tile-item-icon {
 	position: absolute;
 	display: block;
 	width: 100%;
-	bottom: 1em;
 	left: 0;
+}
+#structure-tiles .structure-tile-item-icon {
+	top: 0.5em;
+}
+#structure-tiles .structure-tile-item-name {
+	bottom: 1em;
 	background-color: rgba(97, 97, 97, 0.8);
-	transition: background-color .1s ease-in-out;
+	transition: background-color 0.25s ease-in-out;
 	text-align: center;
 	margin: 0 auto;
 	padding: 0.5em 0;
 	border-radius: 5px;
 }
-#structure-tiles .structure-item:hover .structure-tile-item-name {
-	background-color: rgba(97, 97, 97, 1); /* full background */
+
+#structure-tiles .structure-item:hover .structure-tile-item-name,
+#structure-tiles .structure-item.structure-selected .structure-tile-item-name {
+	background-color: rgba(30, 30, 30, 1); /* full background */
 }
 
 
@@ -386,9 +393,8 @@ input[type=checkbox] {
 		color: orange;
 	}
 
-	body.theme-dark .structure-selected,
-	body.theme-dark #structure table tbody tr:hover,
-	body.theme-dark #structure .structure-item:hover {
+	body.theme-dark #structure table tbody tr.structure-selected,
+	body.theme-dark #structure table tbody tr:hover {
 		background-color: #616161 !important;
 	}
 
