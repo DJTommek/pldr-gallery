@@ -1,3 +1,6 @@
+function isTilesView() {
+	return (Settings.load('structureDisplayType') === 'tiles');
+}
 jwerty.key('up', function (e) {
 	if (loadedStructure.settings) {
 

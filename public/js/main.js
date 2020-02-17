@@ -7,6 +7,8 @@ const loadedStructure = {
 	flashIndex: 0, // incremental index used for flashMessage()
 	presentationRunning: false,
 	presentationIntervalId: null,
+	tilesOnRow: 0,
+	tilesOnLastRow: 0,
 };
 const mapData = {
 	map: null,
@@ -29,6 +31,8 @@ function loadAndResize() {
 	$('#popup-content')
 		.css('max-height', height)
 		.css('max-width', window.innerWidth);
+	loadedStructure.tilesOnRow = getTilesCount();
+	loadedStructure.tilesOnLastRow = getTilesCount(true);
 }
 
 $(window).on('resize', function () {
@@ -367,7 +371,7 @@ $(function () {
 	// Load and set type of view from Settings
 	structureViewChange(Settings.load('structureDisplayType'));
 
-	// Event - changed type
+	// Event - changed type of tiles view
 	$('#structure-display-type button').on('click', function () {
 		structureViewChange($(this).find('input').val());
 	});
@@ -834,15 +838,13 @@ function parseStructure(items) {
 	 * Generate structure content (tiles based)
 	 */
 	let contentTiles = '';
-	// contentTiles += '<div class="d-flex flex-wrap">';
-	contentTiles += '<div id="structure-tiles">';
 	S.getFolders().forEach(function (item) {
 		if (item.noFilter) {
 			maxVisible--;
 		}
 		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-type="folder" data-index="' + item.index + '">';
-		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw fa-5x structure-tile-item-icon"></i>';
-		contentTiles += ' <span class="structure-tile-item-name"></i>' + item.text + '</span>';
+		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
+		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		contentTiles += '</a>';
 	});
 	// if (items.foldersTotal > items.folders.length) {
@@ -854,8 +856,8 @@ function parseStructure(items) {
 	S.getFiles().forEach(function (item) {
 		const style = (item.isImage === true) ? 'background-image: url(' + (item.getFileUrl() + '&width=200&height=200&fit=cover') + ')' : '';
 		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-type="file" data-index="' + item.index + '" style="' + style + '">';
-		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw fa-5x structure-tile-item-icon"></i>';
-		contentTiles += ' <span class="structure-tile-item-name"></i>' + item.text + '</span>';
+		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
+		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		contentTiles += '</a>';
 	});
 	// if (maxVisible === 0) {
@@ -870,7 +872,6 @@ function parseStructure(items) {
 	// 	contentTiles += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">Celkem je zde ' + (items.filesTotal) + ' souborů ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</td>';
 	// 	contentTiles += '</tr>';
 	// }
-	contentTiles += '</div>';
 
 	$('#structure-tiles').html(contentTiles);
 	$('#navbar-filter .total').text(maxVisible);
@@ -893,6 +894,8 @@ function loadingStructure(loading) {
 		$('#navbar-filter input').prop('disabled', false);
 		$('#navbar-filter .search').prop('disabled', false);
 		$('[data-toggle="tooltip"]').tooltip({html: true}); // update all tooltips after structure is (re)loaded
+		loadedStructure.tilesOnRow = getTilesCount();
+		loadedStructure.tilesOnLastRow = getTilesCount(true);
 	}
 }
 
@@ -1035,9 +1038,46 @@ function structureViewChange(value) {
 	$('#structure-' + value).show();
 	$('#structure-display-type button').removeClass('btn-secondary').addClass('btn-outline-secondary');
 
+	// update all necessary data depending on choosen tile-size
+	let type = 'rows';
+	if (value.includes('tiles-')) {
+		type = 'tiles';
+		$('#structure-' + type).removeClass('tiles-small').removeClass('tiles-big');
+		$('#structure-' + type).addClass(value);
+	}
+
 	// set new values
-	$('#structure-' + value).show();
+	$('#structure-' + type).show();
 	$('#structure-display-type-' + value).removeClass('btn-outline-secondary').addClass('btn-secondary');
 	// check radiobox
 	$('#structure-display-type-' + value + ' input').attr('checked', true);
+}
+
+/**
+ * Calculate how many tiles are on one row
+ *
+ * @author https://stackoverflow.com/a/11539490/3334403
+ * @param {boolean} last get number of tiles on last row
+ */
+function getTilesCount(last = false) {
+	let tilesInRow = 0;
+	let selector = '#structure-tiles .structure-item';
+	$(selector).each(function () {
+		if ($(this).prev().length > 0) {
+			if ($(this).position().top !== $(this).prev().position().top) {
+				return false;
+			}
+			tilesInRow++;
+		} else {
+			tilesInRow++;
+		}
+	});
+	if (last === true) {
+		let tilesInLastRow = $(selector).length % tilesInRow;
+		if (tilesInLastRow === 0) {
+			tilesInLastRow = tilesInRow;
+		}
+		return tilesInLastRow;
+	}
+	return tilesInRow;
 }

@@ -699,12 +699,14 @@ class Structure {
 			// display text to be compatibile with search results, otherwise it would be filtering only last part of path
 			if (self.runFilter(filterText, item.text || item.paths.last())) {
 				$("#structure-rows tbody").find('[data-index="' + item.index + '"]').show();
+				$("#structure-tiles").find('[data-index="' + item.index + '"]').show();
 				allHidden = false;
 				item.hide = false;
 				visible++;
 			} else {
 				item.hide = true;
 				$("#structure-rows tbody").find('[data-index="' + item.index + '"]').hide();
+				$("#structure-tiles").find('[data-index="' + item.index + '"]').hide();
 			}
 		});
 		if (allHidden) { // if no item passed filter, show warning
