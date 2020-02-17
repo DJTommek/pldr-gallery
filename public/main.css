@@ -93,7 +93,15 @@ body .theme-color {
 	display: none;
 }
 
-/* Ikonka ma minimalni sirku */
+#structure-header,
+#structure-footer {
+	text-align: center;
+	margin: 1em;
+}
+
+/*************************************/
+/**		Structure - rows view		**/
+/*************************************/
 #structure-rows table {
 	width: 100%;
 }
@@ -102,7 +110,7 @@ body .theme-color {
 	transition: background-color 0.5s ease;
 }
 
-/* Cely radek je klikaci odkaz */
+/* Whole line is clickable area */
 #structure-rows table tbody tr td {
 	cursor: pointer;
 	line-height: 2rem;
@@ -118,16 +126,16 @@ body .theme-color {
 	text-decoration: none;
 }
 
-/* Ikonka ma minimalni sirku */
+/* Item icon */
 #structure-rows table tbody tr td:nth-child(1) {
-	width: 1em; /* ikonka si stejně minimální šířku vynutí jakou zrovna potřebuje */
+	width: 1em; /* icon inside this table-cell is icon with fixed width */
 }
 
-/* Nazev souboru či složky */
+/* Item name */
 #structure-rows table tbody tr td:nth-child(2) {
 }
 
-/* Velikost souboru */
+/* File size */
 #structure-rows table thead tr th:nth-child(3),
 #structure-rows table tbody tr td:nth-child(3) {
 	text-align: right;
@@ -136,13 +144,13 @@ body .theme-color {
 	white-space: nowrap;
 }
 
-/* Vytvořeno */
-/* Dont show time on smaller devices */
+/* File created datetime */
 #structure-rows table thead tr th:nth-child(4),
 #structure-rows table tbody tr td:nth-child(4) {
 	width: 6rem;
 }
 
+/* Show only date and hide time in case of smaller devices */
 #structure-rows table tbody tr td:nth-child(4) span {
 	display: none;
 }
@@ -158,14 +166,7 @@ body .theme-color {
 	}
 }
 
-#structure-header,
-#structure-footer {
-	text-align: center;
-	margin: 1em;
-}
-
-
-/* aktualne oznaceny radek */
+/* Currently selected or hovered line */
 #structure-rows table tbody tr.structure-selected,
 #structure-rows table tbody tr:hover {
 	background-color: #c0c0c0 !important;
@@ -179,12 +180,12 @@ body .theme-color {
 	margin: 0 auto;
 	text-align: center;
 }
+
 #structure-tiles .structure-item {
 	position: relative;
 	vertical-align: top;
 	text-align: center;
 	display: inline-block;
-	padding: 100px; /* vertical and horizontal center */
 	margin: 0.5em;
 	cursor: pointer;
 	background-repeat: no-repeat;
@@ -192,20 +193,24 @@ body .theme-color {
 	background-position: center;
 	border-radius: 1em;
 }
+
 #structure-tiles .structure-item:hover {
 	text-decoration: none;
 }
-#structure-tiles .structure-tile-item-name,
-#structure-tiles .structure-tile-item-icon {
+
+#structure-tiles .structure-item .icon {
+	top: 0.5em;
+}
+
+#structure-tiles .structure-item .name,
+#structure-tiles .structure-item .icon {
 	position: absolute;
 	display: block;
 	width: 100%;
 	left: 0;
 }
-#structure-tiles .structure-tile-item-icon {
-	top: 0.5em;
-}
-#structure-tiles .structure-tile-item-name {
+
+#structure-tiles .structure-item .name {
 	bottom: 1em;
 	background-color: rgba(97, 97, 97, 0.8);
 	transition: background-color 0.25s ease-in-out;
@@ -215,15 +220,46 @@ body .theme-color {
 	border-radius: 5px;
 }
 
-#structure-tiles .structure-item:hover .structure-tile-item-name,
-#structure-tiles .structure-item.structure-selected .structure-tile-item-name {
+/* Big tiles */
+#structure-tiles.tiles-big .structure-item {
+	padding: 100px; /* vertical and horizontal center in tile */
+}
+
+#structure-tiles.tiles-big .structure-item .icon {
+	font-size: 5em;
+}
+
+/* Small tiles */
+#structure-tiles.tiles-small .structure-item {
+	padding: 60px; /* vertical and horizontal center in tile */
+}
+
+#structure-tiles.tiles-small .structure-item .icon {
+	font-size: 3em;
+}
+
+#structure-tiles.tiles-small .structure-item .name {
+	font-size: 0.75em;
+}
+
+/* Animation if switching between sizes of tiles */
+#structure-tiles .structure-item,
+#structure-tiles .structure-item .name,
+#structure-tiles .structure-item .icon {
+	transition-property: padding, font-size, top, bottom;
+	transition-duration: 0.25s;
+	transition-timing-function: ease-in-out;
+}
+
+/* Currently selected or hovered tile */
+#structure-tiles .structure-item:hover,
+#structure-tiles .structure-item.structure-selected {
 	background-color: rgba(30, 30, 30, 1); /* full background */
 }
 
-
-/**
- * Popup start
- */
+/*************************************/
+/**				Popup				**/
+/*************************************/
 #popup {
 	position: fixed;
 	top: 0;
@@ -249,8 +285,8 @@ body .theme-color {
 	max-height: inherit;
 	max-width: inherit;
 	/**
-     * Vertical and horizontal center image
-     * This solution respect parent size with gap for footer
+	 * Vertical and horizontal center image
+	 * This solution respect parent size with gap for footer
 	 * @Author https://stackoverflow.com/a/46276156
 	 */
 	position: absolute;
