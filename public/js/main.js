@@ -856,7 +856,7 @@ function parseStructure(items) {
 		contentTiles += ' <i class="icon fa fa-' + item.icon + ' fa-fw"></i>';
 		if (item.isImage === true) {
 			// this image is rendered above icon so if image is loaded, icon will automatically hide
-			contentTiles += ' <img class="thumbnail" src="' + (item.getFileUrl() + '&width=200&height=200&fit=cover') + '" alt="@todo">';
+			contentTiles += ' <img class="thumbnail" src="' + (item.getFileUrl() + '&width=200&height=200&fit=cover') + '" loading="lazy">';
 		}
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		contentTiles += '</div></a>';
