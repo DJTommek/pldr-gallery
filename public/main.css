@@ -89,6 +89,10 @@ body .theme-color {
 /**			Structure			**/
 /*********************************/
 
+#structure-display-type input {
+	display: none;
+}
+
 /* Ikonka ma minimalni sirku */
 #structure-rows table {
 	width: 100%;

@@ -108,8 +108,22 @@
 </noscript>
 <div id="structure-header"></div>
 <div id="structure">
-	<div id="structure-rows"></div>
-	<div id="structure-tiles"></div>
+	<form id="structure-display-type">
+		<label>
+			<button type="button" class="btn btn-sm btn-outline-secondary" id="structure-display-type-rows">
+				<input type="radio" name="structure-display-type" value="rows" checked>
+				<i class="fa fa-fw fa-th-list"></i> Rows
+			</button>
+		</label>
+		<label>
+			<button type="button" class="btn btn-sm btn-outline-secondary" id="structure-display-type-tiles">
+				<input type="radio" name="structure-display-type" value="tiles">
+				<i class="fa fa-fw fa-th-large"></i> Tiles
+			</button>
+		</label>
+	</form>
+	<div id="structure-rows" class="structure-wrapper"></div>
+	<div id="structure-tiles" class="structure-wrapper"></div>
 </div>
 <div id="structure-footer"></div>
 <div id="map" style="display: none;"></div>
