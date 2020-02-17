@@ -188,9 +188,6 @@ body .theme-color {
 	display: inline-block;
 	margin: 0.5em;
 	cursor: pointer;
-	background-repeat: no-repeat;
-	background-size: contain;
-	background-position: center;
 	border-radius: 1em;
 }
 
@@ -203,11 +200,17 @@ body .theme-color {
 }
 
 #structure-tiles .structure-item .name,
-#structure-tiles .structure-item .icon {
+#structure-tiles .structure-item .icon,
+#structure-tiles .structure-item img {
 	position: absolute;
 	display: block;
 	width: 100%;
 	left: 0;
+}
+#structure-tiles .structure-item img {
+	top: 0;
+	height: 100%;
+	border-radius: 1em;
 }
 
 #structure-tiles .structure-item .name {
@@ -218,6 +221,9 @@ body .theme-color {
 	margin: 0 auto;
 	padding: 0.5em 0;
 	border-radius: 5px;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	font-size: 0.75em;
 }
 
 /* Big tiles */
@@ -236,10 +242,6 @@ body .theme-color {
 
 #structure-tiles.tiles-small .structure-item .icon {
 	font-size: 3em;
-}
-
-#structure-tiles.tiles-small .structure-item .name {
-	font-size: 0.75em;
 }
 
 /* Animation if switching between sizes of tiles */
