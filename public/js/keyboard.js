@@ -1,5 +1,5 @@
 function isTilesView() {
-	return (Settings.load('structureDisplayType') === 'tiles');
+	return (Settings.load('structureDisplayType').includes('tiles'));
 }
 jwerty.key('up', function (e) {
 	if (loadedStructure.settings) {
@@ -9,7 +9,13 @@ jwerty.key('up', function (e) {
 		if (loadedStructure.popup) {
 			itemPrev(true);
 		} else {
-			S.selectorMove('up');
+			if (isTilesView()) {
+				for (let i = 0; i < loadedStructure.tilesOnRow; i++) {
+					S.selectorMove('up');
+				}
+			} else {
+				S.selectorMove('up');
+			}
 		}
 	}
 });
@@ -20,6 +26,9 @@ jwerty.key('left', function (e) {
 	} else if (loadedStructure.popup) {
 		itemPrev(true);
 	} else {
+		if (isTilesView) {
+			S.selectorMove('up');
+		}
 		// filter might be focused, dont do anything special
 	}
 });
@@ -32,7 +41,13 @@ jwerty.key('down', function (e) {
 		if (loadedStructure.popup) {
 			itemNext(false);
 		} else {
-			S.selectorMove('down');
+			if (isTilesView()) {
+				for (let i = 0; i < loadedStructure.tilesOnRow; i++) {
+					S.selectorMove('down');
+				}
+			} else {
+				S.selectorMove('down');
+			}
 		}
 	}
 });
@@ -44,6 +59,9 @@ jwerty.key('right', function (e) {
 		e.preventDefault();
 		itemNext(false);
 	} else {
+		if (isTilesView) {
+			S.selectorMove('down');
+		}
 		// filter is focused, dont do anything special
 	}
 });
@@ -69,7 +87,8 @@ jwerty.key('page-up', function (e) {
 		if (loadedStructure.popup) {
 			itemPrev10(true);
 		} else {
-			for (let i = 0; i < 10; i++) {
+			const moveBy = isTilesView() ? (loadedStructure.tilesOnRow * 4) : 10;
+			for (let i = 0; i < moveBy; i++) {
 				S.selectorMove('up');
 			}
 		}
@@ -84,7 +103,8 @@ jwerty.key('page-down', function (e) {
 		if (loadedStructure.popup) {
 			itemNext10(false);
 		} else {
-			for (let i = 0; i < 10; i++) {
+			const moveBy = isTilesView() ? (loadedStructure.tilesOnRow * 4) : 10;
+			for (let i = 0; i < moveBy; i++) {
 				S.selectorMove('down');
 			}
 		}
