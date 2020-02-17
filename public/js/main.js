@@ -854,9 +854,13 @@ function parseStructure(items) {
 	// 	contentTiles += '</tr>';
 	// }
 	S.getFiles().forEach(function (item) {
-		const style = (item.isImage === true) ? 'background-image: url(' + (item.getFileUrl() + '&width=200&height=200&fit=cover') + ')' : '';
-		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-type="file" data-index="' + item.index + '" style="' + style + '">';
-		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
+		const style = (item.isImage === '@TODO') ? 'background-image: url(' + (item.getFileUrl() + '&width=200&height=200&fit=cover') + ')' : '';
+		contentTiles += '<a class="structure-item item-index-' + item.index + '" href="#' + item.url + '" data-type="file" data-index="' + item.index + '" style="' + style + '">';
+		contentTiles += ' <i class="icon fa fa-' + item.icon + ' fa-fw"></i>';
+		if (item.isImage === true) {
+			// this image is rendered above icon so if image is loaded, icon will automatically hide
+			contentTiles += ' <img class="thumbnail" src="' + (item.getFileUrl() + '&width=200&height=200&fit=cover') + '" alt="@todo">';
+		}
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		contentTiles += '</a>';
 	});
