@@ -364,27 +364,10 @@ $(function () {
 		}, 2000);
 	});
 
-	/**
-	 * Settings about type of view of items in structure
-	 */
-	function structureViewChange(value) {
-		Settings.save('structureDisplayType', value);
-		// reset original values
-		$('.structure-wrapper').hide();
-		$('#structure-' + value).show();
-		$('#structure-display-type button').removeClass('btn-secondary').addClass('btn-outline-secondary');
-
-		// set new values
-		$('#structure-' + value).show();
-		$('#structure-display-type-' + value).removeClass('btn-outline-secondary').addClass('btn-secondary');
-		// check radiobox
-		$('#structure-display-type-' + value + ' input').attr('checked', true);
-	}
-
 	// Load and set type of view from Settings
 	structureViewChange(Settings.load('structureDisplayType'));
 
- 	// Event - changed type
+	// Event - changed type
 	$('#structure-display-type button').on('click', function () {
 		structureViewChange($(this).find('input').val());
 	});
@@ -1043,4 +1026,18 @@ function shareUrl(niceUrl) {
 		// noinspection JSJQueryEfficiency
 		$('#breadcrumb-share-flash').trigger('focus').trigger('select');
 	}
+}
+
+function structureViewChange(value) {
+	Settings.save('structureDisplayType', value);
+	// reset original values
+	$('.structure-wrapper').hide();
+	$('#structure-' + value).show();
+	$('#structure-display-type button').removeClass('btn-secondary').addClass('btn-outline-secondary');
+
+	// set new values
+	$('#structure-' + value).show();
+	$('#structure-display-type-' + value).removeClass('btn-outline-secondary').addClass('btn-secondary');
+	// check radiobox
+	$('#structure-display-type-' + value + ' input').attr('checked', true);
 }
