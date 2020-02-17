@@ -26,14 +26,24 @@ module.exports = function (webserver, endpoint) {
 			let imageStream = FS.createReadStream(res.locals.fullPathFile);
 			if ((req.cookies['pmg-compress'] === 'true' && req.query.compress !== 'false') || req.query.compress === 'true') {
 				let compressData = Object.assign({}, c.compress);
-				if (req.query.height) {
-					compressData.height = parseInt(req.query.height);
-				}
-				if (req.query.width) {
+
+				// Override default settings with custom parameters
+				if (req.query.fit && req.query.width && req.query.height) {
+
 					compressData.width = parseInt(req.query.width);
-				}
-				if (req.query.fit) {
+					if (compressData.width <= 0) {
+						throw new Error('Wrong "width" parameter.');
+					}
+
+					compressData.height = parseInt(req.query.height);
+					if (req.query.height <= 0) {
+						throw new Error('Wrong "height" parameter.');
+					}
+
 					compressData.fit = req.query.fit;
+					if (['cover', 'contain', 'fill', 'inside', 'outside'].inArray(compressData.fit) === false) {
+						throw new Error('Wrong "fit" parameter.');
+					}
 				}
 
 				imageStream = imageStream.pipe(sharp().resize(compressData));
