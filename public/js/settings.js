@@ -9,6 +9,7 @@
 		presentationSpeed: 5000,
 		presentationEnabled: false,
 		compress: true,
+		structureDisplayType: 'rows',
 	};
 	const Settings = {
 		/**
