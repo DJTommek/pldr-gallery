@@ -201,16 +201,17 @@ body .theme-color {
 
 #structure-tiles .structure-item .name,
 #structure-tiles .structure-item .icon,
-#structure-tiles .structure-item img {
+#structure-tiles .structure-item .thumbnail {
 	position: absolute;
 	display: block;
 	width: 100%;
 	left: 0;
 }
-#structure-tiles .structure-item img {
+#structure-tiles .structure-item .thumbnail {
 	top: 0;
 	height: 100%;
 	border-radius: 1em;
+	padding: 0.1em; /* same as ".structure-item" border-size */
 }
 
 #structure-tiles .structure-item .name {
@@ -253,6 +254,11 @@ body .theme-color {
 	transition-timing-function: ease-in-out;
 }
 
+#structure-tiles .structure-item:hover,
+#structure-tiles .structure-item.structure-selected {
+	margin: 0.4em; /* same as ".structure-item" margin - "this" border-size  */
+	border: 0.1em solid orange;  /* same as ".structure-item .thumbnail" padding */
+}
 /* Currently selected or hovered tile */
 #structure-tiles .structure-item:hover .name,
 #structure-tiles .structure-item.structure-selected .name,

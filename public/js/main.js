@@ -31,8 +31,6 @@ function loadAndResize() {
 	$('#popup-content')
 		.css('max-height', height)
 		.css('max-width', window.innerWidth);
-	loadedStructure.tilesOnRow = getTilesCount();
-	loadedStructure.tilesOnLastRow = getTilesCount(true);
 }
 
 $(window).on('resize', function () {
@@ -854,15 +852,14 @@ function parseStructure(items) {
 	// 	contentTiles += '</tr>';
 	// }
 	S.getFiles().forEach(function (item) {
-		const style = (item.isImage === '@TODO') ? 'background-image: url(' + (item.getFileUrl() + '&width=200&height=200&fit=cover') + ')' : '';
-		contentTiles += '<a class="structure-item item-index-' + item.index + '" href="#' + item.url + '" data-type="file" data-index="' + item.index + '" style="' + style + '">';
+		contentTiles += '<a class="structure-item item-index-' + item.index + '" href="#' + item.url + '" data-type="file" data-index="' + item.index + '"><div>';
 		contentTiles += ' <i class="icon fa fa-' + item.icon + ' fa-fw"></i>';
 		if (item.isImage === true) {
 			// this image is rendered above icon so if image is loaded, icon will automatically hide
 			contentTiles += ' <img class="thumbnail" src="' + (item.getFileUrl() + '&width=200&height=200&fit=cover') + '" alt="@todo">';
 		}
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
-		contentTiles += '</a>';
+		contentTiles += '</div></a>';
 	});
 	// if (maxVisible === 0) {
 	// 	contentTiles += '<tr class="structure-back" data-type="folder">';
@@ -898,8 +895,6 @@ function loadingStructure(loading) {
 		$('#navbar-filter input').prop('disabled', false);
 		$('#navbar-filter .search').prop('disabled', false);
 		$('[data-toggle="tooltip"]').tooltip({html: true}); // update all tooltips after structure is (re)loaded
-		loadedStructure.tilesOnRow = getTilesCount();
-		loadedStructure.tilesOnLastRow = getTilesCount(true);
 	}
 }
 
@@ -1055,11 +1050,6 @@ function structureViewChange(value) {
 	$('#structure-display-type-' + value).removeClass('btn-outline-secondary').addClass('btn-secondary');
 	// check radiobox
 	$('#structure-display-type-' + value + ' input').attr('checked', true);
-	// because of CSS transition, tiles are formatted after while so recalculations must be done later
-	setTimeout(function() {
-		loadedStructure.tilesOnRow = getTilesCount();
-		loadedStructure.tilesOnLastRow = getTilesCount(true);
-	}, 500);
 }
 
 /**
@@ -1073,7 +1063,9 @@ function getTilesCount(last = false) {
 	let selector = '#structure-tiles .structure-item';
 	$(selector).each(function () {
 		if ($(this).prev().length > 0) {
-			if ($(this).position().top !== $(this).prev().position().top) {
+			// Position top is not calculating with eventual border (if item is selected or hover over). In that case position
+			// of element is a little bit lower than others even on same line (according tests it should be less than pixel)
+			if (Math.ceil($(this).position().top) !== Math.ceil($(this).prev().position().top)) {
 				return false;
 			}
 			tilesInRow++;
