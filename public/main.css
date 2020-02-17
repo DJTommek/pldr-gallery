@@ -246,12 +246,14 @@ body .theme-color {
 #structure-tiles .structure-item,
 #structure-tiles .structure-item .name,
 #structure-tiles .structure-item .icon {
-	transition-property: padding, font-size, top, bottom;
+	transition-property: padding, font-size, top, bottom, background-color;
 	transition-duration: 0.25s;
 	transition-timing-function: ease-in-out;
 }
 
 /* Currently selected or hovered tile */
+#structure-tiles .structure-item:hover .name,
+#structure-tiles .structure-item.structure-selected .name,
 #structure-tiles .structure-item:hover,
 #structure-tiles .structure-item.structure-selected {
 	background-color: rgba(30, 30, 30, 1); /* full background */
