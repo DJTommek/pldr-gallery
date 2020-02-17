@@ -136,7 +136,7 @@ window.onerror = function (msg, url, line, col, error) {
 };
 
 // If hash is changed, something is being loaded (image of folder)
-$(window).on('hashchange', function (event) {
+$(window).on('hashchange', function () {
 	// save currently loaded folder but can't save FileItem, because we dont know structure yet.
 	S.setCurrent(pathFromUrl(window.location.hash));
 
@@ -765,6 +765,7 @@ function parseStructure(items) {
 	 */
 	let maxVisible = S.getItems().length;
 	let breadcrumbHtml = '';
+	// noinspection HtmlUnknownAnchorTarget
 	breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/" title="Go to root folder" data-toggle="tooltip"><i class="fa fa-home"></i></a></li>';
 	let breadcrumbPath = '/';
 
@@ -923,6 +924,7 @@ function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message
 	loadedStructure.flashIndex++;
 }
 
+// noinspection JSUnusedGlobalSymbols (loaded by Google maps API library)
 function mapInit() {
 	mapData.map = new google.maps.Map(document.getElementById('map'), {
 		zoom: 7,
