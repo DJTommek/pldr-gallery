@@ -1055,6 +1055,11 @@ function structureViewChange(value) {
 	$('#structure-display-type-' + value).removeClass('btn-outline-secondary').addClass('btn-secondary');
 	// check radiobox
 	$('#structure-display-type-' + value + ' input').attr('checked', true);
+	// because of CSS transition, tiles are formatted after while so recalculations must be done later
+	setTimeout(function() {
+		loadedStructure.tilesOnRow = getTilesCount();
+		loadedStructure.tilesOnLastRow = getTilesCount(true);
+	}, 500);
 }
 
 /**

@@ -446,7 +446,7 @@ class Structure {
 		try {
 			// center view to the selected item
 			// Note: scrollIntoView is not jQuery function but DOM
-			$('#structure-rows table tbody tr.structure-selected')[0].scrollIntoView({
+			$('#structure .structure-selected:visible')[0].scrollIntoView({
 				block: 'center'
 			});
 		} catch (e) {
