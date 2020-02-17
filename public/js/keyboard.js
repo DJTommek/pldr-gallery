@@ -10,7 +10,7 @@ jwerty.key('up', function (e) {
 			itemPrev(true);
 		} else {
 			if (isTilesView()) {
-				for (let i = 0; i < loadedStructure.tilesOnRow; i++) {
+				for (let i = 0; i < getTilesCount(); i++) {
 					S.selectorMove('up');
 				}
 			} else {
@@ -42,7 +42,7 @@ jwerty.key('down', function (e) {
 			itemNext(false);
 		} else {
 			if (isTilesView()) {
-				for (let i = 0; i < loadedStructure.tilesOnRow; i++) {
+				for (let i = 0; i < getTilesCount(); i++) {
 					S.selectorMove('down');
 				}
 			} else {
@@ -87,7 +87,7 @@ jwerty.key('page-up', function (e) {
 		if (loadedStructure.popup) {
 			itemPrev10(true);
 		} else {
-			const moveBy = isTilesView() ? (loadedStructure.tilesOnRow * 4) : 10;
+			const moveBy = isTilesView() ? (getTilesCount() * 4) : 10;
 			for (let i = 0; i < moveBy; i++) {
 				S.selectorMove('up');
 			}
@@ -103,7 +103,7 @@ jwerty.key('page-down', function (e) {
 		if (loadedStructure.popup) {
 			itemNext10(false);
 		} else {
-			const moveBy = isTilesView() ? (loadedStructure.tilesOnRow * 4) : 10;
+			const moveBy = isTilesView() ? (getTilesCount() * 4) : 10;
 			for (let i = 0; i < moveBy; i++) {
 				S.selectorMove('down');
 			}
