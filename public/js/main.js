@@ -390,7 +390,7 @@ $(function () {
 	});
 
 	// some line is selected
-	$('#structure').on('click', 'table tbody tr', function (e) {
+	$('#structure-rows').on('click', 'table tbody tr', function (e) {
 		e.preventDefault();
 		S.selectorMove($(this).data('index'));
 		S.selectorSelect();
@@ -820,6 +820,7 @@ function parseStructure(items) {
 		contentRows += '</tr>';
 	}
 	contentRows += '</tbody></table>';
+	$('#structure-rows').html(contentRows);
 
 	/**
 	 * Generate structure content (tiles based)
@@ -863,7 +864,7 @@ function parseStructure(items) {
 	// }
 	contentTiles += '</div>';
 
-	$('#structure').html(contentTiles);
+	$('#structure-tiles').html(contentTiles);
 	$('#navbar-filter .total').text(maxVisible);
 	$('#navbar-filter .filtered').text(maxVisible);
 }

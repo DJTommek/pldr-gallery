@@ -90,42 +90,42 @@ body .theme-color {
 /*********************************/
 
 /* Ikonka ma minimalni sirku */
-#structure table {
+#structure-rows table {
 	width: 100%;
 }
 
-#structure table tbody tr {
+#structure-rows table tbody tr {
 	transition: background-color 0.5s ease;
 }
 
 /* Cely radek je klikaci odkaz */
-#structure table tbody tr td {
+#structure-rows table tbody tr td {
 	cursor: pointer;
 	line-height: 2rem;
 }
 
-#structure table tbody tr td a {
+#structure-rows table tbody tr td a {
 	display: block;
 	width: 100%;
 	height: 100%;
 }
 
-#structure table tbody tr td a:hover {
+#structure-rows table tbody tr td a:hover {
 	text-decoration: none;
 }
 
 /* Ikonka ma minimalni sirku */
-#structure table tbody tr td:nth-child(1) {
+#structure-rows table tbody tr td:nth-child(1) {
 	width: 1em; /* ikonka si stejně minimální šířku vynutí jakou zrovna potřebuje */
 }
 
 /* Nazev souboru či složky */
-#structure table tbody tr td:nth-child(2) {
+#structure-rows table tbody tr td:nth-child(2) {
 }
 
 /* Velikost souboru */
-#structure table thead tr th:nth-child(3),
-#structure table tbody tr td:nth-child(3) {
+#structure-rows table thead tr th:nth-child(3),
+#structure-rows table tbody tr td:nth-child(3) {
 	text-align: right;
 	width: 7rem;
 	padding: 0 10px;
@@ -134,22 +134,22 @@ body .theme-color {
 
 /* Vytvořeno */
 /* Dont show time on smaller devices */
-#structure table thead tr th:nth-child(4),
-#structure table tbody tr td:nth-child(4) {
+#structure-rows table thead tr th:nth-child(4),
+#structure-rows table tbody tr td:nth-child(4) {
 	width: 6rem;
 }
 
-#structure table tbody tr td:nth-child(4) span {
+#structure-rows table tbody tr td:nth-child(4) span {
 	display: none;
 }
 
 @media (min-width: 768px) {
-	#structure table thead tr th:nth-child(4),
-	#structure table tbody tr td:nth-child(4) {
+	#structure-rows table thead tr th:nth-child(4),
+	#structure-rows table tbody tr td:nth-child(4) {
 		width: 9rem;
 	}
 
-	#structure table tbody tr td:nth-child(4) span {
+	#structure-rows table tbody tr td:nth-child(4) span {
 		display: inline !important;
 	}
 }
@@ -162,8 +162,8 @@ body .theme-color {
 
 
 /* aktualne oznaceny radek */
-#structure table tbody tr.structure-selected,
-#structure table tbody tr:hover {
+#structure-rows table tbody tr.structure-selected,
+#structure-rows table tbody tr:hover {
 	background-color: #c0c0c0 !important;
 }
 
@@ -393,8 +393,8 @@ input[type=checkbox] {
 		color: orange;
 	}
 
-	body.theme-dark #structure table tbody tr.structure-selected,
-	body.theme-dark #structure table tbody tr:hover {
+	body.theme-dark #structure-rows table tbody tr.structure-selected,
+	body.theme-dark #structure-rows table tbody tr:hover {
 		background-color: #616161 !important;
 	}
 

@@ -446,7 +446,7 @@ class Structure {
 		try {
 			// center view to the selected item
 			// Note: scrollIntoView is not jQuery function but DOM
-			$('#structure table tbody tr.structure-selected')[0].scrollIntoView({
+			$('#structure-rows table tbody tr.structure-selected')[0].scrollIntoView({
 				block: 'center'
 			});
 		} catch (e) {
@@ -698,13 +698,13 @@ class Structure {
 			}
 			// display text to be compatibile with search results, otherwise it would be filtering only last part of path
 			if (self.runFilter(filterText, item.text || item.paths.last())) {
-				$("#structure tbody").find('[data-index="' + item.index + '"]').show();
+				$("#structure-rows tbody").find('[data-index="' + item.index + '"]').show();
 				allHidden = false;
 				item.hide = false;
 				visible++;
 			} else {
 				item.hide = true;
-				$("#structure tbody").find('[data-index="' + item.index + '"]').hide();
+				$("#structure-rows tbody").find('[data-index="' + item.index + '"]').hide();
 			}
 		});
 		if (allHidden) { // if no item passed filter, show warning
