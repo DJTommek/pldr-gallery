@@ -26,7 +26,7 @@ jwerty.key('left', function (e) {
 	} else if (loadedStructure.popup) {
 		itemPrev(true);
 	} else {
-		if (isTilesView) {
+		if (isTilesView()) {
 			S.selectorMove('up');
 		}
 		// filter might be focused, dont do anything special
@@ -59,7 +59,7 @@ jwerty.key('right', function (e) {
 		e.preventDefault();
 		itemNext(false);
 	} else {
-		if (isTilesView) {
+		if (isTilesView()) {
 			S.selectorMove('down');
 		}
 		// filter is focused, dont do anything special
