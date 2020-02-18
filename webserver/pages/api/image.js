@@ -17,38 +17,18 @@ module.exports = function (webserver, endpoint) {
 		res.statusCode = 200;
 		try {
 			if (!res.locals.fullPathFile) {
-				throw new Error('Neplatná cesta nebo nemáš právo');
+				throw new Error('Invalid path or you dont have a permission.');
 			}
 			const extensionData = (new FileExtensionMapper).getImage(pathCustom.extname(res.locals.fullPathFile));
 			if (!extensionData) {
-				throw new Error('Soubor nemá příponu obrázku.');
+				throw new Error('File does not appear to be an image.');
 			}
 			let imageStream = FS.createReadStream(res.locals.fullPathFile);
-			if ((req.cookies['pmg-compress'] === 'true' && req.query.compress !== 'false') || req.query.compress === 'true') {
-				let compressData = Object.assign({}, c.compress);
 
-				// Override default settings with custom parameters
-				if (req.query.fit && req.query.width && req.query.height) {
-
-					compressData.width = parseInt(req.query.width);
-					if (compressData.width <= 0) {
-						throw new Error('Wrong "width" parameter.');
-					}
-
-					compressData.height = parseInt(req.query.height);
-					if (req.query.height <= 0) {
-						throw new Error('Wrong "height" parameter.');
-					}
-
-					compressData.fit = req.query.fit;
-					if (['cover', 'contain', 'fill', 'inside', 'outside'].inArray(compressData.fit) === false) {
-						throw new Error('Wrong "fit" parameter.');
-					}
-				}
-
+			const compressData = getResizeParams(req);
+			if (compressData !== false) {
 				imageStream = imageStream.pipe(sharp().resize(compressData));
 			}
-
 			res.setHeader("Content-Type", res.locals.mediaType);
 
 			return imageStream.pipe(res);
@@ -57,7 +37,7 @@ module.exports = function (webserver, endpoint) {
 			let fontSize = 40;
 			let textBuffer = new Buffer.from(
 				'<svg height="' + (fontSize) + '" width="700">' +
-				'  <text x="50%" y="30" dominant-baseline="hanging" text-anchor="middle" font-size="' + fontSize + '" fill="#fff">Chyba: ' + error.message + '</text>' +
+				'  <text x="50%" y="30" dominant-baseline="hanging" text-anchor="middle" font-size="' + fontSize + '" fill="#fff">' + error.message + '</text>' +
 				'</svg>'
 			);
 
@@ -72,3 +52,36 @@ module.exports = function (webserver, endpoint) {
 		}
 	});
 };
+
+function getResizeParams(req) {
+	// resizing is disabled in config
+	if (c.compress.enabled !== true) {
+		return false;
+	}
+	// custom resize settings
+	if (req.query.fit && req.query.width && req.query.height) {
+		let compressData = Object.assign({}, c.compress);
+
+		compressData.width = parseInt(req.query.width);
+		if (compressData.width <= 50) {
+			throw new Error('Wrong "width" parameter.');
+		}
+
+		compressData.height = parseInt(req.query.height);
+		if (req.query.height <= 50) {
+			throw new Error('Wrong "height" parameter.');
+		}
+
+		compressData.fit = req.query.fit;
+		if (['cover', 'contain', 'fill', 'inside', 'outside'].inArray(compressData.fit) === false) {
+			throw new Error('Wrong "fit" parameter.');
+		}
+		return compressData;
+	}
+
+	// default resize settings (compressing)
+	if ((req.cookies['pmg-compress'] === 'true' && req.query.compress !== 'false') || req.query.compress === 'true') {
+		return c.compress;
+	}
+	return false;
+}
