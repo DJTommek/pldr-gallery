@@ -1,0 +1,54 @@
+#navbar {
+	/* Make breadcrumb smaller */
+
+	.breadcrumb {
+		padding: 0.5em 1em;
+		margin: 0;
+	}
+
+	/* Bigger area of clickable links */
+
+	.breadcrumb li a {
+		padding: 1em 0;
+	}
+
+	.dropdown-item {
+		text-align: right;
+	}
+
+	#navbar-filter {
+		width: 15rem;
+	}
+
+	.nav-item button {
+		border: none;
+	}
+
+	/* while non-collapsed navbar */
+	@media (min-width: 768px) {
+		/* Normalize all elements (buttons, dropdowns...) */
+		.nav-item .nav-link {
+			margin-right: -10px;
+			margin-left: -10px;
+			padding-top: 0;
+			padding-bottom: 0;
+		}
+
+		/* Normalize also icons inside */
+		.nav-item .nav-link i.fa {
+			width: 20px;
+			height: 20px;
+			margin: 2px;
+			padding: 2px;
+		}
+	}
+
+	/* while in collapsed navbar */
+	@media (max-width: 767px) {
+		/* all items should be in full width */
+		#navbar-filter,
+		.nav-item button {
+			width: 100%;
+		}
+	}
+}

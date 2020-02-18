@@ -1,0 +1,110 @@
+@import 'structure.less';
+@import 'navbar.less';
+@import 'popup.less';
+@import 'tweaks.less';
+
+body {
+	max-width: 1900px; /* 1920 - padding */
+	padding: 0; /* padding top because navbar looks weird without reseting to zero */
+	margin: 0 auto 3em; /* margin bottom because of popup-footer */
+}
+
+#flash-message {
+	width: 60%;
+	max-width: 50em;
+	margin: 0 auto;
+	position: fixed;
+	top: 60px;
+	left: 0;
+	right: 0;
+	text-align: center;
+	z-index: 2000; /* should be above everything */
+}
+
+#flash-message .alert {
+	margin: 15px;
+}
+
+body a,
+body .theme-color {
+	color: #007bff; /* Bootstrap primary */
+}
+
+#popup-footer,
+#navbar {
+	background-color: #f8f9fa;
+}
+
+#map {
+	margin-top: 2em;
+	height: 30em;
+	width: 100%;
+}
+
+/**
+ * Change colors to dark mode if body has ".dark" class
+ * - but do not change print output
+ */
+@media not print {
+	body.theme-dark #navbar,
+	body.theme-dark #popup-footer,
+	body.theme-dark #navbar .dropdown-menu,
+	body.theme-dark .modal-content {
+		background-color: #343a40;
+	}
+
+	body.theme-dark #navbar .dropdown-item:focus,
+	body.theme-dark #navbar .dropdown-item:hover,
+	body.theme-dark #navbar .breadcrumb {
+		background-color: #616161;
+	}
+
+	body.theme-dark #navbar-filter input,
+	body.theme-dark #navbar-filter .input-group-text {
+		border: black;
+		color: #909090;
+		background-color: black;
+	}
+
+	body.theme-dark .table-striped > tbody > tr:nth-of-type(odd) {
+		background-color: #212121;
+	}
+
+	body.theme-dark {
+		background-color: black;
+		color: #909090;
+	}
+
+	body.theme-dark a:not(.btn),
+	body.theme-dark .theme-color {
+		color: orange;
+	}
+
+	body.theme-dark #structure-tiles .structure-item:hover,
+	body.theme-dark #structure-tiles .structure-item.structure-selected {
+		border-color: orange;
+	}
+
+	body.theme-dark #structure-tiles .structure-item .name {
+		color: orange;
+		background-color: rgba(97, 97, 97, 0.8);
+	}
+
+	/* Currently selected or hovered tile */
+	body.theme-dark #structure-tiles .structure-item:hover .name,
+	body.theme-dark #structure-tiles .structure-item.structure-selected .name,
+	body.theme-dark #structure-tiles .structure-item:hover,
+	body.theme-dark #structure-tiles .structure-item.structure-selected {
+		background-color: #1e1e1e; /* full background */
+	}
+
+
+	body.theme-dark #structure-rows table tbody tr.structure-selected,
+	body.theme-dark #structure-rows table tbody tr:hover {
+		background-color: #616161 !important;
+	}
+
+	body.theme-dark hr {
+		border-top: 1px solid rgba(255, 255, 255, .3);
+	}
+}

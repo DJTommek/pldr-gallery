@@ -11,12 +11,21 @@ const cookieParser = require('cookie-parser');
 const http = require('http');
 const https = require('https');
 const express = require('express');
+const lessMiddleware = require('less-middleware');
 const compression = require('compression');
 const webserver = express();
 webserver.use(bodyParser.json()); // support json encoded bodies
 webserver.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 webserver.use(cookieParser()); // support cookies
-webserver.use(express.static('public'));
+
+// @TODO Note: if there are multiple LESS files and someone requests static file named just like LESS file, it will be generated.
+// Should be accessible only main.less which is importing other LESS files, other files should not be generated separatelly.
+webserver.use(lessMiddleware(BASE_DIR_GET('/private/less'), {
+	dest: BASE_DIR_GET('/public'),
+	once: false, // @TODO set to false when developing about LESS is done
+	debug: true, // @TODO remove when developing about LESS is done
+}));
+webserver.use(express.static(BASE_DIR_GET('/public/')));
 webserver.use(compression());
 
 /**
