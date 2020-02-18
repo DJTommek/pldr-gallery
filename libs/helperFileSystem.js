@@ -109,7 +109,12 @@ function pathMasterCheck(basePath, requestedPathBase64, userPermissions, permsTe
 		return result;
 	}
 	let path = requestedPathBase64;
-	path = decodeURIComponent(Buffer.from(path, 'base64').toString());
+	try {
+		path = decodeURIComponent(Buffer.from(path, 'base64').toString());
+	} catch(error) {
+		result.error = error.message;
+		return result;
+	}
 	result.queryPath = path;
 	if (path.includes('\\')) { // Windows backslashes are not supported - everything has to be written in POSIX (UNIX) way.
 		result.error = 'Backslash is not allowed';
