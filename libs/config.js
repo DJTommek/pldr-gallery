@@ -10,6 +10,13 @@ const merge = require('lodash.merge');
 require(BASE_DIR_GET('/public/js/structure.js'));
 
 let CONFIG = {
+	/**
+	 * Default settings, how should be images compressed (resized)
+	 * Set "enabled: false" if you want to disable compressing entirely - all images will be streamed in full size,
+	 * even thumbnails which is less load to server to process but more data will be transfered over network
+	 *
+	 * @See https://sharp.pixelplumbing.com/api-resize
+	 */
 	compress: {
 		enabled: true,
 		fit: 'inside',
