@@ -278,14 +278,13 @@ $(function () {
 		window.dispatchEvent(new HashChangeEvent("hashchange"));
 	}
 	// S.setCurrent(pathFromUrl(window.location.hash));
-	$('[data-toggle="tooltip"]').tooltip({html: true});
 	$('#button-logout').on('click', function (event) {
 		event.preventDefault();
 		if (confirm('Opravdu se chceš odhlásit?')) {
 			// remove cookie on the server (without refreshing browser)
 			$.get("/logout", function () {
 				// remove cookie from the browser (just in case of error)
-				Cookies.remove('google-login');
+				// Cookies.remove('google-login');
 				updateLoginButtons();
 				loadStructure(true);
 				alert('Odhlášení bylo úspěšné.');
@@ -764,7 +763,7 @@ function parseStructure(items) {
 	let maxVisible = S.getItems().length;
 	let breadcrumbHtml = '';
 	// noinspection HtmlUnknownAnchorTarget
-	breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/" title="Go to root folder" data-toggle="tooltip"><i class="fa fa-home"></i></a></li>';
+	breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/" title="Go to root folder"><i class="fa fa-home"></i></a></li>';
 	let breadcrumbPath = '/';
 
 	currentFolder.paths.forEach(function (folderName, index) {
@@ -826,7 +825,7 @@ function parseStructure(items) {
 		contentRows += '<td><a href="#' + item.url + '">' + item.text + '</a></td>';
 		contentRows += '<td>' + formatBytes(item.size, 2) + '</td>';
 		const created = item.created.human(true);
-		contentRows += '<td title="' + created + '<br>Před ' + msToHuman(new Date() - item.created) + '" data-toggle="tooltip">' + created.date + ' <span>' + created.time + '</span></td>';
+		contentRows += '<td title="' + created + ' (' + msToHuman(new Date() - item.created) + ' ago)">' + created.date + ' <span>' + created.time + '</span></td>';
 		contentRows += '</tr>';
 
 		contentTiles += '<a class="structure-item item-index-' + item.index + '" href="#' + item.url + '" data-type="file" data-index="' + item.index + '">';
@@ -885,7 +884,6 @@ function loadingStructure(loading) {
 		$('.structure-selected td:nth-child(2) a i').remove();
 		$('#navbar-filter input').prop('disabled', false);
 		$('#navbar-filter .search').prop('disabled', false);
-		$('[data-toggle="tooltip"]').tooltip({html: true}); // update all tooltips after structure is (re)loaded
 	}
 }
 
@@ -897,7 +895,6 @@ function loadingPopup(loading) {
 	if (loading === false) {
 		loadedStructure.loading = false;
 		$('#popup-loading').hide();
-		$('[data-toggle="tooltip"]').tooltip();
 	}
 	return loadedStructure.loading;
 }
