@@ -207,6 +207,7 @@ body .theme-color {
 	width: 100%;
 	left: 0;
 }
+
 #structure-tiles .structure-item .thumbnail {
 	top: 0;
 	height: 100%;
@@ -216,8 +217,8 @@ body .theme-color {
 
 #structure-tiles .structure-item .name {
 	bottom: 1em;
-	background-color: rgba(97, 97, 97, 0.8);
-	transition: background-color 0.25s ease-in-out;
+	background-color: rgba(158, 158, 158, 0.8);
+	color: black;
 	text-align: center;
 	margin: 0 auto;
 	padding: 0.5em 0;
@@ -257,14 +258,15 @@ body .theme-color {
 #structure-tiles .structure-item:hover,
 #structure-tiles .structure-item.structure-selected {
 	margin: 0.4em; /* same as ".structure-item" margin - "this" border-size  */
-	border: 0.1em solid orange;  /* same as ".structure-item .thumbnail" padding */
+	border: 0.1em solid #007bff; /* same as ".structure-item .thumbnail" padding */
 }
+
 /* Currently selected or hovered tile */
 #structure-tiles .structure-item:hover .name,
 #structure-tiles .structure-item.structure-selected .name,
 #structure-tiles .structure-item:hover,
 #structure-tiles .structure-item.structure-selected {
-	background-color: rgba(30, 30, 30, 1); /* full background */
+	background-color: white; /* full background */
 }
 
 /*************************************/
@@ -442,6 +444,24 @@ input[type=checkbox] {
 	body.theme-dark .theme-color {
 		color: orange;
 	}
+
+	body.theme-dark #structure-tiles .structure-item:hover,
+	body.theme-dark #structure-tiles .structure-item.structure-selected {
+		border-color: orange;
+	}
+	body.theme-dark #structure-tiles .structure-item .name {
+		color: orange;
+		background-color: rgba(97, 97, 97, 0.8);
+	}
+
+	/* Currently selected or hovered tile */
+	body.theme-dark #structure-tiles .structure-item:hover .name,
+	body.theme-dark #structure-tiles .structure-item.structure-selected .name,
+	body.theme-dark #structure-tiles .structure-item:hover,
+	body.theme-dark #structure-tiles .structure-item.structure-selected {
+		background-color: #1e1e1e; /* full background */
+	}
+
 
 	body.theme-dark #structure-rows table tbody tr.structure-selected,
 	body.theme-dark #structure-rows table tbody tr:hover {
