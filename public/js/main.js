@@ -7,8 +7,6 @@ const loadedStructure = {
 	flashIndex: 0, // incremental index used for flashMessage()
 	presentationRunning: false,
 	presentationIntervalId: null,
-	tilesOnRow: 0,
-	tilesOnLastRow: 0,
 };
 const mapData = {
 	map: null,
@@ -777,7 +775,7 @@ function parseStructure(items) {
 
 	$('#currentPath').html(breadcrumbHtml);
 	/**
-	 * Generate structure content (rows based)
+	 * Generate structure content
 	 */
 	let contentRows = '';
 	let contentTiles = '';
