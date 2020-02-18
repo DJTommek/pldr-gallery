@@ -1,0 +1,104 @@
+#popup {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1030; /* has to be bigger than #navbar */
+	background: rgba(0, 0, 0, 0.5);
+	transition: background-color .3s ease-in-out;
+	text-align: center;
+}
+
+#popup-content {
+	width: 100%;
+	height: 100%;
+}
+
+#popup-image,
+#popup-video,
+#popup-audio,
+#popup-icon,
+#popup-loading {
+	max-height: inherit;
+	max-width: inherit;
+	/**
+	 * Vertical and horizontal center image
+	 * This solution respect parent size with gap for footer
+	 * @Author https://stackoverflow.com/a/46276156
+	 */
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+#popup-audio {
+	width: 75%;
+	z-index: 2; /* has to be above #popup-prev and #popup-next */
+}
+
+#popup-footer {
+	height: 3em;
+	width: 100%;
+	max-width: 1920px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	position: fixed;
+	margin: 0 auto;
+
+
+	.list-inline-item {
+		height: 3em;
+		min-width: 2.5em;
+		line-height: 1em;
+		padding: 1em 0.5em;
+		transition: all 0.2s ease-in-out;
+		cursor: pointer;
+		margin: 0;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.1);
+		}
+	}
+}
+
+/**
+ * prev/next buttons from lightbox tutorial
+ * @Author https://www.w3schools.com/howto/howto_js_lightbox.asp
+ */
+
+#popup-prev,
+#popup-next {
+	z-index: 1; /* show above video but has to be under audio */
+	cursor: pointer;
+	position: absolute;
+	top: 40%;
+	width: 4em;
+	padding: 3em 1em;
+	margin-top: -50px;
+	font-weight: bold;
+	font-size: 20px;
+	transition: 0.6s ease;
+	border-radius: 0 3px 3px 0;
+	user-select: none;
+	-webkit-user-select: none;
+	background-color: rgba(0, 0, 0, 0.3);
+	color: white;
+
+	&:hover {
+		text-decoration: none;
+		background-color: rgba(0, 0, 0, 0.5);
+	}
+}
+
+#popup-next {
+	right: 0;
+	border-radius: 0.5em 0 0 0.5em;
+}
+
+#popup-prev {
+	left: 0;
+	border-radius: 0 0.5em 0.5em 0;
+}
