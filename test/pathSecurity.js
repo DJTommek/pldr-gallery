@@ -5,6 +5,7 @@ const PERMS = require(BASE_DIR_GET('/libs/permissions.js'));
 const HFS = require(BASE_DIR_GET('/libs/helperFileSystem.js'));
 
 describe('Handle requested path', function () {
+	const ERROR_URI = 'URI malformed';
 	const ERROR_BACKSLASH = 'Backslash is not allowed';
 	const ERROR_DYNAMIC = 'Dynamic path is not allowed';
 	const ERROR_QUERY = 'Query path has to start with forward slash';
@@ -31,6 +32,13 @@ describe('Handle requested path', function () {
 		}
 		assert.deepStrictEqual(HFS.pathMasterCheck(absolutePath, requestedPathBase64, perms, PERMS.test), absoluteOutput);
 	}
+	it('Invalid URI', function () {
+		const malformedURI = 'JTJGZmlsZXMlMkYyMDAyLjExJTIwRG9tYSU';
+		assert.deepStrictEqual(HFS.pathMasterCheck(absolutePath, malformedURI, ['/'], PERMS.test), {
+			error: ERROR_URI
+		});
+	});
+
 
 	it('Invalid string in requested path', function () {
 		runAssert('\\', ['/'], {error: ERROR_BACKSLASH, queryPath: '\\'});
