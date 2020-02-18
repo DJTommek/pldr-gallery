@@ -107,7 +107,7 @@ body .theme-color {
 }
 
 #structure-rows table tbody tr {
-	transition: background-color 0.5s ease;
+	transition: background-color 0.25s ease;
 }
 
 /* Whole line is clickable area */
