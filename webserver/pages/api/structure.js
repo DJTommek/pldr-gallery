@@ -38,7 +38,8 @@ module.exports = function (webserver, endpoint) {
 					icon: (new Icons).FOLDER_GO_BACK,
 				}).serialize());
 			}
-			globby(res.locals.fullPathFolder + '*', {
+			// @TODO temporary fix, more info in https://github.com/DJTommek/pldr-gallery/issues/7
+			globby(res.locals.fullPathFolder.replaceAll('(', '\\(') + '*', {
 				markDirectories: true,
 				onlyDirectories: true
 			}).then(function (rawPathsFolders) {
@@ -67,7 +68,8 @@ module.exports = function (webserver, endpoint) {
 		let filesLimitCount = 0;
 		const loadFilesPromise = new Promise(function (resolve) {
 			let files = [];
-			globby(res.locals.fullPathFolder + '*', {onlyFiles: true}).then(function (rawPathsFiles) {
+			// @TODO temporary fix, more info in https://github.com/DJTommek/pldr-gallery/issues/7
+			globby(res.locals.fullPathFolder.replaceAll('(', '\\(') + '*', {onlyFiles: true}).then(function (rawPathsFiles) {
 				rawPathsFiles.forEach(function (fullPath) {
 					const dynamicPath = pathCustom.absoluteToRelative(fullPath, c.path);
 					if (perms.test(res.locals.userPerms, dynamicPath) === false) {
