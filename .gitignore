@@ -1,4 +1,5 @@
 /libs/config.local.js
 /public/index.html
+/public/main.css
 node_modules
 package
