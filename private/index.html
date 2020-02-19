@@ -26,7 +26,7 @@
 	<ol id="currentPath" class="breadcrumb">
 		<li class="breadcrumb-item active"><a href="#/"><i class="fa fa-home"></i></a></li>
 	</ol>
-	<button class="btn navbar-toggler theme-color" type="button" data-toggle="collapse" data-target="#navbar-collapse-content">
+	<button class="btn navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse-content">
 		Menu <i class="fa fa-bars"></i>
 	</button>
 
@@ -42,7 +42,7 @@
 					</span>
 				</div>
 				<div class="input-group-append" title="Deep search in subfolders (ctrl+enter)">
-					<button class="btn btn-outline-secondary search theme-color" type="button">
+					<button class="btn btn-outline-secondary search" type="button">
 						<i class="fa fa-search"></i>
 					</button>
 				</div>
@@ -52,24 +52,22 @@
 		<ul class="navbar-nav">
 			<!-- Share -->
 			<li class="nav-item" title="Copy URL">
-				<a class="nav-link" href="#" id="navbar-share">
-					<button class="btn btn-outline-secondary theme-color">
-						<span class="d-md-none d-lg-none">Copy URL</span>
-						<i class="fa fa-share-alt fa-fw"></i>
-					</button>
+				<a class="btn btn-outline-secondary" href="#" id="navbar-share">
+					<span class="d-md-none d-lg-none">Copy URL</span>
+					<i class="fa fa-share-alt fa-fw"></i>
 				</a>
 			</li>
 
 			<!-- Favourites -->
 			<li class="nav-item dropdown" title="Favourites">
-				<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split theme-color" type="button" id="navbar-favourites-button" data-toggle="dropdown">
+				<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" id="navbar-favourites-button" data-toggle="dropdown">
 					<span class="d-md-none">Favourites</span>
 					<i class="fa fa-star-o"></i>
 				</button>
 
-				<div class="dropdown-menu dropdown-menu-right theme-color" id="navbar-dropdown-content">
+				<div class="dropdown-menu dropdown-menu-right" id="navbar-dropdown-content">
 					<a class="dropdown-item" href="#" id="navbar-favourites-add">Add to favourites</a>
-					<a class="dropdown-item" href="#" id="navbar-favourites-remove" style="display: none;" >Remove from favourites</a>
+					<a class="dropdown-item" href="#" id="navbar-favourites-remove" style="display: none;">Remove from favourites</a>
 					<div class="dropdown-divider"></div>
 					<div class="dropdown-item dropdown-item-favourites disabled">No saved items</div>
 				</div>
@@ -77,28 +75,24 @@
 
 			<!-- Settings -->
 			<li class="nav-item" title="Settings">
-				<a class="nav-link" data-toggle="modal" data-target="#modal-settings" href="#">
-					<button class="btn btn-outline-secondary theme-color">
-						<span class="d-md-none">Settings</span>
-						<i class="fa fa-wrench fa-fw"></i>
-					</button>
-				</a>
+				<button class="btn btn-outline-secondary" data-toggle="modal" data-target="#modal-settings">
+					<span class="d-md-none">Settings</span>
+					<i class="fa fa-wrench fa-fw"></i>
+				</button>
 			</li>
+
 			<!-- Login and logout -->
-			<li class="nav-item">
-				<a class="nav-link" id="button-login" href="/login" title="Login">
-					<button class="btn btn-outline-secondary theme-color">
-						<span class="d-md-none">Sign in</span>
-						<i class="fa fa-sign-in fa-fw"></i>
-					</button>
+			<li class="nav-item" title="Login">
+				<a class="btn btn-outline-secondary" id="button-login" href="/login">
+					<span class="d-md-none d-lg-none">Login</span>
+					<i class="fa fa-sign-in fa-fw"></i>
 				</a>
-				<a class="nav-link" id="button-logout" href="/logout" title="Logout" style="display: none;" >
-					<button class="btn btn-outline-secondary theme-color">
-						<span class="d-md-none d-lg-none">Sign out</span>
-						<i class="fa fa-sign-out fa-fw"></i>
-					</button>
+				<a class="btn btn-outline-secondary" id="button-logout" href="/logout" style="display: none;">
+					<span class="d-md-none d-lg-none">Logout</span>
+					<i class="fa fa-sign-out fa-fw"></i>
 				</a>
 			</li>
+
 		</ul>
 	</div>
 </nav>

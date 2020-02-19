@@ -1,16 +1,15 @@
 #navbar {
-	/* Make breadcrumb smaller */
 
-	.breadcrumb {
+
+	.breadcrumb { /* Make breadcrumb smaller */
 		padding: 0.5em 1em;
 		margin: 0;
+
+		li a { /* Bigger area of clickable links */
+			padding: 1em 0;
+		}
 	}
 
-	/* Bigger area of clickable links */
-
-	.breadcrumb li a {
-		padding: 1em 0;
-	}
 
 	.dropdown-item {
 		text-align: right;
@@ -20,26 +19,19 @@
 		width: 15rem;
 	}
 
-	.nav-item button {
+	.nav-item .btn {
 		border: none;
 	}
 
 	/* while non-collapsed navbar */
 	@media (min-width: 768px) {
-		/* Normalize all elements (buttons, dropdowns...) */
-		.nav-item .nav-link {
-			margin-right: -10px;
-			margin-left: -10px;
-			padding-top: 0;
-			padding-bottom: 0;
-		}
-
-		/* Normalize also icons inside */
-		.nav-item .nav-link i.fa {
-			width: 20px;
-			height: 20px;
-			margin: 2px;
-			padding: 2px;
+		.nav-item {
+			i.fa { /* Normalize icons */
+				width: 20px;
+				height: 20px;
+				margin: 2px;
+				padding: 2px;
+			}
 		}
 	}
 
@@ -47,7 +39,7 @@
 	@media (max-width: 767px) {
 		/* all items should be in full width */
 		#navbar-filter,
-		.nav-item button {
+		.nav-item .btn {
 			width: 100%;
 		}
 	}
