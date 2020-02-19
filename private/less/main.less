@@ -3,6 +3,12 @@
 @import 'popup.less';
 @import 'tweaks.less';
 
+@theme-default-color-primary: #007bff; /* Bootstrap primary */
+@theme-default-color-text: black;
+
+@theme-dark-color-primary: #ffc107; /* Bootstrap warning */
+@theme-dark-color-text: #909090;
+
 body {
 	max-width: 1900px; /* 1920 - padding */
 	padding: 0; /* padding top because navbar looks weird without reseting to zero */
@@ -25,9 +31,8 @@ body {
 	margin: 15px;
 }
 
-body a,
-body .theme-color {
-	color: #007bff; /* Bootstrap primary */
+body a {
+	color: @theme-default-color-primary;
 }
 
 #popup-footer,
@@ -62,7 +67,7 @@ body .theme-color {
 	body.theme-dark #navbar-filter input,
 	body.theme-dark #navbar-filter .input-group-text {
 		border: black;
-		color: #909090;
+		color: @theme-dark-color-text;
 		background-color: black;
 	}
 
@@ -70,13 +75,16 @@ body .theme-color {
 		background-color: #212121;
 	}
 
+	body.theme-dark #navbar .navbar-toggler {
+		color: @theme-dark-color-text;
+	}
 	body.theme-dark {
 		background-color: black;
-		color: #909090;
+		color: @theme-dark-color-text;
 	}
 
-	body.theme-dark a:not(.btn),
-	body.theme-dark .theme-color {
+
+	body.theme-dark a:not(.btn) {
 		color: orange;
 	}
 
