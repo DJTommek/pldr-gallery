@@ -396,13 +396,6 @@ $(function () {
 		$('body').removeClass().addClass('theme-' + theme);
 	});
 
-	// some line is selected
-	$('#structure-rows').on('click', 'table tbody tr', function (e) {
-		e.preventDefault();
-		S.selectorMove($(this).data('index'));
-		S.selectorSelect();
-	});
-
 	/**
 	 * Showing saved passwords in settings
 	 */
@@ -776,58 +769,24 @@ function parseStructure(items) {
 	/**
 	 * Generate structure content
 	 */
-	let contentRows = '';
 	let contentTiles = '';
-	contentRows += '<table class="table-striped table-condensed"><thead>';
-	contentRows += ' <tr>';
-	contentRows += '  <th>&nbsp;</th>';
-	contentRows += '  <th>Název</th>';
-	if (S.getFiles().length) {
-		contentRows += '  <th>Velikost</th>';
-		contentRows += '  <th>Datum</th>';
-	}
-	contentRows += ' </tr>';
-	contentRows += '</thead><tbody>';
 	S.getFolders().forEach(function (item) {
 		if (item.noFilter) {
 			maxVisible--;
 		}
-		contentRows += '<tr class="item-index-' + item.index + '" data-index="' + item.index + '">';
-		contentRows += ' <td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
-		contentRows += ' <td><a href="#' + item.url + '">' + item.text + '</a></td>';
-		if (S.getFiles().length) {
-			contentRows += ' <td>&nbsp;</td>';
-			contentRows += ' <td>&nbsp;</td>';
-		}
-		contentRows += '</tr>';
-
 		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
 		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		contentTiles += '</a>';
-
 	});
 	if (items.foldersTotal > items.folders.length) {
 		const text = 'Celkem je zde ' + (items.foldersTotal) + ' složek ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.';
-		contentRows += '<tr class="structure-limited">';
-		contentRows += '<td><i class="fa fa-info fa-fw"></i></td>';
-		contentRows += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">' + text + '</td>';
-		contentRows += '</tr>';
-
 		contentTiles += '<a class="structure-item" href="#">';
 		contentTiles += ' <i class="icon fa fa-info fa-fw"></i>';
 		contentTiles += ' <span class="name">' + text + '</span>';
 		contentTiles += '</a>';
 	}
 	S.getFiles().forEach(function (item) {
-		contentRows += '<tr class="item-index-' + item.index + '" data-index="' + item.index + '">';
-		contentRows += '<td><i class="fa fa-' + item.icon + ' fa-fw"></i></td>';
-		contentRows += '<td><a href="#' + item.url + '">' + item.text + '</a></td>';
-		contentRows += '<td>' + formatBytes(item.size, 2) + '</td>';
-		const created = item.created.human(true);
-		contentRows += '<td title="' + created + ' (' + msToHuman(new Date() - item.created) + ' ago)">' + created.date + ' <span>' + created.time + '</span></td>';
-		contentRows += '</tr>';
-
 		contentTiles += '<a class="structure-item item-index-' + item.index + '" href="#' + item.url + '" data-index="' + item.index + '">';
 		contentTiles += ' <i class="icon fa fa-' + item.icon + ' fa-fw"></i>';
 		if (item.isImage === true) {
@@ -835,35 +794,23 @@ function parseStructure(items) {
 			contentTiles += ' <img class="thumbnail" src="' + (item.getFileUrl() + '&width=200&height=200&fit=cover') + '" loading="lazy">';
 		}
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
+		const created = item.created.human(true);
+		contentTiles += ' <span class="created" title="' + created + ' (' + msToHuman(new Date() - item.created) + ' ago)">' + created.date + ' <span>' + created.time + '</span></span>';
+		contentTiles += ' <span class="size">' + formatBytes(item.size, 2) + '</span>';
 		contentTiles += '</a>';
 	});
 	if (maxVisible === 0) {
-		const text = 'Složka je prázdná.';
-		contentRows += '<tr class="structure-back">';
-		contentRows += '<td><i class="fa fa-info fa-fw"></i></td>';
-		contentRows += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">' + text + '</td>';
-
-		contentRows += '</tr>';
 		contentTiles += '<a class="structure-item" href="#">';
 		contentTiles += ' <i class="icon fa fa-info fa-fw"></i>';
-		contentTiles += ' <span class="name">' + text + '</span>';
+		contentTiles += ' <span class="name">Složka je prázdná.</span>';
 		contentTiles += '</a>';
 	}
 	if (items.filesTotal > items.files.length) {
-		const text = 'Celkem je zde ' + (items.filesTotal) + ' souborů ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.';
-		contentRows += '<tr class="structure-limited">';
-		contentRows += '<td><i class="fa fa-info fa-fw"></i></td>';
-		contentRows += '<td colspan="' + (S.getFiles().length ? '3' : '1') + '">' + text + '</td>';
-		contentRows += '</tr>';
-
 		contentTiles += '<a class="structure-item" href="#">';
 		contentTiles += ' <i class="icon fa fa-info fa-fw"></i>';
-		contentTiles += ' <span class="name">' + text + '</span>';
+		contentTiles += ' <span class="name">Celkem je zde ' + (items.filesTotal) + ' souborů ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</span>';
 		contentTiles += '</a>';
 	}
-	contentRows += '</tbody></table>';
-
-	$('#structure-rows').html(contentRows);
 	$('#structure-tiles').html(contentTiles);
 	$('#navbar-filter .total').text(maxVisible);
 	$('#navbar-filter .filtered').text(maxVisible);
@@ -1022,20 +969,12 @@ function shareUrl(niceUrl) {
 function structureViewChange(value) {
 	Settings.save('structureDisplayType', value);
 	// reset original values
-	$('.structure-wrapper').hide();
-	$('#structure-' + value).show();
 	$('#structure-display-type button').removeClass('btn-secondary').addClass('btn-outline-secondary');
 
 	// update all necessary data depending on choosen tile-size
-	let type = 'rows';
-	if (value.includes('tiles-')) {
-		type = 'tiles';
-		$('#structure-' + type).removeClass('tiles-small').removeClass('tiles-big');
-		$('#structure-' + type).addClass(value);
-	}
+	$('#structure-tiles').removeClass().addClass(value);
 
 	// set new values
-	$('#structure-' + type).show();
 	$('#structure-display-type-' + value).removeClass('btn-outline-secondary').addClass('btn-secondary');
 	// check radiobox
 	$('#structure-display-type-' + value + ' input').attr('checked', true);

@@ -11,7 +11,6 @@
 
 body {
 	max-width: 1900px; /* 1920 - padding */
-	padding: 0; /* padding top because navbar looks weird without reseting to zero */
 	margin: 0 auto 3em; /* margin bottom because of popup-footer */
 }
 
@@ -71,10 +70,6 @@ body a {
 		background-color: black;
 	}
 
-	body.theme-dark .table-striped > tbody > tr:nth-of-type(odd) {
-		background-color: #212121;
-	}
-
 	body.theme-dark #navbar .navbar-toggler {
 		color: @theme-dark-color-text;
 	}
@@ -86,30 +81,6 @@ body a {
 
 	body.theme-dark a:not(.btn) {
 		color: orange;
-	}
-
-	body.theme-dark #structure-tiles .structure-item:hover,
-	body.theme-dark #structure-tiles .structure-item.structure-selected {
-		border-color: orange;
-	}
-
-	body.theme-dark #structure-tiles .structure-item .name {
-		color: orange;
-		background-color: rgba(97, 97, 97, 0.8);
-	}
-
-	/* Currently selected or hovered tile */
-	body.theme-dark #structure-tiles .structure-item:hover .name,
-	body.theme-dark #structure-tiles .structure-item.structure-selected .name,
-	body.theme-dark #structure-tiles .structure-item:hover,
-	body.theme-dark #structure-tiles .structure-item.structure-selected {
-		background-color: #1e1e1e; /* full background */
-	}
-
-
-	body.theme-dark #structure-rows table tbody tr.structure-selected,
-	body.theme-dark #structure-rows table tbody tr:hover {
-		background-color: #616161 !important;
 	}
 
 	body.theme-dark hr {
