@@ -1,27 +1,65 @@
 #navbar {
 
+	background-color: @theme-default-background-color-primary;
+
+	.theme-dark & {
+		background-color: @theme-dark-background-color-primary;
+	}
 
 	.breadcrumb { /* Make breadcrumb smaller */
 		padding: 0.5em 1em;
 		margin: 0;
+
+		.theme-dark & {
+			background-color: @theme-dark-background-color-secondary;
+		}
 
 		li a { /* Bigger area of clickable links */
 			padding: 1em 0;
 		}
 	}
 
+	.dropdown-menu {
+		.theme-dark & {
+			background-color: @theme-dark-background-color-primary;
+		}
 
-	.dropdown-item {
-		text-align: right;
+		.dropdown-item {
+			text-align: right;
+
+			.theme-dark &:focus,
+			.theme-dark &:hover {
+				background-color: @theme-dark-background-color-secondary;
+			}
+		}
 	}
 
 	#navbar-filter {
 		width: 15rem;
+
+		.theme-dark & input,
+		.theme-dark & .input-group-text {
+			border: black;
+			color: @theme-dark-color-text;
+			background-color: black;
+		}
 	}
 
 	.nav-item .btn {
 		border: none;
+		color: @theme-default-color-primary;
+
+		.theme-dark & {
+			color: @theme-dark-color-primary;
+		}
 	}
+
+	.navbar-toggler {
+		.theme-dark & {
+			color: @theme-dark-color-text;
+		}
+	}
+
 
 	/* while non-collapsed navbar */
 	@media (min-width: 768px) {

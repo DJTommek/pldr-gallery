@@ -136,7 +136,11 @@
 		padding: 0.2em;
 
 		&:nth-of-type(odd) {
-			background-color: rgba(0, 0, 0, 0.05);
+			background-color: rgba(@theme-default-color-text, 0.05);
+
+			.theme-dark & {
+				background-color: rgba(@theme-dark-color-text, 0.25);
+			}
 		}
 
 		.name,

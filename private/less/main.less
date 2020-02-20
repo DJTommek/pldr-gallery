@@ -3,15 +3,32 @@
 @import 'popup.less';
 @import 'tweaks.less';
 
-@theme-default-color-primary: #007bff; /* Bootstrap primary */
-@theme-default-color-text: black;
+/* Scheme settings */
 
-@theme-dark-color-primary: #ffc107; /* Bootstrap warning */
+/* Default (light) */
+@theme-default-color-text: black;
+@theme-default-color-primary: #007bff; /* Bootstrap primary */
+@theme-default-background-color: white;
+@theme-default-background-color-primary: #f8f9fa;
+
+/* Dark */
 @theme-dark-color-text: #909090;
+@theme-dark-color-primary: #ffc107; /* Bootstrap warning */
+@theme-dark-background-color: #000000;
+@theme-dark-background-color-primary: #343a40;
+@theme-dark-background-color-secondary: #616161;
 
 body {
 	max-width: 1900px; /* 1920 - padding */
 	margin: 0 auto 3em; /* margin bottom because of popup-footer */
+
+	background-color: @theme-default-background-color;
+	color: @theme-default-color-text;
+
+	&.theme-dark {
+		background-color: @theme-dark-background-color;
+		color: @theme-dark-color-text;
+	}
 }
 
 #flash-message {
@@ -30,60 +47,28 @@ body {
 	margin: 15px;
 }
 
-body a {
+a {
 	color: @theme-default-color-primary;
+
+	.theme-dark & {
+		color: @theme-dark-color-primary;
+	}
 }
 
-#popup-footer,
-#navbar {
-	background-color: #f8f9fa;
+hr {
+	.theme-dark & {
+		border-top: 1px solid @theme-dark-background-color-secondary;
+	}
+}
+
+.modal-content {
+	.theme-dark & {
+		background-color: @theme-dark-background-color-primary;
+	}
 }
 
 #map {
 	margin-top: 2em;
 	height: 30em;
 	width: 100%;
-}
-
-/**
- * Change colors to dark mode if body has ".dark" class
- * - but do not change print output
- */
-@media not print {
-	body.theme-dark #navbar,
-	body.theme-dark #popup-footer,
-	body.theme-dark #navbar .dropdown-menu,
-	body.theme-dark .modal-content {
-		background-color: #343a40;
-	}
-
-	body.theme-dark #navbar .dropdown-item:focus,
-	body.theme-dark #navbar .dropdown-item:hover,
-	body.theme-dark #navbar .breadcrumb {
-		background-color: #616161;
-	}
-
-	body.theme-dark #navbar-filter input,
-	body.theme-dark #navbar-filter .input-group-text {
-		border: black;
-		color: @theme-dark-color-text;
-		background-color: black;
-	}
-
-	body.theme-dark #navbar .navbar-toggler {
-		color: @theme-dark-color-text;
-	}
-	body.theme-dark {
-		background-color: black;
-		color: @theme-dark-color-text;
-	}
-
-
-	body.theme-dark a:not(.btn) {
-		color: orange;
-	}
-
-	body.theme-dark hr {
-		border-top: 1px solid rgba(255, 255, 255, .3);
-	}
 }
