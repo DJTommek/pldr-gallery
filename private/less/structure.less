@@ -62,8 +62,6 @@
 
 			.name {
 				bottom: 1em;
-				background-color: rgba(158, 158, 158, 0.8);
-				color: black;
 				text-align: center;
 				margin: 0 auto;
 				padding: 0.5em 0;
@@ -71,11 +69,8 @@
 				word-wrap: break-word;
 				overflow-wrap: break-word;
 				font-size: 0.75em;
-
-				.theme-dark & {
-					background-color: #ffffff - #c0c0c0;
-					color: @theme-dark-color-primary;
-				}
+				background-color: rgba(@theme-default-background-color-secondary, 0.8);
+				color: @theme-default-color-primary;
 			}
 
 			.icon {
@@ -93,18 +88,10 @@
 			&.structure-selected {
 				margin: @item-margin-size - @item-border-size;
 				border: @item-border-size solid @theme-default-color-primary;
-
-				.theme-dark & {
-					border-color: @theme-dark-color-primary;
-				}
+				color: @theme-default-color-primary;
 
 				.name {
-					background-color: white; /* full background */
-
-					.theme-dark & {
-						background-color: #1e1e1e;
-					}
-
+					background-color: @theme-default-background-color;
 				}
 			}
 
@@ -136,11 +123,7 @@
 		padding: 0.2em;
 
 		&:nth-of-type(odd) {
-			background-color: rgba(@theme-default-color-text, 0.05);
-
-			.theme-dark & {
-				background-color: rgba(@theme-dark-color-text, 0.25);
-			}
+			background-color: rgba(@theme-default-background-color-secondary, 0.3);
 		}
 
 		.name,
@@ -154,10 +137,6 @@
 		.size,
 		.created {
 			color: @theme-default-color-text;
-
-			.theme-dark & {
-				color: @theme-dark-color-text;
-			}
 		}
 
 		.size,
@@ -180,11 +159,8 @@
 
 		&:hover,
 		&.structure-selected {
-			background-color: #c0c0c0;
-
-			.theme-dark & {
-				background-color: #ffffff - #c0c0c0;
-			}
+			background-color: @theme-default-background-color-secondary;
+			color: @theme-default-color-primary
 		}
 	}
 }

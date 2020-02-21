@@ -2,17 +2,11 @@
 
 	background-color: @theme-default-background-color-primary;
 
-	.theme-dark & {
-		background-color: @theme-dark-background-color-primary;
-	}
-
 	.breadcrumb { /* Make breadcrumb smaller */
 		padding: 0.5em 1em;
 		margin: 0;
 
-		.theme-dark & {
-			background-color: @theme-dark-background-color-secondary;
-		}
+		background-color: @theme-default-background-color-secondary;
 
 		li a { /* Bigger area of clickable links */
 			padding: 1em 0;
@@ -20,16 +14,15 @@
 	}
 
 	.dropdown-menu {
-		.theme-dark & {
-			background-color: @theme-dark-background-color-primary;
-		}
+		background-color: @theme-default-background-color-primary;
 
 		.dropdown-item {
 			text-align: right;
+			color: @theme-default-color-primary;
 
-			.theme-dark &:focus,
-			.theme-dark &:hover {
-				background-color: @theme-dark-background-color-secondary;
+			&:focus,
+			&:hover {
+				background-color: @theme-default-background-color-secondary;
 			}
 		}
 	}
@@ -37,27 +30,27 @@
 	#navbar-filter {
 		width: 15rem;
 
-		.theme-dark & input,
-		.theme-dark & .input-group-text {
-			border: black;
-			color: @theme-dark-color-text;
-			background-color: black;
+		& input,
+		& .input-group-text {
+			border: @theme-default-background-color;
+			color: @theme-default-color-text;
+			background-color: @theme-default-background-color;
 		}
 	}
 
 	.nav-item .btn {
 		border: none;
 		color: @theme-default-color-primary;
-
-		.theme-dark & {
-			color: @theme-dark-color-primary;
+		&:hover,
+		&:focus {
+			color: @theme-default-color-primary;
+			background-color: @theme-default-background-color-secondary;
+			border-color: @theme-default-background-color-secondary;
 		}
 	}
 
 	.navbar-toggler {
-		.theme-dark & {
-			color: @theme-dark-color-text;
-		}
+		color: @theme-default-color-text;
 	}
 
 
