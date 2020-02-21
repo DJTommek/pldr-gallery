@@ -3,6 +3,7 @@ const FS = require('fs');
 const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
 const LOG = require(BASE_DIR_GET('/libs/log.js'));
 const readdirp = require('readdirp');
+const HFS = require(BASE_DIR_GET('/libs/helperFileSystem.js'));
 const perms = require(BASE_DIR_GET('/libs/permissions.js'));
 
 module.exports = function (webserver, endpoint) {
@@ -80,6 +81,7 @@ module.exports = function (webserver, endpoint) {
 					let pathStats = FS.lstatSync(entry.fullPath);
 					pathData.size = pathStats.size;
 					pathData.created = pathStats.ctime;
+					pathData = Object.assign(pathData, getCoordsFromExifFromFile(entry.fullPath));
 					finds.files.push(pathData);
 				}
 			} catch (error) {
@@ -95,4 +97,21 @@ module.exports = function (webserver, endpoint) {
 			res.result.setResult(finds, 'Done in ' + humanTime).end();
 		});
 	});
+
+	function getCoordsFromExifFromFile(fullPath) {
+		try {
+			return HFS.getCoordsFromExifFromFile(fullPath);
+		} catch (error) {
+			if (error.message === 'Index out of range') {
+				LOG.warning('Number of bytes is too small buffer for loading EXIF from file "' + fullPath + '".');
+			} else if (error.message === 'Invalid JPEG section offset') {
+				// ignore, probably broken image and/or EXIF data, more info in https://github.com/bwindels/exif-parser/issues/13
+			} else if (error.message === 'This file extension is not allowed to load EXIF data from.') {
+				// skip loading
+			} else {
+				LOG.error('Error while loading coordinates from EXIF for file "' + fullPath + '": ' + error);
+			}
+		}
+		return {}
+	}
 };
