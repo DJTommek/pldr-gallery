@@ -20,8 +20,8 @@ webserver.use(cookieParser()); // support cookies
 
 // @TODO Note: if there are multiple LESS files and someone requests static file named just like LESS file, it will be generated.
 // Should be accessible only main.less which is importing other LESS files, other files should not be generated separatelly.
-webserver.use(lessMiddleware(BASE_DIR_GET(c.less.sourcePath), c.less.options));
-webserver.use(express.static(BASE_DIR_GET(c.http.publicPath)));
+webserver.use(lessMiddleware(c.less.sourcePath, c.less.options));
+webserver.use(express.static(c.http.publicPath));
 webserver.use(compression());
 
 /**
