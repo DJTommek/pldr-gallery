@@ -1,6 +1,5 @@
 /libs/config.local.js
 /public/index.html
-/public/main-default.css
-/public/main-dark.css
+/public/main-*.css
 node_modules
 package

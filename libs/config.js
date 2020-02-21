@@ -25,15 +25,16 @@ let CONFIG = {
 		withoutEnlargement: true
 	},
 
+	/**
+	 * Options to LESS, CSS preprocessor
+	 * @see http://lesscss.org/
+	 * @see https://github.com/less/less.js
+	 */
 	less: {
 		// Folder with valid LESS files
-		sourcePath: './private/less/themes/',
-		/**
-		 * Options to LESS passed directly to less-middleware,
-		 *
-		 * @see https://github.com/emberfeather/less.js-middleware#options
-		 *
-		 */
+		sourcePath: BASE_DIR_GET('./private/less/themes/'),
+		// This object is passed directly to less-middleware
+		// @see https://github.com/emberfeather/less.js-middleware#options
 		options: {
 			dest: BASE_DIR_GET('/public/'),
 			once: true,
@@ -88,9 +89,9 @@ let CONFIG = {
 			// expiration in miliseconds of user token (after last use)
 			validity: 30 * 24 * 60 * 60 * 1000,
 			// path to save logged users tokens
-			tokensPath: './tokens/',
+			tokensPath: BASE_DIR_GET('./tokens/'),
 		},
-		publicPath: './public/'
+		publicPath: BASE_DIR_GET('./public/'),
 	},
 };
 
