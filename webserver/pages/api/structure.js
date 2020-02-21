@@ -3,8 +3,8 @@ const FS = require('fs');
 const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
 const LOG = require(BASE_DIR_GET('/libs/log.js'));
 const perms = require(BASE_DIR_GET('/libs/permissions.js'));
+const HFS = require(BASE_DIR_GET('/libs/helperFileSystem.js'));
 const globby = require('globby');
-const exifParser = require('exif-parser');
 
 module.exports = function (webserver, endpoint) {
 
@@ -149,41 +149,20 @@ module.exports = function (webserver, endpoint) {
 		return a.path.toLowerCase().localeCompare(b.path.toLowerCase());
 	}
 
-
 	function getCoordsFromExifFromFile(fullPath) {
-		if (fullPath.match((new FileExtensionMapper).regexExif) === null) {
-			return {};
-		}
-		const extData = (new FileExtensionMapper).get(pathCustom.extname(fullPath));
-		if (extData === undefined || typeof extData.exifBuffer !== 'number') {
-			return {};
-		}
-
-		// how big in bytes should be buffer for loading EXIF from file (depends on specification)
-		// https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.eXIf
-		// jpeg: 2^16-9 (65 527) bytes = 65.53 KB
-		// png: 2^31-1 (2 147 483 647) bytes  = 2.15 GB
-
-		// create small buffer, fill it with first x bytes from image and parse
-		let exifBuffer = new Buffer.alloc(extData.exifBuffer);
 		try {
-			FS.readSync(FS.openSync(fullPath, 'r'), exifBuffer, 0, extData.exifBuffer, 0);
-			let parsed = exifParser.create(exifBuffer).parse();
-			if (parsed.tags.GPSLatitude && parsed.tags.GPSLongitude) {
-				return {
-					coordLat: numberRound(parsed.tags.GPSLatitude, 6),
-					coordLon: numberRound(parsed.tags.GPSLongitude, 6),
-				};
-			}
-		} catch (error) {
+			return HFS.getCoordsFromExifFromFile(fullPath);
+		} catch(error) {
 			if (error.message === 'Index out of range') {
-				LOG.warning(extData.exifBuffer + ' bytes is too small buffer for loading EXIF from file "' + fullPath + '".');
+				LOG.warning('Number of bytes is too small buffer for loading EXIF from file "' + fullPath + '".');
 			} else if (error.message === 'Invalid JPEG section offset') {
 				// ignore, probably broken image and/or EXIF data, more info in https://github.com/bwindels/exif-parser/issues/13
+			} else if (error.message === 'This file extension is not allowed to load EXIF data from.') {
+				// skip loading
 			} else {
 				LOG.error('Error while loading coordinates from EXIF for file "' + fullPath + '": ' + error);
 			}
 		}
-		return {};
+		return {}
 	}
 };

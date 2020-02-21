@@ -2,6 +2,7 @@ const FS = require('fs');
 const PATH = require('path');
 const pathCustom = require('./path.js');
 const readline = require('readline');
+const exifParser = require('exif-parser');
 
 /**
  * The same as PATH.dirname but keep trailing /
@@ -111,7 +112,7 @@ function pathMasterCheck(basePath, requestedPathBase64, userPermissions, permsTe
 	let path = requestedPathBase64;
 	try {
 		path = decodeURIComponent(Buffer.from(path, 'base64').toString());
-	} catch(error) {
+	} catch (error) {
 		result.error = error.message;
 		return result;
 	}
@@ -180,3 +181,35 @@ function getEndpointPath(filePath) {
 }
 
 module.exports.getEndpointPath = getEndpointPath;
+
+
+function getCoordsFromExifFromFile(fullPath) {
+	if (PATH.isAbsolute(fullPath) === false) {
+		throw new Error('Parameter "fullPath" must be absolute path but "' + fullPath + '" given.')
+	}
+	if (fullPath.match((new FileExtensionMapper).regexExif) === null) {
+		throw new Error('This file extension is not allowed to load EXIF data from.');
+	}
+	const extData = (new FileExtensionMapper).get(pathCustom.extname(fullPath));
+	if (extData === undefined || typeof extData.exifBuffer !== 'number') {
+		throw new Error('This file extension has not defined EXIF buffer.');
+	}
+
+	// how big in bytes should be buffer for loading EXIF from file (depends on specification)
+	// https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.eXIf
+	// jpeg: 2^16-9 (65 527) bytes = 65.53 KB
+	// png: 2^31-1 (2 147 483 647) bytes  = 2.15 GB
+
+	// create small buffer, fill it with first x bytes from image and parse
+	let exifBuffer = new Buffer.alloc(extData.exifBuffer);
+	FS.readSync(FS.openSync(fullPath, 'r'), exifBuffer, 0, extData.exifBuffer, 0);
+	let parsed = exifParser.create(exifBuffer).parse();
+	if (parsed.tags.GPSLatitude && parsed.tags.GPSLongitude) {
+		return {
+			coordLat: numberRound(parsed.tags.GPSLatitude, 6),
+			coordLon: numberRound(parsed.tags.GPSLongitude, 6),
+		};
+	}
+}
+
+module.exports.getCoordsFromExifFromFile = getCoordsFromExifFromFile;
