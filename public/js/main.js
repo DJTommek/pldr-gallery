@@ -384,16 +384,14 @@ $(function () {
 	 */
 	Cookies.set('pmg-item-limit', Settings.load('structureItemLimit'));
 
-
 	/**
 	 * Toggle dark theme
 	 */
-	$('#settings-theme input').on('click', function () {
-		let theme = 'default';
-		if ($('#settings-theme-dark').is(':checked')) {
-			theme = 'dark';
-		}
-		$('body').removeClass().addClass('theme-' + theme);
+	$('#settings-theme input').on('change', function () {
+		const newTheme = $('#settings-theme input:checked').val();
+		const oldThemeHref = $('#style-theme').attr('href');
+		const newThemeHref = oldThemeHref.replace(/^main-[a-z]+\.css/, 'main-' + newTheme + '.css');
+		$('#style-theme').attr('href', newThemeHref)
 	});
 
 	/**
