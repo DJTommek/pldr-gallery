@@ -25,6 +25,22 @@ let CONFIG = {
 		withoutEnlargement: true
 	},
 
+	less: {
+		// Folder with valid LESS files
+		sourcePath: './private/less/themes/',
+		/**
+		 * Options to LESS passed directly to less-middleware,
+		 *
+		 * @see https://github.com/emberfeather/less.js-middleware#options
+		 *
+		 */
+		options: {
+			dest: BASE_DIR_GET('/public/'),
+			once: true,
+			debug: false,
+		},
+	},
+
 	/**
 	 * Following values are mostly just placeholders, dont forget to set them in config.local.js
 	 */
@@ -74,6 +90,7 @@ let CONFIG = {
 			// path to save logged users tokens
 			tokensPath: './tokens/',
 		},
+		publicPath: './public/'
 	},
 };
 
