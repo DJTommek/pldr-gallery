@@ -20,12 +20,8 @@ webserver.use(cookieParser()); // support cookies
 
 // @TODO Note: if there are multiple LESS files and someone requests static file named just like LESS file, it will be generated.
 // Should be accessible only main.less which is importing other LESS files, other files should not be generated separatelly.
-webserver.use(lessMiddleware(BASE_DIR_GET('/private/less'), {
-	dest: BASE_DIR_GET('/public'),
-	once: false, // @TODO set to false when developing about LESS is done
-	debug: true, // @TODO remove when developing about LESS is done
-}));
-webserver.use(express.static(BASE_DIR_GET('/public/')));
+webserver.use(lessMiddleware(BASE_DIR_GET(c.less.sourcePath), c.less.options));
+webserver.use(express.static(BASE_DIR_GET(c.http.publicPath)));
 webserver.use(compression());
 
 /**
@@ -154,7 +150,7 @@ FS.readFile(BASE_DIR_GET('/private/index.html'), function (error, data) {
 	let promises = [];
 	let fileContent = data.toString();
 	[
-		'public/main.css',
+		'private/less/main.less',
 		'public/js/main.js',
 		'public/js/functions.js',
 		'public/js/cookie.js',
