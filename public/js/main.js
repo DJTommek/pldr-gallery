@@ -246,13 +246,6 @@ $(window).on('hashchange', function () {
 			}
 			S.selectorMove(selectIndex);
 		}
-
-		// if there is no history or last two history items has different folders
-		const history1 = S.historyGet().last(1);
-		const history2 = S.historyGet().last(2);
-		if (!history1 || !history2 || history1.folder !== history2.folder) {
-			mapParsePhotos();
-		}
 	});
 });
 
@@ -683,6 +676,7 @@ function loadSearch(callback) {
 			} else {
 				parseStructure(result.result);
 				S.selectorMove('first');
+				mapParsePhotos();
 			}
 		},
 		error: function (result) {
@@ -723,6 +717,7 @@ function loadStructure(force, callback) {
 				$('#structure-header').html(result.result.header || '');
 				$('#structure-footer').html(result.result.footer || '');
 				parseStructure(result.result);
+				mapParsePhotos();
 				$('#navbar-filter input').val('');
 				S.filter();
 			}

@@ -60,7 +60,7 @@ module.exports = function (webserver, endpoint) {
 			}).catch(function (error) {
 				LOG.error('[Globby] Error while processing folders in "' + res.locals.fullPathFolder + '": ' + error.message);
 				folders = [];
-			}).finally(function() {
+			}).finally(function () {
 				resolve([folders, foldersLimitCount, itemLimit, 0]);
 			});
 		});
@@ -102,7 +102,7 @@ module.exports = function (webserver, endpoint) {
 			}).catch(function (error) {
 				LOG.error('[Globby] Error while processing files in "' + res.locals.fullPathFolder + '": ' + error.message);
 				files = [];
-			}).finally(function() {
+			}).finally(function () {
 				resolve([files, filesLimitCount, itemLimit, 0]);
 			});
 		});
@@ -152,7 +152,7 @@ module.exports = function (webserver, endpoint) {
 	function getCoordsFromExifFromFile(fullPath) {
 		try {
 			return HFS.getCoordsFromExifFromFile(fullPath);
-		} catch(error) {
+		} catch (error) {
 			if (error.message === 'Index out of range') {
 				LOG.warning('Number of bytes is too small buffer for loading EXIF from file "' + fullPath + '".');
 			} else if (error.message === 'Invalid JPEG section offset') {
