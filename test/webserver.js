@@ -1,6 +1,7 @@
 require('../public/js/functions.js');
 const pathCustom = require('../libs/path.js');
 pathCustom.defineBaseDir(require.main.filename + '../../../../../../');
+const c = require(BASE_DIR_GET('/libs/config.js'));
 const assert = require('assert');
 const LOG = require(BASE_DIR_GET('/libs/log.js')).setPath(BASE_DIR_GET('/log/'));
 require(BASE_DIR_GET('/webserver/webserver.js'));
@@ -126,7 +127,7 @@ function stringToBase64(string) {
 function assertRequest(path, query, callback) {
 	const options = {
 		hostname: 'localhost',
-		port: 4000,
+		port: c.http.port,
 		path: path,
 		method: 'GET'
 	};
