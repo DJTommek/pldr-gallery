@@ -5,24 +5,19 @@
 	<title>pldrGallery</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link rel="stylesheet" href="main-default.css?{{CACHEBUSTER_PRIVATE_LESS_MAIN.LESS}}" id="style-theme">
+	<link rel="stylesheet" id="style-theme">
+	<script>
+		/* set user-saved theme as soon as possible to prevent blink of default theme */
+		let newTheme = 'default';
+		try {
+			newTheme = localStorage.getItem('pldr-settings-theme');
+		} catch (error) {
+			// Local storage is not working (disabled, unsupported, ...)
+		}
+		document.getElementById('style-theme').setAttribute('href', 'main-' + newTheme + '.css?{{CACHEBUSTER_PRIVATE_LESS_MAIN.LESS}}');
+	</script>
 </head>
 <body>
-<script>
-	/* set dark theme as soon as possible to prevent blink of white theme */
-	try {
-		const newTheme = localStorage.getItem('pldr-settings-theme');
-		if (newTheme) { // might be null if first visit (or just deleted from local storage)
-			const element = document.getElementById('style-theme');
-			const oldThemeHref = element.getAttribute('href');
-			const newThemeHref = oldThemeHref.replace(/^main-[a-z]+\.css/, 'main-' + newTheme + '.css');
-			element.setAttribute('href', newThemeHref);
-		}
-	} catch (error) {
-		// Local storage is not working (disabled, unsupported, ...)
-	}
-</script>
-
 <div id="flash-message"></div>
 
 <nav class="navbar navbar-expand-md sticky-top" id="navbar">
