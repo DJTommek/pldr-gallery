@@ -280,7 +280,7 @@ $(function () {
 				// Cookies.remove('google-login');
 				updateLoginButtons();
 				loadStructure(true);
-				alert('Odhlášení bylo úspěšné.');
+				flashMessage('Odhlášení bylo úspěšné.');
 			});
 		}
 	});
