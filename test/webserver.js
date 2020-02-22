@@ -6,6 +6,7 @@ const assert = require('assert');
 const LOG = require(BASE_DIR_GET('/libs/log.js')).setPath(BASE_DIR_GET('/log/'));
 require(BASE_DIR_GET('/webserver/webserver.js'));
 const http = require('http');
+const https = require('http');
 const querystring = require('querystring');
 const perms = require(BASE_DIR_GET('/libs/permissions.js'));
 perms.load();
@@ -132,8 +133,14 @@ function assertRequest(path, query, callback) {
 		method: 'GET'
 	};
 	options.path += '?' + querystring.stringify(query);
+	// switch to HTTPS if is enabled in config
+	let requestLibrary = http;
+	if (c.http.ssl.enable === true) {
+		requestLibrary = https;
+		options.port = c.http.ssl.port;
+	}
 	console.log(options);
-	const request = http.request(options, function (res) {
+	const request = requestLibrary.request(options, function (res) {
 		let textResponse = '';
 		res.on('data', function (chunk) {
 			console.log('on data');
