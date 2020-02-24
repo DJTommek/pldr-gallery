@@ -10,7 +10,10 @@
 		/* set user-saved theme as soon as possible to prevent blink of default theme */
 		let newTheme = 'default';
 		try {
-			newTheme = localStorage.getItem('pldr-settings-theme');
+			const savedTheme = localStorage.getItem('pldr-settings-theme');
+			if (savedTheme) {
+				newTheme = savedTheme;
+			}
 		} catch (error) {
 			// Local storage is not working (disabled, unsupported, ...)
 		}
