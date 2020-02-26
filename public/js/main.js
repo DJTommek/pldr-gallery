@@ -1,3 +1,58 @@
+class Presentation {
+	constructor() {
+		this.running = false;
+		this.intervalId = null;
+	}
+
+	start() {
+		if (presentation.isLast()) {
+			return; // there are no more items to go so dont even start the presentation
+		}
+		$('#popup-footer-presentation-stop').show();
+		$('#popup-footer-presentation-start').hide();
+		presentation.running = true;
+		// if video, first play it
+		if (S.getCurrentFile().isVideo) {
+			videoPlay();
+		} else if (S.getCurrentFile().isAudio) {
+			audioPlay();
+		} else {
+			itemNext(false);
+		}
+	}
+
+	stop() {
+		$('#popup-footer-presentation-start').show();
+		$('#popup-footer-presentation-stop').hide();
+		this.running = false;
+		this.clearTimeout();
+	}
+
+	toggle() {
+		if (presentation.running) {
+			presentation.stop();
+		} else {
+			presentation.start();
+		}
+	}
+
+	clearTimeout() {
+		clearTimeout(this.intervalId);
+	}
+
+	isLast() {
+		return S.getNextFile(S.getCurrentFile().index) === null;
+	}
+
+	next() {
+		if (presentation.isLast()) {
+			presentation.stop();
+			return;
+		}
+		itemNext(false);
+	}
+}
+
 /* global Settings */
 const loadedStructure = {
 	loadedFolder: '', // default is loaded nothing
@@ -5,8 +60,6 @@ const loadedStructure = {
 	settings: false, // is settings modal visible?
 	filtering: false,
 	flashIndex: 0, // incremental index used for flashMessage()
-	presentationRunning: false,
-	presentationIntervalId: null,
 };
 const mapData = {
 	map: null,
@@ -19,6 +72,7 @@ const mapData = {
 };
 
 const S = new Structure();
+const presentation = new Presentation();
 
 function loadAndResize() {
 	// resize image in popup to fit the screen
@@ -41,27 +95,27 @@ function loadingDone(element) {
 			loadingPopup(false);
 		});
 		if ($(element).is('video')) {
-			if (loadedStructure.presentationRunning) { // presentation is enabled
-				if (presentationIsLast()) {
-					presentationStop(); // manually stop presentation to toggle play button immediately
+			if (presentation.running) { // presentation is enabled
+				if (presentation.isLast()) {
+					presentation.stop(); // manually stop presentation to toggle play button immediately
 				}
 				videoPlay();
 			}
 		} else if ($(element).is('audio')) {
-			if (loadedStructure.presentationRunning) { // presentation is enabled
-				if (presentationIsLast()) {
-					presentationStop(); // manually stop presentation to toggle play button immediately
+			if (presentation.running) { // presentation is enabled
+				if (presentation.isLast()) {
+					presentation.stop(); // manually stop presentation to toggle play button immediately
 				}
 				audioPlay();
 			}
 		} else if ($(element).is('img')) {
-			if (loadedStructure.presentationRunning) { // presentation is enabled
-				if (presentationIsLast()) {
-					presentationStop(); // manually stop presentation to toggle play button immediately
+			if (presentation.running) { // presentation is enabled
+				if (presentation.isLast()) {
+					presentation.stop(); // manually stop presentation to toggle play button immediately
 				}
 				// load next item after presentation timeout
-				loadedStructure.presentationIntervalId = setTimeout(function () {
-					presentationNext();
+				presentation.intervalId = setTimeout(function () {
+					presentation.next();
 				}, Settings.load('presentationSpeed'));
 			}
 		}
@@ -82,9 +136,9 @@ function itemPrev10(stopPresentation) {
 
 function itemPrev(stopPresentation) {
 	if (stopPresentation === true) {
-		presentationStop();
+		presentation.stop();
 	}
-	presentationClearTimeout(); // to prevent running multiple presentation timeouts at the same time
+	presentation.clearTimeout(); // to prevent running multiple presentation timeouts at the same time
 	videoPause();
 	audioPause();
 	S.selectorMove('up');
@@ -97,9 +151,9 @@ function itemPrev(stopPresentation) {
 
 function itemNext(stopPresentation) {
 	if (stopPresentation === true) {
-		presentationStop();
+		presentation.stop();
 	}
-	presentationClearTimeout(); // to prevent running multiple presentation timeouts at the same time
+	presentation.clearTimeout(); // to prevent running multiple presentation timeouts at the same time
 	videoPause();
 	audioPause();
 	S.selectorMove('down');
@@ -294,10 +348,10 @@ $(function () {
 	});
 
 	$('#popup-footer-presentation').on('click', function () {
-		if (loadedStructure.presentationRunning) {
-			presentationStop();
+		if (presentation.running) {
+			presentation.stop();
 		} else {
-			presentationStart();
+			presentation.start();
 		}
 	});
 
@@ -423,16 +477,16 @@ $(function () {
 	$('#popup-video').on('loadeddata', function () {
 		loadingDone(this);
 	}).on('ended', function () {
-		if (loadedStructure.presentationRunning) {
-			presentationNext();
+		if (presentation.running) {
+			presentation.next();
 		}
 	});
 
 	$('#popup-audio').on('loadeddata', function () {
 		loadingDone(this);
 	}).on('ended', function () {
-		if (loadedStructure.presentationRunning) {
-			presentationNext();
+		if (presentation.running) {
+			presentation.next();
 		}
 	});
 
@@ -489,55 +543,7 @@ function popupClose() {
 	window.location.hash = S.getCurrentFolder().url;
 	videoPause();
 	audioPause();
-	presentationStop();
-}
-
-function presentationIsLast() {
-	return S.getNextFile(S.getCurrentFile().index) === null;
-}
-
-function presentationNext() {
-	if (presentationIsLast()) {
-		presentationStop();
-		return;
-	}
-	itemNext(false);
-}
-
-function presentationStart() {
-	if (presentationIsLast()) {
-		return; // there are no more items to go so dont even start the presentation
-	}
-	$('#popup-footer-presentation-stop').show();
-	$('#popup-footer-presentation-start').hide();
-	loadedStructure.presentationRunning = true;
-	// if video, first play it
-	if (S.getCurrentFile().isVideo) {
-		videoPlay();
-	} else if (S.getCurrentFile().isAudio) {
-		audioPlay();
-	} else {
-		itemNext(false);
-	}
-}
-
-function presentationStop() {
-	$('#popup-footer-presentation-start').show();
-	$('#popup-footer-presentation-stop').hide();
-	loadedStructure.presentationRunning = false;
-	presentationClearTimeout();
-}
-
-function presentationClearTimeout() {
-	clearTimeout(loadedStructure.presentationIntervalId);
-}
-
-function presentationToggle() {
-	if (loadedStructure.presentationRunning) {
-		presentationStop();
-	} else {
-		presentationStart();
-	}
+	presentation.stop();
 }
 
 function favouritesAdd(path) {
