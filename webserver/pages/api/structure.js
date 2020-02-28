@@ -6,6 +6,10 @@ const perms = require(BASE_DIR_GET('/libs/permissions.js'));
 const HFS = require(BASE_DIR_GET('/libs/helperFileSystem.js'));
 const globby = require('globby');
 
+require(BASE_DIR_GET('/public/js/class/FileExtensionMapper.js'));
+require(BASE_DIR_GET('/public/js/class/Icon.js'));
+require(BASE_DIR_GET('/public/js/class/Item.js'));
+
 module.exports = function (webserver, endpoint) {
 
 	/**
@@ -35,7 +39,7 @@ module.exports = function (webserver, endpoint) {
 					path: generateGoBackPath(res.locals.path),
 					text: '..',
 					noFilter: true,
-					icon: (new Icons).FOLDER_GO_BACK,
+					icon: (new Icon).FOLDER_GO_BACK,
 				}).serialize());
 			}
 			// @TODO temporary fix, more info in https://github.com/DJTommek/pldr-gallery/issues/7

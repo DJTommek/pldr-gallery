@@ -25,7 +25,8 @@
 		"lodash.merge": "^4.6.2",
 		"readdirp": "^3.2.0",
 		"sha1": "^1.1.1",
-		"sharp": "^0.24.0"
+		"sharp": "^0.24.0",
+		"terser": "^4.6.4"
 	},
 	"devDependencies": {
 		"mocha": "^7.0.0"
@@ -37,7 +38,8 @@
 			"demo/*",
 			"test/*",
 			"log/*",
-			"tokens/*"
+			"tokens/*",
+			"public/modules.min.js"
 		],
 		"watch": [
 			"*.js",

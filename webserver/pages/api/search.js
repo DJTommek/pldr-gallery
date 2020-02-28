@@ -24,7 +24,7 @@ module.exports = function (webserver, endpoint) {
 				path: res.locals.path,
 				noFilter: true,
 				text: 'Zavřít vyhledávání "' + req.query.query + '"',
-				icon: (new Icons).CLOSE_SEARCHING,
+				icon: (new Icon).CLOSE_SEARCHING,
 			}],
 			files: []
 		};
