@@ -6,9 +6,9 @@ const perms = require(BASE_DIR_GET('/libs/permissions.js'));
 const HFS = require(BASE_DIR_GET('/libs/helperFileSystem.js'));
 const globby = require('globby');
 
-require(BASE_DIR_GET('/public/js/class/FileExtensionMapper.js'));
-require(BASE_DIR_GET('/public/js/class/Icon.js'));
-require(BASE_DIR_GET('/public/js/class/Item.js'));
+require(BASE_DIR_GET('/private/js/class/FileExtensionMapper.js'));
+require(BASE_DIR_GET('/private/js/class/Icon.js'));
+require(BASE_DIR_GET('/private/js/class/Item.js'));
 
 module.exports = function (webserver, endpoint) {
 

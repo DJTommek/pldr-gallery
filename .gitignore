@@ -1,6 +1,6 @@
 /libs/config.local.js
 /public/index.html
 /public/main-*.css
-/public/modules.min.js
+/public/js/modules.min.js
 node_modules
 package

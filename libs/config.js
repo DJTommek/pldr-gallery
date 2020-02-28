@@ -49,24 +49,23 @@ let CONFIG = {
 	terser: {
 		// List of files, which will be compiled in final file
 		filesToCompile: [
-			'public/js/functions.js',
+			'private/js/functions.js',
 			// classes
-			'public/js/class/FileExtensionMapper.js',
-			'public/js/class/Icon.js',
-			'public/js/class/Item.js',
-			'public/js/class/Presentation.js',
-			'public/js/class/Structure.js',
+			'private/js/class/FileExtensionMapper.js',
+			'private/js/class/Icon.js',
+			'private/js/class/Item.js',
+			'private/js/class/Presentation.js',
+			'private/js/class/Structure.js',
 			// modules
-			'public/js/modules/cookie.js',
-			'public/js/modules/settings.js',
+			'private/js/modules/cookie.js',
+			'private/js/modules/settings.js',
 			// other
-			'public/js/keyboard.js',
+			'private/js/keyboard.js',
 		],
-		destinationPath: BASE_DIR_GET('./public/modules.min.js'),
+		destinationPath: BASE_DIR_GET('./public/js/modules.min.js'),
 		// This object is passed directly to terser.minify
 		// @see https://github.com/terser/terser#api-reference
 		options: {
-			// edit terser options
 			compress: {
 				reduce_vars: true,
 			},

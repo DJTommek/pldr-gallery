@@ -1,4 +1,4 @@
-require('../public/js/functions.js');
+require('../private/js/functions.js');
 const assert = require('assert');
 const perms = require(BASE_DIR_GET('/libs/permissions.js'));
 

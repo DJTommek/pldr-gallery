@@ -1,4 +1,4 @@
-require('./public/js/functions.js');
+require('./private/js/functions.js');
 const pathCustom = require('./libs/path.js');
 pathCustom.defineBaseDir(require.main.filename);
 
