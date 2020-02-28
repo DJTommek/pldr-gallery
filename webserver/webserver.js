@@ -222,3 +222,5 @@ function getNewestFileUpdateTime(files) {
 	});
 	return Math.floor(lastUpdateTime);
 }
+
+module.exports = webserver;
