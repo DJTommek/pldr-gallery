@@ -1,3 +1,6 @@
+/*!
+ * General functions
+ */
 /**
  * If some function should be accessed in node.js backend, must be also defined in "global"-
  * There is nothing like that in browser and to preserve browser errors, create empty object for it.

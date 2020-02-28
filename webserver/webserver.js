@@ -7,6 +7,7 @@ const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
 const PATH = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const terser = require('terser');
 
 const http = require('http');
 const https = require('https');
@@ -76,9 +77,17 @@ webserver.all('*', function (req, res, next) {
 /**
  * Public repository should handle loading root folder by loading index.html so this route should not be never matched.
  */
+webserver.get('/modules.min.js', function (req, res) {
+	res.result.setError('Fatal error occured, generated javascript file is missing. Contact administrator.').end(500);
+	LOG.error('(Webserver) Generated javascript file is missing, check log if file was generated and was created in "public/modules.min.js"');
+});
+
+/**
+ * Public repository should handle loading javascript asset files index.html so this route should not be never matched.
+ */
 webserver.get('/', function (req, res) {
 	res.result.setError('Fatal error occured, index file is missing. Contact administrator.').end(500);
-	LOG.error('Index file is missing, check log if file was generated and was created in "public/index.html"');
+	LOG.error('(Webserver) Index file is missing, check log if file was generated and was created in "public/index.html"');
 });
 
 /**
@@ -151,12 +160,6 @@ FS.readFile(BASE_DIR_GET('/private/index.html'), function (error, data) {
 	let fileContent = data.toString();
 	[
 		'private/less/main.less',
-		'public/js/main.js',
-		'public/js/functions.js',
-		'public/js/cookie.js',
-		'public/js/settings.js',
-		'public/js/structure.js',
-		'public/js/keyboard.js'
 	].forEach(function (file) {
 		const htmlVariable = '{{CACHEBUSTER_' + file.replaceAll('/', '_').toUpperCase() + '}}';
 		promises.push(new Promise(function (resolve) {
@@ -178,12 +181,45 @@ FS.readFile(BASE_DIR_GET('/private/index.html'), function (error, data) {
 			}
 		});
 		fileContent = fileContent.replace('{{GOOGLE_MAPS_API_KEY}}', c.google.mapApiKey);
+		fileContent = fileContent.replace('{{CACHEBUSTER_PUBLIC_MODULES_MIN.JS}}', c.google.mapApiKey);
+		getNewestFileUpdateTime(c.terser.filesToCompile);
 		FS.writeFile(BASE_DIR_GET('/public/index.html'), fileContent, function (error) {
 			if (error) {
-				LOG.fatal('Fatal error while saving generated public/index.html file: ' + error.message);
+				LOG.fatal('(Webserver) Fatal error while saving generated public/index.html file: ' + error.message);
 			} else {
-				LOG.info('Main public/index.html was successfully generated.');
+				LOG.info('(Webserver) Main public/index.html was successfully generated.');
 			}
 		});
 	});
 });
+
+/**
+ * Generate one javascript file with all necessary javascript classes
+ */
+let finalContent = '';
+c.terser.filesToCompile.forEach(function (file) {
+	finalContent += FS.readFileSync(file);
+});
+const finalContentUgly = terser.minify(finalContent, c.terser.options);
+FS.writeFile(c.terser.destinationPath, finalContentUgly.code, function (error) {
+	if (error) {
+		LOG.fatal('(Webserver) Fatal error while saving generated modules.min.js file: ' + error.message);
+	} else {
+		LOG.info('(Webserver) Main public/modules.min.js file was successfully generated.');
+	}
+});
+
+/**
+ * Check all files for last update time and return the newest time
+ *
+ * @param {[string]} files which should be checked
+ * @returns {number} UNIX time in milliseconds
+ */
+function getNewestFileUpdateTime(files) {
+	let lastUpdateTime = 0;
+	files.forEach(function(file) {
+		const fileStats = FS.statSync(BASE_DIR_GET(file));
+		lastUpdateTime = (fileStats.mtimeMs > lastUpdateTime) ? fileStats.mtimeMs : lastUpdateTime;
+	});
+	return Math.floor(lastUpdateTime);
+}

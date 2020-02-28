@@ -7,7 +7,6 @@ const FS = require('fs');
 const PATH = require('path');
 
 const merge = require('lodash.merge');
-require(BASE_DIR_GET('/public/js/structure.js'));
 
 let CONFIG = {
 	/**
@@ -39,6 +38,44 @@ let CONFIG = {
 			dest: BASE_DIR_GET('/public/'),
 			once: true,
 			debug: false,
+		},
+	},
+
+	/**
+	 * Options to Terser, JS compiler and minifier
+	 * @see https://github.com/terser/terser
+	 * @see https://terser.org/
+	 */
+	terser: {
+		// List of files, which will be compiled in final file
+		filesToCompile: [
+			'public/js/functions.js',
+			// classes
+			'public/js/class/FileExtensionMapper.js',
+			'public/js/class/Icon.js',
+			'public/js/class/Item.js',
+			'public/js/class/Presentation.js',
+			'public/js/class/Structure.js',
+			// modules
+			'public/js/modules/cookie.js',
+			'public/js/modules/settings.js',
+			// other
+			'public/js/keyboard.js',
+		],
+		destinationPath: BASE_DIR_GET('./public/modules.min.js'),
+		// This object is passed directly to terser.minify
+		// @see https://github.com/terser/terser#api-reference
+		options: {
+			// edit terser options
+			compress: {
+				reduce_vars: true,
+			},
+			mangle: {},
+			output: {
+				beautify: false,
+			},
+			parse: {},
+			rename: {},
 		},
 	},
 

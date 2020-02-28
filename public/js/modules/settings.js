@@ -1,3 +1,7 @@
+/*!
+ * Settings
+ * Keep settings in localStorage
+ */
 (function (window) {
 	// Defined settings with default values
 	let settingsValues = {
