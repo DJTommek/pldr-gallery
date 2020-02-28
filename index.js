@@ -8,11 +8,6 @@ const LOG = require(BASE_DIR_GET('/libs/log.js')).setPath(BASE_DIR_GET('/log/'))
 
 const FS = require("fs");
 const perms = require(BASE_DIR_GET('/libs/permissions.js'));
-perms.load();
-
-LOG.info('***STARTING***');
-// Start webserver(s)
-require(BASE_DIR_GET('/webserver/webserver.js'));
 
 // Check if config.path is set correctly
 try {
@@ -29,3 +24,7 @@ try {
 	LOG.fatal('(Start) Defined base path "' + c.path + '" is invalid. Error: ' + error.message);
 }
 
+LOG.info('***STARTING***');
+perms.load();
+// Start webserver(s)
+require(BASE_DIR_GET('/webserver/webserver.js'));
