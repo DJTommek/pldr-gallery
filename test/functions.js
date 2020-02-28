@@ -1,4 +1,4 @@
-require('../public/js/functions.js');
+require('../private/js/functions.js');
 const assert = require('assert');
 
 describe('Test all functions from functions.js', function () {

@@ -39,7 +39,7 @@
 			"test/*",
 			"log/*",
 			"tokens/*",
-			"public/modules.min.js"
+			"public/js/modules.min.js"
 		],
 		"watch": [
 			"*.js",

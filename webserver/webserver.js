@@ -1,4 +1,4 @@
-require(BASE_DIR_GET('/public/js/functions.js'));
+require(BASE_DIR_GET('/private/js/functions.js'));
 const c = require(BASE_DIR_GET('/libs/config.js'));
 const LOG = require(BASE_DIR_GET('/libs/log.js'));
 
@@ -27,12 +27,11 @@ webserver.use(compression());
 
 /**
  * Middleware for all requests
- * - logging GET and POST
- * - define quick JSON response object
  *
  * @return next()
  */
 webserver.all('*', function (req, res, next) {
+	// Log request
 	let weblog = '';
 	weblog += '[' + req.ip + ']';
 	weblog += '[' + req.method + ',' + req.protocol + ']';
@@ -41,8 +40,8 @@ webserver.all('*', function (req, res, next) {
 	weblog += '[POST:' + JSON.stringify(req.body) + ']';
 	LOG.webserver(weblog);
 
+	// define quick JSON response object
 	const requestStart = new Date();
-
 	res.result = {
 		datetime: (new Date).human(),
 		error: true,
@@ -77,9 +76,9 @@ webserver.all('*', function (req, res, next) {
 /**
  * Public repository should handle loading root folder by loading index.html so this route should not be never matched.
  */
-webserver.get('/modules.min.js', function (req, res) {
+webserver.get('/js/modules.min.js', function (req, res) {
 	res.result.setError('Fatal error occured, generated javascript file is missing. Contact administrator.').end(500);
-	LOG.error('(Webserver) Generated javascript file is missing, check log if file was generated and was created in "public/modules.min.js"');
+	LOG.error('(Webserver) Generated javascript file is missing, check log if file was generated and was created in "public/js/modules.min.js"');
 });
 
 /**
@@ -160,6 +159,7 @@ FS.readFile(BASE_DIR_GET('/private/index.html'), function (error, data) {
 	let fileContent = data.toString();
 	[
 		'private/less/main.less',
+		'public/js/main.js',
 	].forEach(function (file) {
 		const htmlVariable = '{{CACHEBUSTER_' + file.replaceAll('/', '_').toUpperCase() + '}}';
 		promises.push(new Promise(function (resolve) {
@@ -181,8 +181,7 @@ FS.readFile(BASE_DIR_GET('/private/index.html'), function (error, data) {
 			}
 		});
 		fileContent = fileContent.replace('{{GOOGLE_MAPS_API_KEY}}', c.google.mapApiKey);
-		fileContent = fileContent.replace('{{CACHEBUSTER_PUBLIC_MODULES_MIN.JS}}', c.google.mapApiKey);
-		getNewestFileUpdateTime(c.terser.filesToCompile);
+		fileContent = fileContent.replace('{{CACHEBUSTER_PUBLIC_JS_MODULES_MIN.JS}}', getNewestFileUpdateTime(c.terser.filesToCompile).toString());
 		FS.writeFile(BASE_DIR_GET('/public/index.html'), fileContent, function (error) {
 			if (error) {
 				LOG.fatal('(Webserver) Fatal error while saving generated public/index.html file: ' + error.message);
@@ -203,9 +202,9 @@ c.terser.filesToCompile.forEach(function (file) {
 const finalContentUgly = terser.minify(finalContent, c.terser.options);
 FS.writeFile(c.terser.destinationPath, finalContentUgly.code, function (error) {
 	if (error) {
-		LOG.fatal('(Webserver) Fatal error while saving generated modules.min.js file: ' + error.message);
+		LOG.fatal('(Webserver) Fatal error while saving generated public/js/modules.min.js file: ' + error.message);
 	} else {
-		LOG.info('(Webserver) Main public/modules.min.js file was successfully generated.');
+		LOG.info('(Webserver) Main public/js/modules.min.js file was successfully generated.');
 	}
 });
 

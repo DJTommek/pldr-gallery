@@ -1,4 +1,4 @@
-require(BASE_DIR_GET('/public/js/functions.js'));
+require(BASE_DIR_GET('/private/js/functions.js'));
 const c = require(BASE_DIR_GET('/libs/config.js'));
 const LOG = require(BASE_DIR_GET('/libs/log.js'));
 
