@@ -720,6 +720,7 @@ function parseStructure(items) {
 		}
 		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
 		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
+		contentTiles += ' <img class="thumbnail" src="/api/thumbnail?path=' + btoa(encodeURIComponent(item.path)) + '" loading="lazy">';
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		contentTiles += '</a>';
 	});
