@@ -52,14 +52,14 @@ module.exports = function (webserver, endpoint) {
 			generateSpecificFilePromise('footer.html'),
 		]).then(function (data) {
 			res.result.setResult({
-				folders: data[0][0].map(x => x.serialize()),
-				foldersTotal: data[0][1],
-				foldersLimit: data[0][2],
-				foldersOffset: data[0][3],
-				files: data[1][0].map(x => x.serialize()),
-				filesTotal: data[1][1],
-				filesLimit: data[1][2],
-				filesOffset: data[1][3],
+				folders: data[0].items.map(x => x.serialize()),
+				foldersTotal: data[0].total,
+				foldersLimit: data[0].limit,
+				foldersOffset: data[0].offset,
+				files: data[1].items.map(x => x.serialize()),
+				filesTotal: data[1].total,
+				filesLimit: data[1].limit,
+				filesOffset: data[1].offset,
 				header: data[2],
 				footer: data[3]
 			}).end();

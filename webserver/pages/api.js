@@ -17,7 +17,7 @@ module.exports = function (webserver, baseEndpoint) {
 	 *
 	 * @returns next()
 	 */
-	webserver.get(baseEndpoint + '/[a-z]+', function (req, res, next) {
+	webserver.get(baseEndpoint + '/[a-z-]+', function (req, res, next) {
 		// Load default user permissions
 		let userPerms = perms.getUser('x');
 		// Try load perms for logged user
