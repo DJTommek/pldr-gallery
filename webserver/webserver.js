@@ -59,8 +59,14 @@ webserver.all('*', function (req, res, next) {
 			return this;
 		}, toString: function () {
 			return JSON.stringify(this, null, 4);
+		}, getDuration: function (format = false) {
+			const duration = new Date() - requestStart;
+			if (format === true) {
+				return msToHuman(duration);
+			}
+			return duration;
 		}, end: function (httpResponseCode) {
-			this.duration = msToHuman(new Date() - requestStart);
+			this.duration = this.getDuration(true);
 			if (httpResponseCode) {
 				res.status(httpResponseCode);
 			}
