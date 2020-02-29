@@ -8,54 +8,47 @@ const getItemsHelper = require(__dirname + '/helpers/getItemsFromFolder.js');
 module.exports = function (webserver, endpoint) {
 
 	webserver.get(endpoint, function (req, res) {
-		res.statusCode = 200;
 		if (!res.locals.fullPathFolder) {
 			return res.result.setError('Invalid path or you dont have a permission.').end(403);
 		}
 
 		getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms).then(function (data) {
-			const imagesInFolder = data[0].filter(function(item) {
+			const imagesInFolder = data.items.filter(function (item) {
 				return item.isImage;
 			});
 
-			// load 4 random images from folder
-			if (imagesInFolder.length < 4) {
+			if (imagesInFolder.length < c.thumbnails.folder.positions.length) {
 				return res.result.setError('Not enough images available in this folder.').end(403);
 			}
+
+			// get x random images from folder
 			let randomImages = [];
-			while (randomImages.length !== 4) {
+			while (randomImages.length !== c.thumbnails.folder.positions.length) {
 				const randomIndex = Math.floor(Math.random() * imagesInFolder.length);
 				randomImages.pushUnique(pathCustom.join(c.path, imagesInFolder[randomIndex].path));
 			}
 
-			Promise.all([
-				sharp(randomImages[0]).resize({width: 100, height: 100,}).toBuffer(),
-				sharp(randomImages[1]).resize({width: 100, height: 100,}).toBuffer(),
-				sharp(randomImages[2]).resize({width: 100, height: 100,}).toBuffer(),
-				sharp(randomImages[3]).resize({width: 100, height: 100,}).toBuffer(),
-			]).then(function (resizedImages) {
-				sharp({
-					create: {
-						width: 200,
-						height: 200,
-						channels: 3,
-						background: {r: 99, g: 99, b: 99}
-					}
-				})
-					.composite(
-						[
-							// {input: sharp(randomImages[0]).resize({width: 50, height: 50}).raw(), gravity: 'southeast'},
-							{input: resizedImages[0], gravity: 'northwest'},
-							{input: resizedImages[1], gravity: 'northeast'},
-							{input: resizedImages[2], gravity: 'southwest'},
-							{input: resizedImages[3], gravity: 'southeast'},
-						]
-					)
+			let resizePromises = [];
+			randomImages.forEach(function (path, index) {
+				resizePromises.push(sharp(path).resize({
+					width: c.thumbnails.folder.positions[index].width,
+					height: c.thumbnails.folder.positions[index].height,
+				}).toBuffer());
+			});
+
+			Promise.all(resizePromises).then(function (resizedImages) {
+				let toComposite = [];
+				resizedImages.forEach(function (resizedImage, index) {
+					toComposite.push({input: resizedImages[index], gravity: c.thumbnails.folder.positions[index].gravity})
+				});
+				sharp(c.thumbnails.folder.inputOptions)
+					.composite(toComposite)
 					.png()
 					.pipe(res);
+				res.statusCode = 200;
 				res.setHeader("Content-Type", 'image/png');
 			}).catch(function (error) {
-				LOG.error('Error while generating thumbnail image for folder "": ' + error.message);
+				LOG.error('Error while generating thumbnail image for folder "' + res.locals.path + '": ' + error.message);
 				return res.result.setError('Error while generating folder thumbnail image.').end(500);
 			});
 		});

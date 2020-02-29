@@ -25,6 +25,41 @@ let CONFIG = {
 	},
 
 	/**
+	 * Thumbnails generated in structure view (tiles)
+	 */
+	thumbnails: {
+		width: 200,
+		height: 200,
+		/**
+		 * Get few random images from folder, merge them together and generate one image as thumbnail
+		 */
+		folder: {
+			// Sharp create object (you can input your own image)
+			inputOptions: {
+				create: {
+					width: 200,
+					height: 200,
+					channels: 3,
+					background: {r: 255, g: 255, b: 255},
+				}
+			},
+			positions: [
+				{width: 100, height: 100, gravity: 'northwest'},
+				{width: 100, height: 100, gravity: 'northeast'},
+				{width: 100, height: 100, gravity: 'southwest'},
+				{width: 100, height: 100, gravity: 'southeast'},
+				// For example you can generate only three images like this:
+				// {width: 200, height: 100, gravity: 'north'},
+				// {width: 100, height: 100, gravity: 'southwest'},
+				// {width: 100, height: 100, gravity: 'southeast'},
+				// Or get only one image with visible background around edges
+				// {width: 180, height: 180},
+				// For details about gravity look into Sharp API Composite (https://sharp.pixelplumbing.com/api-composite)
+			],
+		}
+	},
+
+	/**
 	 * Options to LESS, CSS preprocessor
 	 * @see http://lesscss.org/
 	 * @see https://github.com/less/less.js

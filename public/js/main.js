@@ -719,7 +719,9 @@ function parseStructure(items) {
 			maxVisible--;
 		}
 		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
-		contentTiles += ' <img class="thumbnail" src="/api/thumbnail?path=' + item.getEncodedPath() + '" loading="lazy">';
+		if (!item.noFilter) {
+			contentTiles += ' <img class="thumbnail" src="/api/thumbnail-folder?path=' + item.getEncodedPath() + '" loading="lazy">';
+		}
 		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		contentTiles += '</a>';
