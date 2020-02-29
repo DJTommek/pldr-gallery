@@ -1,10 +1,6 @@
-const c = require(BASE_DIR_GET('/libs/config.js'));
 const FS = require('fs');
-const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
 const LOG = require(BASE_DIR_GET('/libs/log.js'));
 const perms = require(BASE_DIR_GET('/libs/permissions.js'));
-const HFS = require(BASE_DIR_GET('/libs/helperFileSystem.js'));
-const globby = require('globby');
 
 const getItemsHelper = require(__dirname + '/helpers/getItemsFromFolder.js');
 
@@ -51,7 +47,7 @@ module.exports = function (webserver, endpoint) {
 
 		Promise.all([
 			getItemsHelper.folders(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms, {limit: itemLimit}),
-			getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms, {limit: itemLimit, coords: true}),
+			getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms, {limit: itemLimit, coords: true, stat: true}),
 			generateSpecificFilePromise('header.html'),
 			generateSpecificFilePromise('footer.html'),
 		]).then(function (data) {

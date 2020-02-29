@@ -6,13 +6,27 @@ const perms = require(BASE_DIR_GET('/libs/permissions.js'));
 const FS = require('fs');
 const HFS = require(BASE_DIR_GET('/libs/helperFileSystem.js'));
 
-module.exports.files = function (requestedPath, fullPath, permissions, options = {
-	limit: false, // @TODO
-	coords: false,
-	stat: false, // @TODO
-}) {
-	let filesLimitCount = 0;
+module.exports.files = function (requestedPath, fullPath, permissions, options = {}) {
+	if (typeof options.limit === 'undefined') {
+		options.limit = false;
+	} else if (options.limit !== false && typeof options.limit < 1) {
+		throw new Error('Parameter "options.limit" must be positive number or false');
+	}
+
+	if (typeof options.coords === 'undefined') {
+		options.coords = false;
+	} else if (typeof options.coords !== 'boolean') {
+		throw new Error('Parameter "options.coords" must be boolean');
+	}
+
+	if (typeof options.stat === 'undefined') {
+		options.stat = false;
+	} else if (typeof options.stat !== 'boolean') {
+		throw new Error('Parameter "options.stat" must be boolean');
+	}
+
 	return new Promise(function (resolve) {
+		let filesLimitCount = 0;
 		let files = [];
 		// @TODO temporary fix, more info in https://github.com/DJTommek/pldr-gallery/issues/7
 		globby(fullPath.replaceAll('(', '\\(') + '*', {onlyFiles: true}).then(function (rawPathsFiles) {
@@ -25,20 +39,22 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 					return;
 				}
 				filesLimitCount++;
-				if (filesLimitCount > options.limit) {
+				if (options.limit !== false && filesLimitCount > options.limit) {
 					return;
 				}
 				let pathStats = null;
-				try {
-					pathStats = FS.lstatSync(fullPath);
-				} catch (error) {
-					LOG.error('[Globby] Error while processing file: "' + fullPath + '": ' + error.message);
-					return;
+				if (options.stat === true) {
+					try {
+						pathStats = FS.lstatSync(fullPath);
+					} catch (error) {
+						LOG.error('[Globby] Error while processing file: "' + fullPath + '": ' + error.message);
+						return;
+					}
 				}
 				let fileItem = new FileItem(null, {
 					path: dynamicPath,
-					size: pathStats.size,
-					created: pathStats.ctime,
+					size: pathStats ? pathStats.size : 0,
+					created: pathStats ? pathStats.ctime : new Date(0),
 				});
 				if (options.coords === true) {
 					// try to load coordinates from EXIF and merge them into path data
@@ -56,11 +72,15 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 	});
 };
 
-module.exports.folders = function (requestedPath, fullPath, permissions, options = {
-	limit: false, // @TODO
-}) {
-	let foldersLimitCount = 0;
+module.exports.folders = function (requestedPath, fullPath, permissions, options = {}) {
+	if (typeof options.limit === 'undefined') {
+		options.limit = false;
+	} else if (options.limit !== false && typeof options.limit < 1) {
+		throw new Error('Parameter "options.limit" must be positive number or false');
+	}
+
 	return new Promise(function (resolve) {
+		let foldersLimitCount = 0;
 		let folders = [];
 		// if requested folder is not root, add one FolderItem to go back
 		if (requestedPath !== '/') {
@@ -82,7 +102,7 @@ module.exports.folders = function (requestedPath, fullPath, permissions, options
 					return;
 				}
 				foldersLimitCount++;
-				if (foldersLimitCount > options.limit) {
+				if (options.limit !== false && foldersLimitCount > options.limit) {
 					return;
 				}
 				folders.push(new FolderItem(null, {

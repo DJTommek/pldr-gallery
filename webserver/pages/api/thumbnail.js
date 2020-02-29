@@ -1,7 +1,7 @@
 const c = require(BASE_DIR_GET('/libs/config.js'));
-const FS = require('fs');
 const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
 const sharp = require('sharp');
+const LOG = require(BASE_DIR_GET('/libs/log.js'));
 
 const getItemsHelper = require(__dirname + '/helpers/getItemsFromFolder.js');
 
@@ -10,17 +10,17 @@ module.exports = function (webserver, endpoint) {
 	webserver.get(endpoint, function (req, res) {
 		res.statusCode = 200;
 		if (!res.locals.fullPathFolder) {
-			return res.result.setError('Invalid path or you dont have a permission.').end();
+			return res.result.setError('Invalid path or you dont have a permission.').end(403);
 		}
 
-		getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms, {limit: 999}).then(function (data) {
+		getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms).then(function (data) {
 			const imagesInFolder = data[0].filter(function(item) {
 				return item.isImage;
 			});
 
 			// load 4 random images from folder
 			if (imagesInFolder.length < 4) {
-				return res.result.setError('Not enough images available in this folder.').end();
+				return res.result.setError('Not enough images available in this folder.').end(403);
 			}
 			let randomImages = [];
 			while (randomImages.length !== 4) {
@@ -54,10 +54,9 @@ module.exports = function (webserver, endpoint) {
 					.png()
 					.pipe(res);
 				res.setHeader("Content-Type", 'image/png');
-				console.log(res.result.getDuration(true));
 			}).catch(function (error) {
-				log.error('Error while generating thumbnail image for folder "": ' + error.message);
-				return res.result.setError('Error while generating folder thumbnail image.').end();
+				LOG.error('Error while generating thumbnail image for folder "": ' + error.message);
+				return res.result.setError('Error while generating folder thumbnail image.').end(500);
 			});
 		});
 	});
