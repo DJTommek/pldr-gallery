@@ -37,6 +37,10 @@ class Item {
 		this.hide = false;
 	}
 
+	getEncodedPath() {
+		return btoa(encodeURIComponent(this.path));
+	}
+
 	toString() {
 		return this.path;
 	}
@@ -105,18 +109,17 @@ class FileItem extends Item {
 	 * @returns {null|string} URL or null if item type has no view URL
 	 */
 	getFileUrl(download = false) {
-		const decoded = btoa(encodeURIComponent(this.path));
 		if (download === true) {
-			return '/api/download?path=' + decoded;
+			return '/api/download?path=' + this.getEncodedPath();
 		}
 		if (this.isVideo) {
-			return '/api/video?path=' + decoded;
+			return '/api/video?path=' + this.getEncodedPath();
 		}
 		if (this.isAudio) {
-			return '/api/audio?path=' + decoded;
+			return '/api/audio?path=' + this.getEncodedPath();
 		}
 		if (this.isImage) {
-			return '/api/image?path=' + decoded;
+			return '/api/image?path=' + this.getEncodedPath();
 		}
 		return null;
 	}
