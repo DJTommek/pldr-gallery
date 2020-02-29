@@ -67,7 +67,12 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 			LOG.error('[Globby] Error while processing files in "' + fullPath + '": ' + error.message);
 			files = [];
 		}).finally(function () {
-			resolve([files, filesLimitCount, options.limit, 0]);
+			resolve({
+				items: files,
+				total: filesLimitCount,
+				limit: options.limit,
+				offset: 0,
+			});
 		});
 	});
 };
@@ -114,7 +119,12 @@ module.exports.folders = function (requestedPath, fullPath, permissions, options
 			LOG.error('[Globby] Error while processing folders in "' + fullPath + '": ' + error.message);
 			folders = [];
 		}).finally(function () {
-			resolve([folders, foldersLimitCount, options.limit, 0]);
+			resolve({
+				items: folders,
+				total: foldersLimitCount,
+				limit: options.limit,
+				offset: 0,
+			});
 		});
 	});
 };
