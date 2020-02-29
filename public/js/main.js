@@ -719,8 +719,8 @@ function parseStructure(items) {
 			maxVisible--;
 		}
 		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
+		contentTiles += ' <img class="thumbnail" src="/api/thumbnail?path=' + item.getEncodedPath() + '" loading="lazy">';
 		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
-		contentTiles += ' <img class="thumbnail" src="/api/thumbnail?path=' + item.getEncodedPath() + '" loading="lazy" onerror="this.parentNode.removeChild(this)">';
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		contentTiles += '</a>';
 	});
@@ -776,6 +776,12 @@ function loadingStructure(loading) {
 		$('.structure-selected td:nth-child(2) a i').remove();
 		$('#navbar-filter input').prop('disabled', false);
 		$('#navbar-filter .search').prop('disabled', false);
+
+		// Event - thumbnail can't be loaded, destroy that element
+		// @FIXME this handler should be created only once (on page load) instead on every structure load but for some reason it don't work
+		$('#structure .structure-item img.thumbnail').on('error', function () {
+			this.remove();
+		});
 	}
 }
 
