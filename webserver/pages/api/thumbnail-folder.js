@@ -2,6 +2,7 @@ const c = require(BASE_DIR_GET('/libs/config.js'));
 const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
 const sharp = require('sharp');
 const LOG = require(BASE_DIR_GET('/libs/log.js'));
+const FS = require("fs");
 
 const getItemsHelper = require(__dirname + '/helpers/getItemsFromFolder.js');
 
@@ -15,6 +16,16 @@ module.exports = function (webserver, endpoint) {
 		if (!res.locals.fullPathFolder) {
 			return res.result.setError('Invalid path or you dont have a permission.').end(403);
 		}
+
+		// Use cached file if exists
+		const cacheFilePath = pathCustom.join(c.cache.path, '/thumbnails/folder/', req.query.path) + '.png';
+		if (c.thumbnails.folder.cache === true && FS.existsSync(cacheFilePath)) {
+			res.statusCode = 200;
+			res.setHeader("Content-Type", 'image/png');
+			res.sendFile(cacheFilePath);
+			return;
+		}
+		// thumbnail is not cached
 
 		getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms).then(function (data) {
 			const imagesInFolder = data.items.filter(function (item) {
@@ -40,10 +51,22 @@ module.exports = function (webserver, endpoint) {
 				resizedImages.forEach(function (resizedImage, index) {
 					toComposite.push({input: resizedImages[index], gravity: c.thumbnails.folder.positions[index].gravity})
 				});
-				sharp(c.thumbnails.folder.inputOptions)
-					.composite(toComposite)
-					.png()
-					.pipe(res);
+				const thumbnailImage = sharp(c.thumbnails.folder.inputOptions).composite(toComposite);
+
+				// if caching is enabled, save it to file and stream that file
+				if (c.thumbnails.folder.cache === true) {
+					// @TODO this should stream to both targets, file and response at once. In this case it is slower
+					//  for client, because client has to wait, until file is saved on disc and again loaded
+					thumbnailImage.toFile(cacheFilePath).then(function() {
+						res.sendFile(cacheFilePath);
+					}).catch(function (error) {
+						LOG.error('Error while saving generated thumbnail to cache path "' + cacheFilePath + '": ' + error.message);
+						thumbnailImage.png().pipe(res);
+					});
+				} else {
+					thumbnailImage.png().pipe(res);
+				}
+
 				res.statusCode = 200;
 				res.setHeader("Content-Type", 'image/png');
 			}).catch(function (error) {
