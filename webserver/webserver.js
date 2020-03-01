@@ -187,7 +187,16 @@ FS.readFile(BASE_DIR_GET('/private/index.html'), function (error, data) {
 		fileContent = fileContent.replace('{{CACHEBUSTER_PUBLIC_JS_MODULES_MIN.JS}}', getNewestFileUpdateTime(c.terser.filesToCompile).toString());
 		// share some of server-side variables to FE
 		fileContent = fileContent.replace('{{SERVER_CONFIG}}', JSON.stringify({
-			foo: 'bar',
+			thumbnails: {
+				width: c.thumbnails.width,
+				height: c.thumbnails.height,
+				image: {
+					enabled: c.thumbnails.image.enabled,
+				},
+				folder: {
+					enabled: c.thumbnails.folder.enabled,
+				},
+			},
 		}));
 		// build final index file
 		FS.writeFile(BASE_DIR_GET('/public/index.html'), fileContent, function (error) {
