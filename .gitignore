@@ -4,3 +4,4 @@
 /public/js/modules.min.js
 node_modules
 package
+package-lock.json
