@@ -54,32 +54,22 @@ module.exports = function (webserver, endpoint) {
 };
 
 function getResizeParams(req) {
-	// resizing is disabled in config
+	let compressData = Object.assign({}, c.compress);
+	// thumbnail is requested
+	if (req.query.type === 'thumbnail') {
+		if (c.thumbnails.image.enabled === false) {
+			throw new Error('Image thumbnails are disabled.');
+		}
+		compressData.width = c.thumbnails.width;
+		compressData.height = c.thumbnails.height;
+		compressData.fit = c.thumbnails.image.fit;
+		return compressData;
+	}
+	// compressing via resizing is disabled in config
 	if (c.compress.enabled !== true) {
 		return false;
 	}
-	// custom resize settings
-	if (req.query.fit && req.query.width && req.query.height) {
-		let compressData = Object.assign({}, c.compress);
-
-		compressData.width = parseInt(req.query.width);
-		if (compressData.width <= 50) {
-			throw new Error('Wrong "width" parameter.');
-		}
-
-		compressData.height = parseInt(req.query.height);
-		if (req.query.height <= 50) {
-			throw new Error('Wrong "height" parameter.');
-		}
-
-		compressData.fit = req.query.fit;
-		if (['cover', 'contain', 'fill', 'inside', 'outside'].inArray(compressData.fit) === false) {
-			throw new Error('Wrong "fit" parameter.');
-		}
-		return compressData;
-	}
-
-	// default resize settings (compressing)
+	// user settings has enabled compress resizing
 	if ((req.cookies['pmg-compress'] === 'true' && req.query.compress !== 'false') || req.query.compress === 'true') {
 		return c.compress;
 	}

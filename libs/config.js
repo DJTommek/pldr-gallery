@@ -31,19 +31,27 @@ let CONFIG = {
 		width: 200,
 		height: 200,
 		/**
+		 * Resize image and generate thumbnail
+		 */
+		image: {
+			enabled: true,
+			fit: 'cover',
+		},
+		/**
 		 * Get few random images from folder, merge them together and generate one image as thumbnail
 		 */
 		folder: {
-			enabled: false,
+			enabled: true,
 			// Sharp create object (you can input your own image)
 			inputOptions: {
 				create: {
-					width: 200,
-					height: 200,
+					width: 200, // should be same width as thumbnails.width
+					height: 200, // should be same height as thumbnails.height
 					channels: 3,
 					background: {r: 255, g: 255, b: 255},
 				}
 			},
+			// How small thumbnails will be composited on generated folder thumbnail
 			positions: [
 				{width: 100, height: 100, gravity: 'northwest'},
 				{width: 100, height: 100, gravity: 'northeast'},
@@ -57,7 +65,7 @@ let CONFIG = {
 				// {width: 180, height: 180},
 				// For details about gravity look into Sharp API Composite (https://sharp.pixelplumbing.com/api-composite)
 			],
-		}
+		},
 	},
 
 	/**
