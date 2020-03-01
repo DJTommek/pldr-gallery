@@ -719,7 +719,7 @@ function parseStructure(items) {
 			maxVisible--;
 		}
 		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
-		if (!item.noFilter) {
+		if (!item.noFilter && CONFIG.thumbnails.folder.enabled === true) {
 			contentTiles += ' <img class="thumbnail" src="/api/thumbnail-folder?path=' + item.getEncodedPath() + '" loading="lazy">';
 		}
 		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
@@ -736,9 +736,9 @@ function parseStructure(items) {
 	S.getFiles().forEach(function (item) {
 		contentTiles += '<a class="structure-item item-index-' + item.index + '" href="#' + item.url + '" data-index="' + item.index + '">';
 		contentTiles += ' <i class="icon fa fa-' + item.icon + ' fa-fw"></i>';
-		if (item.isImage === true) {
+		if (item.isImage === true && CONFIG.thumbnails.image.enabled === true) {
 			// this image is rendered above icon so if image is loaded, icon will automatically hide
-			contentTiles += ' <img class="thumbnail" src="' + (item.getFileUrl() + '&width=200&height=200&fit=cover') + '" loading="lazy">';
+			contentTiles += ' <img class="thumbnail" src="' + item.getFileUrl() + '&type=thumbnail" loading="lazy">';
 		}
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		const created = item.created.human(true);
