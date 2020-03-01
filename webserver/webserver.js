@@ -226,6 +226,26 @@ FS.writeFile(c.terser.destinationPath, finalContentUgly.code, function (error) {
 });
 
 /**
+ * Create cache folders if caching is enabled
+ */
+if (c.thumbnails.image.enabled === true && c.thumbnails.image.cache === true) {
+	const path = pathCustom.join(c.cache.path, '/thumbnails/image/');
+	FS.mkdir(path, {recursive: true}, function(error) {
+		if (error) {
+			LOG.error('(Cache) Error while creating folder for image-thumbnails: ' + error.message);
+		}
+	});
+}
+if (c.thumbnails.folder.enabled === true && c.thumbnails.folder.cache === true) {
+	const path = pathCustom.join(c.cache.path, '/thumbnails/folder/');
+	FS.mkdir(path, {recursive: true}, function(error) {
+		if (error) {
+			LOG.error('(Cache) Error while creating folder for folder-thumbnails: ' + error.message);
+		}
+	});
+}
+
+/**
  * Check all files for last update time and return the newest time
  *
  * @param {[string]} files which should be checked
