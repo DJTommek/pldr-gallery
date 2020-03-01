@@ -8,6 +8,10 @@ const getItemsHelper = require(__dirname + '/helpers/getItemsFromFolder.js');
 module.exports = function (webserver, endpoint) {
 
 	webserver.get(endpoint, function (req, res) {
+		if (c.thumbnails.folder.enabled !== true) {
+			return res.result.setError('Folder thumbnail images are disabled in server config. Check out "config.thumbnails.folder.enabled".').end(403);
+		}
+
 		if (!res.locals.fullPathFolder) {
 			return res.result.setError('Invalid path or you dont have a permission.').end(403);
 		}
@@ -21,21 +25,16 @@ module.exports = function (webserver, endpoint) {
 				return res.result.setError('Not enough images available in this folder.').end(403);
 			}
 
-			// get x random images from folder
-			let randomImages = [];
-			while (randomImages.length !== c.thumbnails.folder.positions.length) {
-				const randomIndex = Math.floor(Math.random() * imagesInFolder.length);
-				randomImages.pushUnique(pathCustom.join(c.path, imagesInFolder[randomIndex].path));
-			}
-
+			// get X images and generate promises for resizing
 			let resizePromises = [];
-			randomImages.forEach(function (path, index) {
-				resizePromises.push(sharp(path).resize({
+			imagesInFolder.sort(() => .5 - Math.random()).slice(0, c.thumbnails.folder.positions.length).forEach(function(folderItem, index) {
+				resizePromises.push(sharp(pathCustom.join(c.path, folderItem.path)).resize({
 					width: c.thumbnails.folder.positions[index].width,
 					height: c.thumbnails.folder.positions[index].height,
 				}).toBuffer());
 			});
 
+			// resize all loaded images and use them to build final thumbnail
 			Promise.all(resizePromises).then(function (resizedImages) {
 				let toComposite = [];
 				resizedImages.forEach(function (resizedImage, index) {
@@ -54,36 +53,3 @@ module.exports = function (webserver, endpoint) {
 		});
 	});
 };
-
-function getResizeParams(req) {
-	// resizing is disabled in config
-	if (c.compress.enabled !== true) {
-		return false;
-	}
-	// custom resize settings
-	if (req.query.fit && req.query.width && req.query.height) {
-		let compressData = Object.assign({}, c.compress);
-
-		compressData.width = parseInt(req.query.width);
-		if (compressData.width <= 50) {
-			throw new Error('Wrong "width" parameter.');
-		}
-
-		compressData.height = parseInt(req.query.height);
-		if (req.query.height <= 50) {
-			throw new Error('Wrong "height" parameter.');
-		}
-
-		compressData.fit = req.query.fit;
-		if (['cover', 'contain', 'fill', 'inside', 'outside'].inArray(compressData.fit) === false) {
-			throw new Error('Wrong "fit" parameter.');
-		}
-		return compressData;
-	}
-
-	// default resize settings (compressing)
-	if ((req.cookies['pmg-compress'] === 'true' && req.query.compress !== 'false') || req.query.compress === 'true') {
-		return c.compress;
-	}
-	return false;
-}
