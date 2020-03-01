@@ -34,6 +34,7 @@ let CONFIG = {
 		 * Get few random images from folder, merge them together and generate one image as thumbnail
 		 */
 		folder: {
+			enabled: false,
 			// Sharp create object (you can input your own image)
 			inputOptions: {
 				create: {
