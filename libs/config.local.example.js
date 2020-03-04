@@ -12,6 +12,22 @@ module.exports = {
 	// UNIX absolute: /photos/
 	// Relative: ./photos/
 	path: './demo/',
+
+	// Settings for Cache
+	cache: {
+		path: BASE_DIR_GET('/cache/'), // Base path, where all cache files will be generated. All types has its own subfolders
+	},
+	thumbnails: {
+		image: {
+			// false: generate thumbnails on every request (save space on drive)
+			// true: generate thumbnail on first request and save it. On every other request it will be loaded from cache (faster and saving server performance)
+			cache: false,
+		},
+		folder: {
+			cache: false, // the same as thumbnails.image.cache
+		}
+	},
+
 	google: {
 		// Generate your own "OAuth client ID" credentials for Web application on
 		// https://console.developers.google.com/apis/credentials

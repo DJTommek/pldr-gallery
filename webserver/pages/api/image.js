@@ -41,7 +41,7 @@ module.exports = function (webserver, endpoint) {
 				imageStream = imageStream.pipe(sharp().resize(compressData));
 
 				// if thumbnail caching is enabled, save it
-				if (req.query.type === 'thumbnail' && c.thumbnails.folder.cache === true) {
+				if (req.query.type === 'thumbnail' && c.thumbnails.image.cache === true) {
 					cacheHelper.saveStream(cacheHelper.TYPE.IMAGE, res.locals.path, imageStream);
 				}
 			}
