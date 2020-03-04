@@ -334,8 +334,8 @@ class Structure {
 			searching = searching.slice(1, -1); // remove delimiters, new RegExp will add automatically
 			return (new RegExp(searching)).test(text);
 		} else {
-			searching = searching.toLowerCase().trim();
-			return (text.toLowerCase().trim().indexOf(searching) !== -1);
+			searching = searching.toLowerCase();
+			return (text.toLowerCase().indexOf(searching) !== -1);
 		}
 	}
 
@@ -370,21 +370,27 @@ class Structure {
 		let allHidden = true;
 		let visible = 0;
 		this.getItems().forEach(function (item) {
-			// Do not touch on "go back" item! Should be visible all times
+			// Items with this attribute should be visible at all times
 			if (item.noFilter) {
 				return;
 			}
-			// display text to be compatibile with search results, otherwise it would be filtering only last part of path
-			if (self.runFilter(filterText, item.text || item.paths.last())) {
-				$("#structure-rows tbody").find('[data-index="' + item.index + '"]').show();
-				$("#structure-tiles").find('[data-index="' + item.index + '"]').show();
+			const itemSelector = $('#structure .structure-item.item-index-' + item.index + '');
+			const textSelector = itemSelector.children('.name');
+			// highlight items, which are matching to filter (or hide otherwise)
+			if (self.runFilter(filterText, item.text)) {
+				itemSelector.show();
+				let result = item.text;
+				if (filterText) {
+				 	result = result.replace(filterText, '<span class="highlight">' + filterText + '</span>');
+				}
+				textSelector.html(result);
 				allHidden = false;
 				item.hide = false;
 				visible++;
 			} else {
 				item.hide = true;
-				$("#structure-rows tbody").find('[data-index="' + item.index + '"]').hide();
-				$("#structure-tiles").find('[data-index="' + item.index + '"]').hide();
+				itemSelector.hide();
+				textSelector.text(item.text);
 			}
 		});
 		if (allHidden) { // if no item passed filter, show warning
