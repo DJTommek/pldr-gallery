@@ -2,6 +2,7 @@
 /public/index.html
 /public/main-*.css
 /public/js/modules.min.js
+/cache/
 node_modules
 package
 package-lock.json
