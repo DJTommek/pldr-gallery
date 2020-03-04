@@ -2,6 +2,7 @@ const c = require(BASE_DIR_GET('/libs/config.js'));
 const FS = require('fs');
 const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
 const sharp = require('sharp');
+const cacheHelper = require('./helpers/cache');
 
 module.exports = function (webserver, endpoint) {
 
@@ -23,15 +24,28 @@ module.exports = function (webserver, endpoint) {
 			if (!extensionData) {
 				throw new Error('File does not appear to be an image.');
 			}
-			let imageStream = FS.createReadStream(res.locals.fullPathFile);
 
-			const compressData = getResizeParams(req);
-			if (compressData !== false) {
-				imageStream = imageStream.pipe(sharp().resize(compressData));
+			// Use cached file if exists
+			const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.IMAGE, res.locals.path, true);
+			if (req.query.type === 'thumbnail' && c.thumbnails.image.cache === true && cacheFilePath) {
+				res.sendFile(cacheFilePath);
+				return;
 			}
+
+			let imageStream = FS.createReadStream(res.locals.fullPathFile);
+			const compressData = getResizeParams(req);
 			res.setHeader("Content-Type", res.locals.mediaType);
 
-			return imageStream.pipe(res);
+			// if compression is enabled, compress first
+			if (compressData !== false) {
+				imageStream = imageStream.pipe(sharp().resize(compressData));
+
+				// if thumbnail caching is enabled, save it
+				if (req.query.type === 'thumbnail' && c.thumbnails.folder.cache === true) {
+					cacheHelper.saveStream(cacheHelper.TYPE.IMAGE, res.locals.path, imageStream);
+				}
+			}
+			imageStream.pipe(res);
 		} catch (error) {
 			res.statusCode = 404;
 			let fontSize = 40;
