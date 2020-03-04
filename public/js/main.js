@@ -363,6 +363,13 @@ $(function () {
 		structureViewChange($(this).find('input').val());
 	});
 
+	// Event - selected item in structure
+	$('#structure').on('click', '.structure-item', function (event) {
+		event.preventDefault();
+		S.selectorMove($(this).data('index'));
+		S.selectorSelect();
+	});
+
 	/**
 	 * set compress variable into cookie on page load
 	 */
