@@ -322,21 +322,23 @@ class Structure {
 
 	}
 
-	/**
-	 * Check text against item name. Regex is supported.
-	 *
-	 * @param searching
-	 * @param text
-	 * @returns {boolean} true if matches, false otherwise
-	 */
-	runFilter(searching, text) {
-		if (searching.match(/^\/.+\/$/)) { // check, if string has delimiters is regex, at least /./
-			searching = searching.slice(1, -1); // remove delimiters, new RegExp will add automatically
-			return (new RegExp(searching)).test(text);
-		} else {
-			searching = searching.toLowerCase();
-			return (text.toLowerCase().indexOf(searching) !== -1);
+	runFilterRegex(searching, text) {
+		searching = searching.slice(1, -1); // remove delimiters, new RegExp will add automatically
+		const re = RegExp(searching, 'gi');
+		let match;
+		let result = [];
+		while ((match = re.exec(text)) !== null) {
+			result.push({
+				start: match.index,
+				// length: match[0].length,
+				text: match[0],
+			});
 		}
+		return result;
+	}
+
+	runFilterText(searching, text) {
+		return (text.toLowerCase().indexOf(searching.toLowerCase()) >= 0);
 	}
 
 	/**
@@ -354,8 +356,10 @@ class Structure {
 			console.warn('Filtering is already running, new filtering cancelled');
 			return;
 		}
-		const filterText = $('#navbar-filter input').val().toLowerCase();
+		const filterText = $('#navbar-filter input').val();
+		let regex = false;
 		if (filterText.match(/^\/.+\/$/)) { // check, if string has delimiters is regex, at least /./
+			regex = true;
 			// @TODO in case of regexp error, filter might be triggered twice so this alert message too
 			try { // try if regex is valid before running filter
 				new RegExp(filterText.slice(1, -1));
@@ -366,6 +370,7 @@ class Structure {
 				return;
 			}
 		}
+
 		loadedStructure.filtering = true;
 		let allHidden = true;
 		let visible = 0;
@@ -376,23 +381,35 @@ class Structure {
 			}
 			const itemSelector = $('#structure .structure-item.item-index-' + item.index + '');
 			const textSelector = itemSelector.children('.name');
+
+			let itemText = item.text;
+			item.hide = true;
+
 			// highlight items, which are matching to filter (or hide otherwise)
-			if (self.runFilter(filterText, item.text)) {
-				itemSelector.show();
-				let result = item.text;
-				if (filterText) {
-				 	result = result.replace(filterText, '<span class="highlight">' + filterText + '</span>');
+			if (regex === true) {
+				const regexResult = self.runFilterRegex(filterText, itemText);
+				if (regexResult.length > 0) {
+					item.hide = false;
+					regexResult.reverse().forEach(function(a) {
+						itemText = itemText.substring(0, a.start) + '<span class="highlight">' + a.text + '</span>' + itemText.substring(a.start + a.text.length);
+					});
 				}
-				textSelector.html(result);
-				allHidden = false;
-				item.hide = false;
-				visible++;
 			} else {
-				item.hide = true;
+				if (self.runFilterText(filterText, itemText)) {
+					item.hide = false;
+					itemText = itemText.replaceAll(filterText, '<span class="highlight">' + filterText + '</span>');
+				}
+			}
+			textSelector.html(itemText);
+			if (item.hide) {
 				itemSelector.hide();
-				textSelector.text(item.text);
+			} else {
+				allHidden = false;
+				visible++;
+				itemSelector.show();
 			}
 		});
+
 		if (allHidden) { // if no item passed filter, show warning
 			$('#navbar-filter input').addClass('is-invalid');
 		} else {
