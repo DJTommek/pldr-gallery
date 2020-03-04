@@ -379,19 +379,18 @@ class Structure {
 			if (item.noFilter) {
 				return;
 			}
-			const itemSelector = $('#structure .structure-item.item-index-' + item.index + '');
-			const textSelector = itemSelector.children('.name');
 
 			let itemText = item.text;
 			item.hide = true;
 
 			// highlight items, which are matching to filter (or hide otherwise)
+			// regex has to have different approach to highlighting
 			if (regex === true) {
-				const regexResult = self.runFilterRegex(filterText, itemText);
-				if (regexResult.length > 0) {
+				const filterResults = self.runFilterRegex(filterText, itemText);
+				if (filterResults.length > 0) {
 					item.hide = false;
-					regexResult.reverse().forEach(function(a) {
-						itemText = itemText.substring(0, a.start) + '<span class="highlight">' + a.text + '</span>' + itemText.substring(a.start + a.text.length);
+					filterResults.reverse().forEach(function(filterResult) {
+						itemText = itemText.substring(0, filterResult.start) + '<span class="highlight">' + filterResult.text + '</span>' + itemText.substring(filterResult.start + filterResult.text.length);
 					});
 				}
 			} else {
@@ -400,7 +399,9 @@ class Structure {
 					itemText = itemText.replaceAll(filterText, '<span class="highlight">' + filterText + '</span>');
 				}
 			}
-			textSelector.html(itemText);
+
+			const itemSelector = $('#structure .structure-item.item-index-' + item.index + '');
+			itemSelector.children('.name').html(itemText);
 			if (item.hide) {
 				itemSelector.hide();
 			} else {
