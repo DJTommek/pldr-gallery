@@ -28,6 +28,7 @@ module.exports = function (webserver, endpoint) {
 			// Use cached file if exists
 			const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.IMAGE, res.locals.path, true);
 			if (req.query.type === 'thumbnail' && c.thumbnails.image.cache === true && cacheFilePath) {
+				res.setHeader("Content-Type", 'image/png');
 				res.sendFile(cacheFilePath);
 				return;
 			}
@@ -42,9 +43,10 @@ module.exports = function (webserver, endpoint) {
 
 				// if thumbnail caching is enabled, save it
 				if (req.query.type === 'thumbnail' && c.thumbnails.image.cache === true) {
-					cacheHelper.saveStream(cacheHelper.TYPE.IMAGE, res.locals.path, imageStream);
+					cacheHelper.saveStream(cacheHelper.TYPE.IMAGE, res.locals.path, imageStream.png());
 				}
 			}
+			res.setHeader("Content-Type", res.locals.mediaType);
 			imageStream.pipe(res);
 		} catch (error) {
 			res.statusCode = 404;
