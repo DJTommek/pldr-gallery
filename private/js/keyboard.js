@@ -1,6 +1,9 @@
 function isTilesView() {
 	return (Settings.load('structureDisplayType').includes('tiles'));
 }
+function isFilterFocused() {
+	return $("#navbar-filter input").is(":focus");
+}
 jwerty.key('up', function (e) {
 	if (loadedStructure.settings) {
 
@@ -21,7 +24,9 @@ jwerty.key('up', function (e) {
 });
 
 jwerty.key('left', function (e) {
-	if (loadedStructure.settings) {
+	if (isFilterFocused()) {
+
+	} else if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
 		itemPrev(true);
@@ -29,7 +34,6 @@ jwerty.key('left', function (e) {
 		if (isTilesView()) {
 			S.selectorMove('up');
 		}
-		// filter might be focused, dont do anything special
 	}
 });
 
@@ -53,7 +57,9 @@ jwerty.key('down', function (e) {
 });
 
 jwerty.key('right', function (e) {
-	if (loadedStructure.settings) {
+	if (isFilterFocused()) {
+
+	} else if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
 		e.preventDefault();
@@ -62,13 +68,13 @@ jwerty.key('right', function (e) {
 		if (isTilesView()) {
 			S.selectorMove('down');
 		}
-		// filter is focused, dont do anything special
 	}
 });
 
-// @TODO should work this button in filter to go to the input beginning?
 jwerty.key('home', function (e) {
-	if (loadedStructure.settings) {
+	if (isFilterFocused()) {
+
+	} else if (loadedStructure.settings) {
 
 	} else {
 		e.preventDefault();
@@ -111,9 +117,10 @@ jwerty.key('page-down', function (e) {
 	}
 });
 
-// @TODO should work this button in filter to go to the input end?
 jwerty.key('end', function (e) {
-	if (loadedStructure.settings) {
+	if (isFilterFocused()) {
+
+	} else if (loadedStructure.settings) {
 
 	} else {
 		e.preventDefault();
@@ -152,7 +159,9 @@ jwerty.key('ctrl+enter', function (e) {
 });
 
 jwerty.key('space', function (e) {
-	if (loadedStructure.settings) {
+	if (isFilterFocused()) {
+
+	} else if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
 		e.preventDefault(); // do not type in filter
@@ -174,17 +183,23 @@ jwerty.key('ctrl+space', function (e) {
 });
 
 jwerty.key('backspace', function (e) {
-	if (loadedStructure.settings) {
+	if (isFilterFocused()) {
+
+	} else if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
 		e.preventDefault(); // do not delete text from filter
 		popupClose();
 	} else {
-		// filter is focused, dont do anything special
+
 	}
 });
+
 jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
-	if (loadedStructure.settings) {
+	if (isFilterFocused()) {
+		e.preventDefault();
+		$("#navbar-filter input").trigger('blur');
+	} else if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
 		popupClose();
@@ -211,7 +226,7 @@ let filterTimeout = null;
 $('#navbar-filter input').on('keyup change', function (event) {
 	// do not run filter if are used keys to move in structure
 	if ([
-		//undefined, // triggered on "change",
+		// undefined, // triggered on "change",
 		37, 38, 39, 40, // left, up, right, down
 		13, // enter
 		27, // escape

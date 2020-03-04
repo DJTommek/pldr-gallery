@@ -481,6 +481,7 @@ $(function () {
 
 function popupOpen() {
 	loadedStructure.popup = true;
+	$("#navbar-filter input").trigger('blur');
 	$('#popup').fadeIn(Settings.load('animationSpeed'));
 }
 
