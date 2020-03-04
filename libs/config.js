@@ -24,6 +24,10 @@ let CONFIG = {
 		withoutEnlargement: true
 	},
 
+	cache: {
+		path: BASE_DIR_GET('/cache/'),
+	},
+
 	/**
 	 * Thumbnails generated in structure view (tiles)
 	 */
@@ -35,6 +39,7 @@ let CONFIG = {
 		 */
 		image: {
 			enabled: true,
+			cache: false,
 			fit: 'cover',
 		},
 		/**
@@ -42,6 +47,7 @@ let CONFIG = {
 		 */
 		folder: {
 			enabled: true,
+			cache: false,
 			// Sharp create object (you can input your own image)
 			inputOptions: {
 				create: {
