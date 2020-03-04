@@ -358,8 +358,19 @@ class Structure {
 		}
 		try {
 			let filterText = $('#navbar-filter input').val();
-			// check, if string has delimiters. If yes, use it as raw regex. If not, escape string and use as regex
-			const regex = new RegExp(((filterText.match(/^\/.+\/$/)) ? filterText.slice(1, -1) : filterText.preg_quote()), 'gi');
+			// check, if string has delimiters, then make raw regex
+			if (filterText.match(/^\/.+\/$/)) {
+				filterText = filterText.slice(1, -1);
+			} else { // escape regex characters and search as literal
+				// trim only if string will not be empty
+				// if (filterText.trim().length > 0) {
+				// 	filterText = filterText.trim();
+				// }
+				// filterText = filterText.preg_quote();
+				filterText = filterText.trim().preg_quote();
+			}
+			const regex = new RegExp(filterText, 'gi');
+
 			loadedStructure.filtering = true;
 			let allHidden = true;
 			let visible = 0;
