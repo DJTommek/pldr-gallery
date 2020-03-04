@@ -98,10 +98,12 @@ String.prototype.formatUnicorn = function () {
 /**
  * Escape regex chars to use it safely in regex as string
  *
+ * @see https://locutus.io/php/pcre/preg_quote/
+ * @see https://stackoverflow.com/a/280805/3334403
  * @returns {String}
  */
-String.prototype.escapeRegex = String.prototype.escapeRegex || function () {
-	return this.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+String.prototype.preg_quote = String.prototype.preg_quote || function () {
+	return this.replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:-]', 'g'), '\\$&');
 };
 
 /**

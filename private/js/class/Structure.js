@@ -322,23 +322,23 @@ class Structure {
 
 	}
 
-	runFilterRegex(searching, text) {
-		searching = searching.slice(1, -1); // remove delimiters, new RegExp will add automatically
-		const re = RegExp(searching, 'gi');
+	runFilterRegex(regex, text) {
+		// searching = searching.slice(1, -1); // remove delimiters, new RegExp will add automatically
+		// const re = RegExp(searching, 'gi');
 		let match;
 		let result = [];
-		while ((match = re.exec(text)) !== null) {
+		let i = 0;
+		while ((match = regex.exec(text)) !== null) {
+			if (i > 10000) {
+				throw new Error('runFilterRegex failsafe, too many executions (' + i + '). Regex: "' + regex + '"');
+			}
+			i++;
 			result.push({
 				start: match.index,
-				// length: match[0].length,
 				text: match[0],
 			});
 		}
 		return result;
-	}
-
-	runFilterText(searching, text) {
-		return (text.toLowerCase().indexOf(searching.toLowerCase()) >= 0);
 	}
 
 	/**
@@ -356,81 +356,73 @@ class Structure {
 			console.warn('Filtering is already running, new filtering cancelled');
 			return;
 		}
-		const filterText = $('#navbar-filter input').val();
-		let regex = false;
-		if (filterText.match(/^\/.+\/$/)) { // check, if string has delimiters is regex, at least /./
-			regex = true;
-			// @TODO in case of regexp error, filter might be triggered twice so this alert message too
-			try { // try if regex is valid before running filter
-				new RegExp(filterText.slice(1, -1));
-			} catch (exception) {
-				console.warn('User input filter is not valid: ' + exception.message);
-				alert('Filter is not valid: ' + exception.message);
-				$('#navbar-filter .filtered').text(0);
-				return;
-			}
-		}
-
-		loadedStructure.filtering = true;
-		let allHidden = true;
-		let visible = 0;
-		this.getItems().forEach(function (item) {
-			// Items with this attribute should be visible at all times
-			if (item.noFilter) {
-				return;
-			}
-
-			let itemText = item.text;
-			item.hide = true;
-
-			// highlight items, which are matching to filter (or hide otherwise)
-			// regex has to have different approach to highlighting
-			if (regex === true) {
-				const filterResults = self.runFilterRegex(filterText, itemText);
-				if (filterResults.length > 0) {
-					item.hide = false;
-					filterResults.reverse().forEach(function(filterResult) {
-						itemText = itemText.substring(0, filterResult.start) + '<span class="highlight">' + filterResult.text + '</span>' + itemText.substring(filterResult.start + filterResult.text.length);
-					});
+		try {
+			let filterText = $('#navbar-filter input').val();
+			// check, if string has delimiters. If yes, use it as raw regex. If not, escape string and use as regex
+			const regex = new RegExp(((filterText.match(/^\/.+\/$/)) ? filterText.slice(1, -1) : filterText.preg_quote()), 'gi');
+			loadedStructure.filtering = true;
+			let allHidden = true;
+			let visible = 0;
+			for (const item of this.getItems()) { // need to use for to allow break
+				// Items with this attribute should be visible at all times
+				if (item.noFilter) {
+					continue;
 				}
-			} else {
-				if (self.runFilterText(filterText, itemText)) {
+
+				let itemText = item.text;
+				item.hide = true;
+
+				// if string is empty, skip regexing and show all items (much faster)
+				if (!filterText) {
 					item.hide = false;
-					itemText = itemText.replaceAll(filterText, '<span class="highlight">' + filterText + '</span>');
+				} else {
+					const filterResults = self.runFilterRegex(regex, itemText);
+					if (filterResults.length > 0) {
+						item.hide = false;
+						filterResults.reverse().forEach(function (filterResult) {
+							// highlight items, which are matching to filter (or hide otherwise)
+							itemText = itemText.substring(0, filterResult.start) + '<span class="highlight">' + filterResult.text + '</span>' + itemText.substring(filterResult.start + filterResult.text.length);
+						});
+					}
+				}
+
+				const itemSelector = $('#structure .structure-item.item-index-' + item.index + '');
+				itemSelector.children('.name').html(itemText);
+				if (item.hide) {
+					itemSelector.hide();
+				} else {
+					allHidden = false;
+					visible++;
+					itemSelector.show();
 				}
 			}
 
-			const itemSelector = $('#structure .structure-item.item-index-' + item.index + '');
-			itemSelector.children('.name').html(itemText);
-			if (item.hide) {
-				itemSelector.hide();
+			if (allHidden) { // if no item passed filter, show warning
+				$('#navbar-filter input').addClass('is-invalid');
 			} else {
-				allHidden = false;
-				visible++;
-				itemSelector.show();
+				$('#navbar-filter input').removeClass('is-invalid');
 			}
-		});
-
-		if (allHidden) { // if no item passed filter, show warning
-			$('#navbar-filter input').addClass('is-invalid');
-		} else {
-			$('#navbar-filter input').removeClass('is-invalid');
-		}
-		$('#navbar-filter .filtered').text(visible);
-		const item = this.getItem(this.selectedIndex);
-		if (!item) { // new opened folder is empty, do not move with selector
-			loadedStructure.filtering = false;
-			return;
-		}
-		if (item.hide) { // if currently selected item is not visible, move to previous visible
-			this.selectorMove('up');
-			if (this.getItem(this.selectedIndex).hide) { // if there is no previous visible item, move to the next visible item
+			$('#navbar-filter .filtered').text(visible);
+			const item = this.getItem(this.selectedIndex);
+			if (!item) { // new opened folder is empty, do not move with selector
+				loadedStructure.filtering = false;
+				return;
+			}
+			if (item.hide) { // if currently selected item is not visible, move to previous visible
+				this.selectorMove('up');
+				if (this.getItem(this.selectedIndex).hide) { // if there is no previous visible item, move to the next visible item
+					this.selectorMove('down');
+				}
+				// if no item is visible, dont do anything
+			}
+			if (this.getItem(this.selectedIndex).noFilter) { // if is filter active and selected item is "go back", try select next visible item
 				this.selectorMove('down');
 			}
-			// if no item is visible, dont do anything
-		}
-		if (this.getItem(this.selectedIndex).noFilter) { // if is filter active and selected item is "go back", try select next visible item
-			this.selectorMove('down');
+		} catch (error) {
+			// delete previous flash error message (if any) before showing new
+			$('#filter-error').parent().remove();
+			flashMessage('<p id="filter-error">Filter regex is not valid: <b>' + error.message + '</b></p>', 'danger');
+			$('#navbar-filter .filtered').text('?');
 		}
 		loadedStructure.filtering = false;
 	}
