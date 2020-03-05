@@ -636,6 +636,7 @@ function loadSearch(callback) {
 				parseStructure(result.result);
 				S.selectorMove('first');
 				mapParsePhotos();
+				S.filter();
 			}
 		},
 		error: function (result) {
