@@ -61,4 +61,11 @@ describe('Permissions', function () {
 		assert.equal(perms.test(['/text!'], '/text!another/'), true);
 		assert.equal(perms.test(['/text!/'], '/text!/'), true);
 	});
+	it('Full Access', function () {
+		assert.equal(perms.test(['/'], '/', true), true);
+		assert.equal(perms.test(['/test/'], '/test/', true), true);
+		assert.equal(perms.test(['/test/'], '/test/bla/', true), true);
+		assert.equal(perms.test(['/test/bla'], '/test/'), true);
+		assert.equal(perms.test(['/test/bla'], '/test/', true), false);
+	});
 });

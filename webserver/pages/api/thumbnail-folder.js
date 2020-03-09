@@ -3,6 +3,7 @@ const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
 const sharp = require('sharp');
 const LOG = require(BASE_DIR_GET('/libs/log.js'));
 const cacheHelper = require('./helpers/cache');
+const perms = require(BASE_DIR_GET('/libs/permissions.js'));
 
 const getItemsHelper = require(__dirname + '/helpers/getItemsFromFolder.js');
 
@@ -13,14 +14,19 @@ module.exports = function (webserver, endpoint) {
 		if (c.thumbnails.folder.enabled !== true) {
 			return res.result.setError('Folder thumbnail images are disabled in server config. Check out "config.thumbnails.folder.enabled".').end(403);
 		}
-
 		if (!res.locals.fullPathFolder) {
 			return res.result.setError('Invalid path or you dont have a permission.').end(403);
 		}
 
+		// User has to have full access to checked folder to use cached files. Otherwise he would be able to see thumbnail
+		// generated from images, that are not allowed. Possible bad use case:
+		// User1 with full access generate thumbnail from images 1, 2, 3, 4 and save it to cache
+		// User2 with access to images 1, 2 is able to see thumbnail generated from images 1, 2, 3, 4 because it was cached before
+		const canUseCache = perms.test(res.locals.userPerms, res.locals.path, true);
+
 		// Use cached file if possible
 		const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.FOLDER, res.locals.path, true);
-		if (c.thumbnails.folder.cache === true && cacheFilePath) {
+		if (canUseCache && c.thumbnails.folder.cache === true && cacheFilePath) {
 			res.sendFile(cacheFilePath);
 			return;
 		}
@@ -56,7 +62,7 @@ module.exports = function (webserver, endpoint) {
 				thumbnailImageStream.pipe(res);
 
 				// if caching is enabled, save it
-				if (c.thumbnails.folder.cache === true) {
+				if (canUseCache && c.thumbnails.folder.cache === true) {
 					cacheHelper.saveStream(cacheHelper.TYPE.FOLDER, res.locals.path, thumbnailImageStream);
 				}
 			}).catch(function (error) {
