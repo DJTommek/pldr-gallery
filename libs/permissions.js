@@ -2,6 +2,7 @@ const CONFIG = require('./config.js');
 const FS = require("fs");
 const LOG = require('./log.js');
 const PATH = require('path');
+const pathCustom = require(BASE_DIR_GET('/libs/path.js'));
 
 let users = {};
 let passwords = {};
@@ -53,14 +54,22 @@ function loadPasswords(callback) {
 
 exports.test = permissionCheck;
 
-function permissionCheck(permissions, path) {
+/**
+ * Check if given path is approvedd according given permissions
+ *
+ * @param {[string]} permissions
+ * @param {string} path
+ * @param {boolean} fullAccess set true to check, if user has to have full permission to given folder (not only some files/folders inside that path)
+ * @returns {boolean}
+ */
+function permissionCheck(permissions, path, fullAccess = false) {
 	let result = false;
 	permissions.some(function (permission) {
 		if (path.indexOf(permission) === 0) {
 			// requested path is fully in perms
 			result = true;
 		}
-		if (permission.indexOf(PATH.posix.join(path + '/')) === 0) {
+		if (fullAccess === false && permission.indexOf(pathCustom.join(path + '/')) === 0) {
 			// show folder, which lead to files saved deeper
 			result = true;
 		}
