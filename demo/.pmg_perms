@@ -17,6 +17,7 @@ x
  /permissions/header.html
  /sort-test/
  /special-characters/
+ /thumbnails/
  /header.html
  /footer.html
 # allow every file and folder in root, that begins "image-"
