@@ -13,6 +13,12 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 		throw new Error('Parameter "options.limit" must be positive number or false');
 	}
 
+	if (typeof options.recursive === 'undefined') {
+		options.recursive = false;
+	} else if (typeof options.recursive !== 'boolean') {
+		throw new Error('Parameter "options.recursive" must be boolean');
+	}
+
 	if (typeof options.coords === 'undefined') {
 		options.coords = false;
 	} else if (typeof options.coords !== 'boolean') {
@@ -29,7 +35,14 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 		let filesLimitCount = 0;
 		let files = [];
 		// @TODO temporary fix, more info in https://github.com/DJTommek/pldr-gallery/issues/7
-		globby(fullPath.replaceAll('(', '\\(') + '*', {onlyFiles: true}).then(function (rawPathsFiles) {
+		let globbyPathPattern = fullPath.replaceAll('(', '\\(');
+		if (options.recursive === true) {
+			globbyPathPattern += '**';
+		} else {
+			globbyPathPattern += '*';
+		}
+		console.log(globbyPathPattern);
+		globby(globbyPathPattern, {onlyFiles: true}).then(function (rawPathsFiles) {
 			rawPathsFiles.forEach(function (fullPath) {
 				const dynamicPath = pathCustom.absoluteToRelative(fullPath, c.path);
 				if (perms.test(permissions, dynamicPath) === false) {
