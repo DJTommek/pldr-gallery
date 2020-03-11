@@ -41,7 +41,6 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 		} else {
 			globbyPathPattern += '*';
 		}
-		console.log(globbyPathPattern);
 		globby(globbyPathPattern, {onlyFiles: true}).then(function (rawPathsFiles) {
 			rawPathsFiles.forEach(function (fullPath) {
 				const dynamicPath = pathCustom.absoluteToRelative(fullPath, c.path);
