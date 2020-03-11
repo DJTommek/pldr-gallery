@@ -75,6 +75,23 @@ let CONFIG = {
 	},
 
 	/**
+	 * Options to Archiver
+	 *
+	 * @see https://www.archiverjs.com/
+	 * @see https://github.com/archiverjs/node-archiver
+	 */
+	archive: {
+		enabled: true,
+		// Output format of generated archive
+		// @see https://www.archiverjs.com/index.html#formats
+		format: 'zip',
+		// This object is passed directly to Archiver
+		// @see https://www.archiverjs.com/global.html#CoreOptions
+		// @see https://www.archiverjs.com/global.html#TransformOptions
+		options: {},
+	},
+
+	/**
 	 * Options to LESS, CSS preprocessor
 	 * @see http://lesscss.org/
 	 * @see https://github.com/less/less.js

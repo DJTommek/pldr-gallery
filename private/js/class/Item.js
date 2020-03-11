@@ -76,6 +76,15 @@ class FolderItem extends Item {
 		}
 		return result
 	}
+
+	/**
+	 * Get folder archive URL
+	 *
+	 * @returns {string} URL for archive
+	 */
+	getArchiveUrl() {
+		return '/api/archive?path=' + this.getEncodedPath();
+	}
 }
 
 /*!
