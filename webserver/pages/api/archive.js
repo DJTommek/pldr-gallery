@@ -23,34 +23,32 @@ module.exports = function (webserver, endpoint) {
 		// name generated from folder, which is being archived. For root it is default name
 		const zipFile = encodeURI((res.locals.path.split('/').last(2) || 'archive') + '.' + c.archive.format);
 		getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms, {recursive: true}).then(function (data) {
-			const archive = Archiver(c.archive.format, c.archive.options);
-			archive.on('error', function (error) {
-				LOG.error('(Web) Error while generating archive file for path "' + res.locals.fullPathFolder + '": ' + error.message);
-				return res.result.setError('Error while generating archive file.').end(500);
-			});
-			archive.on('warning', function (error) {
-				LOG.error('(Web) Warning while generating archive file for path "' + res.locals.fullPathFolder + '": ' + error.message);
-			});
-			archive.on('entry', function (data) {
-				// console.log('Entry:');
-			});
-			archive.on('progress', function (data) {
-				console.log('Progress:');
-				console.log(data);
-			});
-			archive.pipe(res);
-			for (const item of data.items) {
-				const pathInArchive = item.path.replace(res.locals.path, '');
-				if (item.isFile) {
-					archive.file(c.path + item.path, {name: pathInArchive});
+			try {
+				const archive = Archiver(c.archive.format, c.archive.options);
+				archive.on('error', function (error) {
+					LOG.error('(Web) Archiver error while generating archive file for path "' + res.locals.path + '": ' + error.message);
+					return res.result.setError('Archiver error while generating archive file.').end(500);
+				});
+				archive.on('warning', function (error) {
+					LOG.error('(Web) Archiver warning while generating archive file for path "' + res.locals.path + '": ' + error.message);
+				});
+				archive.pipe(res);
+				for (const item of data.items) {
+					const pathInArchive = item.path.replace(res.locals.path, '');
+					if (item.isFile) {
+						archive.file(c.path + item.path, {name: pathInArchive});
+					}
 				}
+				res.writeHead(200, {
+					'Content-Type': 'application/zip',
+					'Content-Disposition': 'attachment; filename="' + zipFile + '"'
+				});
+				archive.finalize();
+				LOG.info('(Web) Creating and streaming zip file to download: ' + res.locals.path);
+			} catch (error) {
+				LOG.error('(Web) Error while generating archive file for path "' + res.locals.path + '": ' + error.message);
+				return res.result.setError('Error while generating archive file.').end(500);
 			}
-			res.writeHead(200, {
-				'Content-Type': 'application/zip',
-				'Content-Disposition': 'attachment; filename="' + zipFile + '"'
-			});
-			archive.finalize();
-			LOG.info('(Web) Creating and streaming zip file to download: ' + res.locals.fullPathFolder);
 		});
 	});
 };
