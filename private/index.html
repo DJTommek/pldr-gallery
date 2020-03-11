@@ -103,26 +103,33 @@
 </noscript>
 <div id="structure-header"></div>
 <div id="structure">
-	<form id="structure-display-type">
-		<label>
-			<button type="button" class="btn btn-sm btn-outline-secondary" id="structure-display-type-rows">
-				<input type="radio" name="structure-display-type" value="rows" checked>
-				<i class="fa fa-fw fa-th-list"></i> Rows
-			</button>
-		</label>
-		<label>
-			<button type="button" class="btn btn-sm btn-outline-secondary" id="structure-display-type-tiles-small">
-				<input type="radio" name="structure-display-type" value="tiles-small">
-				<i class="fa fa-fw fa-th"></i> Small tiles
-			</button>
-		</label>
-		<label>
-			<button type="button" class="btn btn-sm btn-outline-secondary" id="structure-display-type-tiles-big">
-				<input type="radio" name="structure-display-type" value="tiles-big">
-				<i class="fa fa-fw fa-th-large"></i> Big tiles
-			</button>
-		</label>
-	</form>
+	<div class="d-flex flex-row justify-content-between">
+		<form id="structure-display-type">
+			<label>
+				<button type="button" class="btn btn-sm btn-outline-secondary" id="structure-display-type-rows">
+					<input type="radio" name="structure-display-type" value="rows" checked>
+					<i class="fa fa-fw fa-th-list"></i> Rows
+				</button>
+			</label>
+			<label>
+				<button type="button" class="btn btn-sm btn-outline-secondary" id="structure-display-type-tiles-small">
+					<input type="radio" name="structure-display-type" value="tiles-small">
+					<i class="fa fa-fw fa-th"></i> Small tiles
+				</button>
+			</label>
+			<label>
+				<button type="button" class="btn btn-sm btn-outline-secondary" id="structure-display-type-tiles-big">
+					<input type="radio" name="structure-display-type" value="tiles-big">
+					<i class="fa fa-fw fa-th-large"></i> Big tiles
+				</button>
+			</label>
+		</form>
+		<div>
+			<a class="btn btn-sm btn-outline-secondary" id="structure-download-archive" href="#" target="_blank" title="Download this folder and it's subfolders as archive">
+				<i class="fa fa-download"></i> ZIP
+			</a>
+		</div>
+	</div>
 	<div id="structure-tiles"></div>
 </div>
 <div id="structure-footer"></div>

@@ -197,6 +197,9 @@ FS.readFile(BASE_DIR_GET('/private/index.html'), function (error, data) {
 					enabled: c.thumbnails.folder.enabled,
 				},
 			},
+			archive: {
+				enabled: c.archive.enabled,
+			},
 		}));
 		// build final index file
 		FS.writeFile(BASE_DIR_GET('/public/index.html'), fileContent, function (error) {

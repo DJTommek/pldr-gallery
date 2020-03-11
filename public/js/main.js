@@ -284,6 +284,11 @@ $(function () {
 		}
 	});
 
+	if (CONFIG.archive.enabled === false) {
+		$('#structure-download-archive').remove();
+	}
+
+
 	$('#popup-close, #popup-content').on('click', function () {
 		popupClose();
 	});
@@ -711,14 +716,15 @@ function parseStructure(items) {
 	// noinspection HtmlUnknownAnchorTarget
 	breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/" title="Go to root folder"><i class="fa fa-home"></i></a></li>';
 	let breadcrumbPath = '/';
-
 	currentFolder.paths.forEach(function (folderName, index) {
 		breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += currentFolder.urls[index] + '/') + '">' + folderName + '</a></li>';
 	});
+	$('#currentPath').html(breadcrumbHtml);
 
 	favouritesGenerateMenu();
 
-	$('#currentPath').html(breadcrumbHtml);
+	$('#structure-download-archive').attr('href', S.getCurrentFolder().getArchiveUrl());
+
 	/**
 	 * Generate structure content
 	 */
