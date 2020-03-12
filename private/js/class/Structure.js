@@ -410,8 +410,10 @@ class Structure {
 
 			if (allHidden) { // if no item passed filter, show warning
 				$('#navbar-filter input').addClass('is-invalid');
+				$('#filter-structure-empty').show();
 			} else {
 				$('#navbar-filter input').removeClass('is-invalid');
+				$('#filter-structure-empty').hide();
 			}
 			$('#navbar-filter .filtered').text(visible);
 			const item = this.getItem(this.selectedIndex);

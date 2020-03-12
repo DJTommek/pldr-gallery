@@ -767,6 +767,10 @@ function parseStructure(items) {
 		contentTiles += ' <span class="name">Složka je prázdná.</span>';
 		contentTiles += '</a>';
 	}
+	contentTiles += '<a class="structure-item" href="#" id="filter-structure-empty" style="display: none;">';
+	contentTiles += ' <i class="icon fa fa-warning fa-fw"></i>';
+	contentTiles += ' <span class="name">Zadanému filtru nevyhovuje žádná složka ani soubor.</span>';
+	contentTiles += '</a>';
 	if (items.filesTotal > items.files.length) {
 		contentTiles += '<a class="structure-item" href="#">';
 		contentTiles += ' <i class="icon fa fa-info fa-fw"></i>';
