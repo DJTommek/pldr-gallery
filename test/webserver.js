@@ -23,7 +23,7 @@ describe('Integrations - Webserver Structure', function () {
 	it('Valid - root', function (done) {
 		assertRequest(apiPath, {path: stringToBase64('/')}, function(result) {
 			if (result.error === false &&
-				result.result.foldersTotal === 7 && result.result.folders.length === 7 &&
+				result.result.foldersTotal === 8 && result.result.folders.length === 8 &&
 				result.result.folders.some(item => item.path === '/sort-test/') &&
 				result.result.folders.some(item => item.path === '/special-characters/') &&
 				result.result.files.length === 3 && result.result.filesTotal === 3 &&
