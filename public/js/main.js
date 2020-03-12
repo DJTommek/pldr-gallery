@@ -371,8 +371,10 @@ $(function () {
 	// Event - selected item in structure
 	$('#structure').on('click', '.structure-item', function (event) {
 		event.preventDefault();
-		S.selectorMove($(this).data('index'));
-		S.selectorSelect();
+		if ($(this).data('index') !== undefined) {
+			S.selectorMove($(this).data('index'));
+			S.selectorSelect();
+		}
 	});
 
 	/**
