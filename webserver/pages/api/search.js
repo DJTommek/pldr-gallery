@@ -76,6 +76,7 @@ module.exports = function (webserver, endpoint) {
 				};
 				if (item.isDirectory()) {
 					pathData.path += '/';
+					pathData.text += '/';
 					finds.folders.push(pathData);
 				} else { // is file, load detailed info
 					let pathStats = FS.lstatSync(entry.fullPath);
