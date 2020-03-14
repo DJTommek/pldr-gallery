@@ -35,7 +35,7 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 		let filesLimitCount = 0;
 		let files = [];
 		// @TODO temporary fix, more info in https://github.com/DJTommek/pldr-gallery/issues/7
-		let globbyPathPattern = fullPath.replaceAll('(', '\\(');
+		let globbyPathPattern = fullPath.replaceAll('(', '\\(').replaceAll('[', '\\[');
 		if (options.recursive === true) {
 			globbyPathPattern += '**';
 		} else {
@@ -109,7 +109,7 @@ module.exports.folders = function (requestedPath, fullPath, permissions, options
 			}));
 		}
 		// @TODO temporary fix, more info in https://github.com/DJTommek/pldr-gallery/issues/7
-		globby(fullPath.replaceAll('(', '\\(') + '*', {
+		globby(fullPath.replaceAll('(', '\\(').replaceAll('[', '\\[') + '*', {
 			markDirectories: true,
 			onlyDirectories: true
 		}).then(function (rawPathsFolders) {
