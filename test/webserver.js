@@ -1,14 +1,13 @@
-require('../private/js/functions.js');
-const pathCustom = require('../libs/path.js');
+require('../src/webserver/private/js/functions.js');
+const pathCustom = require('../src/libs/path.js');
 pathCustom.defineBaseDir(require.main.filename + '../../../../../../');
-const c = require(BASE_DIR_GET('/libs/config.js'));
-const assert = require('assert');
-const LOG = require(BASE_DIR_GET('/libs/log.js')).setPath(BASE_DIR_GET('/log/'));
-require(BASE_DIR_GET('/webserver/webserver.js'));
+const c = require(BASE_DIR_GET('/src/libs/config.js'));
+const LOG = require(BASE_DIR_GET('/src/libs/log.js')).setPath(BASE_DIR_GET('/data/log-test/'));
+require(BASE_DIR_GET('/src/webserver/webserver.js'));
 const http = require('http');
 const https = require('http');
 const querystring = require('querystring');
-const perms = require(BASE_DIR_GET('/libs/permissions.js'));
+const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 perms.load();
 
 describe('Integrations - Webserver Structure', function () {
@@ -139,11 +138,9 @@ function assertRequest(path, query, callback) {
 		requestLibrary = https;
 		options.port = c.http.ssl.port;
 	}
-	console.log(options);
 	const request = requestLibrary.request(options, function (res) {
 		let textResponse = '';
 		res.on('data', function (chunk) {
-			console.log('on data');
 			textResponse += chunk;
 		});
 		res.on('end', function () {
@@ -151,13 +148,12 @@ function assertRequest(path, query, callback) {
 		});
 	});
 	request.on('error', function (error) {
-		console.log('on error');
+		throw new Error('Webserver request error: ' + error.message);
 	});
 	request.on('socket', function (socket) {
-		console.log('on socket');
 	});
 	request.on('timeout', function () {
-		console.log('on timeout');
+		throw new Error('Webserver request timeout.');
 	});
 	request.end();
 }

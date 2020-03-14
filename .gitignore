@@ -1,8 +1,7 @@
-/libs/config.local.js
-/public/index.html
-/public/main-*.css
-/public/js/modules.min.js
-/cache/
+/data/config.local.js
+/src/webserver/public/index.html
+/src/webserver/public/main-*.css
+/src/webserver/public/js/modules.min.js
 node_modules
 package
 package-lock.json
