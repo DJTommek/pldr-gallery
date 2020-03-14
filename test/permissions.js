@@ -1,6 +1,6 @@
-require('../private/js/functions.js');
+require('../src/webserver/private/js/functions.js');
 const assert = require('assert');
-const perms = require(BASE_DIR_GET('/libs/permissions.js'));
+const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 
 describe('Permissions', function () {
 	it('Full permissions (always true)', function () {

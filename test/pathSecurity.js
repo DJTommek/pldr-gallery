@@ -1,8 +1,8 @@
-require('../private/js/functions.js');
+require('../src/webserver/private/js/functions.js');
 
 const assert = require('assert');
-const PERMS = require(BASE_DIR_GET('/libs/permissions.js'));
-const HFS = require(BASE_DIR_GET('/libs/helperFileSystem.js'));
+const PERMS = require(BASE_DIR_GET('/src/libs/permissions.js'));
+const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
 
 describe('Handle requested path', function () {
 	const ERROR_URI = 'URI malformed';

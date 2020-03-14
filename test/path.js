@@ -1,4 +1,4 @@
-const pathCustom = require('../libs/path.js');
+const pathCustom = require('../src/libs/path.js');
 pathCustom.defineBaseDir(__dirname + '../');
 
 const PATH = require('path');
