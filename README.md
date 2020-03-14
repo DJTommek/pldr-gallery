@@ -9,13 +9,12 @@ This exact demo is included in the source code, just follow Installation instruc
 ## Installation
 1. Clone repository
 1. Run `npm install`
-1. Rename `libs/config.local.example.js` to `libs/config.local.js` (optional: edit default values)
+1. Rename `/data/config.local.example.js` to `/data/config.local.js` (optional: edit default values)
 1. Run `node index.js`
 1. Open http://localhost:3000/
 
 ## Requirements
-Installed **Node.js 12.14.1+**
-
+Installed **Node.js 12.14.1+**  
 Note: it should work with older versions (8, 10), but some functions such as searching might not work as expected.
 
 ## Features
@@ -34,6 +33,7 @@ Note: it should work with older versions (8, 10), but some functions such as sea
 
 ## Testing
 1. Install development dependencies via `npm install`
-1. Run `npm test`
+2. Run `npm test`  
+Note: Application should be offline - integration tests will start it's own server instance on port defined in config.
 
 
