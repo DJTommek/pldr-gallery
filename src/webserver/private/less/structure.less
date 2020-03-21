@@ -26,7 +26,7 @@
 
 		.name {
 			& .highlight {
-				background-color: @theme-default-highlight-color;
+				background-color: @theme-highlight-color;
 			}
 		}
 
@@ -75,8 +75,8 @@
 				word-wrap: break-word;
 				overflow-wrap: break-word;
 				font-size: 0.75em;
-				background-color: rgba(@theme-default-background-color-secondary, 0.8);
-				color: @theme-default-color-primary;
+				background-color: rgba(@theme-background-color-secondary, 0.8);
+				color: @theme-color-primary;
 			}
 
 			.icon {
@@ -93,11 +93,11 @@
 			&:hover,
 			&.structure-selected {
 				margin: @item-margin-size - @item-border-size;
-				border: @item-border-size solid @theme-default-color-primary;
-				color: @theme-default-color-primary;
+				border: @item-border-size solid @theme-color-primary;
+				color: @theme-color-primary;
 
 				.name {
-					background-color: @theme-default-background-color;
+					background-color: @theme-background-color;
 				}
 			}
 
@@ -129,7 +129,7 @@
 		padding: 0.2em;
 
 		&:nth-of-type(odd) {
-			background-color: rgba(@theme-default-background-color-secondary, 0.3);
+			background-color: rgba(@theme-background-color-secondary, 0.3);
 		}
 
 		.name,
@@ -142,7 +142,7 @@
 		.icon,
 		.size,
 		.created {
-			color: @theme-default-color-text;
+			color: @theme-color-text;
 		}
 
 		.size,
@@ -165,8 +165,8 @@
 
 		&:hover,
 		&.structure-selected {
-			background-color: @theme-default-background-color-secondary;
-			color: @theme-default-color-primary
+			background-color: @theme-background-color-secondary;
+			color: @theme-color-primary
 		}
 	}
 }
