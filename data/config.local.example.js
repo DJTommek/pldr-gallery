@@ -43,9 +43,11 @@ module.exports = {
 		mapApiKey: 'AIzblahblahblahblahblahblahblahblahblah',
 	},
 	security: {
-		// password for emergency killing application via /api/kill?password=<killPassword>
-		// Note: if you start Node.js via "https://www.npmjs.com/package/forever" this will work as "restart" instead of kill
-		killPassword: '4pTvuKygmguBm19z4CjB',
+		// password for emergency killing application via /api/kill?password=someSecureKillPassword
+		// Note: if you start Node.js via https://www.npmjs.com/package/forever this will work as "restart" instead of kill (useful if debugging or updating to new version)
+		// killPassword: 'someSecureKillPassword', // enabled
+		// killPassword: null, // disabled
+		killPassword: null,
 	},
 	http: {
 		// port of non-secured webserver

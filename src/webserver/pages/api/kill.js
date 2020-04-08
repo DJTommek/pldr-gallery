@@ -11,6 +11,10 @@ module.exports = function (webserver, endpoint) {
 	webserver.get(endpoint, function (req, res) {
 		res.setHeader("Content-Type", "application/json");
 
+		if (c.security.killPassword === null) {
+			res.result.setError('Killing is disabled in config.').end();
+			return;
+		}
 		if (req.query.password !== c.security.killPassword) {
 			res.result.setError('Wrong password').end();
 			return;
