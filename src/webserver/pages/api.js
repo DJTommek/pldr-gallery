@@ -73,13 +73,15 @@ module.exports = function (webserver, baseEndpoint) {
 
 		LOG.info('(Web) Api access ' + req.path + ', user "' + (res.locals.user || 'x') + '"');
 
-		const result = HFS.pathMasterCheck(c.path, req.query.path, res.locals.userPerms, perms.test);
-		Object.assign(res.locals, result);
-		if (result.error) {
-			// log to debug because anyone can generate invalid paths
-			// Error handling must be done on APIs endpoints because everyone returning different format of data (JSON, image stream, video stream, audio stream...)
-			// if res.locals.path exists, everything is ok
-			LOG.debug('(Web) Requested invalid path "' + req.query.path + '", error: ' + result.error + '.', {console: true});
+		if (req.query.path) {
+			const result = HFS.pathMasterCheck(c.path, req.query.path, res.locals.userPerms, perms.test);
+			Object.assign(res.locals, result);
+			if (result.error) {
+				// log to debug because anyone can generate invalid paths
+				// Error handling must be done on APIs endpoints because everyone returning different format of data (JSON, image stream, video stream, audio stream...)
+				// if res.locals.path exists, everything is ok
+				LOG.debug('(Web) Requested invalid path "' + req.query.path + '", error: ' + result.error + '.', {console: true});
+			}
 		}
 
 		res.setTimeout(c.http.timeout, function () {
