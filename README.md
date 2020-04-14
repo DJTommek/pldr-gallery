@@ -6,16 +6,16 @@ https://gallery.redilap.cz/#/demo/
 
 This exact demo is included in the source code, just follow Installation instructions.
 
+## Requirements
+Installed **Node.js 12.14.1+**  
+Note: it should work with version 10, but some functions such as searching might not work as expected.
+
 ## Installation
 1. Clone repository
 1. Run `npm install`
-1. Rename `/data/config.local.example.js` to `/data/config.local.js` (optional: edit default values)
+1. Rename `data/config.local.example.js` to `data/config.local.js` (optional: edit default values)
 1. Run `node index.js`
 1. Open http://localhost:3000/
-
-## Requirements
-Installed **Node.js 12.14.1+**  
-Note: it should work with older versions (8, 10), but some functions such as searching might not work as expected.
 
 ## Features
 - Fast browsing of folders and files on your hard drive without any need to reload the page
