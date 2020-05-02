@@ -1,6 +1,7 @@
 /data/config.local.js
 /data/log
 /data/log-test
+/data/token
 /src/webserver/public/index.html
 /src/webserver/public/main-*.css
 /src/webserver/public/js/modules.min.js
