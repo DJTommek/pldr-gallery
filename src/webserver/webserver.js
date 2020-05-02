@@ -29,13 +29,25 @@ webserver.use(compression());
  */
 webserver.all('*', function (req, res, next) {
 	// Log request
-	let weblog = '';
-	weblog += '[' + req.ip + ']';
-	weblog += '[' + req.method + ',' + req.protocol + ']';
-	weblog += '[' + req.path + ']';
-	weblog += '[GET:' + JSON.stringify(req.query) + ']';
-	weblog += '[POST:' + JSON.stringify(req.body) + ']';
-	LOG.webserver(weblog);
+	let weblog = {
+		ip: req.ip,
+		method: req.method,
+		protocol: req.protocol,
+		path: req.path,
+		get: req.query,
+		post: req.body,
+		forwarded: {},
+	};
+	// Log proxy headers to catch real IP address
+	// @TODO There might be more headers which should be supported as "X-ProxyUser-Ip" and "Forwarded"
+	// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
+	// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Forwarded
+	['x-forwarded-host', 'x-forwarded-for'].forEach(function (headerName) {
+		if (req.headers[headerName]) {
+			weblog.forwarded[headerName] = req.headers[headerName];
+		}
+	});
+	LOG.webserver(JSON.stringify(weblog));
 
 	// define quick JSON response object
 	const requestStart = new Date();
@@ -234,7 +246,7 @@ FS.writeFile(c.terser.destinationPath, finalContentUgly.code, function (error) {
  */
 if (c.thumbnails.image.enabled === true && c.thumbnails.image.cache === true) {
 	const path = pathCustom.join(c.cache.path, '/thumbnails/image/');
-	FS.mkdir(path, {recursive: true}, function(error) {
+	FS.mkdir(path, {recursive: true}, function (error) {
 		if (error) {
 			LOG.error('(Cache) Error while creating folder for image-thumbnails: ' + error.message);
 		}
@@ -242,7 +254,7 @@ if (c.thumbnails.image.enabled === true && c.thumbnails.image.cache === true) {
 }
 if (c.thumbnails.folder.enabled === true && c.thumbnails.folder.cache === true) {
 	const path = pathCustom.join(c.cache.path, '/thumbnails/folder/');
-	FS.mkdir(path, {recursive: true}, function(error) {
+	FS.mkdir(path, {recursive: true}, function (error) {
 		if (error) {
 			LOG.error('(Cache) Error while creating folder for folder-thumbnails: ' + error.message);
 		}
@@ -257,7 +269,7 @@ if (c.thumbnails.folder.enabled === true && c.thumbnails.folder.cache === true) 
  */
 function getNewestFileUpdateTime(files) {
 	let lastUpdateTime = 0;
-	files.forEach(function(file) {
+	files.forEach(function (file) {
 		const fileStats = FS.statSync(BASE_DIR_GET(file));
 		lastUpdateTime = (fileStats.mtimeMs > lastUpdateTime) ? fileStats.mtimeMs : lastUpdateTime;
 	});
