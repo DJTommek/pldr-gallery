@@ -4,7 +4,10 @@ pathCustom.defineBaseDir(require.main.filename);
 
 const c = require('./libs/config.js');
 
-const LOG = require('./libs/log.js').setPath(BASE_DIR_GET('/data/log/'));
+const LOG = require('./libs/log.js').setup({
+	path: __dirname + '/../data/log/',
+	catchGlobalExceptions: true,
+});
 
 const FS = require("fs");
 const perms = require('./libs/permissions.js');

@@ -12,15 +12,56 @@ module.exports.FATAL_ERROR = 6;
 module.exports.UNCAUGHT_EXCEPTION = 7;
 module.exports.WARNING = 8;
 
-let logsPath = '';
-module.exports.setPath = function (path) {
-	logsPath = path;
+let PARAMS = {
+	fileExtension: 'log',
+	catchGlobalExceptions: false,
+	logsPath: null,
+}
+
+/**
+ * Set logging parameters
+ *
+ * @param {{}} params
+ * @returns {self}
+ */
+module.exports.setup = function (params = {}) {
+	// Required parameter "path"
+	if (typeof params.path !== 'string' || PATH.isAbsolute(PATH.join(params.path)) === false) {
+		throw new TypeError('Base folder where to save logs has to be absolute path.');
+	}
+	PARAMS.logsPath = PATH.join(params.path);
+
+	// Optional parameter "fileExtension"
+	if (typeof params.fileExtension !== 'undefined') {
+		if (typeof params.fileExtension !== 'string' || !params.fileExtension.match(/^[a-zA-Z0-9]{1,10}$/)) {
+			throw new TypeError('Optional parameter "fileExtension" has to be short string. Default = \'' + PARAMS.fileExtension + '\'');
+		}
+		PARAMS.fileExtension = params.fileExtension;
+	}
+
+	// Optional parameter "catchGlobalExceptions"
+	if (typeof params.catchGlobalExceptions !== 'undefined') {
+		if (typeof params.catchGlobalExceptions !== "boolean") {
+			throw new TypeError('Optional parameter "catchGlobalExceptions" has to be boolean. Default = ' + (PARAMS.catchGlobalExceptions ? 'true' : 'false'));
+		}
+		PARAMS.catchGlobalExceptions = params.catchGlobalExceptions;
+	}
 	checkAndCreateFolders();
+	if (PARAMS.catchGlobalExceptions === true) {
+		process.on('uncaughtException', function (error) {
+			try {
+				module.exports.log(error.message + ' - more in exception log.', module.exports.ERROR);
+				module.exports.log(error.stack, module.exports.UNCAUGHT_EXCEPTION);
+			} catch (error) {
+				console.error('(Log) Error while catching "uncaughtException": ' + error.message + ' [This message is not saved]');
+			}
+		});
+	}
 	return this;
 };
 
 const baseLogFileFormat = '{date}';
-const fileExtension = 'txt';
+const fileExtension = 'log';
 const defaultLogData = {
 	fileFormat: '{date}',
 	messageFormat: '{message}',
@@ -131,9 +172,6 @@ function defineLogParameters(severity, customParams) {
  * @param {{}} [params]
  */
 module.exports.log = function (message, severity, params) {
-	if (PATH.isAbsolute(logsPath) === false) {
-		throw new Error('Base folder where to save logs is not defined. Use setPath("/some/absolute/path/") first.');
-	}
 	const logParams = defineLogParameters(severity, params);
 	const datetime = new Date().human(true);
 	const content = '[' + datetime.toString() + '] ' + logParams.messageFormat.formatUnicorn({'message': message});
@@ -144,12 +182,12 @@ module.exports.log = function (message, severity, params) {
 	}
 	// Log into mainlog file
 	if (logParams.toMainLog) {
-		FS.appendFileSync(logsPath + baseLogFileFormat.formatUnicorn({'date': datetime.date}) + '.txt', content + '\n', 'utf8');
+		FS.appendFileSync(PARAMS.logsPath + baseLogFileFormat.formatUnicorn({'date': datetime.date}) + '.' + fileExtension, content + '\n', 'utf8');
 	}
 	// Log into separated log file if requested
 	try {
 		if (logParams.fileFormat) {
-			const file = logsPath + logParams.fileFormat.formatUnicorn({'date': datetime.date}) + '.' + fileExtension;
+			const file = PARAMS.logsPath + logParams.fileFormat.formatUnicorn({'date': datetime.date}) + '.' + fileExtension;
 			FS.appendFileSync(file, content + '\n', 'utf8');
 		}
 	} catch (error) {
@@ -249,7 +287,7 @@ function getAllFiles(date) {
 		severity = parseInt(severity); // numeric indexes are converted to string so it needs to be re-converted back to number
 		const datetime = date.human(true);
 		const logParameters = defineLogParameters(severity);
-		files.push(logsPath + logParameters.fileFormat.formatUnicorn({'date': datetime.date}) + '.' + fileExtension);
+		files.push(PARAMS.logsPath + logParameters.fileFormat.formatUnicorn({'date': datetime.date}) + '.' + fileExtension);
 	}
 	return files;
 }
@@ -278,17 +316,11 @@ function checkAndCreateFolders() {
 	for (const folder of folders) {
 		try {
 			if (!FS.existsSync(folder)) {
-				FS.mkdirSync(folder);
+				FS.mkdirSync(folder, {recursive: true});
 				console.log('(Log) Folder "' + folder + '" was missing - created new. [This message is not saved]');
 			}
 		} catch (error) {
-			console.error('(Log) Error while creating folders to log: ' + error.message + ' [This message is not saved]');
-			process.exit();
+			throw new Error('(Log) Error while creating folders to log: ' + error.message + ' [This message is not saved]');
 		}
 	}
 }
-
-process.on('uncaughtException', function (error) {
-	module.exports.log(error.message + ' - more in exception log.', module.exports.ERROR);
-	module.exports.log(error.stack, module.exports.UNCAUGHT_EXCEPTION);
-});
