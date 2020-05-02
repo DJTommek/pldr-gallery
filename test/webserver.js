@@ -2,7 +2,7 @@ require('../src/webserver/private/js/functions.js');
 const pathCustom = require('../src/libs/path.js');
 pathCustom.defineBaseDir(require.main.filename + '../../../../../../');
 const c = require(BASE_DIR_GET('/src/libs/config.js'));
-const LOG = require(BASE_DIR_GET('/src/libs/log.js')).setPath(BASE_DIR_GET('/data/log-test/'));
+const LOG = require(BASE_DIR_GET('/src/libs/log.js')).setup({path: __dirname + '/../data/log-test/'});
 require(BASE_DIR_GET('/src/webserver/webserver.js'));
 const http = require('http');
 const https = require('http');
