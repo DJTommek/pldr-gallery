@@ -19,10 +19,8 @@ module.exports = function (webserver, endpoint) {
 			res.result.setError('Wrong password').end();
 			return;
 		}
-		res.result.setResult(null, 'pldrGallery is going to kill in 2 seconds.').end();
-		LOG.head('(Web) Server is going to kill');
-		setTimeout(function () {
-			process.exit();
-		}, 2000);
+		res.result.setResult(null, 'pldrGallery is going to kill.').end();
+		LOG.info('(Web) Server is stopping...');
+		process.kill(process.pid, 'SIGINT');
 	});
 };
