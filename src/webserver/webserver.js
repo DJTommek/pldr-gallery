@@ -161,12 +161,12 @@ FS.readFile(BASE_DIR_GET('/src/webserver/private/index.html'), function (error, 
 	let promises = [];
 	let fileContent = data.toString();
 	[
-		'/src/webserver/private/less/main.less',
-		'/src/webserver/public/js/main.js',
+		'private/less/main.less',
+		'public/js/main.js',
 	].forEach(function (file) {
 		const htmlVariable = '{{CACHEBUSTER_' + file.replaceAll('/', '_').toUpperCase() + '}}';
 		promises.push(new Promise(function (resolve) {
-			FS.stat(BASE_DIR_GET(file), function (error, data) {
+			FS.stat(BASE_DIR_GET('/src/webserver/' + file), function (error, data) {
 				if (error) {
 					LOG.error('Error while creating cachebuster variable for "' + file + '": ' + error.message);
 					resolve();
