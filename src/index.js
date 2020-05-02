@@ -36,7 +36,7 @@ c.stop.events.forEach(function (signalCode) {
 	process.on(signalCode, function () {
 		LOG.head('Received "' + signalCode + '" signal, stopping everything');
 		Promise.all([
-			new Promise(function (resolve) {
+			new Promise(function (resolve, reject) {
 				if (webserver.httpServer) {
 					LOG.info('(Stop) closing HTTP server...');
 					webserver.httpServer.close(function () {
@@ -46,6 +46,9 @@ c.stop.events.forEach(function (signalCode) {
 				} else {
 					return resolve();
 				}
+				setTimeout(function() {
+					reject('Closing HTTP server timeouted after ' + c.stop.timeout + 'ms.');
+				}, c.stop.timeout);
 			}),
 			new Promise(function (resolve) {
 				if (webserver.httpsServer) {
@@ -56,6 +59,9 @@ c.stop.events.forEach(function (signalCode) {
 				} else {
 					return resolve();
 				}
+				setTimeout(function() {
+					reject('Closing HTTPS server timeouted after ' + c.stop.timeout + 'ms.');
+				}, c.stop.timeout);
 			}),
 		]).then(function () {
 			LOG.info('(Stop) Everything was successfully stopped.');
