@@ -30,4 +30,40 @@ try {
 LOG.info('***STARTING***');
 perms.load();
 // Start webserver(s)
-require('./webserver/webserver.js');
+const webserver = require('./webserver/webserver.js');
+
+c.stop.events.forEach(function (signalCode) {
+	process.on(signalCode, function () {
+		LOG.head('Received "' + signalCode + '" signal, stopping everything');
+		Promise.all([
+			new Promise(function (resolve) {
+				if (webserver.httpServer) {
+					LOG.info('(Stop) closing HTTP server...');
+					webserver.httpServer.close(function () {
+						LOG.info('(Stop) HTTP server closed.');
+						return resolve();
+					});
+				} else {
+					return resolve();
+				}
+			}),
+			new Promise(function (resolve) {
+				if (webserver.httpsServer) {
+					LOG.info('(Stop) closing HTTPS server...');
+					webserver.httpsServer.close(function () {
+						LOG.info('(Stop) HTTPS server closed.');
+					});
+				} else {
+					return resolve();
+				}
+			}),
+		]).then(function () {
+			LOG.info('(Stop) Everything was successfully stopped.');
+		}).catch(function(error) {
+			LOG.error('(Stop) Catched error while stopping: ' + error);
+		}).finally(function () {
+			LOG.info('(Stop) Finally exitting.');
+			process.exit();
+		})
+	});
+});

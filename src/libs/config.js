@@ -144,6 +144,10 @@ let CONFIG = {
 			rename: {},
 		},
 	},
+	stop: {
+		// List of events to register as stopping app
+		events: ['SIGINT', 'SIGTERM', 'SIGQUIT'],
+	},
 
 	/**
 	 * Following values are mostly just placeholders, dont forget to set them in config.local.js
