@@ -147,6 +147,8 @@ let CONFIG = {
 	stop: {
 		// List of events to register as stopping app
 		events: ['SIGINT', 'SIGTERM', 'SIGQUIT'],
+		// If after a while is stil not closed, force close
+		timeout: 5 * 1000,
 	},
 
 	/**
