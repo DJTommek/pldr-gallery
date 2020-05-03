@@ -16,7 +16,7 @@ docker run \
  -d \
  --name pldr-gallery-production \
  -p 3000:3000 \
- -v /var/www/nodejs/pldr-gallery/production/docker/data/:/app/data \
+ -v /var/www/nodejs/pldr-gallery/production/docker-data/:/app/data \
  -v /srv/photos/:/app/demo \
  --restart unless-stopped \
  djtommek/pldr-gallery:master
@@ -41,6 +41,6 @@ docker run \
  -d \
  --name pldr-gallery-development \
  -p 3005:3000 \
- -v /var/www/nodejs/pldr-gallery/development/docker/data/:/app/data \
+ -v /var/www/nodejs/pldr-gallery/development/docker-data/:/app/data \
  djtommek/pldr-gallery:development
 ```
