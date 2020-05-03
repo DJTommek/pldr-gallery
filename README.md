@@ -17,6 +17,8 @@ Note: it should work with version 10, but some functions such as searching might
 1. Run `node index.js`
 1. Open http://localhost:3000/
 
+[Docker](https://docker.io/) is fully supported, see [this page](docs/docker.md) for more info.
+
 ## Features
 - Fast browsing of folders and files on your hard drive without any need to reload the page
 - Image, video and audio is fully supported thanks to HML5. Other files can be downloaded directly
