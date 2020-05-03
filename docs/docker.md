@@ -32,8 +32,8 @@ Using development branch
 ### Build 
 ```
 docker build \
- -t djtommek/pldr-gallery:development 
- https://github.com/DJTommek/pldr-gallery.git:development
+ -t djtommek/pldr-gallery:development \
+ https://github.com/DJTommek/pldr-gallery.git#development
 ```
 ### Run
 ```
