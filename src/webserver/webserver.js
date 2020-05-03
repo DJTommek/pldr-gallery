@@ -217,7 +217,6 @@ FS.readFile(BASE_DIR_GET('/src/webserver/private/index.html'), function (error, 
 			},
 		}));
 		// build final index file
-		console.log(BASE_DIR_GET('/src/webserver/public/index.html'));
 		FS.writeFile(BASE_DIR_GET('/src/webserver/public/index.html'), fileContent, function (error) {
 			if (error) {
 				LOG.fatal('(Webserver) Fatal error while saving generated public/index.html file: ' + error.message);
