@@ -1,7 +1,7 @@
 # Docker
 Docker is fully supported, yay!
 
-`docker stop <your container>` will gracefully end everything and stop server by itself.
+`docker stop <your container>` will gracefully end everything and stop the server.
 
 ## Production 
 ### Build 
@@ -22,7 +22,7 @@ docker run \
  djtommek/pldr-gallery:master
 ```
 Notes:
-- mounting `data/` folder to your local machine is not necessary, but it allow you to easily manage local config and view logs
+- mounting `data/` folder to your local machine is not necessary, but it allows you to easily manage local config and view logs
     - if you do so, don't forget to create local config in `/var/www/nodejs/pldr-gallery/production/docker/data/config.local.js` 
 - don't forget to mount your photos, videos, etc. (in production example it is in `/srv/photos`) 
 - if you are using HTTPS server, don't forget to expose both ports: `-p 3000-3001:3000-3001` or whatever is in your local config
