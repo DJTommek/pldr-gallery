@@ -38,8 +38,10 @@
 			"node_modules/*",
 			"demo/*",
 			"test/*",
-			"log/*",
-			"tokens/*",
+			"data/log/*",
+			"data/log-test/*",
+			"data/tokens/*",
+			"temp/*",
 			"public/js/modules.min.js"
 		],
 		"watch": [
