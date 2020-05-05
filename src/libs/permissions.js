@@ -2,14 +2,25 @@ const CONFIG = require('./config.js');
 const FS = require("fs");
 const LOG = require('./log.js');
 const pathCustom = require('./path.js');
+const knex = require('knex')(CONFIG.db.knex);
 
 let users = {};
+let users2 = {
+	x: [],
+};
 let passwords = {};
 
 module.exports.GROUPS = {
 	ALL: 1,
 	NON_LOGGED: 2,
 	LOGGED: 3,
+}
+
+module.exports.getAllUsers = function () {
+	return users;
+}
+module.exports.getAllPasswords = function () {
+	return passwords;
 }
 
 function parsePermFile(filePath, callback) {
@@ -48,6 +59,34 @@ function loadUsers(callback) {
 		users = perms;
 		callback(error);
 	});
+}
+
+async function loadUsersDb(callback) {
+	// select all
+	(await knex(CONFIG.db.table.permission)
+			.select('group_id', {bla: knex.raw('GROUP_CONCAT(permission)')})
+			// .where({group_id: module.exports.GROUPS.ALL})
+			.whereNotNull('group_id')
+			.whereNull('user_id')
+			.groupBy('group_id')
+	).forEach(function (data) {
+		console.log(data)
+		// users2.x.push(data.permission)
+	});
+	console.log(users2)
+	// @TODO select non-logged
+	// @TODO select logged
+	// Select permissions for users
+	// (await knex(CONFIG.db.table.permission).select('user_id', 'GROUP_CONCAT(permission)').where({group_id: module.exports.GROUPS.ALL})).forEach(function(data) {
+	// 	users2.x.push(data.permission)
+	// });
+	/*
+	SELECT user_id, GROUP_CONCAT(permission)
+	FROM permission
+	WHERE group_id = 1
+	GROUP BY user_id
+
+	 */
 }
 
 function loadPasswords(callback) {
@@ -118,4 +157,5 @@ function load(callback) {
 			}
 		});
 	});
+	loadUsersDb()
 }
