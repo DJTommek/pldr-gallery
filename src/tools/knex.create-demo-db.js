@@ -66,7 +66,6 @@ async function purgeData() {
 			.dropTable(c.db.table.user_group)
 			.dropTable(c.db.table.user)
 			.dropTable(c.db.table.group)
-		LOG.info('(Knex) Data purged');
 	} catch(error) {
 		console.log(error)
 	}
