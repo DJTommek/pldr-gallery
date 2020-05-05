@@ -6,6 +6,12 @@ const pathCustom = require('./path.js');
 let users = {};
 let passwords = {};
 
+module.exports.GROUPS = {
+	ALL: 1,
+	NON_LOGGED: 2,
+	LOGGED: 3,
+}
+
 function parsePermFile(filePath, callback) {
 	FS.readFile(filePath, 'utf8', function (error, data) {
 		if (error) {

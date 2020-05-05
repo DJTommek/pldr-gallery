@@ -152,6 +152,31 @@ let CONFIG = {
 	},
 
 	/**
+	 * Database settings
+	 */
+	db: {
+		/**
+		 * Options to Knex
+		 *
+		 * @see https://github.com/knex/knex
+		 * @see http://knexjs.org/#Installation-node
+		 */
+		knex: {
+			client: 'sqlite3',
+			connection: {
+				filename: 'pldr-gallery.sqlite',
+			},
+			useNullAsDefault: true,
+		},
+		table: {
+			permission: 'pldrg_permission',
+			user_group: 'pldrg_user_group',
+			user: 'pldrg_user',
+			group: 'pldrg_group',
+		}
+	},
+
+	/**
 	 * Following values are mostly just placeholders, dont forget to set them in config.local.js
 	 */
 	// path to folders and files, where you want to set "root". Can be dynamic or absolute.
