@@ -2,7 +2,7 @@ const CONFIG = require('./config.js');
 const FS = require("fs");
 const LOG = require('./log.js');
 const pathCustom = require('./path.js');
-const knex = require('knex')(CONFIG.db.knex);
+const knex = require('./database');
 
 let users = {};
 let users2 = {
@@ -64,7 +64,7 @@ function loadUsers(callback) {
 async function loadUsersDb(callback) {
 	// select all
 	(await knex(CONFIG.db.table.permission)
-			.select('group_id', {bla: knex.raw('GROUP_CONCAT(permission)')})
+			.select('group_id', {permissions: knex.raw('GROUP_CONCAT(permission SEPARATOR \';\')')})
 			// .where({group_id: module.exports.GROUPS.ALL})
 			.whereNotNull('group_id')
 			.whereNull('user_id')
@@ -136,7 +136,12 @@ function getPass(password) {
 }
 
 exports.load = load;
+exports.loadNew = loadNew;
 
+function loadNew(callback) {
+	loadUsersDb();
+	return (typeof callback === 'function' && callback(false));
+}
 function load(callback) {
 	LOG.log("(Permissions) Loading permissions (users and passwords)");
 	loadUsers(function (errorPerms) {
@@ -157,5 +162,5 @@ function load(callback) {
 			}
 		});
 	});
-	loadUsersDb()
 }
+
