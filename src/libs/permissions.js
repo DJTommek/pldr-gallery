@@ -2,19 +2,22 @@ const CONFIG = require('./config.js');
 const FS = require("fs");
 const LOG = require('./log.js');
 const pathCustom = require('./path.js');
-const knex = require('./database');
-
-let users = {};
-let users2 = {
-	x: [],
-};
-let passwords = {};
+const knex = require('./database.js');
 
 module.exports.GROUPS = {
 	ALL: 1,
 	NON_LOGGED: 2,
 	LOGGED: 3,
 }
+
+let groups = {
+	[module.exports.GROUPS.ALL]: [],
+	[module.exports.GROUPS.NON_LOGGED]: [],
+	[module.exports.GROUPS.LOGGED]: [],
+}
+
+let users = {};
+let passwords = {};
 
 module.exports.getAllUsers = function () {
 	return users;
@@ -23,76 +26,52 @@ module.exports.getAllPasswords = function () {
 	return passwords;
 }
 
-function parsePermFile(filePath, callback) {
-	FS.readFile(filePath, 'utf8', function (error, data) {
-		if (error) {
-			return (typeof callback === 'function' && callback('Error while loading "' + filePath + '": ' + error));
-		}
-		try {
-			let perms = {};
-			let lines = data.split("\n");
-			let indexes = [];
-			lines.some(function (line) {
-				if (line.match(/^#/)) { // Ignore comments
-				} else if (line.trim() === '') { // lane is empty, reset indexes
-					indexes = [];
-				} else if (!line.match(/^ /)) { // line dont start with space so it is index
-					indexes.push(line);
-					if (perms[line] === undefined) {
-						perms[line] = [];
-					}
-				} else { // line is some permission, save it to all currently loaded indexes
-					indexes.some(function (index) {
-						perms[index].push(line.trim());
-					});
-				}
-			});
-			return (typeof callback === 'function' && callback(false, perms));
-		} catch (error) {
-			return (typeof callback === 'function' && callback('Error while parsing "' + filePath + '": ' + error));
-		}
-	});
-}
-
-function loadUsers(callback) {
-	parsePermFile(CONFIG.path + '.pmg_perms', function (error, perms) {
-		users = perms;
-		callback(error);
-	});
-}
-
 async function loadUsersDb(callback) {
-	// select all
-	(await knex(CONFIG.db.table.permission)
-			.select('group_id', {permissions: knex.raw('GROUP_CONCAT(permission SEPARATOR \';\')')})
-			// .where({group_id: module.exports.GROUPS.ALL})
-			.whereNotNull('group_id')
-			.whereNull('user_id')
-			.groupBy('group_id')
+	(await knex(CONFIG.db.table.user)
+			.select(
+				CONFIG.db.table.user + '.id',
+				CONFIG.db.table.user + '.email',
+				{permissions: knex.raw('GROUP_CONCAT(' + CONFIG.db.table.permission + '.permission SEPARATOR \';\')')}
+				)
+			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.user_id', CONFIG.db.table.user + '.id')
+			.groupBy(CONFIG.db.table.user + '.id')
 	).forEach(function (data) {
-		console.log(data)
-		// users2.x.push(data.permission)
+		console.log(typeof data['id']);
+		users[data['id']] = new User(
+			data['id'],
+			data['email'],
+			(data['permissions'] ? data['permissions'].split(';') : []),
+		);
 	});
-	console.log(users2)
-	// @TODO select non-logged
-	// @TODO select logged
-	// Select permissions for users
-	// (await knex(CONFIG.db.table.permission).select('user_id', 'GROUP_CONCAT(permission)').where({group_id: module.exports.GROUPS.ALL})).forEach(function(data) {
-	// 	users2.x.push(data.permission)
-	// });
-	/*
-	SELECT user_id, GROUP_CONCAT(permission)
-	FROM permission
-	WHERE group_id = 1
-	GROUP BY user_id
-
-	 */
 }
 
-function loadPasswords(callback) {
-	parsePermFile(CONFIG.path + '.pmg_passwords', function (error, perms) {
-		passwords = perms;
-		callback(error);
+async function loadGroupsDb(callback) {
+	(await knex(CONFIG.db.table.group)
+			.select(
+				CONFIG.db.table.group + '.id',
+				CONFIG.db.table.group + '.name',
+				{permissions: knex.raw('GROUP_CONCAT(' + CONFIG.db.table.permission + '.permission SEPARATOR \';\')')}
+				)
+			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.group_id', CONFIG.db.table.group + '.id')
+			.groupBy(CONFIG.db.table.group + '.id')
+	).forEach(function (data) {
+		groups[data['id']] = new Group(
+			data['id'],
+			data['name'],
+			(data['permissions'] ? data['permissions'].split(';') : []),
+		);
+	});
+}
+
+async function loadUserGroupDb(callback) {
+	// select all
+	(await knex(CONFIG.db.table.user_group)
+			.select('user_id', 'group_id')
+	).forEach(function (data) {
+		const user = users[data['user_id'] + ''];
+		const group = groups[data['group_id'] + ''];
+		group.addUser(user);
+		user.addGroup(group);
 	});
 }
 
@@ -135,32 +114,37 @@ function getPass(password) {
 	return ((perms) ? perms : []);
 }
 
-exports.load = load;
 exports.loadNew = loadNew;
 
-function loadNew(callback) {
-	loadUsersDb();
+async function loadNew(callback) {
+	await loadGroupsDb();
+	await loadUsersDb();
+	await loadUserGroupDb();
+	console.log(groups);
+	console.log(users);
 	return (typeof callback === 'function' && callback(false));
 }
-function load(callback) {
-	LOG.log("(Permissions) Loading permissions (users and passwords)");
-	loadUsers(function (errorPerms) {
-		loadPasswords(function (errorPass) {
-			if (!errorPerms && !errorPass) {
-				LOG.log('(Permissions) Passwords (' + Object.keys(passwords).length + ') and users (' + Object.keys(users).length + ') permissions were loaded.');
-				LOG.debug('(Permissions) Passwords: ' + JSON.stringify(passwords), {console: false});
-				LOG.debug('(Permissions) Users: ' + JSON.stringify(users), {console: false});
-				return (typeof callback === 'function' && callback(false));
-			}
-			if (errorPass) {
-				LOG.error('(Permissions) ' + errorPass);
-				return (typeof callback === 'function' && callback(errorPass));
-			}
-			if (errorPerms) {
-				LOG.error('(Permissions) ' + errorPerms);
-				return (typeof callback === 'function' && callback(errorPerms));
-			}
-		});
-	});
+
+class User {
+	constructor(id, email, permissions) {
+		this.id = id;
+		this.email = email;
+		this.permissions = permissions;
+		this.groups = [];
+	}
+	addGroup(group) {
+		this.groups.push(group);
+	}
 }
 
+class Group {
+	constructor (id, name, permissions) {
+		this.id = id;
+		this.name = name;
+		this.permissions = permissions;
+		this.users = [];
+	}
+	addUser(user) {
+		this.users.push(user);
+	}
+}

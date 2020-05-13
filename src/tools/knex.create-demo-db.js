@@ -100,6 +100,7 @@ async function fillDemoData() {
 	await knex.batchInsert(c.db.table.permission, [
 		// users
 		{user_id: 1, permission: '/permissions/4 - visible for user1/'},
+		{user_id: 1, permission: '/permissions/4 - another visible for user1/'},
 		{user_id: 4, permission: '/'},
 		// group:
 		{group_id: 4, permission: '/permissions/secured-folder/'},
