@@ -264,6 +264,21 @@ if (c.thumbnails.folder.enabled === true && c.thumbnails.folder.cache === true) 
 }
 
 /**
+ * Create folder for saving login tokens
+ */
+FS.access(c.http.login.tokensPath, (err) => {
+    if (err) { // folder doesn't exists
+		FS.mkdir(c.http.login.tokensPath, {recursive: true}, function (error) {
+			if (error) {
+				LOG.error('(Login) Error while creating folder for login tokens: ' + error.message);
+			} else {
+        		LOG.info("(Login) Created folder for saving login tokens.");
+			}
+		});
+    }
+});
+
+/**
  * Check all files for last update time and return the newest time
  *
  * @param {[string]} files which should be checked
