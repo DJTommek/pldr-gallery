@@ -117,11 +117,11 @@ function getPass(password) {
 exports.loadNew = loadNew;
 
 async function loadNew(callback) {
+	LOG.info('(Perms) Loading permissions...');
 	await loadGroupsDb();
 	await loadUsersDb();
 	await loadUserGroupDb();
-	console.log(groups);
-	console.log(users);
+	LOG.info('(Perms) Permissions were loaded and indexed: ' + Object.keys(users).length + ' users and ' + Object.keys(groups).length + ' groups.');
 	return (typeof callback === 'function' && callback(false));
 }
 

@@ -28,13 +28,11 @@ try {
 }
 
 LOG.info('***STARTING***');
-perms.load(function(error) {
-	if (error) {
-		LOG.fatal('(Permissions) Error while loading permissions, check if permission files are accessible in defined path: ' + c.path);
-	}
-});
+(async function () {
+	await perms.loadNew();
+	const webserver = require('./webserver/webserver.js');
+}());
 // Start webserver(s)
-const webserver = require('./webserver/webserver.js');
 
 c.stop.events.forEach(function (signalCode) {
 	process.on(signalCode, function () {
@@ -50,7 +48,7 @@ c.stop.events.forEach(function (signalCode) {
 				} else {
 					return resolve();
 				}
-				setTimeout(function() {
+				setTimeout(function () {
 					reject('Closing HTTP server timeouted after ' + c.stop.timeout + 'ms.');
 				}, c.stop.timeout);
 			}),
@@ -63,13 +61,13 @@ c.stop.events.forEach(function (signalCode) {
 				} else {
 					return resolve();
 				}
-				setTimeout(function() {
+				setTimeout(function () {
 					reject('Closing HTTPS server timeouted after ' + c.stop.timeout + 'ms.');
 				}, c.stop.timeout);
 			}),
 		]).then(function () {
 			LOG.info('(Stop) Everything was successfully stopped.');
-		}).catch(function(error) {
+		}).catch(function (error) {
 			LOG.error('(Stop) Catched error while stopping: ' + error);
 		}).finally(function () {
 			LOG.info('(Stop) Finally exitting.');
