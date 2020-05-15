@@ -28,7 +28,11 @@ try {
 }
 
 LOG.info('***STARTING***');
-perms.load();
+perms.load(function(error) {
+	if (error) {
+		LOG.fatal('(Permissions) Error while loading permissions, check if permission files are accessible in defined path: ' + c.path);
+	}
+});
 // Start webserver(s)
 const webserver = require('./webserver/webserver.js');
 
