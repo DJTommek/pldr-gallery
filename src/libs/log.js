@@ -196,7 +196,7 @@ module.exports.log = function (message, severity, params) {
 	}
 	// Exit application if necessary
 	if (logParams.quit === true) {
-		process.exit();
+		process.kill(process.pid, 'SIGINT');
 	}
 };
 
