@@ -13,10 +13,6 @@ module.exports = {
 	// Relative: ./photos/
 	path: './demo/',
 
-	// Settings for Cache
-	cache: {
-		path: BASE_DIR_GET('/cache/'), // Base path, where all cache files will be generated. All types has its own subfolders
-	},
 	thumbnails: {
 		image: {
 			// false: generate thumbnails on every request (save space on drive)
