@@ -30,7 +30,7 @@ module.exports = function (webserver, endpoint) {
 
 		function generateSpecificFilePromise(filename) {
 			return new Promise(function (resolve) {
-				if (perms.test(res.locals.user.getPermissions(), res.locals.path + filename) === false) { // user dont have permission to this file
+				if (res.locals.user.testPathPermission(res.locals.path + filename) === false) { // user dont have permission to this file
 					return resolve(null);
 				}
 				FS.readFile(res.locals.fullPathFolder + filename, function (error, data) {
