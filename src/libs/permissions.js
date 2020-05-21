@@ -216,6 +216,13 @@ class User {
 	}
 
 	/**
+	 * Remove passwords attached to this User to prevent duplicates
+	 */
+	clearPasswords() {
+		this.passwords = [];
+	}
+
+	/**
 	 * Check if user has permissions for given path
 	 *
 	 * @param {string} path

@@ -58,7 +58,7 @@ module.exports = function (webserver, baseEndpoint) {
 		}
 
 		// Try load and merge perms if user has some passwords
-		// @TODO update to work with new permission system
+		res.locals.user.clearPasswords();
 		try {
 			let passwordCookie = req.cookies['pmg-passwords'];
 			if (!passwordCookie) {
