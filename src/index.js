@@ -30,14 +30,13 @@ try {
 LOG.info('***STARTING***');
 (async function () {
 	await perms.load();
-	const users = perms.getAllUsers();
-	console.log(users);
-	const permissions = users[4].getPermissions();
-	console.log(permissions);
+	const passwords = perms.getAllPasswords();
+	console.log(passwords);
 
 	// Start webserver(s)
-	const webserver = require('./webserver/webserver.js');
 }());
+
+const webserver = require('./webserver/webserver.js');
 
 c.stop.events.forEach(function (signalCode) {
 	process.on(signalCode, function () {

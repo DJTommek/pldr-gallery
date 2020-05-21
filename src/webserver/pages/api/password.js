@@ -24,7 +24,7 @@ module.exports = function (webserver, endpoint) {
 					cookiePasswords.split(',').forEach(function (password) {
 						passwordPerms.push({
 							password: password,
-							permissions: perms.getPass(password)
+							permissions: perms.getPassword(password)
 						});
 					});
 				}
@@ -38,8 +38,8 @@ module.exports = function (webserver, endpoint) {
 
 		try {
 			// Passsword parameter is set. Check, if there are any permission to this cookie
-			let passwordPerms = perms.getPass(req.query.password);
-			if (passwordPerms.length === 0) {
+			let passwordObject = perms.getPassword(req.query.password);
+			if (!passwordObject) {
 				throw new Error('invalid password.');
 			}
 			// Password is valid, save it into cookie (or create it if not set before)
@@ -55,7 +55,7 @@ module.exports = function (webserver, endpoint) {
 			// return list of permissions to this password
 			res.result.setResult({
 				password: req.query.password,
-				permissions: passwordPerms
+				permissions: passwordObject
 			}, 'Password "' + req.query.password + '" is valid.');
 			if (req.xhr) {
 				// no redirect if ajax request
@@ -63,7 +63,7 @@ module.exports = function (webserver, endpoint) {
 				// no redirect if param redirect=false
 			} else {
 				// automatic redirect to the folder
-				let redirectFolder = passwordPerms[0];
+				let redirectFolder = passwordObject.getPermissions()[0];
 				if (redirectFolder.slice(-1) !== '/') {
 					// this is not folder, redirect to dirname of this path
 					redirectFolder = pathCustom.dirname(redirectFolder);
