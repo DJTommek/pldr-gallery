@@ -173,6 +173,7 @@ let CONFIG = {
 			user_group: 'pldrg_user_group',
 			user: 'pldrg_user',
 			group: 'pldrg_group',
+			password: 'pldrg_password',
 		}
 	},
 
