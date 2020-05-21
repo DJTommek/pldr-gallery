@@ -64,8 +64,11 @@ module.exports = function (webserver, baseEndpoint) {
 			if (!passwordCookie) {
 				throw new Error('No password cookie is available');
 			}
-			passwordCookie.split(',').forEach(function (pass) {
-				userPerms = perms.getPass(pass).concat(userPerms);
+			passwordCookie.split(',').forEach(function (password) {
+				const passwordObject = perms.getPassword(password);
+				if (passwordObject) {
+					res.locals.user.addPassword(passwordObject);
+				}
 			});
 		} catch (error) {
 			// Do nothing, probably user just dont have cookie
