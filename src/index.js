@@ -30,12 +30,9 @@ try {
 LOG.info('***STARTING***');
 (async function () {
 	await perms.load();
-	const passwords = perms.getAllPasswords();
-	console.log(passwords);
-
-	// Start webserver(s)
 }());
 
+// Start webserver(s)
 const webserver = require('./webserver/webserver.js');
 
 c.stop.events.forEach(function (signalCode) {
