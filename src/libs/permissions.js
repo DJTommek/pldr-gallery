@@ -216,6 +216,17 @@ class User {
 	}
 
 	/**
+	 * Check if user has permissions for given path
+	 *
+	 * @param {string} path
+	 * @param {boolean} fullAccess @see permissionCheck()
+	 * @return {boolean}
+	 */
+	testPathPermission(path, fullAccess = false) {
+		return permissionCheck(this.getPermissions(), path, fullAccess);
+	}
+
+	/**
 	 * Get all permissions merged from user, groups and passwords
 	 *
 	 * @returns {string[]}
