@@ -180,14 +180,13 @@ exports.getPassword = function getPassword(password) {
 	return null;
 }
 
-exports.load = async function load(callback) {
+exports.load = async function load() {
 	LOG.info('(Perms) Loading permissions...');
 	await loadPasswordsDb();
 	await loadGroupsDb();
 	await loadUsersDb();
 	await loadUserGroupRelations();
-	LOG.info('(Perms) Permissions were loaded and indexed: ' + Object.keys(USERS).length + ' users and ' + Object.keys(GROUPS).length + ' groups.');
-	return (typeof callback === 'function' && callback(false));
+	LOG.info('(Perms) Permissions were loaded and indexed: ' + Object.keys(USERS).length + ' users, ' + Object.keys(GROUPS).length + ' groups and ' + Object.keys(PASSWORDS).length + ' passwords.');
 }
 
 class User {
