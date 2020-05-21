@@ -66,7 +66,7 @@ module.exports = function (webserver, endpoint) {
 					return; // not match with searched query
 				}
 
-				if (perms.test(res.locals.userPerms, entryPath) === false) {
+				if (perms.test(res.locals.user.getPermissions(), entryPath) === false) {
 					return; // user dont have permission to this item
 				}
 

@@ -18,13 +18,12 @@ module.exports = function (webserver, baseEndpoint) {
 	 * @returns next()
 	 */
 	webserver.get(baseEndpoint + '/[a-z-]+', function (req, res, next) {
-		// Load default user permissions
-		let userPerms = perms.getUser('x');
+
 		// Try load perms for logged user
 		try {
 			let token = req.cookies[c.http.login.name];
-
 			// cookie dont exists or is invalid
+
 			if (!token || !token.match("^[a-f0-9]{40}$")) {
 				throw new Error('Musis se <a href="/login">prihlasit</a>.');
 			}
@@ -42,17 +41,24 @@ module.exports = function (webserver, baseEndpoint) {
 			// Everything is ok
 			let cookieContent = JSON.parse(FS.readFileSync(cookieFilePath).toString());
 
-			res.locals.user = cookieContent.email;
-			// load logged user permissions and merge with default user permissions
-			userPerms = perms.getUser(cookieContent.email).concat(userPerms);
+			// load logged user
+			res.locals.user = perms.getUser(cookieContent.email);
+
+			if (!res.locals.user) {
+				// logged user is not known, get temporary user object
+				res.locals.user = perms.getUnknownLoggedUser(cookieContent.email);
+			}
 
 			// update cookie expiration on the server
 			FS.utimesSync(cookieFilePath, new Date(), new Date());
 		} catch (error) {
+			// user is not logged, ignore errors and continue as unlogged
 			res.clearCookie(c.http.login.name);
+			res.locals.user = perms.getNonLoggedUser();
 		}
 
 		// Try load and merge perms if user has some passwords
+		// @TODO update to work with new permission system
 		try {
 			let passwordCookie = req.cookies['pmg-passwords'];
 			if (!passwordCookie) {
@@ -65,16 +71,10 @@ module.exports = function (webserver, baseEndpoint) {
 			// Do nothing, probably user just dont have cookie
 		}
 
-		// If user has master permission to root, remove all other permissions
-		if (userPerms.indexOf('/') >= 0) {
-			userPerms = ['/'];
-		}
-		res.locals.userPerms = userPerms;
-
-		LOG.info('(Web) Api access ' + req.path + ', user "' + (res.locals.user || 'x') + '"');
+		LOG.info('(Web) Api access ' + req.path + ', user "' + (res.locals.user ? res.locals.user.email : 'x') + '"');
 
 		if (req.query.path) {
-			const result = HFS.pathMasterCheck(c.path, req.query.path, res.locals.userPerms, perms.test);
+			const result = HFS.pathMasterCheck(c.path, req.query.path, res.locals.user.getPermissions(), perms.test);
 			Object.assign(res.locals, result);
 			if (result.error) {
 				// log to debug because anyone can generate invalid paths

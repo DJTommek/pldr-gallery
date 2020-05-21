@@ -30,7 +30,7 @@ module.exports = function (webserver, endpoint) {
 
 		function generateSpecificFilePromise(filename) {
 			return new Promise(function (resolve) {
-				if (perms.test(res.locals.userPerms, res.locals.path + filename) === false) { // user dont have permission to this file
+				if (perms.test(res.locals.user.getPermissions(), res.locals.path + filename) === false) { // user dont have permission to this file
 					return resolve(null);
 				}
 				FS.readFile(res.locals.fullPathFolder + filename, function (error, data) {
@@ -46,8 +46,8 @@ module.exports = function (webserver, endpoint) {
 		}
 
 		Promise.all([
-			getItemsHelper.folders(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms, {limit: itemLimit}),
-			getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms, {limit: itemLimit, coords: true, stat: true}),
+			getItemsHelper.folders(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), {limit: itemLimit}),
+			getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), {limit: itemLimit, coords: true, stat: true}),
 			generateSpecificFilePromise('header.html'),
 			generateSpecificFilePromise('footer.html'),
 		]).then(function (data) {

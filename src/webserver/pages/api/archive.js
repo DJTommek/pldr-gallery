@@ -22,7 +22,7 @@ module.exports = function (webserver, endpoint) {
 		}
 		// name generated from folder, which is being archived. For root it is default name
 		const zipFile = encodeURI((res.locals.path.split('/').last(2) || 'archive') + '.' + c.archive.format);
-		getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms, {recursive: true}).then(function (data) {
+		getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), {recursive: true}).then(function (data) {
 			try {
 				const archive = Archiver(c.archive.format, c.archive.options);
 				archive.on('error', function (error) {
