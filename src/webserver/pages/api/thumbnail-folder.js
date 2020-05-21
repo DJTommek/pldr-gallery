@@ -30,7 +30,7 @@ module.exports = function (webserver, endpoint) {
 		// generated from images, that are not allowed. Possible bad use case:
 		// User1 with full access generate thumbnail from images 1, 2, 3, 4 and save it to cache
 		// User2 with access to images 1, 2 is able to see thumbnail generated from images 1, 2, 3, 4 because it was cached before
-		const canUseCache = perms.test(res.locals.userPerms, res.locals.path, true);
+		const canUseCache = perms.test(res.locals.user.getPermissions(), res.locals.path, true);
 
 		// Use cached file if possible
 		const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.FOLDER, res.locals.path, true);
@@ -41,7 +41,7 @@ module.exports = function (webserver, endpoint) {
 		}
 
 		// load all image files from folder
-		getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.userPerms).then(function (data) {
+		getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions()).then(function (data) {
 			const imagesInFolder = data.items.filter(function (item) {
 				return item.isImage;
 			});

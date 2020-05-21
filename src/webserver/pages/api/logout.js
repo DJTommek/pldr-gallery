@@ -16,7 +16,7 @@ module.exports = function (webserver, endpoint) {
 		res.setHeader("Content-Type", "application/json");
 		res.statusCode = 200;
 		try {
-			if (!res.locals.user) { // is logged (it means cookie is valid)
+			if (!res.locals.user.email) { // is logged (it means cookie is valid)
 				throw new Error('Not logged in.');
 			}
 			let token = req.cookies[c.http.login.name];

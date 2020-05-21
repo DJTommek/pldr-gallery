@@ -10,7 +10,7 @@ module.exports = function (webserver, endpoint) {
 	webserver.post(endpoint, function (req, res) {
 		res.setHeader("Content-Type", "application/json");
 		res.statusCode = 200;
-		let msg = '(Report) User "' + (res.locals.user ? res.locals.user : 'x') + '" is reporting ';
+		let msg = '(Report) User "' + (res.locals.user ? res.locals.user.email : 'x') + '" is reporting ';
 		if (req.body.type && req.body.type.match(/^[a-zA-Z0-9_\-.]{1,20}$/) && req.body.raw) {
 			switch (req.body.type) {
 				case 'javascript':
