@@ -116,6 +116,7 @@ async function fillDemoData() {
 		{group_id: perms.GROUPS.ALL, permission: '/thumbnails/'},
 		{group_id: perms.GROUPS.ALL, permission: '/header.html'},
 		{group_id: perms.GROUPS.ALL, permission: '/footer.html'},
+		{group_id: perms.GROUPS.ALL, permission: '/image-'},
 	]);
 	LOG.info('(Knex) DB filled with permissions');
 	process.exit();
