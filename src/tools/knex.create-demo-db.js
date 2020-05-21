@@ -20,14 +20,25 @@ module.exports.run = async function run(purgeFirst = false, insertDemoData = tru
 	if (purgeFirst === true) {
 		await purgeData();
 	}
+	LOG.info('(Knex) Creating table "' + c.db.table.user + '"...');
 	await knex.schema.createTable(c.db.table.user, function (table) {
 		table.increments('id');
 		table.string('email');
 	});
+	LOG.info('(Knex) Created table "' + c.db.table.user + '".');
+	LOG.info('(Knex) Creating table "' + c.db.table.group + '"...');
 	await knex.schema.createTable(c.db.table.group, function (table) {
 		table.increments('id');
 		table.string('name');
 	})
+	LOG.info('(Knex) Created table "' + c.db.table.group + '".');
+	LOG.info('(Knex) Creating table "' + c.db.table.password + '"...');
+	await knex.schema.createTable(c.db.table.password, function (table) {
+		table.increments('id');
+		table.string('password');
+	})
+	LOG.info('(Knex) Created table "' + c.db.table.password + '".');
+	LOG.info('(Knex) Creating table "' + c.db.table.user_group + '"...');
 	await knex.schema.createTable(c.db.table.user_group, function (table) {
 		table
 			.integer('user_id')
@@ -40,6 +51,8 @@ module.exports.run = async function run(purgeFirst = false, insertDemoData = tru
 			.notNullable()
 			.references(c.db.table.group + '.id');
 	})
+	LOG.info('(Knex) Created table "' + c.db.table.user_group + '".');
+	LOG.info('(Knex) Creating table "' + c.db.table.permission + '"...');
 	await knex.schema.createTable(c.db.table.permission, function (table) {
 		table.increments('id');
 		table
@@ -51,8 +64,13 @@ module.exports.run = async function run(purgeFirst = false, insertDemoData = tru
 			.unsigned()
 			.references(c.db.table.group + '.id');
 		table
+			.integer('password_id')
+			.unsigned()
+			.references(c.db.table.password + '.id');
+		table
 			.string('permission')
 	})
+	LOG.info('(Knex) Created table "' + c.db.table.permission + '".');
 	if (insertDemoData === true) {
 		await fillDemoData();
 	}
@@ -62,14 +80,16 @@ async function purgeData() {
 	LOG.info('(Knex) Purging data requested...');
 	try {
 		await knex.schema
-			.dropTable(c.db.table.permission)
-			.dropTable(c.db.table.user_group)
-			.dropTable(c.db.table.user)
-			.dropTable(c.db.table.group)
+			.dropTableIfExists(c.db.table.permission)
+			.dropTableIfExists(c.db.table.password)
+			.dropTableIfExists(c.db.table.user_group)
+			.dropTableIfExists(c.db.table.user)
+			.dropTableIfExists(c.db.table.group)
+			LOG.info('(Knex) Data purged');
 	} catch(error) {
-		console.log(error)
+		LOG.error('(Knex) Error while removing tables: ' + error.message);
+		throw error;
 	}
-	LOG.info('(Knex) Data purged');
 }
 
 async function fillDemoData() {
@@ -96,13 +116,23 @@ async function fillDemoData() {
 		{user_id: 3, group_id: 4},
 	]);
 	LOG.info('(Knex) DB filled with user-group relations');
+	LOG.info('(Knex) DB filling with password...');
+	await knex.batchInsert(c.db.table.password, [
+		{id: 1, password: 'password1'},
+		{id: 2, password: 'some password'},
+		{id: 3, password: 'permissions-show-footer'},
+		{id: 4, password: 'more permissions!'},
+		{id: 5, password: 'secured images'},
+		{id: 6, password: 'access-to-everything'},
+	]);
+	LOG.info('(Knex) DB filled with passwords');
 	LOG.info('(Knex) DB filling with permissions...');
 	await knex.batchInsert(c.db.table.permission, [
 		// users
 		{user_id: 1, permission: '/permissions/4 - visible for user1/'},
 		{user_id: 1, permission: '/permissions/4 - another visible for user1/'},
 		{user_id: 4, permission: '/'},
-		// group:
+		// group
 		{group_id: 4, permission: '/permissions/secured-folder/'},
 		// group: non-logged
 		{group_id: perms.GROUPS.ALL, permission: '/permissions/header.html'},
@@ -117,6 +147,22 @@ async function fillDemoData() {
 		{group_id: perms.GROUPS.ALL, permission: '/header.html'},
 		{group_id: perms.GROUPS.ALL, permission: '/footer.html'},
 		{group_id: perms.GROUPS.ALL, permission: '/image-'},
+		// passwords
+		{password_id: 1, permission: '/permissions/secured-folder/'},
+		{password_id: 1, permission: '/folder2/'},
+		{password_id: 1, permission: '/prefix-'},
+
+		{password_id: 2, permission: '/foo1/'},
+		{password_id: 2, permission: '/bar2/'},
+
+		{password_id: 3, permission: '/permissions/footer.html'},
+
+		{password_id: 4, permission: '/permissions/secured-folder/'},
+		{password_id: 4, permission: '/permissions/secured-folder-with-header/header.html'},
+
+		{password_id: 5, permission: '/permissions/secured-image'},
+
+		{password_id: 6, permission: '/permissions/'},
 	]);
 	LOG.info('(Knex) DB filled with permissions');
 	process.exit();
