@@ -1,5 +1,4 @@
 const CONFIG = require('./config.js');
-const FS = require("fs");
 const LOG = require('./log.js');
 const pathCustom = require('./path.js');
 const knex = require('./database.js');
@@ -10,14 +9,13 @@ module.exports.GROUPS = {
 	LOGGED: 3,
 }
 
+let USERS = {};
+let PASSWORDS = {};
 let GROUPS = {
 	[module.exports.GROUPS.ALL]: [],
 	[module.exports.GROUPS.NON_LOGGED]: [],
 	[module.exports.GROUPS.LOGGED]: [],
 }
-
-let USERS = {};
-let PASSWORDS = {};
 
 module.exports.getAllUsers = function () {
 	return USERS;
@@ -25,7 +23,6 @@ module.exports.getAllUsers = function () {
 module.exports.getAllPasswords = function () {
 	return PASSWORDS;
 }
-
 module.exports.getAllGroups = function () {
 	return GROUPS;
 }
@@ -43,6 +40,24 @@ async function loadGroupsDb() {
 		GROUPS[data['id']] = new Group(
 			data['id'],
 			data['name'],
+			(data['permissions'] ? data['permissions'].split(';') : []),
+		);
+	});
+}
+
+async function loadPasswordsDb() {
+	(await knex(CONFIG.db.table.password)
+			.select(
+				CONFIG.db.table.password + '.id',
+				CONFIG.db.table.password + '.password',
+				{permissions: knex.raw('GROUP_CONCAT(' + CONFIG.db.table.permission + '.permission SEPARATOR \';\')')}
+			)
+			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.password_id', CONFIG.db.table.password + '.id')
+			.groupBy(CONFIG.db.table.password + '.id')
+	).forEach(function (data) {
+		PASSWORDS[data['id']] = new Password(
+			data['id'],
+			data['password'],
 			(data['permissions'] ? data['permissions'].split(';') : []),
 		);
 	});
@@ -78,12 +93,6 @@ async function loadUserGroupRelations() {
 		group.addUser(user);
 		user.addGroup(group);
 	});
-
-	// create non-logged user and assign to generic groups
-	USERS[0] = new User(0, null, []);
-	USERS[0].addGroup(GROUPS[module.exports.GROUPS.ALL])
-	USERS[0].addGroup(GROUPS[module.exports.GROUPS.NON_LOGGED])
-
 }
 
 exports.test = permissionCheck;
@@ -111,9 +120,14 @@ function permissionCheck(permissions, path, fullAccess = false) {
 	return result;
 }
 
-exports.getUser = getUser;
-
-function getUser(email) {
+/**
+ * Search users saved in database
+ *
+ * @param {string} email
+ * @returns {User|null}
+ */
+exports.getUser = function getUser(email) {
+	// @TODO validate if email is string and valid email
 	for (const user_id in USERS) {
 		const user = USERS[user_id];
 		if (user.email === email) {
@@ -123,33 +137,52 @@ function getUser(email) {
 	return null;
 }
 
-exports.getNonLoggedUser = getNonLoggedUser;
-
-function getNonLoggedUser() {
-	return USERS[0];
+/**
+ * Generate new unlogged User without saving to database
+ *
+ * @returns {User}
+ */
+exports.getNonLoggedUser = function getNonLoggedUser() {
+	const nonLoggedUser = new User(0, null, []);
+	nonLoggedUser.addGroup(GROUPS[module.exports.GROUPS.ALL])
+	nonLoggedUser.addGroup(GROUPS[module.exports.GROUPS.NON_LOGGED])
+	return nonLoggedUser;
 }
 
-exports.getUnknownLoggedUser = getUnknownLoggedUser;
-
-function getUnknownLoggedUser(email) {
+/**
+ * Generate new User without saving to database
+ *
+ * @param {string} email
+ * @returns {User}
+ */
+exports.getUnknownLoggedUser = function getUnknownLoggedUser(email) {
+	// @TODO validate if email is string and valid email
 	// generate new user without saving and return default instance
 	const unknownLoggedUser = new User(null, email, []);
 	unknownLoggedUser.addGroup(GROUPS[module.exports.GROUPS.ALL])
-	unknownLoggedUser.addGroup(GROUPS[module.exports.GROUPS.NON_LOGGED])
+	unknownLoggedUser.addGroup(GROUPS[module.exports.GROUPS.LOGGED])
 	return unknownLoggedUser;
 }
 
-exports.getPass = getPass;
-
-function getPass(password) {
-	let perms = PASSWORDS[password];
-	return ((perms) ? perms : []);
+/**
+ * Get Password object by given password
+ *
+ * @param {string} password
+ * @returns {Password|null}
+ */
+exports.getPassword = function getPassword(password) {
+	for (const password_id in PASSWORDS) {
+		const passwordObject = PASSWORDS[password_id];
+		if (passwordObject.password === password) {
+			return passwordObject;
+		}
+	}
+	return null;
 }
 
-exports.load = load;
-
-async function load(callback) {
+exports.load = async function load(callback) {
 	LOG.info('(Perms) Loading permissions...');
+	await loadPasswordsDb();
 	await loadGroupsDb();
 	await loadUsersDb();
 	await loadUserGroupRelations();
@@ -163,16 +196,37 @@ class User {
 		this.email = email;
 		this.permissions = permissions;
 		this.groups = [];
+		this.passwords = [];
 	}
 
 	addGroup(group) {
-		this.groups.push(group);
+		if (group instanceof Group) {
+			this.groups.push(group);
+		} else {
+			throw new Error('Invalid parameter "group": not instance of Group');
+		}
 	}
 
+	addPassword(password) {
+		if (password instanceof Password) {
+			this.passwords.push(password);
+		} else {
+			throw new Error('Invalid parameter "password": not instance of Password');
+		}
+	}
+
+	/**
+	 * Get all permissions merged from user, groups and passwords
+	 *
+	 * @returns {string[]}
+	 */
 	getPermissions() {
 		let permissions = [...this.permissions];
 		for (const group of this.groups) {
 			permissions.push(...group.getPermissions());
+		}
+		for (const password of this.passwords) {
+			permissions.push(...password.getPermissions());
 		}
 		return permissions;
 	}
@@ -187,7 +241,23 @@ class Group {
 	}
 
 	addUser(user) {
-		this.users.push(user);
+		if (user instanceof User) {
+			this.users.push(user);
+		} else {
+			throw new Error('Invalid parameter "user": not instance of User');
+		}
+	}
+
+	getPermissions() {
+		return [...this.permissions];
+	}
+}
+
+class Password {
+	constructor(id, password, permissions) {
+		this.id = id;
+		this.password = password;
+		this.permissions = permissions;
 	}
 
 	getPermissions() {
