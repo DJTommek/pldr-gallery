@@ -1,0 +1,55 @@
+<div style="max-width: 900px; margin: 0 auto; text-align: justify">
+	<p>
+		If you didn't read info about permissions in general, read it first in folder <a href="#/permissions/">/permissions/</a>
+	</p>
+	<h3>Security</h3>
+	<p>
+		Password permissions works just like user and group permissions - all folders and files are visible and accessible ONLY if you have permission for them.
+		This means that even if you know the URL, you cannot access them, no matter if it is a folder, image, audio, header or any other file.<br>
+		For example, <a href="/api/image?path=JTJGcGFzc3dvcmRzJTJGdG90YWx5LXNlY3VyZWQtaW1hZ2UuanBn" target="_blank">this is a direct link*</a> to one of the files in this folder.
+		You can not see it, because you don't have permission for it (yet, keep reading).
+	</p>
+	<h3>Passwords</h3>
+	<p>
+		Items can be also shared via passwords, just add some to the
+		<b>.pmg_passwords</b> in root folder. Passwords work like easy to remember sharing links.
+		When a user visits a password link, the password will be saved in his browser cookies, and the server will show the hidden files to him.
+		Each password can unlock serveral folders or files.<br>
+		There are some examples below, that will reveal more items in the structure.<br>
+		If a password is valid, you will be redirected to the correct folder automatically.
+	</p>
+	<ol style="max-width: 900px; margin:0 auto; text-align: left">
+		<li>As you probably noticed, there is no footer. If you want to see it, just use password "<a href="/api/password?password=passwords-show-footer">passwords-show-footer</a>"</li>
+		<li>
+			Also, there are no folders in here... But let's see one of them with password "<a href="/api/password?password=password more permissions!">password more permissions!</a>". This will also redirect you into this folder.<br>
+			<small>Btw. did you noticed, that there is space in this password? Only <kbd>;</kbd> and <kbd>,</kbd> characters are not allowed in a password.</small>
+		</li>
+		<li>
+			Lets see some files with password "<a href="/api/password?password=passwords secured images">passwords secured images</a>".
+			Permissions in this case are defined using a prefix, "/passwords/secured-image", so all files in folder "/passwords/" with prefix "secured-image" will be shown.<br>
+		</li>
+		<li>Password "<a href="/api/password?password=aaaaaaaa" target="_blank">aaaaaaaa</a>" don't exists.</li>
+		<li>
+			To access every file with master password, use "<a href="/api/password?password=passwords-for-everything">passwords-for-everything</a>".<br>
+			<small>Now that <i>direct link*</i> above is working.</small>
+
+		</li>
+	</ol>
+	<p>
+		Saved passwords and their permissions can be seen in the bottom section of settings (or see JSON formatted <a href="/api/password" target="_blank">here</a>).
+	</p>
+	<p>
+		To clear saved passwords, just clear your cookies (specifically <b>pmg-passwords</b>).<br>
+		I know that you are probably lazy almost as much as I am, so I prepared a button for this.. :)<br>
+		<button class="btn btn-outline-danger btn-sm" id="perm-test-clear">Clear passwords</button>
+	</p>
+</div>
+<script>
+	$(function () {
+		$('#perm-test-clear').on('click', function () {
+			Cookies.remove('pmg-passwords');
+			loadStructure(true);
+			flashMessage('Paswords were cleared and structure was reloaded.');
+		});
+	});
+</script>

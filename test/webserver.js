@@ -13,14 +13,14 @@ perms.load();
 describe('Integrations - Webserver Structure', function () {
 	const apiPath = '/api/structure';
 	it('Invalid - missing path', function (done) {
-		assertRequest(apiPath, {}, function(result) {
+		assertRequest(apiPath, {}, null, function(result) {
 			if (result.error === true && result.result.length === 0 && result.message === 'Zadaná cesta "<b>undefined</b>" není platná nebo na ni nemáš právo.') {
 				done();
 			}
 		});
 	});
 	it('Valid - root', function (done) {
-		assertRequest(apiPath, {path: stringToBase64('/')}, function(result) {
+		assertRequest(apiPath, {path: stringToBase64('/')}, null, function(result) {
 			if (result.error === false &&
 				result.result.foldersTotal === 8 && result.result.folders.length === 8 &&
 				result.result.folders.some(item => item.path === '/sort-test/') &&
@@ -34,7 +34,7 @@ describe('Integrations - Webserver Structure', function () {
 		});
 	});
 	it('Valid - empty folder', function (done) {
-		assertRequest(apiPath, {path: stringToBase64('/empty folder/')}, function(result) {
+		assertRequest(apiPath, {path: stringToBase64('/empty folder/')}, null, function(result) {
 			if (result.error === false &&
 				result.result.foldersTotal === 0 && result.result.folders.length === 1 && // "go back" dont count in total folders
 				result.result.folders[0].path === '/' &&
@@ -46,7 +46,7 @@ describe('Integrations - Webserver Structure', function () {
 		});
 	});
 	it('Valid - load coords from EXIF files', function (done) {
-		assertRequest(apiPath, {path: stringToBase64('/map from EXIF/')}, function(result) {
+		assertRequest(apiPath, {path: stringToBase64('/map from EXIF/')}, null, function(result) {
 			if (result.error === false &&
 				result.result.foldersTotal === 0 && result.result.folders.length === 1 && // "go back" dont count in total folders
 				result.result.files.length === 6 && result.result.filesTotal === 6 &&
@@ -59,12 +59,77 @@ describe('Integrations - Webserver Structure', function () {
 			}
 		});
 	});
+	it('Valid - passwords - without password', function (done) {
+		assertRequest(apiPath, {path: stringToBase64('/passwords/')}, null, function(result) {
+			if (result.error === false &&
+				result.result.foldersTotal === 0 && result.result.folders.length === 1 && // "go back" dont count in total folders
+				result.result.files.length === 0 && result.result.filesTotal === 0 &&
+				result.result.header !== null && result.result.footer === null
+			) {
+				done();
+			}
+		});
+	});
+	it('Valid - passwords - "passwords-show-footer"', function (done) {
+		assertRequest(apiPath, {path: stringToBase64('/passwords/')}, 'pmg-passwords=passwords-show-footer', function(result) {
+			if (result.error === false &&
+				result.result.foldersTotal === 0 && result.result.folders.length === 1 && // "go back" dont count in total folders
+				result.result.files.length === 0 && result.result.filesTotal === 0 &&
+				result.result.header !== null && result.result.footer !== null
+			) {
+				done();
+			}
+		});
+	});
+	it('Valid - passwords - "password more permissions!"', function (done) {
+		const path = '/passwords/';
+		assertRequest(apiPath, {path: stringToBase64(path)}, 'pmg-passwords=password more permissions!', function(result) {
+			if (result.error === false &&
+				result.result.foldersTotal === 1 && result.result.folders.length === 2 && // "go back" dont count in total folders
+				result.result.folders[1].path === path + 'secured-folder/' &&
+				result.result.files.length === 0 && result.result.filesTotal === 0 &&
+				result.result.header !== null && result.result.footer === null
+			) {
+				done();
+			}
+		});
+	});
+	it('Valid - passwords - both passwords "passwords-show-footer" and "password more permissions!"', function (done) {
+		const path = '/passwords/';
+		assertRequest(apiPath, {path: stringToBase64(path)}, 'pmg-passwords=passwords-show-footer,password more permissions!', function(result) {
+			if (result.error === false &&
+				result.result.foldersTotal === 1 && result.result.folders.length === 2 && // "go back" dont count in total folders
+				result.result.folders[1].path === path + 'secured-folder/' &&
+				result.result.files.length === 0 && result.result.filesTotal === 0 &&
+				result.result.header !== null && result.result.footer !== null
+			) {
+				done();
+			}
+		});
+	});
+	it('Valid - passwords - prefix permissions "passwords secured images"', function (done) {
+		const path = '/passwords/';
+		assertRequest(apiPath, {path: stringToBase64(path)}, 'pmg-passwords=passwords secured images', function(result) {
+			if (result.error === false &&
+				result.result.foldersTotal === 0 && result.result.folders.length === 1 && // "go back" dont count in total folders
+				result.result.files[0].path === path + 'secured-image-1.jpg' &&
+				result.result.files[1].path === path + 'secured-image-2.jpg' &&
+				result.result.files[2].path === path + 'secured-image-3.jpg' &&
+				result.result.files.length === 3 && result.result.filesTotal === 3 &&
+				result.result.header !== null && result.result.footer === null
+			) {
+				done();
+			}
+		});
+	});
+
+	// @TODO add testing direct image links
 
 	// Handling special characters like these: ()[]+
 	// @see https://github.com/DJTommek/pldr-gallery/issues/7
 	it('Valid - special characters (micromatch bug - base)', function (done) {
 		const path = '/special-characters/micromatch/';
-		assertRequest(apiPath, {path: stringToBase64(path)}, function(result) {
+		assertRequest(apiPath, {path: stringToBase64(path)},  null,function(result) {
 			if (result.error === false &&
 				result.result.foldersTotal === 3 && result.result.folders.length === 4 && // "go back" dont count in total folders
 				result.result.files.length === 0 && result.result.filesTotal === 0 &&
@@ -81,7 +146,7 @@ describe('Integrations - Webserver Structure', function () {
 	// @see https://github.com/DJTommek/pldr-gallery/issues/7
 	it('Valid - special characters (micromatch bug - in () folder)', function (done) {
 		const path = '/special-characters/micromatch/some (parenthess)/';
-		assertRequest(apiPath, {path: stringToBase64(path)}, function(result) {
+		assertRequest(apiPath, {path: stringToBase64(path)},  null,function(result) {
 			if (result.error === false &&
 				result.result.foldersTotal === 1 && result.result.folders.length === 2 && // "go back" dont count in total folders
 				result.result.files.length === 1 && result.result.filesTotal === 1 &&
@@ -94,7 +159,7 @@ describe('Integrations - Webserver Structure', function () {
 	});
 	it('Valid - special characters (micromatch bug - in () folder)', function (done) {
 		const path = '/special-characters/micromatch/some [parenthess]/';
-		assertRequest(apiPath, {path: stringToBase64(path)}, function(result) {
+		assertRequest(apiPath, {path: stringToBase64(path)},  null,function(result) {
 			if (result.error === false &&
 				result.result.foldersTotal === 1 && result.result.folders.length === 2 && // "go back" dont count in total folders
 				result.result.files.length === 1 && result.result.filesTotal === 1 &&
@@ -107,7 +172,7 @@ describe('Integrations - Webserver Structure', function () {
 	});
 	it('Valid - special characters (micromatch bug - in + folder)', function (done) {
 		const path = '/special-characters/micromatch/some+plus/';
-		assertRequest(apiPath, {path: stringToBase64(path)}, function(result) {
+		assertRequest(apiPath, {path: stringToBase64(path)},  null,function(result) {
 			if (result.error === false &&
 				result.result.foldersTotal === 1 && result.result.folders.length === 2 && // "go back" dont count in total folders
 				result.result.files.length === 1 && result.result.filesTotal === 1 &&
@@ -124,13 +189,16 @@ function stringToBase64(string) {
 	return (new Buffer.from(string)).toString('base64')
 }
 
-function assertRequest(path, query, callback) {
+function assertRequest(path, query, cookiesString, callback) {
 	const options = {
 		hostname: 'localhost',
 		port: c.http.port,
 		path: path,
-		method: 'GET'
+		method: 'GET',
 	};
+	if (cookiesString) {
+		options['headers'] = {'Cookie': cookiesString}
+	}
 	options.path += '?' + querystring.stringify(query);
 	// switch to HTTPS if is enabled in config
 	let requestLibrary = http;

@@ -15,6 +15,7 @@ x
  /header and footer/
  /map from EXIF/
  /permissions/header.html
+ /passwords/header.html
  /sort-test/
  /special-characters/
  /thumbnails/
@@ -22,6 +23,19 @@ x
  /footer.html
 # allow every file and folder in root, that begins "image-"
  /image-
+ /permissions/
+
+# only logged @TODO
+logged
+ /permissions/logged/
+
+# only non-logged @TODO
+non-logged
+ /permissions/non-logged/
+
+# to all @TODO
+all
+ /permissions/all/
 
 # allow some folders to user:
 foo@bar.com
