@@ -5,26 +5,37 @@
 		But some closest friends should have access to everything - give permissions only to specific accounts or groups<br>
 		Also, I want to share some folders to strangers on social network or through chat - share via passwords (more info in <a href="#/passwords/">passwords folder</a>)
 	</p>
-	<h3>Security</h3>
-	<p>
-		All folders and files are visible and accessible ONLY if you have permission for them.
-		This means that even if you know the URL, you cannot access them, no matter if it is a folder, image, audio, header or any other file.<br>
-		These are links, that will work only to:<br>
-	</p>
-	<ul>
-		<li><a href="/api/image?path=JTJGcGVybWlzc2lvbnMlMkZvbmx5LWxvZ2dlZCUyRm9ubHktbG9nZ2VkLmpwZw==" target="_blank">logged users</a></li>
-		<li><a href="/api/image?path=JTJGcGVybWlzc2lvbnMlMkZvbmx5LW5vbi1sb2dnZWQlMkZvbmx5LW5vbi1sb2dnZWQuanBn" target="_blank">non-logged users</a></li>
-		<li><a href="/api/image?path=JTJGcGVybWlzc2lvbnMlMkZhbGwlMkZhbGwuanBn" target="_blank">all users</a> (so this link will always work)</li>
-	</ul>
 	<h3>User permissions</h3>
 	<p>
 		Do you want share some folder only with your significant other? Easy, just look at the examples in <b>.pmg_perms</b> in the root folder.<br>
 		Note that the file is hidden, and therefore it will not show in the gallery.<br>
 		<span class="text-info"><i class="fa fa-info-circle"></i> Sorry, there is no way how to show a live demo of this :( You have to install and test this application by yourself.</span>
 	</p>
-	<h3>Groups @TODO</h3>
+	<h3>Groups</h3>
 	<p>
-		Except generic groups as "all", "logged" and "non-logged" which can't be deleted and users are assigned automatically you can create your own custom groups.<br>
+		Except generic groups "all", "logged" and "non-logged" which can't be deleted and users are assigned automatically you can create your own custom groups.<br>
 		For example create groups like family, friend or coworkers and assign users into these groups.
+	</p>
+	<h3>Security</h3>
+	<p>
+		All folders and files are visible and accessible ONLY if you have permission for them.
+		This means that even if you know the URL, you cannot access them, no matter if it is a folder, image, audio, header or any other file.<br>
+		These are direct links, that will work only to:<br>
+	</p>
+	<ul>
+		<li><a href="/api/image?path=JTJGcGVybWlzc2lvbnMlMkZvbmx5LWxvZ2dlZCUyRm9ubHktbG9nZ2VkLmpwZw==" target="_blank">logged users</a></li>
+		<li><a href="/api/image?path=JTJGcGVybWlzc2lvbnMlMkZvbmx5LW5vbi1sb2dnZWQlMkZvbmx5LW5vbi1sb2dnZWQuanBn" target="_blank">non-logged users</a></li>
+		<li><a href="/api/image?path=JTJGcGVybWlzc2lvbnMlMkZhbGwlMkZhbGwuanBn" target="_blank">all users</a> (so this link will always work)</li>
+	</ul>
+	<p>
+		You can easily test this out by logging in and out. Also in this folder there are three folders in total but you will be able to see only two of them at once because of the same rules.
+	</p>
+	<h3>Technical details</h3>
+	<p>
+		Permissions are saved in database via <a href="http://knexjs.org/" target="_blank">Knex</a> which support multiple DB, including SQLite 3 which is default.
+	</p>
+	<p>
+		Currently there is no other way to add new user, group or passwords permission than manually edit tables in your DB :(<br>
+		You can support <a href="https://github.com/DJTommek/pldr-gallery/issues/32" target="_blank">issue on GitHub</a> by giving thumbs-up which will increase it's priority.
 	</p>
 </div>
