@@ -118,12 +118,10 @@ async function fillDemoData() {
 	LOG.info('(Knex) DB filled with user-group relations');
 	LOG.info('(Knex) DB filling with password...');
 	await knex.batchInsert(c.db.table.password, [
-		{id: 1, password: 'password1'},
-		{id: 2, password: 'some password'},
-		{id: 3, password: 'permissions-show-footer'},
-		{id: 4, password: 'more permissions!'},
-		{id: 5, password: 'secured images'},
-		{id: 6, password: 'access-to-everything'},
+		{id: 1, password: 'passwords-show-footer'},
+		{id: 2, password: 'password more permissions!'},
+		{id: 3, password: 'passwords secured images'},
+		{id: 4, password: 'passwords-for-everything'},
 	]);
 	LOG.info('(Knex) DB filled with passwords');
 	LOG.info('(Knex) DB filling with permissions...');
@@ -132,40 +130,39 @@ async function fillDemoData() {
 		{user_id: 1, permission: '/permissions/4 - visible for user1/'},
 		{user_id: 1, permission: '/permissions/4 - another visible for user1/'},
 		{user_id: 4, permission: '/'},
-		// group
-		{group_id: 4, permission: '/permissions/secured-folder/'},
-		// group: non-logged
+
+		// groups
 		{group_id: perms.GROUPS.ALL, permission: '/permissions/header.html'},
 		{group_id: perms.GROUPS.ALL, permission: '/empty folder/'},
 		{group_id: perms.GROUPS.ALL, permission: '/files/'},
 		{group_id: perms.GROUPS.ALL, permission: '/header and footer/'},
 		{group_id: perms.GROUPS.ALL, permission: '/map from EXIF/'},
-		{group_id: perms.GROUPS.ALL, permission: '/permissions/header.html'},
 		{group_id: perms.GROUPS.ALL, permission: '/sort-test/'},
 		{group_id: perms.GROUPS.ALL, permission: '/special-characters/'},
 		{group_id: perms.GROUPS.ALL, permission: '/thumbnails/'},
 		{group_id: perms.GROUPS.ALL, permission: '/header.html'},
 		{group_id: perms.GROUPS.ALL, permission: '/footer.html'},
 		{group_id: perms.GROUPS.ALL, permission: '/image-'},
+		{group_id: perms.GROUPS.ALL, permission: '/passwords/header.html'},
+		{group_id: perms.GROUPS.ALL, permission: '/permissions/header.html'},
+		{group_id: perms.GROUPS.ALL, permission: '/permissions/all/'},
+
+		{group_id: perms.GROUPS.NON_LOGGED, permission: '/permissions/non-logged/'},
+
+		{group_id: perms.GROUPS.LOGGED, permission: '/permissions/logged/'},
+
+		{group_id: 4, permission: '/permissions/secured-folder/'},
 		// passwords
-		{password_id: 1, permission: '/permissions/secured-folder/'},
-		{password_id: 1, permission: '/folder2/'},
-		{password_id: 1, permission: '/prefix-'},
+		{password_id: 1, permission: '/passwords/footer.html'},
 
-		{password_id: 2, permission: '/foo1/'},
-		{password_id: 2, permission: '/bar2/'},
+		{password_id: 2, permission: '/passwords/secured-folder/header.html'},
 
-		{password_id: 3, permission: '/permissions/footer.html'},
+		{password_id: 3, permission: '/passwords/secured-image'},
 
-		{password_id: 4, permission: '/permissions/secured-folder/'},
-		{password_id: 4, permission: '/permissions/secured-folder-with-header/header.html'},
-
-		{password_id: 5, permission: '/permissions/secured-image'},
-
-		{password_id: 6, permission: '/permissions/'},
+		{password_id: 4, permission: '/passwords/'},
 	]);
 	LOG.info('(Knex) DB filled with permissions');
 	process.exit();
 }
 
-this.run(true, true);
+module.exports.run(true, true)

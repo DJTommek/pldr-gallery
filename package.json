@@ -4,7 +4,7 @@
 	"description": "Standalone Node.js Express application for nice and quick browsing your multimedia files.",
 	"main": "index.js",
 	"scripts": {
-		"test": "mocha --exit"
+		"test": "mocha --exit --delay"
 	},
 	"repository": {
 		"type": "git",
