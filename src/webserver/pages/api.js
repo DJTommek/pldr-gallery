@@ -74,7 +74,7 @@ module.exports = function (webserver, baseEndpoint) {
 			// Do nothing, probably user just dont have cookie
 		}
 
-		LOG.info('(Web) Api access ' + req.path + ', user "' + (res.locals.user ? res.locals.user.email : 'x') + '"');
+		LOG.info('(Web) Api access ' + req.path + ', user "' + (res.locals.user.email || 'x') + '"');
 
 		if (req.query.path) {
 			const result = HFS.pathMasterCheck(c.path, req.query.path, res.locals.user.getPermissions(), perms.test);

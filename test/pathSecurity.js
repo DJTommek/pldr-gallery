@@ -91,15 +91,15 @@ describe('Handle requested path', function () {
 		});
 
 		// requested file but it is folder
-		runAssert('/permissions', ['/'], {
-			error: 'Requested path "/permissions" is not file',
-			queryPath: '/permissions'
+		runAssert('/passwords', ['/'], {
+			error: 'Requested path "/passwords" is not file',
+			queryPath: '/passwords'
 		});
 
 		// requested folder but it is file
-		runAssert('/permissions/secured-image-1.jpg/', ['/'], {
-			error: 'Requested path "/permissions/secured-image-1.jpg/" is not folder',
-			queryPath: '/permissions/secured-image-1.jpg/'
+		runAssert('/passwords/secured-image-1.jpg/', ['/'], {
+			error: 'Requested path "/passwords/secured-image-1.jpg/" is not folder',
+			queryPath: '/passwords/secured-image-1.jpg/'
 		});
 	});
 
@@ -107,10 +107,10 @@ describe('Handle requested path', function () {
 		runAssert('/', ['/'], {fullPathFolder: '{0}', path: '/', queryPath: '/'});
 		// valid folders
 		runAssert('/', ['/'], {fullPathFolder: '{0}', path: '/', queryPath: '/'});
-		runAssert('/permissions/', ['/'], {
-			fullPathFolder: '{0}permissions/',
-			path: '/permissions/',
-			queryPath: '/permissions/'
+		runAssert('/passwords/', ['/'], {
+			fullPathFolder: '{0}passwords/',
+			path: '/passwords/',
+			queryPath: '/passwords/'
 		});
 		runAssert('/special-characters/', ['/'], {
 			fullPathFolder: '{0}special-characters/',
@@ -169,10 +169,10 @@ describe('Handle requested path', function () {
 		});
 
 		// valid files
-		runAssert('/permissions/secured-image-1.jpg', ['/'], {
-			fullPathFile: '{0}permissions/secured-image-1.jpg',
-			path: '/permissions/secured-image-1.jpg',
-			queryPath: '/permissions/secured-image-1.jpg'
+		runAssert('/passwords/secured-image-1.jpg', ['/'], {
+			fullPathFile: '{0}passwords/secured-image-1.jpg',
+			path: '/passwords/secured-image-1.jpg',
+			queryPath: '/passwords/secured-image-1.jpg'
 		});
 		runAssert('/special-characters/tilde~in name.jpg', ['/'], {
 			fullPathFile: '{0}special-characters/tilde~in name.jpg',
