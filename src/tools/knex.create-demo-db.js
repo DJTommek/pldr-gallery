@@ -147,9 +147,9 @@ async function fillDemoData() {
 		{group_id: perms.GROUPS.ALL, permission: '/permissions/header.html'},
 		{group_id: perms.GROUPS.ALL, permission: '/permissions/all/'},
 
-		{group_id: perms.GROUPS.NON_LOGGED, permission: '/permissions/non-logged/'},
+		{group_id: perms.GROUPS.NON_LOGGED, permission: '/permissions/only-non-logged/'},
 
-		{group_id: perms.GROUPS.LOGGED, permission: '/permissions/logged/'},
+		{group_id: perms.GROUPS.LOGGED, permission: '/permissions/only-logged/'},
 
 		{group_id: 4, permission: '/permissions/secured-folder/'},
 		// passwords
