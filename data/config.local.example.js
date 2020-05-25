@@ -23,6 +23,25 @@ module.exports = {
 			cache: false, // the same as thumbnails.image.cache
 		}
 	},
+	db: {
+		// Database for saving permissions (in future probably more data)
+		// Default is the simplest in-file sqlite3
+		knex: {
+			client: 'sqlite3',
+			connection: {
+				filename: './data/pldr-gallery.sqlite',
+			},
+			// If you want to use other database server, like MySQL (MariaDB), use this example:
+			// client: 'mysql',
+			// connection: {
+			// 	host: '127.0.0.1',
+			// 	user: 'pldrgallery',
+			// 	password: '',
+			// 	database: 'pldrgallery',
+			// },
+		},
+	},
+
 
 	google: {
 		// Generate your own "OAuth client ID" credentials for Web application on
