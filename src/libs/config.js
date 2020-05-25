@@ -171,11 +171,11 @@ let CONFIG = {
 		// separator for group_concat
 		separator: ';;;',
 		table: {
-			permission: 'pldrg_permission',
-			user_group: 'pldrg_user_group',
-			user: 'pldrg_user',
-			group: 'pldrg_group',
-			password: 'pldrg_password',
+			permission: 'pldr_gallery_permission',
+			user_group: 'pldr_gallery_user_group',
+			user: 'pldr_gallery_user',
+			group: 'pldr_gallery_group',
+			password: 'pldr_gallery_password',
 		}
 	},
 
