@@ -32,7 +32,7 @@ async function loadGroupsDb() {
 			.select(
 				CONFIG.db.table.group + '.id',
 				CONFIG.db.table.group + '.name',
-				{permissions: knex.raw('GROUP_CONCAT(??.permission, "??")', [CONFIG.db.table.permission, CONFIG.db.separator])}
+				{permissions: knex.raw('GROUP_CONCAT(??.permission, ?)', [CONFIG.db.table.permission, CONFIG.db.separator])}
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.group_id', CONFIG.db.table.group + '.id')
 			.groupBy(CONFIG.db.table.group + '.id')
@@ -50,7 +50,7 @@ async function loadPasswordsDb() {
 			.select(
 				CONFIG.db.table.password + '.id',
 				CONFIG.db.table.password + '.password',
-				{permissions: knex.raw('GROUP_CONCAT(??.permission, "??")', [CONFIG.db.table.permission, CONFIG.db.separator])}
+				{permissions: knex.raw('GROUP_CONCAT(??.permission, ?)', [CONFIG.db.table.permission, CONFIG.db.separator])}
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.password_id', CONFIG.db.table.password + '.id')
 			.groupBy(CONFIG.db.table.password + '.id')
@@ -68,7 +68,7 @@ async function loadUsersDb() {
 			.select(
 				CONFIG.db.table.user + '.id',
 				CONFIG.db.table.user + '.email',
-				{permissions: knex.raw('GROUP_CONCAT(??.permission, "??")', [CONFIG.db.table.permission, CONFIG.db.separator])}
+				{permissions: knex.raw('GROUP_CONCAT(??.permission, ?)', [CONFIG.db.table.permission, CONFIG.db.separator])}
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.user_id', CONFIG.db.table.user + '.id')
 			.groupBy(CONFIG.db.table.user + '.id')
