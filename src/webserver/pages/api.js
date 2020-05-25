@@ -10,7 +10,7 @@ const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 
 module.exports = function (webserver, baseEndpoint) {
 
-	const endpoint = baseEndpoint + '/[a-z-]+'
+	const endpoint = baseEndpoint + '/[a-z-]+';
 
 	/**
 	 * API middleware
