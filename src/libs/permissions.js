@@ -155,13 +155,12 @@ exports.getNonLoggedUser = function getNonLoggedUser() {
  * @param {string} email
  * @returns {User}
  */
-exports.getUnknownLoggedUser = function getUnknownLoggedUser(email) {
-	// @TODO validate if email is string and valid email
-	// generate new user without saving and return default instance
-	const unknownLoggedUser = new User(null, email, []);
-	unknownLoggedUser.addGroup(GROUPS[module.exports.GROUPS.ALL])
-	unknownLoggedUser.addGroup(GROUPS[module.exports.GROUPS.LOGGED])
-	return unknownLoggedUser;
+exports.registerNewUser = async function registerNewUser(email) {
+	// @TODO verify if string and valid email
+	LOG.info('(Permissions) Registering new user with email "' + email + '"...');
+	await knex(CONFIG.db.table.user).insert({email: email.toLowerCase()})
+	await module.exports.load();
+	return module.exports.getUser(email);
 }
 
 /**
