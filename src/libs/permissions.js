@@ -32,7 +32,7 @@ async function loadGroupsDb() {
 			.select(
 				CONFIG.db.table.group + '.id',
 				CONFIG.db.table.group + '.name',
-				{permissions: knex.raw('GROUP_CONCAT(' + CONFIG.db.table.permission + '.permission SEPARATOR \';\')')}
+				{permissions: knex.raw('GROUP_CONCAT(??.permission, "??")', [CONFIG.db.table.permission, CONFIG.db.separator])}
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.group_id', CONFIG.db.table.group + '.id')
 			.groupBy(CONFIG.db.table.group + '.id')
@@ -40,7 +40,7 @@ async function loadGroupsDb() {
 		GROUPS[data['id']] = new Group(
 			data['id'],
 			data['name'],
-			(data['permissions'] ? data['permissions'].split(';') : []),
+			(data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []),
 		);
 	});
 }
@@ -50,7 +50,7 @@ async function loadPasswordsDb() {
 			.select(
 				CONFIG.db.table.password + '.id',
 				CONFIG.db.table.password + '.password',
-				{permissions: knex.raw('GROUP_CONCAT(' + CONFIG.db.table.permission + '.permission SEPARATOR \';\')')}
+				{permissions: knex.raw('GROUP_CONCAT(??.permission, "??")', [CONFIG.db.table.permission, CONFIG.db.separator])}
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.password_id', CONFIG.db.table.password + '.id')
 			.groupBy(CONFIG.db.table.password + '.id')
@@ -58,7 +58,7 @@ async function loadPasswordsDb() {
 		PASSWORDS[data['id']] = new Password(
 			data['id'],
 			data['password'],
-			(data['permissions'] ? data['permissions'].split(';') : []),
+			(data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []),
 		);
 	});
 }
@@ -68,7 +68,7 @@ async function loadUsersDb() {
 			.select(
 				CONFIG.db.table.user + '.id',
 				CONFIG.db.table.user + '.email',
-				{permissions: knex.raw('GROUP_CONCAT(' + CONFIG.db.table.permission + '.permission SEPARATOR \';\')')}
+				{permissions: knex.raw('GROUP_CONCAT(??.permission, "??")', [CONFIG.db.table.permission, CONFIG.db.separator])}
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.user_id', CONFIG.db.table.user + '.id')
 			.groupBy(CONFIG.db.table.user + '.id')
@@ -76,7 +76,7 @@ async function loadUsersDb() {
 		const user = new User(
 			data['id'],
 			data['email'],
-			(data['permissions'] ? data['permissions'].split(';') : []),
+			(data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []),
 		);
 		// assign all users to generic groups
 		user.addGroup(GROUPS[module.exports.GROUPS.ALL])
