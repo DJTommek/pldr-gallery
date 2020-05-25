@@ -10,16 +10,29 @@ const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 
 module.exports = function (webserver, baseEndpoint) {
 
+	const endpoint = baseEndpoint + '/[a-z-]+'
+
 	/**
-	 * Main API middleware:
-	 * - validate login cookie (if user logged)
-	 * - load (default) user and password permissions
+	 * API middleware
+	 * Init response timeout
 	 *
 	 * @returns next()
 	 */
-	webserver.get(baseEndpoint + '/[a-z-]+', function (req, res, next) {
+	webserver.get(endpoint, async function (req, res, next) {
+		res.setTimeout(c.http.timeout, function () {
+			LOG.error('(Web) Connection timeout for ' + req.path);
+			res.result.setError('<b>Nastala chyba</b>, zpracování požadavku trvalo serveru příliš dlouho.<br>Zkus to za chvíli znovu případně kontaktuj admina.').end(408);
+		});
+		next();
+	});
 
-		// Try load perms for logged user
+	/**
+	 * API middleware
+	 * Load user permissions
+	 *
+	 * @returns next()
+	 */
+	webserver.get(endpoint, async function (req, res, next) {
 		try {
 			let token = req.cookies[c.http.login.name];
 			// cookie dont exists or is invalid
@@ -44,9 +57,10 @@ module.exports = function (webserver, baseEndpoint) {
 			// load logged user
 			res.locals.user = perms.getUser(cookieContent.email);
 
+			// user is logged but not yet saved in database
 			if (!res.locals.user) {
 				// logged user is not known, get temporary user object
-				res.locals.user = perms.getUnknownLoggedUser(cookieContent.email);
+				res.locals.user = await perms.registerNewUser(cookieContent.email);
 			}
 
 			// update cookie expiration on the server
@@ -56,7 +70,16 @@ module.exports = function (webserver, baseEndpoint) {
 			res.clearCookie(c.http.login.name);
 			res.locals.user = perms.getNonLoggedUser();
 		}
+		next();
+	});
 
+	/**
+	 * API middleware
+	 * Load password permissions
+	 *
+	 * @returns next()
+	 */
+	webserver.get(endpoint, async function (req, res, next) {
 		// Try load and merge perms if user has some passwords
 		res.locals.user.clearPasswords();
 		try {
@@ -73,9 +96,16 @@ module.exports = function (webserver, baseEndpoint) {
 		} catch (error) {
 			// Do nothing, probably user just dont have cookie
 		}
+		next();
+	});
 
-		LOG.info('(Web) Api access ' + req.path + ', user "' + (res.locals.user.email || 'x') + '"');
-
+	/**
+	 * API middleware
+	 * Validate GET parameter path
+	 *
+	 * @returns next()
+	 */
+	webserver.get(endpoint, async function (req, res, next) {
 		if (req.query.path) {
 			const result = HFS.pathMasterCheck(c.path, req.query.path, res.locals.user.getPermissions(), perms.test);
 			Object.assign(res.locals, result);
@@ -86,12 +116,6 @@ module.exports = function (webserver, baseEndpoint) {
 				LOG.debug('(Web) Requested invalid path "' + req.query.path + '", error: ' + result.error + '.', {console: true});
 			}
 		}
-
-		res.setTimeout(c.http.timeout, function () {
-			LOG.error('(Web) Connection timeout for ' + req.path);
-			res.result.setError('<b>Nastala chyba</b>, zpracování požadavku trvalo serveru příliš dlouho.<br>Zkus to za chvíli znovu případně kontaktuj admina.').end(408);
-		});
-
 		next();
 	});
 
