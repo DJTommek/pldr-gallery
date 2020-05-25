@@ -168,6 +168,8 @@ let CONFIG = {
 			},
 			useNullAsDefault: true,
 		},
+		// separator for group_concat
+		separator: ';;;',
 		table: {
 			permission: 'pldrg_permission',
 			user_group: 'pldrg_user_group',
