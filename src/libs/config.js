@@ -164,7 +164,7 @@ let CONFIG = {
 		knex: {
 			client: 'sqlite3',
 			connection: {
-				filename: 'pldr-gallery.sqlite',
+				filename: './data/pldr-gallery.sqlite',
 			},
 			useNullAsDefault: true,
 		},
