@@ -5,6 +5,7 @@
  */
 const FS = require('fs');
 const PATH = require('path');
+const pathCustom = require('./path.js');
 
 const merge = require('lodash.merge');
 
@@ -240,21 +241,25 @@ let CONFIG = {
 };
 
 // load local config and merge values into this config
-if (!FS.existsSync(BASE_DIR_GET('/data/config.local.js'))) {
-	errorExit('ERROR: Missing local config file.\nRename "/data/config.local.example.js" to "/data/config.local.js" to continue.')
+const localConfigPath = pathCustom.join(__dirname, '../../data/config.local.js');
+if (!FS.existsSync(localConfigPath)) {
+	errorExit('ERROR: Missing local config file.\nRename "data/config.local.example.js" to "data/config.local.js" to continue. Full path is "' + localConfigPath + '"');
 }
-CONFIG = merge(CONFIG, require(BASE_DIR_GET('/data/config.local.js')));
-
-// Path has to contain only forward slashes to avoid platform-dependent problems
-if (CONFIG.path.includes('\\')) {
-	errorExit('ERROR: Config.path attribute can\'t contain backward slashes.');
-}
-
-// Convert path to absolute if is defined relative
-if (PATH.isAbsolute(CONFIG.path) === false) {
-	CONFIG.path = BASE_DIR_GET(CONFIG.path);
-}
-
+CONFIG = merge(CONFIG, require(localConfigPath));
 CONFIG.start = new Date();
+
+/**
+ * Validate and normalize some config values
+ */
+CONFIG.path = pathCustom.join(CONFIG.path);
+if (!PATH.isAbsolute(CONFIG.path)) {
+	errorExit('ERROR: Path has to be absolute.');
+}
+
+if (CONFIG.db.knex.client === 'sqlite3') {
+	CONFIG.db.knex.connection.filename = pathCustom.join(CONFIG.db.knex.connection.filename);
+} else {
+	errorExit('Currently is supported only "sqlite3". See https://github.com/DJTommek/pldr-gallery/issues/39')
+}
 
 module.exports = CONFIG;
