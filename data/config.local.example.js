@@ -6,12 +6,13 @@
  * In this example all variables SHOULD be updated.
  */
 module.exports = {
-	// path to folders and files, where you want to set "root". Can be dynamic or absolute.
-	// Use only forward slashesh, even Windows
-	// Windows absolute: c:/photos/
-	// UNIX absolute: /photos/
-	// Relative: ./photos/
-	path: './demo/',
+	// Path to folders and files, where you want to set "root".
+	// To prevent possible issues:
+	// - has to be absolute (use __dirname to get relative path to this file)
+	// - should use only forward slashes (backward slashes will be automatically replaced)
+	// path: __dirname + '/../demo/',
+	// path: /some/absolute/path/
+	path: __dirname + '/../demo/',
 
 	thumbnails: {
 		image: {
@@ -29,7 +30,7 @@ module.exports = {
 		knex: {
 			client: 'sqlite3',
 			connection: {
-				filename: './data/pldr-gallery.sqlite',
+				filename: __dirname + '/pldr-gallery.sqlite',
 			},
 			// If you want to use other database server, like MySQL (MariaDB), use this example:
 			// client: 'mysql',
