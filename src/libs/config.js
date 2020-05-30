@@ -236,7 +236,7 @@ let CONFIG = {
 
 // load local config and merge values into this config
 if (!FS.existsSync(BASE_DIR_GET('/data/config.local.js'))) {
-	console.error('\x1b[31mERROR: Missing local config file.\nRename "/data/config.local.example.js" to "/data/config.local.js" to continue.');
+	console.error('\x1b[31mERROR: Missing local config file.\nRename "/data/config.local.example.js" to "/data/config.local.js" to continue.\x1b[0m');
 	process.exit();
 }
 CONFIG = merge(CONFIG, require(BASE_DIR_GET('/data/config.local.js')));
