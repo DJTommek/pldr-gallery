@@ -8,6 +8,11 @@ const PATH = require('path');
 
 const merge = require('lodash.merge');
 
+function errorExit(message) {
+	console.error('\x1b[31m' + message + '\x1b[0m');
+	process.exit();
+}
+
 let CONFIG = {
 	/**
 	 * Default settings, how should be images compressed (resized)
@@ -236,15 +241,13 @@ let CONFIG = {
 
 // load local config and merge values into this config
 if (!FS.existsSync(BASE_DIR_GET('/data/config.local.js'))) {
-	console.error('\x1b[31mERROR: Missing local config file.\nRename "/data/config.local.example.js" to "/data/config.local.js" to continue.\x1b[0m');
-	process.exit();
+	errorExit('ERROR: Missing local config file.\nRename "/data/config.local.example.js" to "/data/config.local.js" to continue.')
 }
 CONFIG = merge(CONFIG, require(BASE_DIR_GET('/data/config.local.js')));
 
 // Path has to contain only forward slashes to avoid platform-dependent problems
 if (CONFIG.path.includes('\\')) {
-	console.error('\x1b[31mERROR: Config.path attribute can\'t contain backward slashes.');
-	process.exit();
+	errorExit('ERROR: Config.path attribute can\'t contain backward slashes.');
 }
 
 // Convert path to absolute if is defined relative
