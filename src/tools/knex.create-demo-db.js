@@ -1,131 +1,168 @@
 require('../webserver/private/js/functions.js');
 const pathCustom = require('../libs/path.js');
 pathCustom.defineBaseDir(__dirname + '/../../..');
-console.log(BASE_DIR)
 
-const c = require('../libs/config.js');
-const knex = require('knex')(c.db.knex)
-
-const LOG = require('../libs/log.js').setup({
-	path: __dirname + '/../../data/log/',
-	catchGlobalExceptions: true,
-});
+const CONFIG = require('../libs/config.js');
+const knex = require('knex')(CONFIG.db.knex);
 
 const perms = require('../libs/permissions.js');
 
-// Check if config.path is set correctly
-
-module.exports.run = async function run(purgeFirst = false, insertDemoData = true) {
-	LOG.info('(Knex) Starting creating demo db...');
-	if (purgeFirst === true) {
-		await purgeData();
+/**
+ * Prepare demo database via Knex according config.
+ *
+ * @param {boolean} purge Remove tables
+ * @param {boolean} insertDemoData Insert demo data
+ * @return {void}
+ */
+module.exports.run = async function run(purge = false, insertDemoData = true) {
+	console.log('(Knex) Starting creating demo database...');
+	if ((await checkIfTablesExists()) === true) {
+		console.log('(Knex) At least one table exists.');
+		if (purge === true) {
+			console.log('(Knex) Database purge is set to true, purging...');
+			await purgeData();
+			console.log('(Knex) Purge completed, continuing...');
+		} else {
+			console.log('(Knex) Database purge is set to false, quitting script.');
+			return exit();
+		}
 	}
-	LOG.info('(Knex) Creating table "' + c.db.table.user + '"...');
-	await knex.schema.createTable(c.db.table.user, function (table) {
-		table.increments('id');
-		table.string('email');
-	});
-	LOG.info('(Knex) Created table "' + c.db.table.user + '".');
-	LOG.info('(Knex) Creating table "' + c.db.table.group + '"...');
-	await knex.schema.createTable(c.db.table.group, function (table) {
-		table.increments('id');
-		table.string('name');
-	})
-	LOG.info('(Knex) Created table "' + c.db.table.group + '".');
-	LOG.info('(Knex) Creating table "' + c.db.table.password + '"...');
-	await knex.schema.createTable(c.db.table.password, function (table) {
-		table.increments('id');
-		table.string('password');
-	})
-	LOG.info('(Knex) Created table "' + c.db.table.password + '".');
-	LOG.info('(Knex) Creating table "' + c.db.table.user_group + '"...');
-	await knex.schema.createTable(c.db.table.user_group, function (table) {
-		table
-			.integer('user_id')
-			.unsigned()
-			.notNullable()
-			.references(c.db.table.user + '.id');
-		table
-			.integer('group_id')
-			.unsigned()
-			.notNullable()
-			.references(c.db.table.group + '.id');
-	})
-	LOG.info('(Knex) Created table "' + c.db.table.user_group + '".');
-	LOG.info('(Knex) Creating table "' + c.db.table.permission + '"...');
-	await knex.schema.createTable(c.db.table.permission, function (table) {
-		table.increments('id');
-		table
-			.integer('user_id')
-			.unsigned()
-			.references(c.db.table.user + '.id');
-		table
-			.integer('group_id')
-			.unsigned()
-			.references(c.db.table.group + '.id');
-		table
-			.integer('password_id')
-			.unsigned()
-			.references(c.db.table.password + '.id');
-		table
-			.string('permission')
-	})
-	LOG.info('(Knex) Created table "' + c.db.table.permission + '".');
+	await createTables();
 	if (insertDemoData === true) {
 		await fillDemoData();
 	}
+	return exit();
+}
+
+async function exit() {
+	console.log('(Knex) Disconnecting from database...');
+	await knex.destroy();
+	console.log('(Knex) Disconnected from database.');
+}
+
+async function checkIfTablesExists() {
+	// get list of tables (currently sqlite3 only)
+	// @Author https://github.com/knex/knex/issues/360#issuecomment-68387974
+	return await knex.schema.raw('SELECT name FROM sqlite_master WHERE type=\'table\';').then(function (tables) {
+		const tableNames = [];
+		tables.forEach(function(table) {
+			tableNames.push(table.name);
+		});
+
+		let tablesExists = false;
+		for(const configTable in CONFIG.db.table) {
+			if (tableNames.inArray(CONFIG.db.table[configTable]) === true) {
+				tablesExists = true;
+			}
+		}
+		return tablesExists;
+	});
+}
+
+async function createTables() {
+	console.log('(Knex) Creating table "' + CONFIG.db.table.user + '"...');
+	await knex.schema.createTable(CONFIG.db.table.user, function (table) {
+		table.increments('id');
+		table.string('email');
+	});
+	console.log('(Knex) Created table "' + CONFIG.db.table.user + '".');
+	console.log('(Knex) Creating table "' + CONFIG.db.table.group + '"...');
+	await knex.schema.createTable(CONFIG.db.table.group, function (table) {
+		table.increments('id');
+		table.string('name');
+	})
+	console.log('(Knex) Created table "' + CONFIG.db.table.group + '".');
+	console.log('(Knex) Creating table "' + CONFIG.db.table.password + '"...');
+	await knex.schema.createTable(CONFIG.db.table.password, function (table) {
+		table.increments('id');
+		table.string('password');
+	})
+	console.log('(Knex) Created table "' + CONFIG.db.table.password + '".');
+	console.log('(Knex) Creating table "' + CONFIG.db.table.user_group + '"...');
+	await knex.schema.createTable(CONFIG.db.table.user_group, function (table) {
+		table
+			.integer('user_id')
+			.unsigned()
+			.notNullable()
+			.references(CONFIG.db.table.user + '.id');
+		table
+			.integer('group_id')
+			.unsigned()
+			.notNullable()
+			.references(CONFIG.db.table.group + '.id');
+	})
+	console.log('(Knex) Created table "' + CONFIG.db.table.user_group + '".');
+	console.log('(Knex) Creating table "' + CONFIG.db.table.permission + '"...');
+	await knex.schema.createTable(CONFIG.db.table.permission, function (table) {
+		table.increments('id');
+		table
+			.integer('user_id')
+			.unsigned()
+			.references(CONFIG.db.table.user + '.id');
+		table
+			.integer('group_id')
+			.unsigned()
+			.references(CONFIG.db.table.group + '.id');
+		table
+			.integer('password_id')
+			.unsigned()
+			.references(CONFIG.db.table.password + '.id');
+		table
+			.string('permission')
+	})
+	console.log('(Knex) Created table "' + CONFIG.db.table.permission + '".');
 }
 
 async function purgeData() {
-	LOG.info('(Knex) Purging data requested...');
+	console.log('(Knex) Purging data requested...');
 	try {
 		await knex.schema
-			.dropTableIfExists(c.db.table.permission)
-			.dropTableIfExists(c.db.table.password)
-			.dropTableIfExists(c.db.table.user_group)
-			.dropTableIfExists(c.db.table.user)
-			.dropTableIfExists(c.db.table.group)
-			LOG.info('(Knex) Data purged');
-	} catch(error) {
-		LOG.error('(Knex) Error while removing tables: ' + error.message);
+			.dropTableIfExists(CONFIG.db.table.permission)
+			.dropTableIfExists(CONFIG.db.table.password)
+			.dropTableIfExists(CONFIG.db.table.user_group)
+			.dropTableIfExists(CONFIG.db.table.user)
+			.dropTableIfExists(CONFIG.db.table.group)
+		console.log('(Knex) Data purged');
+	} catch (error) {
+		console.error('(Knex) Error while removing tables: ' + error.message);
 		throw error;
 	}
 }
 
 async function fillDemoData() {
-	LOG.info('(Knex) Filling db with demo data...');
-	LOG.info('(Knex) DB filling with demo users...');
-	await knex.batchInsert(c.db.table.user, [
+	console.log('(Knex) Filling db with demo data...');
+	console.log('(Knex) DB filling with demo users...');
+	await knex.batchInsert(CONFIG.db.table.user, [
 		{id: 1, email: 'foo@bar.com'},
 		{id: 2, email: 'foo2@bar.com'},
 		{id: 3, email: 'foo3@bar.com'},
 		{id: 4, email: 'admin@mail.com'},
 	]);
-	LOG.info('(Knex) DB filled with demo users');
-	LOG.info('(Knex) DB filling with demo groups...');
-	await knex.batchInsert(c.db.table.group, [
+	console.log('(Knex) DB filled with demo users');
+	console.log('(Knex) DB filling with demo groups...');
+	await knex.batchInsert(CONFIG.db.table.group, [
 		{id: perms.GROUPS.ALL, name: 'all'},
 		{id: perms.GROUPS.NON_LOGGED, name: 'non-logged'},
 		{id: perms.GROUPS.LOGGED, name: 'logged'},
 		{id: 4, name: 'group-a'},
 	]);
-	LOG.info('(Knex) DB filled with demo groups');
-	LOG.info('(Knex) DB filling with user-group relations...');
-	await knex.batchInsert(c.db.table.user_group, [
+	console.log('(Knex) DB filled with demo groups');
+	console.log('(Knex) DB filling with user-group relations...');
+	await knex.batchInsert(CONFIG.db.table.user_group, [
 		{user_id: 2, group_id: 4},
 		{user_id: 3, group_id: 4},
 	]);
-	LOG.info('(Knex) DB filled with user-group relations');
-	LOG.info('(Knex) DB filling with password...');
-	await knex.batchInsert(c.db.table.password, [
+	console.log('(Knex) DB filled with user-group relations');
+	console.log('(Knex) DB filling with password...');
+	await knex.batchInsert(CONFIG.db.table.password, [
 		{id: 1, password: 'passwords-show-footer'},
 		{id: 2, password: 'password more permissions!'},
 		{id: 3, password: 'passwords secured images'},
 		{id: 4, password: 'passwords-for-everything'},
 	]);
-	LOG.info('(Knex) DB filled with passwords');
-	LOG.info('(Knex) DB filling with permissions...');
-	await knex.batchInsert(c.db.table.permission, [
+	console.log('(Knex) DB filled with passwords');
+	console.log('(Knex) DB filling with permissions...');
+	await knex.batchInsert(CONFIG.db.table.permission, [
 		// users
 		{user_id: 1, permission: '/permissions/4 - visible for user1/'},
 		{user_id: 1, permission: '/permissions/4 - another visible for user1/'},
@@ -161,8 +198,5 @@ async function fillDemoData() {
 
 		{password_id: 4, permission: '/passwords/'},
 	]);
-	LOG.info('(Knex) DB filled with permissions');
-	process.exit();
+	console.log('(Knex) DB filled with permissions');
 }
-
-module.exports.run(true, true)
