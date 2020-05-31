@@ -164,9 +164,9 @@ async function fillDemoData() {
 	console.log('(Knex) DB filling with permissions...');
 	await knex.batchInsert(CONFIG.db.table.permission, [
 		// users
-		{user_id: 1, permission: '/permissions/4 - visible for user1/'},
-		{user_id: 1, permission: '/permissions/4 - another visible for user1/'},
-		{user_id: 4, permission: '/'},
+		{user_id: 1, permission: '/permissions/user 1 a/'},
+		{user_id: 1, permission: '/permissions/user 1 b/'},
+		{user_id: 4, permission: '/permissions/'},
 
 		// groups
 		{group_id: perms.GROUPS.ALL, permission: '/permissions/header.html'},
@@ -188,7 +188,7 @@ async function fillDemoData() {
 
 		{group_id: perms.GROUPS.LOGGED, permission: '/permissions/only-logged/'},
 
-		{group_id: 4, permission: '/permissions/secured-folder/'},
+		{group_id: 4, permission: '/permissions/group a/'},
 		// passwords
 		{password_id: 1, permission: '/passwords/footer.html'},
 
