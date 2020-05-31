@@ -16,6 +16,8 @@ const mapData = {
 	infoWindow: null
 };
 
+const transparentPixelBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII';
+
 const S = new Structure();
 const presentation = new Presentation();
 
@@ -644,6 +646,7 @@ function loadSearch(callback) {
 				S.selectorMove('first');
 				mapParsePhotos();
 				S.filter();
+				loadThumbnail();
 			}
 		},
 		error: function (result) {
@@ -659,6 +662,23 @@ function loadSearch(callback) {
 			(typeof callback === 'function' && callback());
 		}
 	});
+}
+
+/**
+ * Load thumbnail image one-by-one.
+ * After first thumbnail is loaded (or error while loading) it will call itself again and load next thumbnail image
+ */
+function loadThumbnail() {
+	const thumbnailsNotLoaded = $('.thumbnail-not-loaded');
+	if (thumbnailsNotLoaded.length > 0) {
+		const firstThumbnail = thumbnailsNotLoaded.first();
+		// trigger loading image after new src is loaded
+		// @Author https://stackoverflow.com/a/7439093/3334403 (http://jsfiddle.net/jfriend00/hmP5M/)
+		firstThumbnail.one('load error', function() {
+			loadThumbnail();
+		}).attr('src', firstThumbnail.data('src'));
+		firstThumbnail.removeClass('thumbnail-not-loaded');
+	}
 }
 
 function loadStructure(force, callback) {
@@ -686,6 +706,7 @@ function loadStructure(force, callback) {
 				parseStructure(result.result);
 				mapParsePhotos();
 				$('#navbar-filter input').val('');
+				loadThumbnail();
 				S.filter();
 			}
 		},
@@ -737,7 +758,7 @@ function parseStructure(items) {
 		}
 		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
 		if (!item.noFilter && CONFIG.thumbnails.folder.enabled === true) {
-			contentTiles += ' <img class="thumbnail" src="/api/thumbnail-folder?path=' + item.getEncodedPath() + '" loading="lazy">';
+			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="/api/thumbnail-folder?path=' + item.getEncodedPath() + '">';
 		}
 		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
@@ -755,7 +776,7 @@ function parseStructure(items) {
 		contentTiles += ' <i class="icon fa fa-' + item.icon + ' fa-fw"></i>';
 		if (item.isImage === true && CONFIG.thumbnails.image.enabled === true) {
 			// this image is rendered above icon so if image is loaded, icon will automatically hide
-			contentTiles += ' <img class="thumbnail" src="' + item.getFileUrl() + '&type=thumbnail" loading="lazy">';
+			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="' + item.getFileUrl() + '&type=thumbnail">';
 		}
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		const created = item.created.human(true);
