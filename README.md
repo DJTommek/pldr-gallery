@@ -12,8 +12,10 @@ Note: it should work with version 10, but some functions such as searching might
 
 ## Installation
 1. Clone repository
-1. Run `npm install`
-1. Rename `data/config.local.example.js` to `data/config.local.js` (optional: edit default values)
+1. Run `npm install` which will automatically:
+    - install all necessary dependencies
+    - create `data/config.local.js`
+    - create `data/pldr-gallery.sqlite` with demo permissions
 1. Run `node index.js`
 1. Open http://localhost:3000/
 

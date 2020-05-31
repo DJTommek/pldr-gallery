@@ -1,9 +1,5 @@
 /**
- * Example file for config.local.js
- * Rename this file to config.local.js and it will override variables in config.js
- *
  * Feel free to edit anything just make sure that you know, what are you doing.
- * In this example all variables SHOULD be updated.
  */
 module.exports = {
 	// Path to folders and files, where you want to set "root".
@@ -42,7 +38,6 @@ module.exports = {
 			// },
 		},
 	},
-
 
 	google: {
 		// Generate your own "OAuth client ID" credentials for Web application on
