@@ -5,6 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"postinstall": "node postinstall.js",
+		"start": "node index.js",
 		"test": "mocha --exit --delay"
 	},
 	"repository": {
