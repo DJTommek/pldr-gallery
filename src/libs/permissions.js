@@ -1,7 +1,11 @@
 const CONFIG = require('./config.js');
 const LOG = require('./log.js');
 const pathCustom = require('./path.js');
+const PATH = require('path');
 const knex = require('./database.js');
+const HFS = require('./helperFileSystem');
+require(BASE_DIR_GET('/src/webserver/private/js/class/Icon.js'));
+require(BASE_DIR_GET('/src/webserver/private/js/class/FileExtensionMapper.js'));
 
 module.exports.GROUPS = {
 	ALL: 1,
@@ -27,6 +31,29 @@ module.exports.getAllGroups = function () {
 	return GROUPS;
 }
 
+/**
+ * Check if permission is valid and file or folder exists
+ * @param {string} permission
+ * @return {*}
+ */
+function isPermisionValid(permission) {
+	// is folder or is file
+	let permissionToCheck = permission;
+	if (permission.endsWith('/')) {
+		// folder
+	} else if (permission.match((new FileExtensionMapper).regexAll)) {
+		// file
+	} else if (PATH.basename(permission) === 'header.html') {
+		// header
+	} else if (PATH.basename(permission) === 'footer.html') {
+		// footer
+	} else {
+		// Unknown file, probably prefix? Get dirname
+		permissionToCheck = pathCustom.dirname(permission);
+	}
+	return HFS.checkFileFolderAccess(CONFIG.path, permissionToCheck, permissionCheck);
+}
+
 async function loadGroupsDb() {
 	(await knex(CONFIG.db.table.group)
 			.select(
@@ -37,10 +64,17 @@ async function loadGroupsDb() {
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.group_id', CONFIG.db.table.group + '.id')
 			.groupBy(CONFIG.db.table.group + '.id')
 	).forEach(function (data) {
+		const groupPermissions = (data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []);
+		for (const groupPermission of groupPermissions) {
+			const checkError = isPermisionValid(groupPermission);
+			if (checkError) {
+				LOG.warning('Group ID ' + data['id'] + ' has invalid permission "' + groupPermission + '": ' + checkError);
+			}
+		}
 		GROUPS[data['id']] = new Group(
 			data['id'],
 			data['name'],
-			(data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []),
+			groupPermissions,
 		);
 	});
 }
@@ -55,10 +89,17 @@ async function loadPasswordsDb() {
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.password_id', CONFIG.db.table.password + '.id')
 			.groupBy(CONFIG.db.table.password + '.id')
 	).forEach(function (data) {
+		const passwordPermissions = (data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []);
+		for (const passwordPermission of passwordPermissions) {
+			const checkError = isPermisionValid(passwordPermission);
+			if (checkError) {
+				LOG.warning('Password "' + data['password'] + '" has invalid permission "' + passwordPermission + '": ' + checkError);
+			}
+		}
 		PASSWORDS[data['id']] = new Password(
 			data['id'],
 			data['password'],
-			(data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []),
+			passwordPermissions,
 		);
 	});
 }
@@ -73,10 +114,17 @@ async function loadUsersDb() {
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.user_id', CONFIG.db.table.user + '.id')
 			.groupBy(CONFIG.db.table.user + '.id')
 	).forEach(function (data) {
+		const userPermissions = (data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []);
+		for (const userPermission of userPermissions) {
+			const checkError = isPermisionValid(userPermission);
+			if (checkError) {
+				LOG.warning('User ID ' + data['id'] + ' has invalid permission "' + userPermission + '": ' + checkError);
+			}
+		}
 		const user = new User(
 			data['id'],
 			data['email'],
-			(data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []),
+			userPermissions,
 		);
 		// assign all users to generic groups
 		user.addGroup(GROUPS[module.exports.GROUPS.ALL])
