@@ -4,6 +4,7 @@
 	"description": "Standalone Node.js Express application for nice and quick browsing your multimedia files.",
 	"main": "index.js",
 	"scripts": {
+		"postinstall": "node postinstall.js",
 		"test": "mocha --exit --delay"
 	},
 	"repository": {
