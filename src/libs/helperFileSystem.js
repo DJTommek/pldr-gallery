@@ -174,6 +174,12 @@ function pathMasterCheck(basePath, requestedPathBase64, userPermissions, permsTe
 
 module.exports.pathMasterCheck = pathMasterCheck;
 
+module.exports.checkFileFolderAccess = function (absolutePath, relativePath, permTestFunction) {
+	const requestedPathBase64 = (new Buffer.from(relativePath)).toString('base64');
+	const passwordPermissionCheckResult = this.pathMasterCheck(absolutePath, requestedPathBase64, ['/'], permTestFunction);
+	return (passwordPermissionCheckResult.error || false);
+}
+
 function getEndpointPath(filePath) {
 	const file = PATH.basename(filePath, '.js');
 	const folder = PATH.basename(PATH.dirname(filePath));
