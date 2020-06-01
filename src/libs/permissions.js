@@ -15,11 +15,7 @@ module.exports.GROUPS = {
 
 let USERS = {};
 let PASSWORDS = {};
-let GROUPS = {
-	[module.exports.GROUPS.ALL]: [],
-	[module.exports.GROUPS.NON_LOGGED]: [],
-	[module.exports.GROUPS.LOGGED]: [],
-}
+let GROUPS = {}
 
 module.exports.getAllUsers = function () {
 	return USERS;
@@ -59,23 +55,26 @@ async function loadGroupsDb() {
 			.select(
 				CONFIG.db.table.group + '.id',
 				CONFIG.db.table.group + '.name',
-				{permissions: knex.raw('GROUP_CONCAT(??.permission, ?)', [CONFIG.db.table.permission, CONFIG.db.separator])}
+				CONFIG.db.table.permission + '.permission',
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.group_id', CONFIG.db.table.group + '.id')
 			.groupBy(CONFIG.db.table.group + '.id')
+			.groupBy(CONFIG.db.table.permission + '.permission')
+			.orderBy(CONFIG.db.table.group + '.id')
 	).forEach(function (data) {
-		const groupPermissions = (data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []);
-		for (const groupPermission of groupPermissions) {
-			const checkError = isPermisionValid(groupPermission);
+		// if null, group exists but don't have any permissions assigned
+		if (data.permission !== null) {
+			const checkError = isPermisionValid(data.permission);
 			if (checkError) {
-				LOG.warning('Group ID ' + data['id'] + ' has invalid permission "' + groupPermission + '": ' + checkError);
+				LOG.warning('Group ID ' + data['id'] + ' has invalid permission "' + data.permission + '": ' + checkError);
 			}
 		}
-		GROUPS[data['id']] = new Group(
-			data['id'],
-			data['name'],
-			groupPermissions,
-		);
+		if (GROUPS[data['id']] === undefined) {
+			GROUPS[data['id']] = new Group(data['id'], data['name']);
+		}
+		if (data.permission !== null) {
+			GROUPS[data['id']].addPermission(data.permission);
+		}
 	});
 }
 
@@ -84,23 +83,28 @@ async function loadPasswordsDb() {
 			.select(
 				CONFIG.db.table.password + '.id',
 				CONFIG.db.table.password + '.password',
-				{permissions: knex.raw('GROUP_CONCAT(??.permission, ?)', [CONFIG.db.table.permission, CONFIG.db.separator])}
+				CONFIG.db.table.permission + '.permission',
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.password_id', CONFIG.db.table.password + '.id')
 			.groupBy(CONFIG.db.table.password + '.id')
+			.groupBy(CONFIG.db.table.permission + '.permission')
+			.orderBy(CONFIG.db.table.password + '.id')
 	).forEach(function (data) {
-		const passwordPermissions = (data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []);
-		for (const passwordPermission of passwordPermissions) {
-			const checkError = isPermisionValid(passwordPermission);
+		// if null, password exists but don't have any permissions assigned
+		if (data.permission === null) {
+				LOG.warning('Password ID ' + data['id'] + ' don\'t have any permissions.');
+		} else {
+			const checkError = isPermisionValid(data.permission);
 			if (checkError) {
-				LOG.warning('Password "' + data['password'] + '" has invalid permission "' + passwordPermission + '": ' + checkError);
+				LOG.warning('Password ID ' + data['id'] + ' has invalid permission "' + data.permission + '": ' + checkError);
 			}
 		}
-		PASSWORDS[data['id']] = new Password(
-			data['id'],
-			data['password'],
-			passwordPermissions,
-		);
+		if (PASSWORDS[data['id']] === undefined) {
+			PASSWORDS[data['id']] = new Password(data['id'], data['password']);
+		}
+		if (data.permission !== null) {
+			PASSWORDS[data['id']].addPermission(data.permission);
+		}
 	});
 }
 
@@ -109,27 +113,30 @@ async function loadUsersDb() {
 			.select(
 				CONFIG.db.table.user + '.id',
 				CONFIG.db.table.user + '.email',
-				{permissions: knex.raw('GROUP_CONCAT(??.permission, ?)', [CONFIG.db.table.permission, CONFIG.db.separator])}
+				CONFIG.db.table.permission + '.permission',
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.user_id', CONFIG.db.table.user + '.id')
 			.groupBy(CONFIG.db.table.user + '.id')
+			.groupBy(CONFIG.db.table.permission + '.permission')
+			.orderBy(CONFIG.db.table.user + '.id')
 	).forEach(function (data) {
-		const userPermissions = (data['permissions'] ? data['permissions'].split(CONFIG.db.separator) : []);
-		for (const userPermission of userPermissions) {
-			const checkError = isPermisionValid(userPermission);
+		// if null, group exists but don't have any permissions assigned
+		if (data.permission !== null) {
+			const checkError = isPermisionValid(data.permission);
 			if (checkError) {
-				LOG.warning('User ID ' + data['id'] + ' has invalid permission "' + userPermission + '": ' + checkError);
+				LOG.warning('User ID ' + data['id'] + ' has invalid permission "' + data.permission + '": ' + checkError);
 			}
 		}
-		const user = new User(
-			data['id'],
-			data['email'],
-			userPermissions,
-		);
-		// assign all users to generic groups
-		user.addGroup(GROUPS[module.exports.GROUPS.ALL])
-		user.addGroup(GROUPS[module.exports.GROUPS.LOGGED])
-		USERS[data['id']] = user;
+		if (USERS[data['id']] === undefined) {
+			const user = new User(data['id'], data['email']);
+			// assign all users to generic groups
+			user.addGroup(GROUPS[module.exports.GROUPS.ALL])
+			user.addGroup(GROUPS[module.exports.GROUPS.LOGGED])
+			USERS[data['id']] = user;
+		}
+		if (data.permission !== null) {
+			USERS[data['id']].addPermission(data.permission);
+		}
 	});
 }
 
@@ -191,7 +198,7 @@ exports.getUser = function getUser(email) {
  * @returns {User}
  */
 exports.getNonLoggedUser = function getNonLoggedUser() {
-	const nonLoggedUser = new User(0, null, []);
+	const nonLoggedUser = new User(0, null);
 	nonLoggedUser.addGroup(GROUPS[module.exports.GROUPS.ALL])
 	nonLoggedUser.addGroup(GROUPS[module.exports.GROUPS.NON_LOGGED])
 	return nonLoggedUser;
@@ -240,10 +247,10 @@ exports.load = async function load(callback) {
 }
 
 class User {
-	constructor(id, email, permissions) {
+	constructor(id, email) {
 		this.id = id;
 		this.email = email;
-		this.permissions = permissions;
+		this.permissions = [];
 		this.groups = [];
 		this.passwords = [];
 	}
@@ -282,6 +289,10 @@ class User {
 		return permissionCheck(this.getPermissions(), path, fullAccess);
 	}
 
+	addPermission(permission) {
+		this.permissions.push(permission);
+	}
+
 	/**
 	 * Get all permissions merged from user, groups and passwords
 	 *
@@ -300,10 +311,10 @@ class User {
 }
 
 class Group {
-	constructor(id, name, permissions) {
+	constructor(id, name) {
 		this.id = id;
 		this.name = name;
-		this.permissions = permissions;
+		this.permissions = [];
 		this.users = [];
 	}
 
@@ -315,16 +326,24 @@ class Group {
 		}
 	}
 
+	addPermission(permission) {
+		this.permissions.push(permission);
+	}
+
 	getPermissions() {
 		return [...this.permissions];
 	}
 }
 
 class Password {
-	constructor(id, password, permissions) {
+	constructor(id, password) {
 		this.id = id;
 		this.password = password;
-		this.permissions = permissions;
+		this.permissions = [];
+	}
+
+	addPermission(permission) {
+		this.permissions.push(permission);
 	}
 
 	getPermissions() {

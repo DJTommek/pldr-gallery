@@ -258,8 +258,6 @@ if (!PATH.isAbsolute(CONFIG.path)) {
 
 if (CONFIG.db.knex.client === 'sqlite3') {
 	CONFIG.db.knex.connection.filename = pathCustom.join(CONFIG.db.knex.connection.filename);
-} else {
-	errorExit('Currently is supported only "sqlite3". See https://github.com/DJTommek/pldr-gallery/issues/39')
 }
 
 module.exports = CONFIG;
