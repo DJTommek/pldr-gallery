@@ -40,9 +40,14 @@ async function exit() {
 	console.log('(Knex) Disconnected from database.');
 }
 
+/**
+ * Get list of tables
+ *
+ * @TODO currently sqlite3 only, add support at least for mysql
+ * @author https://github.com/knex/knex/issues/360#issuecomment-68387974
+ * @return {Promise<boolean>}
+ */
 async function checkIfTablesExists() {
-	// get list of tables (currently sqlite3 only)
-	// @Author https://github.com/knex/knex/issues/360#issuecomment-68387974
 	return await knex.schema.raw('SELECT name FROM sqlite_master WHERE type=\'table\';').then(function (tables) {
 		const tableNames = [];
 		tables.forEach(function(table) {
