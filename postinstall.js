@@ -1,5 +1,5 @@
 (async function () {
-	console.log('---[npm post install start]---');
+	console.log('---[pldr-gallery npm post install start]---');
 
 	const scriptLocalConfig = __dirname + '/src/tools/copy-example-local-config.js';
 	console.log('Starting script "' + scriptLocalConfig + '"...');
@@ -14,6 +14,6 @@
 	await require(scriptCreateDemoDb).run(purge, insertDemoData);
 	console.log('Script "' + scriptCreateDemoDb + '" has been finished.');
 
-	console.log('---[npm post install finished]---');
+	console.log('---[pldr-gallery npm post install finished]---');
 })();
 
