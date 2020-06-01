@@ -26,8 +26,15 @@ module.exports.httpServer = null;
 module.exports.httpsServer = null;
 
 /**
- * Middleware for all requests
- *
+ * @return next()
+ */
+webserver.all('*', function (req, res, next) {
+	res.locals.hrtimeStart = process.hrtime();
+	next();
+});
+
+/**
+ * Log request to file
  * @return next()
  */
 webserver.all('*', function (req, res, next) {
@@ -51,8 +58,14 @@ webserver.all('*', function (req, res, next) {
 		}
 	});
 	LOG.webserver(JSON.stringify(weblog));
+	next();
+});
 
-	// define quick JSON response object
+/**
+ * Define quick JSON response object
+ * @return next()
+ */
+webserver.all('*', function (req, res, next) {
 	const requestStart = new Date();
 	res.result = {
 		datetime: (new Date).human(),
@@ -88,7 +101,38 @@ webserver.all('*', function (req, res, next) {
 			res.end(this.toString());
 		}
 	};
-	return next();
+	next();
+});
+
+/**
+ * Define helper for hrtime processing to Server-Timing header
+ * @return next()
+ */
+webserver.all('*', function (req, res, next) {
+	res.serverTiming = {
+		addTiming: function (id, description = null) {
+			this.timings.push({
+				id: id,
+				timing: process.hrtime(),
+				diff: hrtime(process.hrtime(this.timings.last().timing)),
+				description: description,
+			});
+		},
+		finish: function () {
+			let headerStrings = [];
+			for (let i = 1; i < this.timings.length; i++) {
+				const timing = this.timings[i];
+				headerStrings.push(timing.id + ';dur=' + timing.diff + (timing.description ? ';desc="' + timing.description + '"' : ''));
+			}
+			res.setHeader("Server-Timing", headerStrings.join(', '));
+		},
+		timings: [{
+			id: 'start',
+			timing: process.hrtime(),
+			description: null,
+		}],
+	};
+	next();
 });
 
 /**
@@ -267,15 +311,15 @@ if (c.thumbnails.folder.enabled === true && c.thumbnails.folder.cache === true) 
  * Create folder for saving login tokens
  */
 FS.access(c.http.login.tokensPath, (err) => {
-    if (err) { // folder doesn't exists
+	if (err) { // folder doesn't exists
 		FS.mkdir(c.http.login.tokensPath, {recursive: true}, function (error) {
 			if (error) {
 				LOG.error('(Login) Error while creating folder for login tokens: ' + error.message);
 			} else {
-        		LOG.info("(Login) Created folder for saving login tokens.");
+				LOG.info("(Login) Created folder for saving login tokens.");
 			}
 		});
-    }
+	}
 });
 
 /**

@@ -15,6 +15,7 @@ module.exports = function (webserver, endpoint) {
 	 * @returns image stream (in case of error, streamed image with error text)
 	 */
 	webserver.get(endpoint, function (req, res) {
+		res.serverTiming.addTiming('api', 'General API');
 		res.statusCode = 200;
 		try {
 			if (!res.locals.fullPathFile) {
@@ -33,7 +34,9 @@ module.exports = function (webserver, endpoint) {
 				return;
 			}
 
+			res.serverTiming.addTiming('imgl', 'Image loading');
 			let imageStream = FS.createReadStream(res.locals.fullPathFile);
+
 			const compressData = getResizeParams(req);
 			res.setHeader("Content-Type", res.locals.mediaType);
 
@@ -48,6 +51,7 @@ module.exports = function (webserver, endpoint) {
 			}
 			res.setHeader("Content-Type", res.locals.mediaType);
 			imageStream.pipe(res);
+			res.serverTiming.addTiming('imgp', 'Image processing');
 		} catch (error) {
 			res.statusCode = 404;
 			let fontSize = 40;
@@ -66,6 +70,7 @@ module.exports = function (webserver, endpoint) {
 				}
 			}).composite([{input: textBuffer}]).png().pipe(res);
 		}
+		res.serverTiming.finish();
 	});
 };
 

@@ -150,6 +150,10 @@ describe('Test all functions from functions.js', function () {
 		assert.equal(formatBytes(1208925819614629174706176), '1 YB');
 	});
 
+	it('hrtime()', function () {
+		// @TODO add testsing of hrtime()
+	});
+
 	it('isNumeric()', function () {
 		// true
 		assert.equal(isNumeric(0), true);

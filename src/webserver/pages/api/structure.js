@@ -16,6 +16,7 @@ module.exports = function (webserver, endpoint) {
 	 * @returns JSON
 	 */
 	webserver.get(endpoint, function (req, res) {
+		res.serverTiming.addTiming('api', 'General API');
 		res.statusCode = 200;
 		res.setHeader("Content-Type", "application/json");
 		if (!res.locals.fullPathFolder) {
@@ -51,6 +52,8 @@ module.exports = function (webserver, endpoint) {
 			generateSpecificFilePromise('header.html'),
 			generateSpecificFilePromise('footer.html'),
 		]).then(function (data) {
+			res.serverTiming.addTiming('apis', 'Processing data');
+			res.serverTiming.finish();
 			res.result.setResult({
 				folders: data[0].items.map(x => x.serialize()),
 				foldersTotal: data[0].total,
