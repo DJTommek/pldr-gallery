@@ -231,6 +231,20 @@ function formatBytes(bytes, decimals = 2) {
 global.formatBytes = formatBytes;
 
 /**
+ * Convert the result of process.hrtime() to milliseconds
+ *
+ * @author https://github.com/sindresorhus/convert-hrtime
+ * @param hrtime
+ * @return {number}
+ */
+function hrtime(hrtime) {
+	const nanoseconds = (hrtime[0] * 1e9) + hrtime[1];
+	return nanoseconds / 1e6;
+}
+
+global.hrtime = hrtime;
+
+/**
  * Check, if value can be converted to number
  *
  * @param {*} numeric

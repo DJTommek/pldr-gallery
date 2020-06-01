@@ -17,6 +17,7 @@ module.exports = function (webserver, endpoint) {
 	 * @param path - where to search
 	 */
 	webserver.get(endpoint, function (req, res) {
+		res.serverTiming.addTiming('api', 'General API');
 		res.statusCode = 200;
 		res.setHeader("Content-Type", "application/json");
 		let finds = {
@@ -41,7 +42,7 @@ module.exports = function (webserver, endpoint) {
 		}
 
 		let logPrefix = '(Web) Searching "' + req.query.query + '" in path "' + res.locals.path + '"';
-		let readDirStart = new Date();
+		let readDirStart = process.hrtime();
 
 		// Do not use readdirp.fileFilter option because is case sensitive.
 		// Instead create custom file extensions regex with case-insensitive parameter
@@ -93,8 +94,10 @@ module.exports = function (webserver, endpoint) {
 		}).on('error', function (error) {
 			LOG.error(logPrefix + ' throwed error: ' + error);
 		}).on('end', function () {
-			let humanTime = msToHuman(new Date() - readDirStart);
+			let humanTime = msToHuman(hrtime(process.hrtime(readDirStart)));
 			LOG.info(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
+			res.serverTiming.addTiming('apis', 'Searching');
+			res.serverTiming.finish();
 			res.result.setResult(finds, 'Done in ' + humanTime).end();
 		});
 	});

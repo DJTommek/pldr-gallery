@@ -7,6 +7,7 @@ const FS = require('fs');
 const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
 
 module.exports.files = function (requestedPath, fullPath, permissions, options = {}) {
+	const hrstart = process.hrtime();
 	if (typeof options.limit === 'undefined') {
 		options.limit = false;
 	} else if (options.limit !== false && typeof options.limit < 1) {
@@ -79,6 +80,7 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 			LOG.error('[Globby] Error while processing files in "' + fullPath + '": ' + error.message);
 			files = [];
 		}).finally(function () {
+			LOG.debug('(FS Stats) Pattern: "' + globbyPathPattern + '", total ' + filesLimitCount + ' files, took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
 			resolve({
 				items: files,
 				total: filesLimitCount,
@@ -90,6 +92,7 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 };
 
 module.exports.folders = function (requestedPath, fullPath, permissions, options = {}) {
+	const hrstart = process.hrtime();
 	if (typeof options.limit === 'undefined') {
 		options.limit = false;
 	} else if (options.limit !== false && typeof options.limit < 1) {
@@ -108,8 +111,9 @@ module.exports.folders = function (requestedPath, fullPath, permissions, options
 				icon: (new Icon).FOLDER_GO_BACK,
 			}));
 		}
+		const globbyPathPattern = fullPath.replaceAll('(', '\\(').replaceAll('[', '\\[') + '*'
 		// @TODO temporary fix, more info in https://github.com/DJTommek/pldr-gallery/issues/7
-		globby(fullPath.replaceAll('(', '\\(').replaceAll('[', '\\[') + '*', {
+		globby(globbyPathPattern, {
 			markDirectories: true,
 			onlyDirectories: true
 		}).then(function (rawPathsFolders) {
@@ -131,6 +135,7 @@ module.exports.folders = function (requestedPath, fullPath, permissions, options
 			LOG.error('[Globby] Error while processing folders in "' + fullPath + '": ' + error.message);
 			folders = [];
 		}).finally(function () {
+			LOG.debug('(FS Stats) Pattern: "' + globbyPathPattern + '", total ' + foldersLimitCount + ' folders, took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
 			resolve({
 				items: folders,
 				total: foldersLimitCount,

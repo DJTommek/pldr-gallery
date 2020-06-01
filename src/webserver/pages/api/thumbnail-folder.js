@@ -11,6 +11,7 @@ const getItemsHelper = require('./helpers/getItemsFromFolder.js');
 module.exports = function (webserver, endpoint) {
 
 	webserver.get(endpoint, function (req, res) {
+		res.serverTiming.addTiming('api', 'General API');
 		res.statusCode = 200;
 		if (c.thumbnails.folder.enabled !== true) {
 			return res.result.setError('Folder thumbnail images are disabled in server config. Check out "config.thumbnails.folder.enabled".').end(403);
@@ -37,6 +38,8 @@ module.exports = function (webserver, endpoint) {
 		if (canUseCache && c.thumbnails.folder.cache === true && cacheFilePath) {
 			res.setHeader("Content-Type", 'image/png');
 			res.sendFile(cacheFilePath);
+			res.serverTiming.addTiming('apicache', 'Loading cached thumbnail');
+			res.serverTiming.finish();
 			return;
 		}
 
@@ -61,11 +64,13 @@ module.exports = function (webserver, endpoint) {
 
 			// resize all loaded images and use them to build final thumbnail
 			Promise.all(resizePromises).then(function (resizedImages) {
+				res.serverTiming.addTiming('apiload', 'Loading and resizing image');
 				let toComposite = [];
 				resizedImages.forEach(function (resizedImage, index) {
 					toComposite.push({input: resizedImages[index], gravity: c.thumbnails.folder.positions[index].gravity})
 				});
 				const thumbnailImageStream = sharp(c.thumbnails.folder.inputOptions).composite(toComposite).png();
+				res.serverTiming.addTiming('apigenerate', 'Composing thumbnail');
 
 				res.setHeader("Content-Type", 'image/png');
 				thumbnailImageStream.pipe(res);
@@ -74,7 +79,9 @@ module.exports = function (webserver, endpoint) {
 				if (canUseCache && c.thumbnails.folder.cache === true) {
 					cacheHelper.saveStream(cacheHelper.TYPE.FOLDER, res.locals.path, thumbnailImageStream);
 				}
+				res.serverTiming.finish();
 			}).catch(function (error) {
+				res.serverTiming.finish();
 				LOG.error('Error while generating thumbnail image for folder "' + res.locals.path + '": ' + error.message);
 				return res.result.setError('Error while generating folder thumbnail image.').end(500);
 			});
