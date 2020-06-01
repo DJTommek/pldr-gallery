@@ -669,7 +669,7 @@ function loadSearch(callback) {
  * After first thumbnail is loaded (or error while loading) it will call itself again and load next thumbnail image
  */
 function loadThumbnail() {
-	const thumbnailsNotLoaded = $('.thumbnail-not-loaded');
+	const thumbnailsNotLoaded = $('.thumbnail-not-loaded:visible');
 	if (thumbnailsNotLoaded.length > 0) {
 		const firstThumbnail = thumbnailsNotLoaded.first();
 		// trigger loading image after new src is loaded
@@ -974,6 +974,9 @@ function structureViewChange(value) {
 	$('#structure-display-type-' + value).removeClass('btn-outline-secondary').addClass('btn-secondary');
 	// check radiobox
 	$('#structure-display-type-' + value + ' input').attr('checked', true);
+
+	// start loading thumbnails
+	loadThumbnail();
 }
 
 /**
