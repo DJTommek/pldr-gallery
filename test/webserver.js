@@ -15,6 +15,8 @@ describe('Integrations - Webserver Structure', function () {
 		assertRequest(apiPath, {}, null, function (result) {
 			if (result.error === true && result.result.length === 0 && result.message === 'Zadaná cesta "<b>undefined</b>" není platná nebo na ni nemáš právo.') {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -29,6 +31,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.header !== null && result.result.footer !== null
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -41,6 +45,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.header === null && result.result.footer === null
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -55,6 +61,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.header !== null && result.result.footer === null
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -66,6 +74,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.header !== null && result.result.footer === null
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -77,6 +87,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.header !== null && result.result.footer !== null
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -90,6 +102,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.header !== null && result.result.footer === null
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -103,6 +117,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.header !== null && result.result.footer !== null
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -118,6 +134,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.header !== null && result.result.footer === null
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -137,6 +155,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.folders[3].path === path + 'some+plus/'
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -153,6 +173,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.files[0].path === path + 'placeholder sample image.jpg'
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -166,6 +188,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.files[0].path === path + 'placeholder sample image.jpg'
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
@@ -179,6 +203,8 @@ describe('Integrations - Webserver Structure', function () {
 				result.result.files[0].path === path + 'placeholder sample image.jpg'
 			) {
 				done();
+			} else {
+				done('Failed');
 			}
 		});
 	});
