@@ -17,7 +17,6 @@ module.exports = function (webserver, endpoint) {
 	 * @param path - where to search
 	 */
 	webserver.get(endpoint, function (req, res) {
-		res.serverTiming.addTiming('api', 'General API');
 		res.statusCode = 200;
 		res.setHeader("Content-Type", "application/json");
 		let finds = {
@@ -47,6 +46,7 @@ module.exports = function (webserver, endpoint) {
 		// Do not use readdirp.fileFilter option because is case sensitive.
 		// Instead create custom file extensions regex with case-insensitive parameter
 		// Closed github request, Option for case-insensitive filter: https://github.com/paulmillr/readdirp/issues/47
+		res.startTime('apisearching', 'Searching');
 		readdirp(res.locals.fullPathFolder, {
 			type: 'files_directories',
 			depth: 10,
@@ -94,10 +94,9 @@ module.exports = function (webserver, endpoint) {
 		}).on('error', function (error) {
 			LOG.error(logPrefix + ' throwed error: ' + error);
 		}).on('end', function () {
+			res.endTime('apisearching');
 			let humanTime = msToHuman(hrtime(process.hrtime(readDirStart)));
 			LOG.info(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
-			res.serverTiming.addTiming('apis', 'Searching');
-			res.serverTiming.finish();
 			res.result.setResult(finds, 'Done in ' + humanTime).end();
 		});
 	});
