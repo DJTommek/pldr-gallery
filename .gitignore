@@ -1,5 +1,5 @@
 /data/config.local.js
-/data/config.local.backup*.js
+/data/config.local.js
 /data/*.sqlite
 /data/log
 /data/log-test
