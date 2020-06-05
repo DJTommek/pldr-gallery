@@ -14,6 +14,7 @@ const https = require('https');
 const express = require('express');
 const lessMiddleware = require('less-middleware');
 const compression = require('compression');
+const serverTiming = require('server-timing');
 const webserver = express();
 webserver.use(bodyParser.json()); // support json encoded bodies
 webserver.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
@@ -21,6 +22,7 @@ webserver.use(cookieParser()); // support cookies
 webserver.use(lessMiddleware(c.less.sourcePath, c.less.options));
 webserver.use(express.static(c.http.publicPath));
 webserver.use(compression());
+webserver.use(serverTiming());
 
 module.exports.httpServer = null;
 module.exports.httpsServer = null;
@@ -100,37 +102,6 @@ webserver.all('*', function (req, res, next) {
 			}
 			res.end(this.toString());
 		}
-	};
-	next();
-});
-
-/**
- * Define helper for hrtime processing to Server-Timing header
- * @return next()
- */
-webserver.all('*', function (req, res, next) {
-	res.serverTiming = {
-		addTiming: function (id, description = null) {
-			this.timings.push({
-				id: id,
-				timing: process.hrtime(),
-				diff: hrtime(process.hrtime(this.timings.last().timing)),
-				description: description,
-			});
-		},
-		finish: function () {
-			let headerStrings = [];
-			for (let i = 1; i < this.timings.length; i++) {
-				const timing = this.timings[i];
-				headerStrings.push(timing.id + ';dur=' + timing.diff + (timing.description ? ';desc="' + timing.description + '"' : ''));
-			}
-			res.setHeader("Server-Timing", headerStrings.join(', '));
-		},
-		timings: [{
-			id: 'start',
-			timing: process.hrtime(),
-			description: null,
-		}],
 	};
 	next();
 });

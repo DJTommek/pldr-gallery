@@ -28,6 +28,7 @@
 		"less-middleware": "^3.1.0",
 		"lodash.merge": "^4.6.2",
 		"readdirp": "^3.2.0",
+		"server-timing": "^3.2.1",
 		"sha1": "^1.1.1",
 		"sharp": "^0.24.0",
 		"sqlite3": "^4.2.0",
