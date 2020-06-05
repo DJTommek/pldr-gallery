@@ -38,6 +38,11 @@ Note: it should work with version 10, but some functions such as searching might
 ## Testing
 1. Install development dependencies via `npm install`
 2. Run `npm test`  
-Note: Application should be offline - integration tests will start it's own server instance on port defined in config.
+
+### Note
+Integrations tests (currently only `test/webserver.js` are using real config file and expecting default values so it might fail for your run. 
+Recommended to run tests after clean install. 
+
+Also application should be offline - integration tests will start it's own server instance on port defined in config.
 
 
