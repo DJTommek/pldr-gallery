@@ -45,6 +45,7 @@ class Item {
 		return this.path;
 	}
 }
+
 /*!
  * FolderItem
  */
@@ -132,6 +133,29 @@ class FileItem extends Item {
 		}
 		return null;
 	}
+
+	/**
+	 * Return loading text
+	 *
+	 * @param compressed
+	 */
+	getStatusLoadingText(compressed) {
+		let text = 'Loading ';
+		if (this.isImage) {
+			if (compressed === true) {
+				text += 'compressed ';
+			}
+			text += 'image';
+		} else if (this.isAudio) {
+			text += 'audio';
+		} else if (this.isVideo) {
+			text += 'video';
+		} else {
+			text += ' file';
+		}
+		return text + '...';
+	}
+
 
 	/**
 	 * Prepare data to send in AJAX
