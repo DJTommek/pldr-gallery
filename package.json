@@ -47,11 +47,13 @@
 			"data/log-test/*",
 			"data/tokens/*",
 			"temp/*",
-			"public/js/modules.min.js"
+			"src/webserver/public/js/modules.min.js"
 		],
 		"watch": [
 			"*.js",
-			"private/index.html"
-		]
+			"*.less",
+			"src/webserver/private/index.html"
+		],
+		"ext": "js,less"
 	}
 }
