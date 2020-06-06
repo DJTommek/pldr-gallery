@@ -95,7 +95,6 @@ class Structure {
 	 */
 	selectorMove(direction) {
 		let item = null;
-		console.warn('Selector Move: ' + direction);
 		switch (direction) {
 			default: // Move to specific item defined by index number
 				if (Number.isInteger(direction) && direction >= 0 && direction < this.items.length) {
@@ -353,7 +352,7 @@ class Structure {
 			return;
 		}
 		if (loadedStructure.filtering) {
-			console.warn('Filtering is already running, new filtering cancelled');
+			console.log('Filtering is already running, new filtering cancelled');
 			return;
 		}
 		try {

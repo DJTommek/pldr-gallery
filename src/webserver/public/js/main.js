@@ -868,11 +868,11 @@ function mapInit() {
 		zoom: 7,
 		center: new google.maps.LatLng(49.6, 15.2), // Czechia
 	});
-	console.log("map loaded");
+	console.log("Map loaded");
 
 	// init info window
 	mapData.infoWindow = new google.maps.InfoWindow({
-		content: 'Nastala chyba'
+		content: 'Empty info window...'
 	});
 }
 
