@@ -39,7 +39,7 @@ $(window).on('resize', function () {
 function loadingDone(element) {
 	if (element) {
 		$(element).fadeIn(Settings.load('animationSpeed'), function () {
-			loadingPopup(false);
+			setStatus(false);
 		});
 		if ($(element).is('video')) {
 			if (presentation.running) { // presentation is enabled
@@ -67,7 +67,7 @@ function loadingDone(element) {
 			}
 		}
 	} else {
-		loadingPopup(false);
+		setStatus(false);
 	}
 }
 
@@ -153,7 +153,7 @@ $(window).on('hashchange', function () {
 		 */
 		const currentFile = S.getCurrentFile();
 		if (currentFile) { // loaded item is file
-			loadingPopup(true); // starting loading img
+			setStatus(currentFile.getStatusLoadingText(Settings.load('compress')));
 			S.historyAdd(currentFile);
 
 			$('html head title').text(currentFile.path + ' ☁ ' + $('html head title').data('original-title'));
@@ -178,7 +178,7 @@ $(window).on('hashchange', function () {
 				if (openUrl === null) { // If item has no view url, use icon to indicate it is file that has to be downloaded
 					openUrl = downloadUrl;
 					$('#popup-icon').removeClass().addClass('fa fa-5x fa-' + currentFile.icon).fadeIn(Settings.load('animationSpeed'), function () {
-						loadingPopup(false);
+						setStatus(false);
 					});
 				}
 				$('#popup-filename').text(currentFile.text).attr('href', openUrl);
@@ -500,12 +500,15 @@ function popupClose() {
 	// animation in promise will skip if elements are already faded out
 	$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise();
 	$('#popup-audio').fadeOut(Settings.load('animationSpeed')).promise();
-	$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise();
+	// update image src to cancel loading
+	// @author https://stackoverflow.com/a/5278475/3334403
+	$('#popup-image').attr('src', transparentPixelBase64).fadeOut(Settings.load('animationSpeed')).promise();
 	loadedStructure.popup = false;
 	window.location.hash = S.getCurrentFolder().url;
 	videoPause();
 	audioPause();
 	presentation.stop();
+	setStatus(false);
 }
 
 function favouritesAdd(path) {
@@ -809,16 +812,16 @@ function parseStructure(items) {
 function loadingStructure(loading) {
 	if (loading === true) {
 		// add loading icon to specific item in structure
-		$('.structure-selected td:nth-child(2) a').prepend('<i class="fa fa-circle-o-notch fa-spin"></i> ');
 		$('#navbar-filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
 		$('#navbar-filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
 		$('#navbar-filter input').prop('disabled', true);
 		$('#navbar-filter .search').prop('disabled', true);
+		// @TODO set different message if searching
+		setStatus('Loading structure...');
 	}
 	if (loading === false) {
+		setStatus(false);
 		$('#map').hide();
-		// new structure will override loading icon but remove it manually in case of error
-		$('.structure-selected td:nth-child(2) a i').remove();
 		$('#navbar-filter input').prop('disabled', false);
 		$('#navbar-filter .search').prop('disabled', false);
 
@@ -830,14 +833,19 @@ function loadingStructure(loading) {
 	}
 }
 
-function loadingPopup(loading) {
-	if (loading === true) {
-		loadedStructure.loading = true;
-		$('#popup-loading').show();
-	}
-	if (loading === false) {
+/**
+ * Set status loading message.
+ *
+ * @param {boolean|string} message - false to disable or string to enable
+ */
+function setStatus(message) {
+	if (message === false) {
 		loadedStructure.loading = false;
-		$('#popup-loading').hide();
+		$('#status').hide();
+	} else {
+		loadedStructure.loading = true;
+		$('#status').show();
+		$('#status-text').html(message);
 	}
 	return loadedStructure.loading;
 }
