@@ -94,12 +94,20 @@ function itemPrev(stopPresentation) {
 	presentation.clearTimeout(); // to prevent running multiple presentation timeouts at the same time
 	videoPause();
 	audioPause();
+	const currentFileIndex = S.selectedIndex;
 	S.selectorMove('up');
 	// if new selected item is not file, select first file and show it
 	if (S.getItem(S.selectedIndex).isFile === false) {
 		S.selectorMove(S.getFirstFile().index);
 	}
 	S.selectorSelect();
+	// do wiggle animation if there is no item to move to
+	if (currentFileIndex === S.selectedIndex) {
+		$('#popup-content').addClass('wiggle');
+		setTimeout(function () {
+			$('#popup-content').removeClass('wiggle');
+		}, 1000);
+	}
 }
 
 function itemNext(stopPresentation) {
@@ -109,8 +117,16 @@ function itemNext(stopPresentation) {
 	presentation.clearTimeout(); // to prevent running multiple presentation timeouts at the same time
 	videoPause();
 	audioPause();
+	const currentFileIndex = S.selectedIndex;
 	S.selectorMove('down');
 	S.selectorSelect();
+	// do wiggle animation if there is no item to move to
+	if (currentFileIndex === S.selectedIndex) {
+		$('#popup-content').addClass('wiggle');
+		setTimeout(function () {
+			$('#popup-content').removeClass('wiggle');
+		}, 1000);
+	}
 }
 
 function itemNext10(stopPresentation) {
