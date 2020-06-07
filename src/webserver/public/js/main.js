@@ -302,8 +302,19 @@ $(function () {
 	}
 
 
-	$('#popup-close, #popup-content').on('click', function () {
+	$('#popup-close').on('click', function () {
 		popupClose();
+	});
+	$('#popup-content').on('click', function (event) {
+		if (event.target !== this) {
+			// don't close popup if clicked on anything than background around item (image, video, etc)
+			// @author https://stackoverflow.com/a/6411507/3334403
+			return false;
+		}
+		popupClose();
+	});
+	$("#popup-image").on('click', function (e) {
+		$('#popup-filename')[0].click();
 	});
 	$('#navbar-filter .search').on('click', function (event) {
 		event.preventDefault();
