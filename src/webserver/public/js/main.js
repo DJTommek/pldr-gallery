@@ -392,6 +392,13 @@ $(function () {
 		structureViewChange($(this).find('input').val());
 	});
 
+	// Event - clicked on zip download
+	$('#structure-download-archive').on('click', function (event) {
+		if (confirm('Opravdu chceš stáhnout obsah této složky i všech podsložek jako ZIP?') === false) {
+			event.preventDefault();
+		}
+	});
+
 	// Event - selected item in structure
 	$('#structure').on('click', '.structure-item', function (event) {
 		event.preventDefault();
