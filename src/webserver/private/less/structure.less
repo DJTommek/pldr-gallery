@@ -110,6 +110,9 @@
 				}
 			}
 
+			&:hover:not(.structure-selected) {
+				border: @item-border-size solid rgba(@theme-color-primary, 0.5);
+			}
 		}
 	}
 
@@ -180,6 +183,10 @@
 		&.structure-selected {
 			background-color: @theme-background-color-secondary;
 			color: @theme-color-primary
+		}
+
+		&:hover:not(.structure-selected) {
+			background-color: rgba(@theme-background-color-secondary, 0.5);
 		}
 	}
 }
