@@ -681,15 +681,23 @@ function loadSearch(callback) {
  * After first thumbnail is loaded (or error while loading) it will call itself again and load next thumbnail image
  */
 function loadThumbnail() {
+	if ($('.structure-item .thumbnail-loading-icon').length > 0) {
+		console.log('Thumbnail is already loading, canceling new request.');
+		return;
+	}
 	const thumbnailsNotLoaded = $('.thumbnail-not-loaded:visible');
 	if (thumbnailsNotLoaded.length > 0) {
 		const firstThumbnail = thumbnailsNotLoaded.first();
+		const firstThumbnailParent = firstThumbnail.parent();
+		// @TODO save new generated DOM and use .remove() directly instead of find()
+		firstThumbnail.before('<i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin" title="Loading thumbnail..."></i>');
 		// trigger loading image after new src is loaded
 		// @Author https://stackoverflow.com/a/7439093/3334403 (http://jsfiddle.net/jfriend00/hmP5M/)
-		firstThumbnail.one('load error', function() {
+		firstThumbnail.one('load error', function () {
+			firstThumbnailParent.find('i.thumbnail-loading-icon').remove();
+			firstThumbnail.removeClass('thumbnail-not-loaded');
 			loadThumbnail();
 		}).attr('src', firstThumbnail.data('src'));
-		firstThumbnail.removeClass('thumbnail-not-loaded');
 	}
 }
 
