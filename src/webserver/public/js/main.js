@@ -97,7 +97,7 @@ function itemPrev(stopPresentation) {
 		$('#popup-content').addClass('wiggle');
 		setTimeout(function () {
 			$('#popup-content').removeClass('wiggle');
-		}, 1000);
+		}, 500);
 	}
 }
 
