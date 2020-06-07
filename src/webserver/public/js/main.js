@@ -156,6 +156,11 @@ $(window).on('hashchange', function () {
 		if (currentFile) { // loaded item is file
 			setStatus(currentFile.getStatusLoadingText(Settings.load('compress')));
 			S.historyAdd(currentFile);
+			if (presentation.running === true && currentFile.isImage === false && currentFile.isAudio === false && currentFile.isVideo === false) {
+				// file is not viewable (zip, pdf...) so skip in presentation
+				// @TODO causing bug, that file-icon is being visible under next viewable item (eg. audio)
+				presentation.next();
+			}
 
 			$('html head title').text(currentFile.path + ' ☁ ' + $('html head title').data('original-title'));
 
