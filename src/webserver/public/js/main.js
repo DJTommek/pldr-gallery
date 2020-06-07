@@ -59,12 +59,17 @@ function loadingDone(element) {
 		} else if ($(element).is('img')) {
 			if (presentation.running) { // presentation is enabled
 				if (presentation.isLast()) {
-					presentation.stop(); // manually stop presentation to toggle play button immediately
+					presentation.stop(); // manually stop presentation to toggle play button immediately (otherwise it would stop after interval timeout)
 				}
-				// load next item after presentation timeout
-				presentation.intervalId = setTimeout(function () {
-					presentation.next();
-				}, Settings.load('presentationSpeed'));
+				// Load next item after presentation timeout. During that show progress, which is refreshed 1000x
+				let widthPercent = 1000;
+				presentation.intervalId = setInterval(function () {
+					$('#popup-footer-presentation-progress').css('width', (((widthPercent--) / 10) + '%'));
+					if (widthPercent <= 0) {
+						clearInterval(presentation.intervalId);
+						presentation.next();
+					}
+				}, (Settings.load('presentationSpeed') / 1000));
 			}
 		}
 	} else {
