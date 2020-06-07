@@ -176,7 +176,7 @@ jwerty.key('ctrl+space', function (e) {
 	if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
-		presentationToggle();
+		presentation.toggle();
 	} else {
 		// filter is focused, dont do anything special
 	}
