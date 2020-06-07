@@ -44,23 +44,14 @@ function loadingDone(element) {
 		});
 		if ($(element).is('video')) {
 			if (presentation.running) { // presentation is enabled
-				if (presentation.isLast()) {
-					presentation.stop(); // manually stop presentation to toggle play button immediately
-				}
 				videoPlay();
 			}
 		} else if ($(element).is('audio')) {
 			if (presentation.running) { // presentation is enabled
-				if (presentation.isLast()) {
-					presentation.stop(); // manually stop presentation to toggle play button immediately
-				}
 				audioPlay();
 			}
 		} else if ($(element).is('img')) {
 			if (presentation.running) { // presentation is enabled
-				if (presentation.isLast()) {
-					presentation.stop(); // manually stop presentation to toggle play button immediately (otherwise it would stop after interval timeout)
-				}
 				// Load next item after presentation timeout. During that show progress, which is refreshed 1000x
 				let widthPercent = 1000;
 				presentation.intervalId = setInterval(function () {

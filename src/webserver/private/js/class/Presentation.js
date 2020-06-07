@@ -52,7 +52,6 @@ class Presentation {
 	next() {
 		if (presentation.isLast()) {
 			presentation.stop();
-			return;
 		}
 		itemNext(false);
 	}
