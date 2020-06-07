@@ -132,6 +132,7 @@ let CONFIG = {
 			// modules
 			'/src/webserver/private/js/modules/cookie.js',
 			'/src/webserver/private/js/modules/settings.js',
+			'/src/webserver/private/js/modules/swipe.js',
 			// other
 			'/src/webserver/private/js/keyboard.js',
 		],
