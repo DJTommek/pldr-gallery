@@ -51,6 +51,15 @@
 			cursor: pointer;
 			border-radius: 1em;
 
+			.thumbnail-loading-icon {
+				font-size: 0.75em;
+				position: absolute;
+				display: block;
+				right: 1em;
+				top: 1em;
+				.default-transition();
+			}
+
 			.name,
 			.icon,
 			.thumbnail {
@@ -149,6 +158,10 @@
 		.created {
 			float: right;
 			padding-left: 1em;
+		}
+
+		.thumbnail-loading-icon {
+			display: none;
 		}
 
 		.name {
