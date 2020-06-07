@@ -843,7 +843,7 @@ function loadingStructure(loading) {
 		$('#navbar-filter input').prop('disabled', true);
 		$('#navbar-filter .search').prop('disabled', true);
 		// @TODO set different message if searching
-		setStatus('Loading structure...');
+		setStatus('Loading folder "<span title="' + S.getCurrentFolder().path + '">' + S.getCurrentFolder().text + '</span>"');
 	}
 	if (loading === false) {
 		setStatus(false);
