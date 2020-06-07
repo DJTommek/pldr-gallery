@@ -312,7 +312,9 @@ $(function () {
 			return false;
 		}
 		popupClose();
-	}).swipeDetector().on("swipeLeft.sd swipeRight.sd", function (event) {
+	});
+
+	$('#popup-content, #popup-prev, #popup-next').swipeDetector().on("swipeLeft.sd swipeRight.sd", function (event) {
 		if (event.type === "swipeLeft") {
 			itemPrev(true);
 		} else if (event.type === "swipeRight") {
