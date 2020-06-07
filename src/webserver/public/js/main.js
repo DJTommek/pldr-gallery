@@ -312,6 +312,12 @@ $(function () {
 			return false;
 		}
 		popupClose();
+	}).swipeDetector().on("swipeLeft.sd swipeRight.sd", function (event) {
+		if (event.type === "swipeLeft") {
+			itemPrev(true);
+		} else if (event.type === "swipeRight") {
+			itemNext(false);
+		}
 	});
 	$("#popup-image").on('click', function (e) {
 		$('#popup-filename')[0].click();
