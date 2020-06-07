@@ -5,6 +5,7 @@ const loadedStructure = {
 	settings: false, // is settings modal visible?
 	filtering: false,
 	flashIndex: 0, // incremental index used for flashMessage()
+	request: null, // AJAX request structure object
 };
 const mapData = {
 	map: null,
@@ -634,7 +635,11 @@ function loadSearch(callback) {
 		console.log("Search query is empty, cancel search request");
 		return;
 	}
-	$.ajax({
+	if (loadedStructure.request) {
+		console.log("Aborting previous request for creating new");
+		loadedStructure.request.abort();
+	}
+	loadedStructure.request = $.ajax({
 		url: '/api/search',
 		method: 'GET',
 		data: {
@@ -652,8 +657,12 @@ function loadSearch(callback) {
 				loadThumbnail();
 			}
 		},
-		error: function (result) {
-			flashMessage(result.responseJSON ? result.responseJSON.message : 'Chyba během hledání. Kontaktuj autora.', 'danger', false);
+		error: function (result, errorTextStatus) {
+			if (errorTextStatus === 'abort') {
+				console.log("Request aborted");
+			} else {
+				flashMessage(result.responseJSON ? result.responseJSON.message : 'Chyba během hledání. Kontaktuj autora.', 'danger', false);
+			}
 		},
 		beforeSend: function () {
 			loadingStructure(true);
@@ -690,7 +699,11 @@ function loadStructure(force, callback) {
 		console.log("Structure is already loaded, skip");
 		return (typeof callback === 'function' && callback());
 	}
-	$.ajax({
+	if (loadedStructure.request) {
+		console.log("Aborting previous request for creating new");
+		loadedStructure.request.abort();
+	}
+	loadedStructure.request = $.ajax({
 		url: '/api/structure',
 		method: 'GET',
 		data: {
@@ -713,13 +726,18 @@ function loadStructure(force, callback) {
 				S.filter();
 			}
 		},
-		error: function (result) {
-			flashMessage(result.responseJSON ? result.responseJSON.message : 'Serverová chyba během načítání dat. Kontaktuj autora.', 'danger', false);
+		error: function (result, errorTextStatus) {
+			if (errorTextStatus === 'abort') {
+				console.log("Request aborted");
+			} else {
+				flashMessage(result.responseJSON ? result.responseJSON.message : 'Chyba během načítání dat. Kontaktuj autora.', 'danger', false);
+			}
 		},
 		beforeSend: function () {
 			loadingStructure(true);
 		},
 		complete: function () {
+			loadedStructure.request = null;
 			loadingStructure(false);
 			(typeof callback === 'function' && callback());
 		}
