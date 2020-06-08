@@ -321,13 +321,14 @@ $(function () {
 		popupClose();
 	});
 
-	$('#popup-content, #popup-prev, #popup-next').swipeDetector().on("swipeLeft.sd swipeRight.sd", function (event) {
-		if (event.type === "swipeLeft") {
-			itemNext(false);
-		} else if (event.type === "swipeRight") {
-			itemPrev(false);
-		}
+	// Event - swipe left and right to get previous or next item
+	// @TODO not detecting if swipe starts in different DOM than defined (eg. #status)
+	$('#popup-content').swipeDetector().on("swipeLeft.sd", function () {
+		itemNext(false);
+	}).on("swipeRight.sd", function () {
+		itemPrev(true);
 	});
+
 	$("#popup-image").on('click', function (e) {
 		$('#popup-filename')[0].click();
 	});
