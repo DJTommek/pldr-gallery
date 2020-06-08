@@ -323,9 +323,9 @@ $(function () {
 
 	$('#popup-content, #popup-prev, #popup-next').swipeDetector().on("swipeLeft.sd swipeRight.sd", function (event) {
 		if (event.type === "swipeLeft") {
-			itemPrev(true);
-		} else if (event.type === "swipeRight") {
 			itemNext(false);
+		} else if (event.type === "swipeRight") {
+			itemPrev(false);
 		}
 	});
 	$("#popup-image").on('click', function (e) {
