@@ -36,7 +36,6 @@ module.exports = function (webserver, endpoint) {
 			let imageStream = FS.createReadStream(res.locals.fullPathFile);
 
 			const compressData = getResizeParams(req);
-			res.setHeader("Content-Type", res.locals.mediaType);
 
 			// if compression is enabled, compress first
 			if (compressData !== false) {
@@ -47,8 +46,10 @@ module.exports = function (webserver, endpoint) {
 					cacheHelper.saveStream(cacheHelper.TYPE.IMAGE, res.locals.path, imageStream.png());
 				}
 			}
-			res.setHeader("Content-Type", res.locals.mediaType);
-			imageStream.pipe(res);
+			if (res.finished === false) { // in case of timeout, response was already finished
+				res.setHeader("Content-Type", res.locals.mediaType);
+				imageStream.pipe(res);
+			}
 		} catch (error) {
 			res.statusCode = 404;
 			let fontSize = 40;
