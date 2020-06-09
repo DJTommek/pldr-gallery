@@ -499,7 +499,10 @@ $(function () {
 	// loading is done when img is loaded
 	$('#popup-image').on('load', function () {
 		loadingDone(this);
-	});
+	}).on('error', function () {
+		flashMessage('Chyba během načítání obrázku. Kontaktuj autora.', 'danger', false);
+		setStatus(false);
+	})
 
 	$('#navbar').on('click', '#navbar-share', function (event) { // Event - share URL
 		event.preventDefault();
