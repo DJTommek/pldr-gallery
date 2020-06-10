@@ -165,8 +165,17 @@ jwerty.key('space', function (e) {
 
 	} else if (loadedStructure.popup) {
 		e.preventDefault(); // do not type in filter
-		videoToggle();
-		audioToggle();
+		const currentFile = S.getCurrentFile();
+		if (currentFile.isVideo) {
+			videoToggle();
+		} else if (currentFile.isAudio) {
+			audioToggle();
+		} else if (currentFile.isImage) {
+			// open file in new tab
+			$('#popup-filename')[0].click();
+		} else {
+			// probably non-viewable file, do nothing
+		}
 	} else {
 		// filter is focused, dont do anything special
 	}
