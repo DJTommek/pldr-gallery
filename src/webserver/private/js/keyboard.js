@@ -166,10 +166,19 @@ jwerty.key('space', function (e) {
 	} else if (loadedStructure.popup) {
 		e.preventDefault(); // do not type in filter
 		const currentFile = S.getCurrentFile();
+		const focusedElementId = $(':focus').attr('id');
 		if (currentFile.isVideo) {
-			videoToggle();
+			if (focusedElementId === 'popup-video') {
+				// if video is focused, space keyboard is default browser binding to toggle video so do nothing
+			} else {
+				videoToggle();
+			}
 		} else if (currentFile.isAudio) {
-			audioToggle();
+			if (focusedElementId === 'popup-video') {
+				// if audio is focused, space keyboard is default browser binding to toggle audio so do nothing
+			} else {
+				audioToggle();
+			}
 		} else if (currentFile.isImage) {
 			// open file in new tab
 			$('#popup-filename')[0].click();
