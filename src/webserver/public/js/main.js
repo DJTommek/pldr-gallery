@@ -329,9 +329,22 @@ $(function () {
 		itemPrev(true);
 	});
 
-	$("#popup-image").on('click', function (e) {
+	// Event - click on image to open in new tab
+	$("#popup-image").on('click', function () {
 		$('#popup-filename')[0].click();
 	});
+
+	// Event - click on video to pause/play
+	$("#popup-video").on('click', function () {
+		videoToggle();
+	});
+
+	// Event - click on video to pause/play
+	$("#popup-audio").on('click', function () {
+		audioToggle();
+	});
+
+	// Event - click on search button to run server searching
 	$('#navbar-filter .search').on('click', function (event) {
 		event.preventDefault();
 		loadSearch();
