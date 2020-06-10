@@ -203,15 +203,21 @@ $(window).on('hashchange', function () {
 				$('#popup-download').attr('href', downloadUrl);
 				popupOpen();
 				let openInfoWindowMarker = null;
+
+				function setMediaSrc(type, src) {
+					$('#popup-' + type + ' source').attr('src', src);
+					$('#popup-' + type + '')[0].load();
+				}
+				setMediaSrc('audio', '');
+				setMediaSrc('video', '');
+
 				if (currentFile.isImage) {
 					$('#popup-image').attr('src', openUrl);
 					openInfoWindowMarker = mapData.markers.photos[currentFile.index] || null;
 				} else if (currentFile.isVideo) {
-					$('#popup-video source').attr('src', openUrl);
-					$('#popup-video')[0].load();
+					setMediaSrc('video', openUrl);
 				} else if (currentFile.isAudio) {
-					$('#popup-audio source').attr('src', openUrl);
-					$('#popup-audio')[0].load();
+					setMediaSrc('audio', openUrl);
 				} else {
 					loadingDone();
 				}
