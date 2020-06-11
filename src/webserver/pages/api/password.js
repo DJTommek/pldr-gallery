@@ -22,10 +22,15 @@ module.exports = function (webserver, endpoint) {
 				let passwordPerms = [];
 				if (cookiePasswords) {
 					cookiePasswords.split(',').forEach(function (password) {
-						passwordPerms.push({
-							password: password,
-							permissions: perms.getPassword(password)
-						});
+						const passwordObject = perms.getPassword(password);
+						if (passwordObject) {
+							passwordPerms.push({
+								password: passwordObject.password,
+								permissions: passwordObject.permissions
+							});
+						} else {
+							// Probably just invalid password in cookie
+						}
 					});
 				}
 				return res.result.setResult(passwordPerms, 'List of saved passwords.').end();
