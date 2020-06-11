@@ -40,13 +40,16 @@
 
 	&.tiles-big,
 	&.tiles-small {
-		text-align: center;
+		/*
+		 * Align items to grid
+		 * @author: https://css-tricks.com/cool-little-css-grid-tricks-for-your-blog/
+		 */
+		grid-gap: 1em;
+		display: grid;
+		place-content: center;
 
 		.structure-item {
 			position: relative;
-			vertical-align: top;
-			text-align: center;
-			display: inline-block;
 			margin: @item-margin-size;
 			cursor: pointer;
 			border-radius: 1em;
@@ -116,21 +119,29 @@
 		}
 	}
 
-	&.tiles-big .structure-item {
-		padding: 100px; /* vertical and horizontal center in tile */
+	&.tiles-big {
+		grid-template-columns: repeat(auto-fit, 200px);
 
-		.icon {
-			font-size: 5em;
+		.structure-item {
+			padding: 100px; /* vertical and horizontal center in tile */
+
+			.icon {
+				font-size: 5em;
+			}
 		}
 	}
 
 	/* Small tiles */
 
-	&.tiles-small .structure-item {
-		padding: 60px; /* vertical and horizontal center in tile */
+	&.tiles-small {
+		grid-template-columns: repeat(auto-fit, 120px);
 
-		.icon {
-			font-size: 3em;
+		.structure-item {
+			padding: 60px; /* vertical and horizontal center in tile */
+
+			.icon {
+				font-size: 3em;
+			}
 		}
 	}
 
