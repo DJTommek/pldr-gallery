@@ -52,15 +52,13 @@ function loadingDone(element) {
 			}
 		} else if ($(element).is('img')) {
 			if (presentation.running) { // presentation is enabled
-				// Load next item after presentation timeout. During that show progress, which is refreshed 1000x
-				let widthPercent = 1000;
-				presentation.intervalId = setInterval(function () {
-					$('#popup-footer-presentation-progress').css('width', (((widthPercent--) / 10) + '%'));
-					if (widthPercent <= 0) {
-						clearInterval(presentation.intervalId);
-						presentation.next();
-					}
-				}, (Settings.load('presentationSpeed') / 1000));
+				const duration = Settings.load('presentationSpeed');
+				$('#popup-footer-presentation-progress').css('transition', 'width ' + duration + 'ms linear');
+				$('#popup-footer-presentation-progress').css('width', '0%');
+				// Load next item after presentation timeout.
+				presentation.intervalId = setTimeout(function () {
+					presentation.next();
+				}, duration);
 			}
 		}
 	} else {
