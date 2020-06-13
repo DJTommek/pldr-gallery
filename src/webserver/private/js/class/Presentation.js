@@ -42,6 +42,8 @@ class Presentation {
 	}
 
 	clearTimeout() {
+		$('#popup-footer-presentation-progress').css({'transition': ''});
+		$('#popup-footer-presentation-progress').css('width', '100%');
 		clearTimeout(this.intervalId);
 	}
 
