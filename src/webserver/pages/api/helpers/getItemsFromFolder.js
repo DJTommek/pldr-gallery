@@ -80,7 +80,7 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 			LOG.error('[Globby] Error while processing files in "' + fullPath + '": ' + error.message);
 			files = [];
 		}).finally(function () {
-			LOG.debug('(FS Stats) Pattern: "' + globbyPathPattern + '", total ' + filesLimitCount + ' files, took ' + msToHuman(hrtime(process.hrtime(hrstart))) + ' (options.coords=' + (options.coords ? 'true' : 'false') + ').')
+			LOG.debug('(FS Stats) Pattern: "' + globbyPathPattern + '", total ' + filesLimitCount + ' files, took ' + msToHuman(hrtime(process.hrtime(hrstart))) + ' (options.coords=' + (options.coords ? 'true' : 'false') + ').', {console: false})
 			resolve({
 				items: files,
 				total: filesLimitCount,
@@ -135,7 +135,7 @@ module.exports.folders = function (requestedPath, fullPath, permissions, options
 			LOG.error('[Globby] Error while processing folders in "' + fullPath + '": ' + error.message);
 			folders = [];
 		}).finally(function () {
-			LOG.debug('(FS Stats) Pattern: "' + globbyPathPattern + '", total ' + foldersLimitCount + ' folders, took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.')
+			LOG.debug('(FS Stats) Pattern: "' + globbyPathPattern + '", total ' + foldersLimitCount + ' folders, took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: false})
 			resolve({
 				items: folders,
 				total: foldersLimitCount,
