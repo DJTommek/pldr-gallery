@@ -46,6 +46,9 @@ let CONFIG = {
 		image: {
 			enabled: true,
 			cache: false,
+			httpHeaders: [
+				{name: 'Cache-Control', value: 'public, max-age=31536000'}, // keep generated thumbnail image in user's browser cache
+			],
 			fit: 'cover',
 		},
 		/**
@@ -54,6 +57,9 @@ let CONFIG = {
 		folder: {
 			enabled: true,
 			cache: false,
+			httpHeaders: [
+				{name: 'Cache-Control', value: 'public, max-age=31536000'}, // keep generated thumbnail image in user's browser cache
+			],
 			// Sharp create object (you can input your own image)
 			inputOptions: {
 				create: {

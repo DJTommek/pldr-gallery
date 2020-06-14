@@ -21,6 +21,7 @@ module.exports = function (webserver, endpoint) {
 
 		const preparedThumbnailPath = pathCustom.join(res.locals.fullPathFolder, 'thumbnail.png');
 		if (FS.existsSync(preparedThumbnailPath)) {
+			setCacheControlHeader();
 			res.setHeader("Content-Type", 'image/png');
 			res.sendFile(preparedThumbnailPath);
 			return;
@@ -35,6 +36,7 @@ module.exports = function (webserver, endpoint) {
 		// Use cached file if possible
 		const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.FOLDER, res.locals.path, true);
 		if (canUseCache && c.thumbnails.folder.cache === true && cacheFilePath) {
+			setCacheControlHeader();
 			res.setHeader("Content-Type", 'image/png');
 			res.startTime('apicache', 'Loading cached thumbnail');
 			res.sendFile(cacheFilePath);
@@ -73,6 +75,7 @@ module.exports = function (webserver, endpoint) {
 				});
 				const thumbnailImageStream = sharp(c.thumbnails.folder.inputOptions).composite(toComposite).png();
 
+				setCacheControlHeader();
 				res.setHeader("Content-Type", 'image/png');
 				thumbnailImageStream.pipe(res);
 
@@ -85,5 +88,12 @@ module.exports = function (webserver, endpoint) {
 				return res.result.setError('Error while generating folder thumbnail image.').end(500);
 			});
 		});
+
+		function setCacheControlHeader() {
+			c.thumbnails.folder.httpHeaders.forEach(function (header) {
+				res.setHeader(header.name, header.value);
+			})
+		}
 	});
+
 };
