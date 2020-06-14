@@ -28,6 +28,7 @@ module.exports = function (webserver, endpoint) {
 			// Use cached file if exists
 			const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.IMAGE, res.locals.path, true);
 			if (req.query.type === 'thumbnail' && c.thumbnails.image.cache === true && cacheFilePath) {
+				setCacheControlHeader();
 				res.setHeader("Content-Type", 'image/png');
 				res.sendFile(cacheFilePath);
 				return;
@@ -48,6 +49,9 @@ module.exports = function (webserver, endpoint) {
 			}
 			if (res.finished === false) { // in case of timeout, response was already finished
 				res.setHeader("Content-Type", res.locals.mediaType);
+				if (req.query.type === 'thumbnail') {
+					setCacheControlHeader();
+				}
 				imageStream.pipe(res);
 			}
 		} catch (error) {
@@ -67,6 +71,12 @@ module.exports = function (webserver, endpoint) {
 					background: {r: 220, g: 53, b: 69,}
 				}
 			}).composite([{input: textBuffer}]).png().pipe(res);
+		}
+
+		function setCacheControlHeader() {
+			c.thumbnails.image.httpHeaders.forEach(function (header) {
+				res.setHeader(header.name, header.value);
+			})
 		}
 	});
 };
