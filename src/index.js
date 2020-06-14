@@ -5,10 +5,7 @@ const FS = require("fs");
 const c = require('./libs/config.js');
 
 (async function () {
-	const LOG = require('./libs/log.js').setup({
-		path: __dirname + '/../data/log/',
-		catchGlobalExceptions: true,
-	});
+	const LOG = require('./libs/log.js');
 	const perms = require('./libs/permissions.js');
 
 	// Check if config.path is set correctly

@@ -27,6 +27,7 @@
 		"knex": "^0.21.1",
 		"less-middleware": "^3.1.0",
 		"lodash.merge": "^4.6.2",
+		"node-pldr-utils": "git+https://github.com/DJTommek/node-pldr-utils.git",
 		"readdirp": "^3.2.0",
 		"server-timing": "^3.2.1",
 		"sha1": "^1.1.1",
