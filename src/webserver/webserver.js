@@ -59,7 +59,7 @@ webserver.all('*', function (req, res, next) {
 			weblog.forwarded[headerName] = req.headers[headerName];
 		}
 	});
-	LOG.webserver(JSON.stringify(weblog));
+	LOG.webserver(weblog);
 	next();
 });
 
