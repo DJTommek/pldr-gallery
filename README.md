@@ -32,6 +32,7 @@ Detailed info about installation you can find on [install page](docs/install.md)
 - Save your eyes with dark theme
 - Use keyboard for almost everything
 - Show folder images as thumbnails
+- Download all/some files and/or folders as ZIP
 - And much more...
 
 ## Testing
