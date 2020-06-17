@@ -31,6 +31,7 @@ Detailed info about installation you can find on [install page](docs/install.md)
 - Show images on map based on EXIF data
 - Save your eyes with dark theme
 - Use keyboard for almost everything
+- Show folder images as thumbnails
 - And much more...
 
 ## Testing
