@@ -1,6 +1,10 @@
 # Install
 Detailed install instruction.
 
+Running `npm install` will download all necessary dependencies and then run [postinstall.js](../postinstall.js) which will: 
+- create `data/config.local.js` (if not exists)
+- create `data/pldr-gallery.sqlite` with demo permissions (if not exists)
+
 ## Database
 
 ### ⚠ Warning: Currently in development, may not work as expected!
@@ -24,4 +28,4 @@ If you want to use some of _classic_ databases, you have to install database lib
     }
     ```
 
-List of database libraries and any other info you can find on [Knex.js page](http://knexjs.org/#Installation-node). 
+List of supported database libraries and any other info you can find on [Knex.js page](http://knexjs.org/#Installation-node). 

@@ -11,14 +11,12 @@ Installed **Node.js 12.14.1+**
 Note: it should work with version 10, but some functions such as searching might not work as expected.
 
 ## Installation
-1. Clone repository
-1. Run `npm install` which will automatically:
-    - install all necessary dependencies
-    - create `data/config.local.js`
-    - create `data/pldr-gallery.sqlite` with demo permissions
+1. Clone [DJTommek/pldr-gallery](https://github.com/DJTommek/pldr-gallery) repository
+1. Run `npm install`
 1. Run `node index.js`
 1. Open http://localhost:3000/
 
+Detailed info about installation you can find on [install page](docs/install.md).<br>
 [Docker](https://docker.io/) is fully supported, see [this page](docs/docker.md) for more info.
 
 ## Features
