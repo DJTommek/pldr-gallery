@@ -2,7 +2,7 @@
 Standalone Node.js Express application for nice and quick browsing of your multimedia files.
 
 ## Live demo
-https://gallery.redilap.cz/#/demo/
+https://pldr-gallery.redilap.cz/
 
 This exact demo is included in the source code, just follow Installation instructions.
 
