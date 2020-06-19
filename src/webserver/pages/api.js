@@ -107,7 +107,19 @@ module.exports = function (webserver, baseEndpoint) {
 	 */
 	webserver.get(endpoint, async function (req, res, next) {
 		if (req.query.path) {
-			const result = HFS.pathMasterCheck(c.path, req.query.path, res.locals.user.getPermissions(), perms.test);
+			const userPerms = res.locals.user.getPermissions();
+
+			// if there is param password, use it if has permission for that file/folder
+			if (req.query.password) {
+				const password = perms.getPassword(req.query.password);
+				if (password) {
+					for (const passPerm of password.permissions) {
+						userPerms.push(passPerm);
+					}
+				}
+			}
+
+			const result = HFS.pathMasterCheck(c.path, req.query.path, userPerms, perms.test);
 			Object.assign(res.locals, result);
 			if (result.error) {
 				// log to debug because anyone can generate invalid paths
