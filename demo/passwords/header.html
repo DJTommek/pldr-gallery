@@ -25,6 +25,12 @@
 			<small>Btw. did you noticed, that there is space in this password? Only <kbd>;</kbd> and <kbd>,</kbd> characters are not allowed in a password.</small>
 		</li>
 		<li>
+			If you want to create direct link to some image which is password protected, you can! Just add "&password=some-password", just:
+			<a href="/api/image?path=JTJGcGFzc3dvcmRzJTJGc2VjdXJlZC1pbWFnZS0xLmpwZw==&password=passwords secured images" target="_blank">like this</a>.
+			If you delete param password from URL, image will
+			<a href="/api/image?path=JTJGcGFzc3dvcmRzJTJGc2VjdXJlZC1pbWFnZS0xLmpwZw==" target="_blank">not be accessible</a>
+		</li>
+		<li>
 			Lets see some files with password "<a href="/api/password?password=passwords secured images">passwords secured images</a>".
 			Permissions in this case are defined using a prefix, "/passwords/secured-image", so all files in folder "/passwords/" with prefix "secured-image" will be shown.<br>
 		</li>
