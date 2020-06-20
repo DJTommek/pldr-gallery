@@ -4,7 +4,7 @@ const sharp = require('sharp');
 const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
 const cacheHelper = require('./helpers/cache');
 const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
-const FS = require("fs");
+const FS = require('fs');
 
 const getItemsHelper = require('./helpers/getItemsFromFolder.js');
 
@@ -13,16 +13,18 @@ module.exports = function (webserver, endpoint) {
 	webserver.get(endpoint, function (req, res) {
 		res.statusCode = 200;
 		if (c.thumbnails.folder.enabled !== true) {
-			return res.result.setError('Folder thumbnail images are disabled in server config. Check out "config.thumbnails.folder.enabled".').end(403);
+			// return res.result.setError('Folder thumbnail images are disabled in server config. Check out "config.thumbnails.folder.enabled".').end(403);
+			return sendTransparentPixel();
 		}
 		if (!res.locals.fullPathFolder) {
-			return res.result.setError('Invalid path or you dont have a permission.').end(403);
+			// return res.result.setError('Invalid path or you dont have a permission.').end(403);
+			return sendTransparentPixel();
 		}
 
 		const preparedThumbnailPath = pathCustom.join(res.locals.fullPathFolder, 'thumbnail.png');
 		if (FS.existsSync(preparedThumbnailPath)) {
-			setCacheControlHeader();
-			res.setHeader("Content-Type", 'image/png');
+			setHttpHeadersFromConfig();
+			res.setHeader('Content-Type', 'image/png');
 			res.sendFile(preparedThumbnailPath);
 			return;
 		}
@@ -36,8 +38,8 @@ module.exports = function (webserver, endpoint) {
 		// Use cached file if possible
 		const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.FOLDER, res.locals.path, true);
 		if (canUseCache && c.thumbnails.folder.cache === true && cacheFilePath) {
-			setCacheControlHeader();
-			res.setHeader("Content-Type", 'image/png');
+			setHttpHeadersFromConfig();
+			res.setHeader('Content-Type', 'image/png');
 			res.startTime('apicache', 'Loading cached thumbnail');
 			res.sendFile(cacheFilePath);
 			return;
@@ -52,7 +54,8 @@ module.exports = function (webserver, endpoint) {
 			});
 
 			if (imagesInFolder.length < c.thumbnails.folder.positions.length) {
-				return res.result.setError('Not enough images available in this folder.').end(403);
+				return sendTransparentPixel();
+				// return res.result.setError('Not enough images available in this folder.').end(403);
 			}
 
 			// get random X images and generate promises for final composing
@@ -75,8 +78,8 @@ module.exports = function (webserver, endpoint) {
 				});
 				const thumbnailImageStream = sharp(c.thumbnails.folder.inputOptions).composite(toComposite).png();
 
-				setCacheControlHeader();
-				res.setHeader("Content-Type", 'image/png');
+				setHttpHeadersFromConfig();
+				res.setHeader('Content-Type', 'image/png');
 				thumbnailImageStream.pipe(res);
 
 				// if caching is enabled, save it
@@ -89,10 +92,19 @@ module.exports = function (webserver, endpoint) {
 			});
 		});
 
-		function setCacheControlHeader() {
+		function setHttpHeadersFromConfig() {
 			c.thumbnails.folder.httpHeaders.forEach(function (header) {
 				res.setHeader(header.name, header.value);
 			})
+		}
+
+		function sendTransparentPixel() {
+			const transparentPixelBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII';
+			const imgBuffer = Buffer.from(transparentPixelBase64, 'base64');
+			res.setHeader('Content-Type', 'image/png');
+			res.setHeader('Content-Length', imgBuffer.length);
+			res.setHeader('Cache-Control', 'public, max-age=2592000'); // cache for one month
+			res.end(imgBuffer);
 		}
 	});
 
