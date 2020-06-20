@@ -1,6 +1,6 @@
 {
 	"name": "pldr-gallery",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Standalone Node.js Express application for nice and quick browsing your multimedia files.",
 	"main": "index.js",
 	"scripts": {
