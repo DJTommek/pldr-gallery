@@ -114,7 +114,7 @@ let CONFIG = {
 		// This object is passed directly to less-middleware
 		// @see https://github.com/emberfeather/less.js-middleware#options
 		options: {
-			dest: BASE_DIR_GET('/src/webserver/public/'),
+			dest: BASE_DIR_GET('/temp/webserver/public/'),
 			once: true,
 			debug: false,
 		},
@@ -142,7 +142,7 @@ let CONFIG = {
 			// other
 			'/src/webserver/private/js/keyboard.js',
 		],
-		destinationPath: BASE_DIR_GET('/src/webserver/public/js/modules.min.js'),
+		destinationPath: BASE_DIR_GET('/temp/webserver/public/js/modules.min.js'),
 		// This object is passed directly to terser.minify
 		// @see https://github.com/terser/terser#api-reference
 		options: {
@@ -242,6 +242,7 @@ let CONFIG = {
 			tokensPath: BASE_DIR_GET('/data/token/'),
 		},
 		publicPath: BASE_DIR_GET('/src/webserver/public/'),
+		publicPathGenerated: BASE_DIR_GET('/temp/webserver/public/'),
 	},
 };
 

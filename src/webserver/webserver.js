@@ -21,6 +21,7 @@ webserver.use(bodyParser.urlencoded({extended: true})); // support encoded bodie
 webserver.use(cookieParser()); // support cookies
 webserver.use(lessMiddleware(c.less.sourcePath, c.less.options));
 webserver.use(express.static(c.http.publicPath));
+webserver.use(express.static(c.http.publicPathGenerated));
 webserver.use(compression());
 webserver.use(serverTiming());
 
@@ -107,7 +108,7 @@ webserver.all('*', function (req, res, next) {
 });
 
 /**
- * Public repository should handle loading root folder by loading index.html so this route should not be never matched.
+ * Public repository should handle loading generated modules so this route should not be never matched.
  */
 webserver.get('/js/modules.min.js', function (req, res) {
 	res.result.setError('Fatal error occured, generated javascript file is missing. Contact administrator.').end(500);
@@ -119,7 +120,7 @@ webserver.get('/js/modules.min.js', function (req, res) {
  */
 webserver.get('/', function (req, res) {
 	res.result.setError('Fatal error occured, index file is missing. Contact administrator.').end(500);
-	LOG.error('(Webserver) Index file is missing, check log if file was generated and was created in "public/index.html"');
+	LOG.error('(Webserver) Index file is missing, check log if file was generated and was created in "temp/webserver/public/index.html"');
 });
 
 /**
@@ -232,7 +233,7 @@ FS.readFile(BASE_DIR_GET('/src/webserver/private/index.html'), function (error, 
 			},
 		}));
 		// build final index file
-		FS.writeFile(BASE_DIR_GET('/src/webserver/public/index.html'), fileContent, function (error) {
+		FS.writeFile(BASE_DIR_GET('/temp/webserver/public/index.html'), fileContent, function (error) {
 			if (error) {
 				LOG.fatal('(Webserver) Fatal error while saving generated public/index.html file: ' + error.message);
 			} else {
@@ -250,11 +251,18 @@ c.terser.filesToCompile.forEach(function (file) {
 	finalContent += FS.readFileSync(BASE_DIR_GET(file));
 });
 const finalContentUgly = terser.minify(finalContent, c.terser.options);
-FS.writeFile(c.terser.destinationPath, finalContentUgly.code, function (error) {
+FS.mkdir(PATH.dirname(c.terser.destinationPath), {recursive: true}, function (error) {
+	console.log(PATH.dirname(c.terser.destinationPath));
 	if (error) {
-		LOG.fatal('(Webserver) Fatal error while saving generated public/js/modules.min.js file: ' + error.message);
+		LOG.error('(Cache) Error while creating folder for generated modules: ' + error.message);
 	} else {
-		LOG.info('(Webserver) Main public/js/modules.min.js file was successfully generated.');
+		FS.writeFile(c.terser.destinationPath, finalContentUgly.code, function (error) {
+			if (error) {
+				LOG.fatal('(Webserver) Fatal error while saving generated public/js/modules.min.js file: ' + error.message);
+			} else {
+				LOG.info('(Webserver) Main public/js/modules.min.js file was successfully generated.');
+			}
+		});
 	}
 });
 
@@ -277,6 +285,15 @@ if (c.thumbnails.folder.enabled === true && c.thumbnails.folder.cache === true) 
 		}
 	});
 }
+
+/**
+ * Create folder for generated less files
+ */
+FS.mkdir(PATH.dirname(c.less.options.dest), {recursive: true}, function (error) {
+	if (error) {
+		LOG.error('(Less) Error while creating folder for less files: ' + error.message);
+	}
+});
 
 /**
  * Create folder for saving login tokens
