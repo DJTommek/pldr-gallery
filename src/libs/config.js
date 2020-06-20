@@ -181,8 +181,6 @@ let CONFIG = {
 			},
 			useNullAsDefault: true,
 		},
-		// separator for group_concat
-		separator: ';;;',
 		table: {
 			permission: 'pldr_gallery_permission',
 			user_group: 'pldr_gallery_user_group',
