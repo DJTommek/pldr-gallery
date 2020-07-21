@@ -96,6 +96,10 @@ class FileExtensionMapper {
 				'mediaType': 'video/mp4',
 				'icon': (new Icon).VIDEO,
 			},
+			mov: {
+				'mediaType': 'video/mp4',
+				'icon': (new Icon).VIDEO,
+			},
 			webm: {
 				'mediaType': 'video/webm',
 				'icon': (new Icon).VIDEO,
