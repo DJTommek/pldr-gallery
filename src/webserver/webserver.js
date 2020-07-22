@@ -108,6 +108,13 @@ webserver.all('*', function (req, res, next) {
 });
 
 /**
+ * Shortcut for /api/password
+ */
+webserver.get(c.http.apiPasswordShortcut, function (req, res) {
+	res.redirect('/api/password?password=' + req.params.password);
+});
+
+/**
  * Public repository should handle loading generated modules so this route should not be never matched.
  */
 webserver.get('/js/modules.min.js', function (req, res) {
