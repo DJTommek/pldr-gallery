@@ -243,6 +243,8 @@ let CONFIG = {
 		},
 		publicPath: BASE_DIR_GET('/src/webserver/public/'),
 		publicPathGenerated: BASE_DIR_GET('/temp/webserver/public/'),
+		// Express webserver format for shortcut redirecting to /api/password
+		apiPasswordShortcut: '/s/:password',
 	},
 };
 
