@@ -436,6 +436,7 @@ class Structure {
 			flashMessage('<p id="filter-error">Filter regex is not valid: <b>' + error.message + '</b></p>', 'danger');
 			$('#navbar-filter .filtered').text('?');
 		}
+		loadThumbnail();
 		loadedStructure.filtering = false;
 	}
 }
