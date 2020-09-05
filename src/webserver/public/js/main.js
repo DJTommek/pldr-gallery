@@ -551,6 +551,20 @@ $(function () {
 	}).on('hidden.bs.modal', function () {
 		loadedStructure.settings = false;
 	});
+
+	$(document).on('click', '.copy-to-clipboard', function () {
+		const textToCopy = $(this).data('to-copy');
+		if (copyToClipboard(textToCopy)) {
+			flashMessage('Text "<b>' + textToCopy + '</b>" was copied to clipboard.')
+		} else {
+			// noinspection JSJQueryEfficiency - delete previous flash error message (if any) before showing new
+			$('#copy-to-clipboard-flash').parent().remove();
+			// show error with pre-selected input filled with URL
+			flashMessage('<p><b>Error</b> while copying text to clipboard, copy it manually via <kbd class="nobr"><kbd>CTRL</kbd> + <kbd>C</kbd></kbd></p><input id="copy-to-clipboard-flash" type="text" value="' + textToCopy + '">', 'danger', false);
+			// noinspection JSJQueryEfficiency
+			$('#copy-to-clipboard-flash').trigger('focus').trigger('select');
+		}
+	});
 });
 
 function popupOpen() {
