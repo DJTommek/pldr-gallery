@@ -70,7 +70,7 @@ String.prototype.pad = String.prototype.pad || function (length, string, type) {
 				str = '' + str + repeat(string, diff);
 		}
 	}
-	return str;
+	return str.toString();  // forcing converting object String to primitive type string
 };
 
 /**
