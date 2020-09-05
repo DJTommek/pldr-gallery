@@ -1036,12 +1036,12 @@ function mapParsePhotos() {
 				mapData.markers.photos[item.index].addListener('click', function () {
 					const links = generateCoordsLinks(item.coordLat, item.coordLon);
 					mapData.infoWindow.setContent('<div id="map-info-window" data-item-index="' + item.index + '">' +
-						' <div class="image float-left">' +
+						' <div class="image float-md-left">' +
 						'  <a href="' + item.getFileUrl() + '" target="_blank" title="Open in new window">' +
 						'   <img src="' + item.getFileUrl() + '&type=thumbnail">' +
 						'  </a>' +
 						' </div>' +
-						' <div class="content float-right">' +
+						' <div class="content float-md-right">' +
 						'  <button class="btn btn-primary btn-sm item-select" title="Open in popup">' + item.text + '</button>' +
 						'  <h6>' + item.coordLat + ',' + item.coordLon + '</h6>' +
 						'  <span class="copy-to-clipboard as-a-link" data-to-copy="' + item.coordLat + ',' + item.coordLon + '" title="Copy to clipboard">Copy <i class="fa fa-clipboard"></i></span>' +
