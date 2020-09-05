@@ -4,5 +4,5 @@
 /data/log
 /data/log-test
 /data/token
-
 /node_modules
+package-lock.json
