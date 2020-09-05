@@ -419,3 +419,40 @@ function copyToClipboard(text) {
 	inputDom.parentNode.removeChild(inputDom);
 	return success;
 }
+
+/**
+ * Generate various links to most used map services.
+ *
+ * @see https://github.com/DJTommek/better-location
+ * @author Tomas Palider (DJTommek) <tomas.palider.cz>
+ * @link https://gist.github.com/DJTommek/e15f21e6c0f4088f96c1a9ca2698f4f8
+ *
+ * @param {number} lat
+ * @param {number} lon
+ * @return {Map<String, String>}
+ */
+function generateCoordsLinks(lat, lon) {
+	if (typeof lat !== 'number' || typeof lon !== 'number') {
+		throw new Error('Invalid arguments: lat and lon must be numbers');
+	}
+	if (lat > 90 || lat < -90) {
+		throw new Error('Invalid argument: lat must be number between 90 and -90');
+	}
+	if (lon > 180 || lon < -180) {
+		throw new Error('Invalid argument: lon must be number between 180 and -180');
+	}
+	lat = lat.toFixed(6);
+	lon = lon.toFixed(6);
+	const coords = lat + ',' + lon;
+	return {
+		google: 'https://www.google.cz/maps/place/' + coords + '?q=' + coords,
+		mapycz: 'https://mapy.cz/zakladni?y=' + lat + '&x=' + lon + '&source=coor&id=' + lon + ',' + lat, // reversed
+		here: 'https://share.here.com/r/' + coords,
+		waze: 'https://www.waze.com/ul?ll=' + coords,
+		osm: 'https://www.openstreetmap.org/search?whereami=1&query=' + coords + '&mlat=' + lat + '&mlon=' + lon + '#map=17/' + lat + '/' + lon,
+		ingress: 'https://intel.ingress.com?ll=' + coords + '&pll=' + coords,
+		betterlocationbot: 'https://t.me/BetterLocationBot?start=' + lat.replace('.', '') + '_' + lon.replace('.', ''),
+	}
+}
+
+global.generateCoordsLinks = generateCoordsLinks;
