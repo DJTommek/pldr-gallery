@@ -1039,9 +1039,8 @@ function mapParsePhotos() {
 		}
 	}
 
-	// try to load map
-	updateMapData();
-	// start checking if map can be loaded
+	// Try to put markers in the map. Because of asynchronous operations, map could be loaded later than data for markers.
+	// Also, interval will server as timeout, to prevent blank map. See https://github.com/DJTommek/pldr-gallery/issues/61
 	loadMapIntervalId = setInterval(function () {
 		updateMapData();
 	}, 100);
