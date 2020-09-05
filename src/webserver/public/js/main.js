@@ -564,6 +564,15 @@ $(function () {
 			// noinspection JSJQueryEfficiency
 			$('#copy-to-clipboard-flash').trigger('focus').trigger('select');
 		}
+	}).on('click', '#map-info-window .item-share', function (event) {
+		event.preventDefault();
+		const itemIndex = $('#map-info-window').data('item-index');
+		shareUrl(window.location.origin + '/#' + S.getFile(itemIndex).url);
+	}).on('click', '#map-info-window .item-select', function (event) {
+		event.preventDefault();
+		const itemIndex = $('#map-info-window').data('item-index');
+		S.selectorMove(itemIndex);
+		S.selectorSelect();
 	});
 });
 
@@ -1025,12 +1034,32 @@ function mapParsePhotos() {
 				});
 				// Show infoWindow
 				mapData.markers.photos[item.index].addListener('click', function () {
-					const link = 'https://www.google.cz/maps/place/' + item.coordLat + ',' + item.coordLon;
-					mapData.infoWindow.setContent('<div id="map-info-window"><div>' +
-						'<button onClick="S.selectorMove(' + item.index + '); S.selectorSelect();" style="width: 100%" class="btn btn-primary btn-sm">' + item.text + '</button>' +
-						'<b>Souřadnice:</b> ' +
-						'<a href="' + link + '" target="_blank" title="Google maps">' + item.coordLat + ', ' + item.coordLon + '</a>' +
-						'</div></div>');
+					const links = generateCoordsLinks(item.coordLat, item.coordLon);
+					mapData.infoWindow.setContent('<div id="map-info-window" data-item-index="' + item.index + '">' +
+						' <div class="image float-left">' +
+						'  <a href="' + item.getFileUrl() + '" target="_blank" title="Open in new window">' +
+						'   <img src="' + item.getFileUrl() + '&type=thumbnail">' +
+						'  </a>' +
+						' </div>' +
+						' <div class="content float-right">' +
+						'  <button class="btn btn-primary btn-sm item-select" title="Open in popup">' + item.text + '</button>' +
+						'  <h6>' + item.coordLat + ',' + item.coordLon + '</h6>' +
+						'  <span class="copy-to-clipboard as-a-link" data-to-copy="' + item.coordLat + ',' + item.coordLon + '" title="Copy to clipboard">Copy <i class="fa fa-clipboard"></i></span>' +
+						'  ,' +
+						'  <a href="' + item.getFileUrl(true) + '" target="_blank" title="Download">download <i class="fa fa-download"></i></a>' +
+						'  ,' +
+						'  <span class="as-a-link item-share" title="Share URL">share <i class="fa fa-share-alt"></i></span>' +
+						'  or open in:' +
+						'  <ul>' +
+						'   <li><a href="' + links.betterlocationbot + '" target="_blank" title="Open in Telegram via BetterLocationBot">Telegram via @BetterLocationBot</a></li>' +
+						'   <li><a href="' + links.google + '" target="_blank" title="Google maps">Google Maps</a></li>' +
+						'   <li><a href="' + links.mapycz + '" target="_blank" title="Mapy.cz">Mapy.cz</a></li>' +
+						'   <li><a href="' + links.waze + '" target="_blank" title="">Waze</a></li>' +
+						'   <li><a href="' + links.here + '" target="_blank" title="">Here</a></li>' +
+						'   <li><a href="' + links.osm + '" target="_blank" title="">OSM</a></li>' +
+						'  </ul>' +
+						' </div>',
+						'</div>');
 					mapData.infoWindow.open(mapData.map, this);
 				});
 

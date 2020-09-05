@@ -31,8 +31,13 @@ body {
 
 a,
 a:hover,
-a:active {
+a:active,
+.as-a-link {
 	color: @theme-color-primary;
+	cursor: pointer;
+}
+.as-a-link:hover {
+	text-decoration: underline;
 }
 
 hr {
@@ -47,6 +52,31 @@ hr {
 	margin-top: 2em;
 	height: 30em;
 	width: 100%;
+}
+
+#map-info-window {
+	font-size: 1.1em;
+
+	h6 {
+		text-align: center;
+		margin-top: 0.5em;
+	}
+
+	.image img {
+		border-radius: 1em;
+	}
+
+	.content {
+		padding-left: 0.5em;
+
+		ul {
+			padding-left: 1em;
+		}
+
+		button {
+			width: 100%;
+		}
+	}
 }
 
 @keyframes wiggle {
