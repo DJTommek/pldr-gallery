@@ -576,6 +576,14 @@ $(function () {
 	});
 });
 
+function mapInfoWindowImageLoaded() {
+	$('#map-info-window .thumbnail-not-loaded').removeClass('thumbnail-not-loaded').show();
+	$('#map-info-window .thumbnail-loading-icon').remove();
+}
+function mapInfoWindowImageError() {
+	$('#map-info-window .thumbnail-loading-icon').removeClass('fa-circle-o-notch fa-spin').addClass('fa-' + (new Icon).IMAGE);
+}
+
 function popupOpen() {
 	loadedStructure.popup = true;
 	$("#navbar-filter input").trigger('blur');
@@ -768,11 +776,11 @@ function loadSearch(callback) {
  * After first thumbnail is loaded (or error while loading) it will call itself again and load next thumbnail image
  */
 function loadThumbnail() {
-	if ($('.structure-item .thumbnail-loading-icon').length > 0) {
+	if ($('#structure .structure-item .thumbnail-loading-icon').length > 0) {
 		console.log('Thumbnail is already loading, canceling new request.');
 		return;
 	}
-	const thumbnailsNotLoaded = $('.thumbnail-not-loaded:visible');
+	const thumbnailsNotLoaded = $('#structure .thumbnail-not-loaded:visible');
 	if (thumbnailsNotLoaded.length > 0) {
 		const firstThumbnail = thumbnailsNotLoaded.first();
 		const firstThumbnailParent = firstThumbnail.parent();
@@ -1046,7 +1054,8 @@ function mapParsePhotos() {
 					mapData.infoWindow.setContent('<div id="map-info-window" data-item-index="' + item.index + '">' +
 						' <div class="image float-md-left">' +
 						'  <a href="' + item.getFileUrl() + '" target="_blank" title="Open in new window">' +
-						'   <img src="' + item.getFileUrl() + '&type=thumbnail">' +
+						'   <i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin"></i>' +
+						'   <img class="thumbnail-not-loaded" src="' + item.getFileUrl() + '&type=thumbnail" onLoad="mapInfoWindowImageLoaded();" onError="mapInfoWindowImageError();" style="display: none;">' +
 						'  </a>' +
 						' </div>' +
 						' <div class="content float-md-right">' +
