@@ -974,7 +974,7 @@ function setStatus(message) {
 function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message') {
 	const currentFlashId = loadedStructure.flashIndex++
 	let html = '<div class="alert alert-' + type + ' fade show" id="alert-' + currentFlashId + '" role="alert">';
-	html += '<button class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
+	html += '<button class="close" data-dismiss="alert" title="Close (Esc)"><span>&times;</span></button>';
 	const now = new Date();
 	html += '<p class="datetime" title="' + now.human() + '">' + now.human(true).time + ' <span class="badge badge-danger" style="display: none">New</span></p>';
 	html += '<p class="content">' + text + '</p>';
