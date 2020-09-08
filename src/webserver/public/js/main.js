@@ -972,15 +972,23 @@ function setStatus(message) {
  * @param {jQuery.selector} [target] generated message will appendTo() this element
  */
 function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message') {
-	let html = '<div class="alert alert-' + type + '" id="alert' + loadedStructure.flashIndex + '" role="alert">';
-	html += '<button class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' + text + '</div>';
+	const currentFlashId = loadedStructure.flashIndex++
+	let html = '<div class="alert alert-' + type + ' fade show" id="alert-' + currentFlashId + '" role="alert">';
+	html += '<button class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
+	const now = new Date();
+	html += '<p class="datetime" title="' + now.human() + '">' + now.human(true).time + ' <span class="badge badge-danger" style="display: none">New</span></p>';
+	html += '<p class="content">' + text + '</p>';
+	html += '</div>';
 	$(target).prepend(html);
-	if (fade !== false) {
-		$('#alert' + loadedStructure.flashIndex).delay(fade).fadeOut("slow", function () {
-			$(this).remove();
-		});
+	if ($(target + ' > div').length > 1) { // if at least one alert is visible, add "new" tag to newly created alert
+		$(target + ' > div .badge').hide();
+		$(target + ' > div .badge').first().show();
 	}
-	loadedStructure.flashIndex++;
+	if (fade !== false) {
+		setTimeout(function() {
+			$('#alert-' + currentFlashId).alert('close');
+		}, fade);
+	}
 }
 
 // noinspection JSUnusedGlobalSymbols (loaded by Google maps API library)
