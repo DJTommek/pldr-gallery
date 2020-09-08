@@ -213,7 +213,13 @@ jwerty.key('backspace', function (e) {
 	}
 });
 
-jwerty.key('esc/ctrl+backspace/shift+backspace', function (e) {
+jwerty.key('esc', function (e) {
+	// close newest opened flash message
+	if ($('#flash-message > div').length > 0) {
+		$('#flash-message > div').first().alert('close');
+		return;
+	}
+
 	if (isFilterFocused()) {
 		e.preventDefault();
 		$("#navbar-filter input").trigger('blur');
