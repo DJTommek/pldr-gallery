@@ -103,7 +103,7 @@ module.exports = function (webserver, endpoint) {
 
 	function getCoordsFromExifFromFile(fullPath) {
 		try {
-			return HFS.getCoordsFromExifFromFile(fullPath);
+			return HFS.getDataFromExifFromFile(fullPath);
 		} catch (error) {
 			if (error.message === 'Index out of range') {
 				LOG.warning('Number of bytes is too small buffer for loading EXIF from file "' + fullPath + '".');

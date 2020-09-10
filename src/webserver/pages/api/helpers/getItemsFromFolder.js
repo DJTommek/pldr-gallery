@@ -20,10 +20,10 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 		throw new Error('Parameter "options.recursive" must be boolean');
 	}
 
-	if (typeof options.coords === 'undefined') {
-		options.coords = false;
-	} else if (typeof options.coords !== 'boolean') {
-		throw new Error('Parameter "options.coords" must be boolean');
+	if (typeof options.exif === 'undefined') {
+		options.exif = false;
+	} else if (typeof options.exif !== 'boolean') {
+		throw new Error('Parameter "options.exif" must be boolean');
 	}
 
 	if (typeof options.stat === 'undefined') {
@@ -69,9 +69,9 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 					size: pathStats ? pathStats.size : 0,
 					created: pathStats ? pathStats.ctime : new Date(0),
 				});
-				if (options.coords === true) {
+				if (options.exif === true) {
 					// try to load coordinates from EXIF and merge them into path data
-					fileItem = Object.assign(fileItem, getCoordsFromExifFromFile(fullPath));
+					fileItem = Object.assign(fileItem, getDataFromExifFromFile(fullPath));
 				}
 				files.push(fileItem);
 			});
@@ -80,7 +80,7 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 			LOG.error('[Globby] Error while processing files in "' + fullPath + '": ' + error.message);
 			files = [];
 		}).finally(function () {
-			LOG.debug('(FS Stats) Pattern: "' + globbyPathPattern + '", total ' + filesLimitCount + ' files, took ' + msToHuman(hrtime(process.hrtime(hrstart))) + ' (options.coords=' + (options.coords ? 'true' : 'false') + ').', {console: false})
+			LOG.debug('(FS Stats) Pattern: "' + globbyPathPattern + '", total ' + filesLimitCount + ' files, took ' + msToHuman(hrtime(process.hrtime(hrstart))) + ' (options.coords=' + (options.exif ? 'true' : 'false') + ').', {console: false})
 			resolve({
 				items: files,
 				total: filesLimitCount,
@@ -146,9 +146,9 @@ module.exports.folders = function (requestedPath, fullPath, permissions, options
 	});
 };
 
-function getCoordsFromExifFromFile(fullPath) {
+function getDataFromExifFromFile(fullPath) {
 	try {
-		return HFS.getCoordsFromExifFromFile(fullPath);
+		return HFS.getDataFromExifFromFile(fullPath);
 	} catch (error) {
 		if (error.message === 'Index out of range') {
 			LOG.warning('Number of bytes is too small buffer for loading EXIF from file "' + fullPath + '".');

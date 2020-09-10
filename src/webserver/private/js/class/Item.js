@@ -183,6 +183,10 @@ class FileItem extends Item {
 			result.coordLat = this.coordLat;
 			result.coordLon = this.coordLon;
 		}
+		if (this.width && this.height) {
+			result.width = this.width;
+			result.height = this.height;
+		}
 		return result
 	}
 }
