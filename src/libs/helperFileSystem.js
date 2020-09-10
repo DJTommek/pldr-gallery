@@ -2,6 +2,7 @@ const FS = require('fs');
 const PATH = require('path');
 const pathCustom = require('./path.js');
 const readline = require('readline');
+const LOG = require('./log.js');
 const exifParser = require('exif-parser');
 
 /**
@@ -189,7 +190,7 @@ function getEndpointPath(filePath) {
 module.exports.getEndpointPath = getEndpointPath;
 
 
-function getCoordsFromExifFromFile(fullPath) {
+function getDataFromExifFromFile(fullPath) {
 	if (PATH.isAbsolute(fullPath) === false) {
 		throw new Error('Parameter "fullPath" must be absolute path but "' + fullPath + '" given.')
 	}
@@ -210,12 +211,26 @@ function getCoordsFromExifFromFile(fullPath) {
 	let exifBuffer = new Buffer.alloc(extData.exifBuffer);
 	FS.readSync(FS.openSync(fullPath, 'r'), exifBuffer, 0, extData.exifBuffer, 0);
 	let parsed = exifParser.create(exifBuffer).parse();
+	let result = {}
+
 	if (parsed.tags.GPSLatitude && parsed.tags.GPSLongitude) {
-		return {
-			coordLat: numberRound(parsed.tags.GPSLatitude, 6),
-			coordLon: numberRound(parsed.tags.GPSLongitude, 6),
-		};
+		result.coordLat = numberRound(parsed.tags.GPSLatitude, 6);
+		result.coordLon = numberRound(parsed.tags.GPSLongitude, 6);
 	}
+
+	if (parsed.imageSize && parsed.imageSize.height && parsed.imageSize.height) {
+		result.width = parsed.imageSize.width;
+		result.height = parsed.imageSize.height;
+	} else if (parsed.tags.ImageWidth && parsed.tags.ImageHeight) {
+		result.width = parsed.tags.ImageWidth;
+		result.height = parsed.tags.ImageHeight;
+	} else if (parsed.tags.ExifImageWidth && parsed.tags.ExifImageHeight) {
+		result.width = parsed.tags.ExifImageWidth;
+		result.height = parsed.tags.ExifImageHeight;
+	} else {
+		LOG.warning('File "' + fullPath + '" don\'t have any info about file resolution. Full list of available EXIF tags: ' + JSON.stringify(parsed));
+	}
+	return result;
 }
 
-module.exports.getCoordsFromExifFromFile = getCoordsFromExifFromFile;
+module.exports.getDataFromExifFromFile = getDataFromExifFromFile;

@@ -48,7 +48,7 @@ module.exports = function (webserver, endpoint) {
 		res.startTime('apistructure', 'Loading and processing data');
 		Promise.all([
 			getItemsHelper.folders(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), {limit: itemLimit}),
-			getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), {limit: itemLimit, coords: true, stat: true}),
+			getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), {limit: itemLimit, exif: true, stat: true}),
 			generateSpecificFilePromise('header.html'),
 			generateSpecificFilePromise('footer.html'),
 		]).then(function (data) {
