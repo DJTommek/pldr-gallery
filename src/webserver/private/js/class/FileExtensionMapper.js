@@ -147,6 +147,9 @@ class FileExtensionMapper {
 			avi: { // video but can't be played in browser
 				'icon': (new Icon).VIDEO,
 			},
+			mpg: { // video but can't be played in browser
+				'icon': (new Icon).VIDEO,
+			},
 		};
 		this.all = {...this.images, ...this.videos, ...this.audios, ...this.downloads};
 		this.regexAll = new RegExp('\\.(' + Object.keys(this.all).join('|') + ')$', 'i');
