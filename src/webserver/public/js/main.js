@@ -1070,7 +1070,7 @@ function mapParsePhotos() {
 						'  </a>' +
 						' </div>' +
 						' <div class="content float-md-right">' +
-						'  <button class="btn btn-primary btn-sm item-select" title="Open in popup">' + item.text + '</button>' +
+						'  <button class="btn btn-primary btn-sm item-select text-truncate" title="Open \'' + item.text + '\' in popup ">' + item.paths.slice(-1)[0] + '</button>' +
 						'  <h6>' + item.coordLat + ',' + item.coordLon + '</h6>' +
 						'  <span class="copy-to-clipboard as-a-link" data-to-copy="' + item.coordLat + ',' + item.coordLon + '" title="Copy to clipboard">Copy <i class="fa fa-clipboard"></i></span>' +
 						'  ,' +
