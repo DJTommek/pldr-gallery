@@ -122,6 +122,8 @@
 		}
 	}
 
+	/* Big tiles */
+
 	&.tiles-big {
 		grid-template-columns: repeat(auto-fit, 200px);
 
@@ -148,9 +150,10 @@
 		}
 	}
 
-	/* Rows  */
+	/* Rows (big and small) */
 
-	&.rows .structure-item {
+	&.rows-small .structure-item,
+	&.rows-big .structure-item {
 		display: block;
 		padding: 0.2em;
 
@@ -158,41 +161,11 @@
 			background-color: rgba(@theme-background-color-secondary, 0.3);
 		}
 
-		.name,
-		.icon,
-		.size,
-		.created,
-		.thumbnail {
-		}
-
 		.icon,
 		.resolution,
 		.size,
 		.created {
 			color: @theme-color-text;
-		}
-
-		.size,
-		.resolution,
-		.created {
-			float: right;
-			padding-left: 1em;
-		}
-
-		.thumbnail-loading-icon {
-			display: none;
-		}
-
-		.name {
-
-		}
-
-		.icon {
-
-		}
-
-		.thumbnail {
-			display: none;
 		}
 
 		&:hover,
@@ -203,6 +176,118 @@
 
 		&:hover:not(.structure-selected) {
 			background-color: rgba(@theme-background-color-secondary, 0.5);
+		}
+	}
+
+	/* Rows (small) */
+
+	&.rows-small {
+		.structure-item {
+			.thumbnail {
+				display: none;
+			}
+
+			.thumbnail-loading-icon {
+				display: none;
+			}
+
+			/* Sadly, it's not possible to show this info on smaller displays, it completely break row expanding text height to another lines below */
+			@media (max-width: 767px) {
+				.size,
+				.resolution,
+				.created {
+					display: none;
+				}
+			}
+
+			@media (min-width: 768px) {
+				.size,
+				.resolution,
+				.created {
+					float: right;
+					display: block;
+					padding-right: 1em;
+				}
+				.size {
+					width: 5em;
+					text-align: right;
+				}
+			}
+		}
+	}
+
+	/* Rows (big) */
+
+	&.rows-big {
+		.structure-item {
+			position: relative;
+			padding: 0;
+			height: 4em;
+
+			.name,
+			.icon,
+			.thumbnail-loading-icon {
+				position: absolute;
+				display: block;
+			}
+
+			.name {
+				padding-left: 4.5em;
+				padding-top: 1em;
+			}
+
+			.icon {
+				font-size: 1.25em;
+				left: 1em;
+				top: 1em;
+			}
+
+			.thumbnail-loading-icon {
+				font-size: 0.75em;
+				//left: 4em; // Align to the right of thumbnail
+				left: 0.5em; // Align to the left of thumbnail
+				top: 0.5em;
+			}
+
+			.thumbnail {
+				height: 4em;
+				width: 4em;
+				position: absolute;
+			}
+
+			/* On bigger displays show these informatins on one line */
+			@media (min-width: 992px) {
+				.created,
+				.size,
+				.resolution {
+					float: right;
+					display: block;
+					padding-right: 1em;
+					padding-top: 1.25em;
+				}
+			}
+
+			/* On smaller displays show each of these informations on separate line */
+			@media (max-width: 991px) {
+				.created,
+				.size,
+				.resolution {
+					position: absolute;
+					right: 0;
+				}
+
+				.created {
+					top: 0;
+				}
+
+				.size {
+					top: 1.25em;
+				}
+
+				.resolution {
+					top: 2.5em;
+				}
+			}
 		}
 	}
 }
