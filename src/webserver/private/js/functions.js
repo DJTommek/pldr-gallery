@@ -444,7 +444,10 @@ function generateCoordsLinks(lat, lon) {
 	lat = lat.toFixed(6);
 	lon = lon.toFixed(6);
 	const coords = lat + ',' + lon;
-	return {
+	let result = {
+		coords: coords,
+		lat: lat,
+		lon: lon,
 		google: 'https://www.google.cz/maps/place/' + coords + '?q=' + coords,
 		mapycz: 'https://mapy.cz/zakladni?y=' + lat + '&x=' + lon + '&source=coor&id=' + lon + ',' + lat, // reversed
 		here: 'https://share.here.com/r/' + coords,
@@ -453,6 +456,8 @@ function generateCoordsLinks(lat, lon) {
 		ingress: 'https://intel.ingress.com?ll=' + coords + '&pll=' + coords,
 		betterlocationbot: 'https://t.me/BetterLocationBot?start=' + lat.replace('.', '') + '_' + lon.replace('.', ''),
 	}
+	result['mapyczScreenshot'] = 'https://en.mapy.cz/screenshoter?url=' + encodeURIComponent(result['mapycz']) + '&p=3&l=0';
+	return result;
 }
 
 global.generateCoordsLinks = generateCoordsLinks;
