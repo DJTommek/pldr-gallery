@@ -786,13 +786,13 @@ function loadThumbnail() {
 		const firstThumbnailParent = firstThumbnail.parent();
 		// @TODO save new generated DOM and use .remove() directly instead of find()
 		firstThumbnail.before('<i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin" title="Loading thumbnail..."></i>');
-		// trigger loading image after new src is loaded
-		// @Author https://stackoverflow.com/a/7439093/3334403 (http://jsfiddle.net/jfriend00/hmP5M/)
-		firstThumbnail.one('load error', function () {
-			firstThumbnailParent.find('i.thumbnail-loading-icon').remove();
-			firstThumbnail.removeClass('thumbnail-not-loaded');
-			loadThumbnail();
-		}).attr('src', firstThumbnail.data('src'));
+			// trigger loading image after new src is loaded
+			// @Author https://stackoverflow.com/a/7439093/3334403 (http://jsfiddle.net/jfriend00/hmP5M/)
+			firstThumbnail.one('load error', function () {
+				firstThumbnailParent.find('i.thumbnail-loading-icon').remove();
+				firstThumbnail.removeClass('thumbnail-not-loaded');
+				loadThumbnail();
+			}).attr('src', firstThumbnail.data('src'));
 	}
 }
 
@@ -881,10 +881,12 @@ function parseStructure(items) {
 			maxVisible--;
 		}
 		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
+		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
 		if (!item.noFilter && CONFIG.thumbnails.folder.enabled === true) {
 			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="/api/thumbnail-folder?path=' + item.getEncodedPath() + '">';
+		} else {
+			contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		}
-		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		contentTiles += '</a>';
 	});
@@ -892,6 +894,7 @@ function parseStructure(items) {
 		const text = 'Celkem je zde ' + (items.foldersTotal) + ' složek ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.';
 		contentTiles += '<a class="structure-item" href="#">';
 		contentTiles += ' <i class="icon fa fa-info fa-fw"></i>';
+		contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		contentTiles += ' <span class="name">' + text + '</span>';
 		contentTiles += '</a>';
 	}
@@ -901,6 +904,8 @@ function parseStructure(items) {
 		if (item.isImage === true && CONFIG.thumbnails.image.enabled === true) {
 			// this image is rendered above icon so if image is loaded, icon will automatically hide
 			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="' + item.getFileUrl() + '&type=thumbnail">';
+		} else {
+			contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		}
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		const created = item.created.human(true);
@@ -914,17 +919,20 @@ function parseStructure(items) {
 	if (maxVisible === 0) {
 		contentTiles += '<a class="structure-item" href="#">';
 		contentTiles += ' <i class="icon fa fa-info fa-fw"></i>';
+		contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		contentTiles += ' <span class="name">Složka je prázdná.</span>';
 		contentTiles += '</a>';
 	} else { // @TODO quick workaround, should be available all the time and toggled visibilty in filter
 		contentTiles += '<a class="structure-item" href="#" id="filter-structure-empty" style="display: none;">';
 		contentTiles += ' <i class="icon fa fa-warning fa-fw"></i>';
+		contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		contentTiles += ' <span class="name">Zadanému filtru nevyhovuje žádná složka ani soubor.</span>';
 		contentTiles += '</a>';
 	}
 	if (items.filesTotal > items.files.length) {
 		contentTiles += '<a class="structure-item" href="#">';
 		contentTiles += ' <i class="icon fa fa-info fa-fw"></i>';
+		contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		contentTiles += ' <span class="name">Celkem je zde ' + (items.filesTotal) + ' souborů ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</span>';
 		contentTiles += '</a>';
 	}
@@ -996,7 +1004,7 @@ function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message
 		$(target + ' > div .badge').first().show();
 	}
 	if (fade !== false) {
-		setTimeout(function() {
+		setTimeout(function () {
 			$('#alert-' + currentFlashId).alert('close');
 		}, fade);
 	}
@@ -1123,6 +1131,19 @@ function shareUrl(niceUrl) {
 }
 
 function structureViewChange(value) {
+	// Get list of possible view types from HTML
+	const allowedValues = [];
+	$('#structure-display-type input[type=radio]').each(function () {
+		allowedValues.push($(this).val());
+	})
+
+	// Force set to default view if invalid type detected. Mainly for backward compatibility,
+	// if name of some view name change, eg "rows" -> "rows-small"
+	if (allowedValues.includes(value) === false) {
+		value = allowedValues[0];
+		console.warn(`Value "${value}" is not valid structure view, changed to "${allowedValues[0]}".`);
+	}
+
 	Settings.save('structureDisplayType', value);
 	// reset original values
 	$('#structure-display-type button').removeClass('btn-secondary').addClass('btn-outline-secondary');
