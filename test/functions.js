@@ -304,40 +304,56 @@ describe('Test all functions from functions.js', function () {
 
 	it('generateCoordsLinks()', function () {
 		assert.deepStrictEqual(generateCoordsLinks(49.5, 14.5), {
+			coords: '49.500000,14.500000',
+			lat: '49.500000',
+			lon: '14.500000',
 			betterlocationbot: 'https://t.me/BetterLocationBot?start=49500000_14500000',
 			google: 'https://www.google.cz/maps/place/49.500000,14.500000?q=49.500000,14.500000',
 			here: 'https://share.here.com/r/49.500000,14.500000',
 			ingress: 'https://intel.ingress.com?ll=49.500000,14.500000&pll=49.500000,14.500000',
 			mapycz: 'https://mapy.cz/zakladni?y=49.500000&x=14.500000&source=coor&id=14.500000,49.500000',
 			osm: 'https://www.openstreetmap.org/search?whereami=1&query=49.500000,14.500000&mlat=49.500000&mlon=14.500000#map=17/49.500000/14.500000',
-			waze: 'https://www.waze.com/ul?ll=49.500000,14.500000'
+			waze: 'https://www.waze.com/ul?ll=49.500000,14.500000',
+			mapyczScreenshot: 'https://en.mapy.cz/screenshoter?url=https%3A%2F%2Fmapy.cz%2Fzakladni%3Fy%3D49.500000%26x%3D14.500000%26source%3Dcoor%26id%3D14.500000%2C49.500000&p=3&l=0',
 		});
 		assert.deepStrictEqual(generateCoordsLinks(89.888, 179.999), {
+			coords: '89.888000,179.999000',
+			lat: '89.888000',
+			lon: '179.999000',
 			betterlocationbot: 'https://t.me/BetterLocationBot?start=89888000_179999000',
 			google: 'https://www.google.cz/maps/place/89.888000,179.999000?q=89.888000,179.999000',
 			here: 'https://share.here.com/r/89.888000,179.999000',
 			ingress: 'https://intel.ingress.com?ll=89.888000,179.999000&pll=89.888000,179.999000',
 			mapycz: 'https://mapy.cz/zakladni?y=89.888000&x=179.999000&source=coor&id=179.999000,89.888000',
 			osm: 'https://www.openstreetmap.org/search?whereami=1&query=89.888000,179.999000&mlat=89.888000&mlon=179.999000#map=17/89.888000/179.999000',
-			waze: 'https://www.waze.com/ul?ll=89.888000,179.999000'
+			waze: 'https://www.waze.com/ul?ll=89.888000,179.999000',
+			mapyczScreenshot: 'https://en.mapy.cz/screenshoter?url=https%3A%2F%2Fmapy.cz%2Fzakladni%3Fy%3D89.888000%26x%3D179.999000%26source%3Dcoor%26id%3D179.999000%2C89.888000&p=3&l=0',
 		});
 		assert.deepStrictEqual(generateCoordsLinks(-89.888, -179.999), {
+			coords: '-89.888000,-179.999000',
+			lat: '-89.888000',
+			lon: '-179.999000',
 			betterlocationbot: 'https://t.me/BetterLocationBot?start=-89888000_-179999000',
 			google: 'https://www.google.cz/maps/place/-89.888000,-179.999000?q=-89.888000,-179.999000',
 			here: 'https://share.here.com/r/-89.888000,-179.999000',
 			ingress: 'https://intel.ingress.com?ll=-89.888000,-179.999000&pll=-89.888000,-179.999000',
 			mapycz: 'https://mapy.cz/zakladni?y=-89.888000&x=-179.999000&source=coor&id=-179.999000,-89.888000',
 			osm: 'https://www.openstreetmap.org/search?whereami=1&query=-89.888000,-179.999000&mlat=-89.888000&mlon=-179.999000#map=17/-89.888000/-179.999000',
-			waze: 'https://www.waze.com/ul?ll=-89.888000,-179.999000'
+			waze: 'https://www.waze.com/ul?ll=-89.888000,-179.999000',
+			mapyczScreenshot: 'https://en.mapy.cz/screenshoter?url=https%3A%2F%2Fmapy.cz%2Fzakladni%3Fy%3D-89.888000%26x%3D-179.999000%26source%3Dcoor%26id%3D-179.999000%2C-89.888000&p=3&l=0',
 		});
 		assert.deepStrictEqual(generateCoordsLinks(0, 0), {
+			coords: '0.000000,0.000000',
+			lat: '0.000000',
+			lon: '0.000000',
 			betterlocationbot: 'https://t.me/BetterLocationBot?start=0000000_0000000',
 			google: 'https://www.google.cz/maps/place/0.000000,0.000000?q=0.000000,0.000000',
 			here: 'https://share.here.com/r/0.000000,0.000000',
 			ingress: 'https://intel.ingress.com?ll=0.000000,0.000000&pll=0.000000,0.000000',
 			mapycz: 'https://mapy.cz/zakladni?y=0.000000&x=0.000000&source=coor&id=0.000000,0.000000',
 			osm: 'https://www.openstreetmap.org/search?whereami=1&query=0.000000,0.000000&mlat=0.000000&mlon=0.000000#map=17/0.000000/0.000000',
-			waze: 'https://www.waze.com/ul?ll=0.000000,0.000000'
+			waze: 'https://www.waze.com/ul?ll=0.000000,0.000000',
+			mapyczScreenshot: 'https://en.mapy.cz/screenshoter?url=https%3A%2F%2Fmapy.cz%2Fzakladni%3Fy%3D0.000000%26x%3D0.000000%26source%3Dcoor%26id%3D0.000000%2C0.000000&p=3&l=0',
 		});
 	});
 });
