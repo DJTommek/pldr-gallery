@@ -909,7 +909,7 @@ function parseStructure(items) {
 		}
 		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
 		const created = item.created.human(true);
-		contentTiles += ' <span class="created" title="' + created + ' (' + msToHuman(new Date() - item.created) + ' ago)">' + created.date + ' <span>' + created.time + '</span></span>';
+		contentTiles += ' <span class="created" title="' + created + ' (' + msToHuman(Math.max(new Date().getTime() - item.created, 0)) + ' ago)">' + created.date + ' <span>' + created.time + '</span></span>';
 		contentTiles += ' <span class="size">' + formatBytes(item.size, 2) + '</span>';
 		if (item.width && item.height) {
 			contentTiles += ' <span class="resolution">' + item.width + ' x ' + item.height + '</span>';
