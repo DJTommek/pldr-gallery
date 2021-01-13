@@ -461,3 +461,41 @@ function generateCoordsLinks(lat, lon) {
 }
 
 global.generateCoordsLinks = generateCoordsLinks;
+
+/**
+ * Generate various links to most used map services.
+ *
+ * @see https://github.com/DJTommek/better-location
+ * @author Tomas Palider (DJTommek) <tomas.palider.cz>
+ * @link https://gist.github.com/DJTommek/e15f21e6c0f4088f96c1a9ca2698f4f8
+ *
+ * @param {number} lat
+ * @param {number} lon
+ * @return {string}
+ */
+function generateCoordsLinksHtml(lat, lon) {
+	const links = generateCoordsLinks(lat, lon);
+	let html = `<div class="better-location">`;
+	html += `<pre>`;
+	html += `<a href="${links['mapyczScreenshot']}">\u{1F5BC}</a>`;
+	html += `<span class="copy-to-clipboard" data-to-copy="${links['coords']}">${links['coords']}</span>`;
+	html += `<br>`;
+	html += `<a href="${links['betterlocationbot']}">@BetterLocationBot</a>`;
+	html += `|`;
+	html += `<a href="${links['google']}">Google</a>`;
+	html += `|`;
+	html += `<a href="${links['mapycz']}">Mapy.cz</a>`;
+	html += `|`;
+	html += `<a href="${links['waze']}">Waze</a>`;
+	html += `|`;
+	html += `<a href="${links['here']}">Here</a>`;
+	html += `|`;
+	html += `<a href="${links['osm']}">OSM</a>`;
+	html += `|`;
+	html += `<a href="${links['ingress']}">Ingress</a>`;
+	html += `</pre>`;
+	html += `</div>`;
+	return html;
+}
+
+global.generateCoordsLinksHtml = generateCoordsLinksHtml;
