@@ -20,7 +20,7 @@
 		"archiver": "^5.3.0",
 		"body-parser": "latest",
 		"compression": "^1.7.4",
-		"cookie-parser": "^1.4.4",
+		"cookie-parser": "^1.4.5",
 		"exif-parser": "https://github.com/DJTommek/exif-parser.git",
 		"express": "^4.17.1",
 		"globby": "^11.0.0",
