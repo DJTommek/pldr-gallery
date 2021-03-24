@@ -257,21 +257,25 @@ let finalContent = '';
 c.terser.filesToCompile.forEach(function (file) {
 	finalContent += FS.readFileSync(BASE_DIR_GET(file));
 });
-const finalContentUgly = terser.minify(finalContent, c.terser.options);
-FS.mkdir(PATH.dirname(c.terser.destinationPath), {recursive: true}, function (error) {
-	console.log(PATH.dirname(c.terser.destinationPath));
-	if (error) {
-		LOG.error('(Cache) Error while creating folder for generated modules: ' + error.message);
-	} else {
-		FS.writeFile(c.terser.destinationPath, finalContentUgly.code, function (error) {
-			if (error) {
-				LOG.fatal('(Webserver) Fatal error while saving generated public/js/modules.min.js file: ' + error.message);
-			} else {
-				LOG.info('(Webserver) Main public/js/modules.min.js file was successfully generated.');
-			}
-		});
-	}
+terser.minify(finalContent, c.terser.options).then(function (finalContentUgly) {
+	FS.mkdir(PATH.dirname(c.terser.destinationPath), {recursive: true}, function (error) {
+		console.log(PATH.dirname(c.terser.destinationPath));
+		if (error) {
+			LOG.error('(Cache) Error while creating folder for generated modules: ' + error.message);
+		} else {
+			FS.writeFile(c.terser.destinationPath, finalContentUgly.code, function (error) {
+				if (error) {
+					LOG.fatal('(Webserver) Fatal error while saving generated public/js/modules.min.js file: ' + error.message);
+				} else {
+					LOG.info('(Webserver) Main public/js/modules.min.js file was successfully generated.');
+				}
+			});
+		}
+	});
+}).catch(function (error) {
+	LOG.fatal('(Webserver) Fatal error while terser.minify of public/js/modules.min.js file: ' + error.message);
 });
+
 
 /**
  * Create cache folders if caching is enabled
