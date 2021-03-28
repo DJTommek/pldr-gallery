@@ -1,6 +1,7 @@
 require('./webserver/private/js/functions.js');
 const pathCustom = require('./libs/path.js');
 pathCustom.defineBaseDir(require.main.filename);
+const scanStructure = require('./libs/scanStructure.js');
 const FS = require("fs");
 const c = require('./libs/config.js');
 
@@ -33,6 +34,12 @@ const c = require('./libs/config.js');
 
 	// Start webserver(s)
 	const webserver = require('./webserver/webserver.js');
+
+	setTimeout(function () {
+		scanStructure.scan(c.path, {
+			debug: true,
+		});
+	}, 1000)
 
 	c.stop.events.forEach(function (signalCode) {
 		process.on(signalCode, function () {
