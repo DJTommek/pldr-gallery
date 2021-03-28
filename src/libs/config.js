@@ -187,6 +187,7 @@ let CONFIG = {
 			user: 'pldr_gallery_user',
 			group: 'pldr_gallery_group',
 			password: 'pldr_gallery_password',
+			structure: 'pldr_gallery_structure',
 		}
 	},
 
