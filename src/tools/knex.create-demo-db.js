@@ -116,6 +116,30 @@ async function createTables() {
 			.string('permission')
 	})
 	console.log('(Knex) Created table "' + CONFIG.db.table.permission + '".');
+	console.log('(Knex) Creating table "' + CONFIG.db.table.structure + '"...');
+	await knex.schema.createTable(CONFIG.db.table.structure, function (table) {
+		table.increments('id');
+		table
+			.string('path', 260)
+			.unique('path')
+			.notNullable()
+			.unsigned();
+		table
+			.integer('type', 1)
+			.notNullable()
+			.unsigned();
+		table
+			.float('coordinate_lat', 10, 6)
+			.unsigned();
+		table
+			.float('coordinate_lon', 10, 6)
+			.unsigned();
+		table
+			.integer('scanned')
+			.notNullable()
+			.unsigned();
+	});
+	console.log('(Knex) Created table "' + CONFIG.db.table.structure + '".');
 }
 
 async function purgeData() {
