@@ -75,6 +75,7 @@
 
 			.size,
 			.resolution,
+			.location,
 			.created {
 				display: none;
 			}
@@ -163,6 +164,7 @@
 
 		.icon,
 		.resolution,
+		.location,
 		.size,
 		.created {
 			color: @theme-color-text;
@@ -195,6 +197,7 @@
 			@media (max-width: 767px) {
 				.size,
 				.resolution,
+				.location,
 				.created {
 					display: none;
 				}
@@ -203,6 +206,7 @@
 			@media (min-width: 768px) {
 				.size,
 				.resolution,
+				.location,
 				.created {
 					float: right;
 					display: block;
@@ -259,6 +263,7 @@
 			@media (min-width: 992px) {
 				.created,
 				.size,
+				.location,
 				.resolution {
 					float: right;
 					display: block;
@@ -271,6 +276,7 @@
 			@media (max-width: 991px) {
 				.created,
 				.size,
+				.location,
 				.resolution {
 					position: absolute;
 					right: 0;
@@ -282,6 +288,10 @@
 
 				.size {
 					top: 1.25em;
+				}
+				.location {
+					top: 1.25em;
+					right: 5em;
 				}
 
 				.resolution {

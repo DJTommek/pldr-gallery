@@ -914,6 +914,10 @@ function parseStructure(items) {
 		if (item.width && item.height) {
 			contentTiles += ' <span class="resolution">' + item.width + ' x ' + item.height + '</span>';
 		}
+		if (item.coordLat && item.coordLon) {
+  			// @HACK Non-break space is necesssary to proper vertical alignment of the icon
+			contentTiles += ' <span class="location" title="Coordinates detected">&nbsp;<i class="fa fa-map-marker"></i></span>';
+		}
 		contentTiles += '</a>';
 	});
 	if (maxVisible === 0) {
