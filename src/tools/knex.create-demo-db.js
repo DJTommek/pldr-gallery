@@ -120,22 +120,19 @@ async function createTables() {
 	await knex.schema.createTable(CONFIG.db.table.structure, function (table) {
 		table.increments('id');
 		table
-			.string('path', 260)
+			.string('path', 191) // 191 is max for servers with limit 765 characters (UTF-8 string is taking 4 characters instead of 1)
 			.unique('path')
-			.notNullable()
-			.unsigned();
+			.notNullable();
 		table
 			.integer('type', 1)
 			.notNullable()
 			.unsigned();
 		table
-			.float('coordinate_lat', 10, 6)
-			.unsigned();
+			.float('coordinate_lat', 10, 6);
 		table
-			.float('coordinate_lon', 10, 6)
-			.unsigned();
+			.float('coordinate_lon', 10, 6);
 		table
-			.integer('scanned')
+			.bigInteger('scanned')
 			.notNullable()
 			.unsigned();
 	});
