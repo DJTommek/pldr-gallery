@@ -3,7 +3,8 @@ const pathCustom = require('./libs/path.js');
 pathCustom.defineBaseDir(require.main.filename);
 const scanStructure = require('./libs/scanStructure.js');
 const FS = require("fs");
-const c = require('./libs/config.js');
+const CONFIG = require('./libs/config.js');
+const CronJob = require('cron').CronJob;
 
 (async function () {
 	const LOG = require('./libs/log.js');
@@ -11,17 +12,17 @@ const c = require('./libs/config.js');
 
 	// Check if config.path is set correctly
 	try {
-		let folderStats = FS.statSync(c.path);
+		let folderStats = FS.statSync(CONFIG.path);
 		if (folderStats.isDirectory() === false) {
 			throw new Error('it is not directory');
 		}
-		let items = FS.readdirSync(c.path);
+		let items = FS.readdirSync(CONFIG.path);
 		if (items.length === 0) {
 			throw new Error('no items in base folder');
 		}
-		LOG.info('(Start) Defined base path "' + c.path + '" is valid with ' + items.length + ' items.');
+		LOG.info('(Start) Defined base path "' + CONFIG.path + '" is valid with ' + items.length + ' items.');
 	} catch (error) {
-		LOG.fatal('(Start) Defined base path "' + c.path + '" is invalid. Error: ' + error.message);
+		LOG.fatal('(Start) Defined base path "' + CONFIG.path + '" is invalid. Error: ' + error.message);
 	}
 
 	LOG.info('***STARTING***');
@@ -35,13 +36,31 @@ const c = require('./libs/config.js');
 	// Start webserver(s)
 	const webserver = require('./webserver/webserver.js');
 
-	setTimeout(function () {
-		scanStructure.scan(c.path, {
-			debug: true,
-		});
-	}, 1000)
+	if (CONFIG.structure.scan.enable) {
+		if (CONFIG.structure.scan.fast.onStart) { // run fast scan and then deep scan if allowed
+			scanStructure.scan(CONFIG.path, {stat: false, exif: false}, function () {
+				if (CONFIG.structure.scan.deep.onStart) {
+					scanStructure.scan(CONFIG.path, {stat: true, exif: true});
+				}
+			});
+		} else if (CONFIG.structure.scan.deep.onStart) { // run deep scan only
+			scanStructure.scan(CONFIG.path, {stat: true, exif: true});
+		}
+		if (CONFIG.structure.scan.fast.cron) {
+			new CronJob(CONFIG.structure.scan.fast.cron, function () {
+				LOG.info('Job tick for structure fast scan.')
+				scanStructure.scan(CONFIG.path, {stat: false, exif: false});
+			}).start();
+		}
+		if (CONFIG.structure.scan.deep.cron) {
+			new CronJob(CONFIG.structure.scan.deep.cron, function () {
+				LOG.info('Job tick for structure deep scan.')
+				scanStructure.scan(CONFIG.path, {stat: true, exif: true});
+			}).start();
+		}
+	}
 
-	c.stop.events.forEach(function (signalCode) {
+	CONFIG.stop.events.forEach(function (signalCode) {
 		process.on(signalCode, function () {
 			LOG.head('Received "' + signalCode + '" signal, stopping everything');
 			Promise.all([
@@ -56,8 +75,8 @@ const c = require('./libs/config.js');
 						return resolve();
 					}
 					setTimeout(function () {
-						reject('Closing HTTP server timeouted after ' + c.stop.timeout + 'ms.');
-					}, c.stop.timeout);
+						reject('Closing HTTP server timeouted after ' + CONFIG.stop.timeout + 'ms.');
+					}, CONFIG.stop.timeout);
 				}),
 				new Promise(function (resolve) {
 					if (webserver.httpsServer) {
@@ -69,8 +88,8 @@ const c = require('./libs/config.js');
 						return resolve();
 					}
 					setTimeout(function () {
-						reject('Closing HTTPS server timeouted after ' + c.stop.timeout + 'ms.');
-					}, c.stop.timeout);
+						reject('Closing HTTPS server timeouted after ' + CONFIG.stop.timeout + 'ms.');
+					}, CONFIG.stop.timeout);
 				}),
 			]).then(function () {
 				LOG.info('(Stop) Everything was successfully stopped.');
