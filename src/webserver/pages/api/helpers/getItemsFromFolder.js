@@ -96,8 +96,8 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 module.exports.filesDb = function (requestedPath, fullPath, permissions, options = {}) {
 	const hrstart = process.hrtime();
 	if (typeof options.limit === 'undefined') {
-		options.limit = false;
-	} else if (options.limit !== false && typeof options.limit < 1) {
+		options.limit = null;
+	} else if (options.limit !== null && typeof options.limit < 1) {
 		throw new Error('Parameter "options.limit" must be positive number or false');
 	}
 
@@ -110,21 +110,24 @@ module.exports.filesDb = function (requestedPath, fullPath, permissions, options
 	return new Promise(function (resolve) {
 		let filesLimitCount = 0;
 		let files = [];
+		const folderItem = new FolderItem(null, {
+			path: requestedPath
+		});
 
-		console.log(requestedPath);
+		const searchingLevel = folderItem.paths.length + 1;
 		const query = knex.select('*')
 			.from(CONFIG.db.table.structure)
 			.where('type', 1)
-			.andWhere('path', 'LIKE', requestedPath + '%')
-		if (options.recursive === false) {
-			query.andWhere('path', 'RLIKE', '^' + requestedPath + '[^/]+$')
+		if (options.recursive) {
+			query.andWhere('level', '>=', searchingLevel)
+		} else {
+			query.andWhere('level', searchingLevel)
 		}
-		if (options.limit) {
-			query.limit(options.limit);
-		}
+		query.andWhere('path', 'LIKE', requestedPath + '%')
+		query.limit(options.limit);
+		query.orderBy('path');
 		console.log(query.toString());
 		query.then(function (rows) {
-			// console.log(rows);
 			rows.forEach(function (row) {
 				if (perms.test(permissions, row.path) === false) {
 					return;
@@ -135,8 +138,8 @@ module.exports.filesDb = function (requestedPath, fullPath, permissions, options
 				filesLimitCount++;
 				let fileItem = new FileItem(null, {
 					path: row.path,
-					size: 0, // @TODO add to scanning
-					created: new Date(0), // @TODO add to scanning
+					size: row.size,
+					created: row.created === null ? null : new Date(row.created),
 				});
 				if (row.coordinate_lat && row.coordinate_lon) {
 					fileItem.coordLat = row.coordinate_lat;
@@ -144,12 +147,11 @@ module.exports.filesDb = function (requestedPath, fullPath, permissions, options
 				}
 				files.push(fileItem);
 			});
-			files.sort(sortItemsByPath);
 		}).catch(function (error) {
 			LOG.error('[Knex] Error while loading and processing in "' + fullPath + '": ' + error.message);
 			files = [];
 		}).finally(function () {
-			LOG.debug('(Knex) Took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
+			LOG.debug('(Knex) Files took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
 			resolve({
 				items: files,
 				total: filesLimitCount,
@@ -218,8 +220,8 @@ module.exports.folders = function (requestedPath, fullPath, permissions, options
 module.exports.foldersDb = function (requestedPath, fullPath, permissions, options = {}) {
 	const hrstart = process.hrtime();
 	if (typeof options.limit === 'undefined') {
-		options.limit = false;
-	} else if (options.limit !== false && typeof options.limit < 1) {
+		options.limit = null;
+	} else if (options.limit !== null && typeof options.limit < 1) {
 		throw new Error('Parameter "options.limit" must be positive number or false');
 	}
 
@@ -236,18 +238,18 @@ module.exports.foldersDb = function (requestedPath, fullPath, permissions, optio
 			}));
 		}
 		console.log(requestedPath);
+		const folderItem = new FolderItem(null, {
+			path: requestedPath
+		});
 		const query = knex.select('*')
 			.from(CONFIG.db.table.structure)
 			.where('type', 0)
+			.andWhere('level', folderItem.paths.length + 1)
 			.andWhere('path', 'LIKE', requestedPath + '%')
-			.andWhere('path', 'RLIKE', '^' + requestedPath.preg_quote() + '[^/]+/$')
-		if (options.limit) {
-			query.limit(options.limit);
-		}
-		query.orderBy('path');
+			.limit(options.limit)
+			.orderBy('path');
 		console.log(query.toString());
 		query.then(function (rows) {
-			console.log(rows);
 			rows.forEach(function (row) {
 				if (perms.test(permissions, row.path) === false) {
 					return;
@@ -262,7 +264,7 @@ module.exports.foldersDb = function (requestedPath, fullPath, permissions, optio
 			LOG.error('[Globby] Error while processing folders in "' + fullPath + '": ' + error.message);
 			folders = [];
 		}).finally(function () {
-			LOG.debug('(Knex) Folders Took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
+			LOG.debug('(Knex) Folders took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
 			resolve({
 				items: folders,
 				total: foldersLimitCount,
