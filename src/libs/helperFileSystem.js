@@ -209,7 +209,9 @@ function getDataFromExifFromFile(fullPath) {
 
 	// create small buffer, fill it with first x bytes from image and parse
 	let exifBuffer = new Buffer.alloc(extData.exifBuffer);
-	FS.readSync(FS.openSync(fullPath, 'r'), exifBuffer, 0, extData.exifBuffer, 0);
+	const fd = FS.openSync(fullPath, 'r');
+	FS.readSync(fd, exifBuffer, 0, extData.exifBuffer, 0);
+	FS.closeSync(fd);
 	let parsed = exifParser.create(exifBuffer).parse();
 	let result = {}
 
