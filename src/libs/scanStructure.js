@@ -9,30 +9,33 @@ const readdirp = require('readdirp');
 const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
 const knex = require('./database.js');
 
-function scan(path, options) {
-	if (options === undefined) {
-		options = {}
+function scan(path, options = {}, callback = null) {
+	options.exif = (typeof options.exif === 'boolean') ? options.exif : false;
+	options.stat = (typeof options.stat === 'boolean') ? options.stat : false;
+	if (module.exports.scanning) {
+		LOG.warning('Scanning is already in progress, try again later.');
+		if (callback && typeof callback === 'function') {
+			callback();
+		}
+		return;
 	}
-	options.exif = (typeof options.exif === 'boolean') || true;
-	options.debug = (typeof options.debug === 'boolean') || false;
-
+	module.exports.scanning = true;
 	let finds = {
 		folders: [],
 		files: []
 	};
-	LOG.info('(ScanStructure) Scanning started.');
+	LOG.info('(ScanStructure) Scanning started for path "' + path + '" (options: ' + JSON.stringify(options) + ').');
 	const readDirStartHr = process.hrtime();
 	const readDirStart = new Date();
 
 	readdirp(path, {
 		type: 'files_directories',
-		depth: 10,
-		alwaysStat: false
+		depth: CONFIG.structure.scan.depth,
+		alwaysStat: options.stat,
+		lstat: false,
 	}).on('data', function (entry) {
 		try {
-			// fallback to stats because dirent is not supported (probably node.js version is older than 10.10.0)
-			// https://github.com/paulmillr/readdirp/issues/95
-			// https://nodejs.org/api/fs.html#fs_class_fs_dirent
+			// dirent is available if alwaysStat=false
 			const item = entry.dirent || entry.stats;
 
 			if (item.isFile() && entry.basename.match((new FileExtensionMapper).regexAll) === null) {
@@ -44,21 +47,25 @@ function scan(path, options) {
 			let pathData = {
 				path: entryPath,
 				text: entryPath,
+				created: item.ctimeMs || null,
 				scanned: new Date(),
 			};
 			if (item.isDirectory()) {
 				pathData.path += '/';
 				pathData.text += '/';
 				finds.folders.push(pathData);
-			} else { // is file, load detailed info
-				let pathStats = FS.lstatSync(entry.fullPath);
-				pathData.size = pathStats.size;
-				pathData.created = pathStats.ctime;
-				pathData = Object.assign(pathData, getCoordsFromExifFromFile(entry.fullPath));
+			} else if (item.isFile()) {
+				pathData.size = item.size || null;
+				if (options.exif) {
+					pathData = Object.assign(pathData, getCoordsFromExifFromFile(entry.fullPath));
+				}
 				finds.files.push(pathData);
+			} else {
+				LOG.warning('Unhandled type of file, full path: "' + entry.fullPath + '"');
+				return;
 			}
 
-			if (options.debug === true && finds.files.length > 0 && finds.files.length % 1000 === 0) {
+			if (finds.files.length > 0 && finds.files.length % 1000 === 0) {
 				let humanTime = msToHuman(hrtime(process.hrtime(readDirStartHr)));
 				LOG.debug('(ScanStructure) So far scanned ' + finds.files.length + ' files and ' + finds.folders.length + ' folders in ' + humanTime + '.')
 			}
@@ -73,9 +80,10 @@ function scan(path, options) {
 		let humanTime = msToHuman(hrtime(process.hrtime(readDirStartHr)));
 		LOG.info('(ScanStructure) Scanning is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
 		await updateDatabase(finds, readDirStart);
-		console.log(finds.folders.length);
-		console.log(finds.files.length);
-
+		module.exports.scanning = false;
+		if (callback && typeof callback === 'function') {
+			callback();
+		}
 	});
 }
 
@@ -102,11 +110,15 @@ function getCoordsFromExifFromFile(fullPath) {
  */
 async function updateDatabase(finds, scanStart) {
 	const findsFolders = finds.folders.map(function (pathData) {
-		return {
+		const result = {
 			path: pathData.path,
 			type: 0,
 			scanned: pathData.scanned.getTime(),
 		};
+		if (pathData.created) {
+			result.created = pathData.created;
+		}
+		return result;
 	});
 	const findsFiles = finds.files.map(function (pathData) {
 		const result = {
@@ -114,6 +126,12 @@ async function updateDatabase(finds, scanStart) {
 			type: 1,
 			scanned: pathData.scanned.getTime(),
 		};
+		if (pathData.size) {
+			result.size = pathData.size;
+		}
+		if (pathData.created) {
+			result.created = pathData.created;
+		}
 		if (typeof pathData.coordLat === 'number' && typeof pathData.coordLon === 'number') {
 			result.coordinate_lat = pathData.coordLat;
 			result.coordinate_lon = pathData.coordLon;
@@ -121,17 +139,23 @@ async function updateDatabase(finds, scanStart) {
 		return result;
 	});
 	try {
-		const BATCH_SIZE = 100;
+		const BATCH_SIZE = 10000;
 		await knex.transaction(async function (transaction) {
 			const chunk = [];
 			let chunkCount = 0;
-			for (const row of findsFiles.concat(findsFolders)) {
+			const allItems = findsFiles.concat(findsFolders);
+			LOG.debug('Loaded ' + allItems.length + ' items total, updating database...')
+			for (const row of allItems) {
 				chunk.push(row);
 				if (chunk.length === BATCH_SIZE) {
-					LOG.debug('Inserting batch #' + chunkCount++ + ' to database, ' + Math.max(findsFiles.length - (BATCH_SIZE * chunkCount), 0) + ' rows remaining.')
+					LOG.debug('Inserting batch #' + (chunkCount++) + ' to database, ' + (allItems.length - (BATCH_SIZE * chunkCount)) + ' rows remaining.')
 					await transaction(CONFIG.db.table.structure).insert(chunk).onConflict('path').merge();
 					chunk.length = 0;
 				}
+			}
+			if (chunk.length > 0) {
+				LOG.debug('Inserting final batch #' + (chunkCount++) + ' of ' + chunk.length + ' rows to database, no rows remaining.')
+				await transaction(CONFIG.db.table.structure).insert(chunk).onConflict('path').merge();
 			}
 			const deleted = await transaction(CONFIG.db.table.structure).delete().where('scanned', '<', scanStart.getTime());
 			LOG.info('(ScanStructure) Scanned structure in database was updated (' + deleted + ' deleted).');
@@ -142,3 +166,4 @@ async function updateDatabase(finds, scanStart) {
 }
 
 module.exports.scan = scan;
+module.exports.scanning = false;

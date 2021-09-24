@@ -87,6 +87,27 @@ let CONFIG = {
 	},
 
 	/**
+	 * Recursively crawl whole files and folders structure and save data to database for much more quicker browsing.
+	 */
+	structure: {
+		scan: {
+			enable: false,
+			depth: 20,
+			fast: { // Fast scan updates only file and folder structure, without loading any metadata
+				onStart: true,
+				// Interval should be higher, than how long it takes to run quick scan
+				cron: '10 */5 * * * *', // every 5 minutes.
+			},
+			deep: { // Deep scan updates file and folder structure including file metadata and EXIF, which is significantly slower
+				onStart: true, // if fast.onStart is enabled, deepscan will run once fastscan is completed
+				// Interval should be higher, than how long it takes to run quick scan.
+				// Should be planned to start, when fastscan is not running.
+				cron: '0 0 4 * * *', // every day at 04:00:00
+			},
+		},
+	},
+
+	/**
 	 * Options to Archiver
 	 *
 	 * @see https://www.archiverjs.com/
