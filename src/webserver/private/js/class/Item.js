@@ -18,6 +18,7 @@ class Item {
 
 		this.url = pathToUrl(this.path);
 		this.paths = this.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
+		this.created = this.created ? new Date(this.created) : null;
 
 		// folder path of item, where is located.
 		// In case of FolderItem it is the same as this.path
@@ -94,7 +95,6 @@ class FolderItem extends Item {
 class FileItem extends Item {
 	constructor(...args) {
 		super(...args);
-		this.created = new Date(this.created);
 		this.isFile = true;
 		this.ext = this.paths.last().split('.').last().toLowerCase();
 		this.isImage = ((new FileExtensionMapper).getImage(this.ext) !== null);
