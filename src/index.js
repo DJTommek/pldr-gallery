@@ -36,30 +36,6 @@ const CronJob = require('cron').CronJob;
 	// Start webserver(s)
 	const webserver = require('./webserver/webserver.js');
 
-	if (CONFIG.structure.scan.enable) {
-		if (CONFIG.structure.scan.fast.onStart) { // run fast scan and then deep scan if allowed
-			scanStructure.scan(CONFIG.path, {stat: false, exif: false}, function () {
-				if (CONFIG.structure.scan.deep.onStart) {
-					scanStructure.scan(CONFIG.path, {stat: true, exif: true});
-				}
-			});
-		} else if (CONFIG.structure.scan.deep.onStart) { // run deep scan only
-			scanStructure.scan(CONFIG.path, {stat: true, exif: true});
-		}
-		if (CONFIG.structure.scan.fast.cron) {
-			new CronJob(CONFIG.structure.scan.fast.cron, function () {
-				LOG.info('Job tick for structure fast scan.')
-				scanStructure.scan(CONFIG.path, {stat: false, exif: false});
-			}).start();
-		}
-		if (CONFIG.structure.scan.deep.cron) {
-			new CronJob(CONFIG.structure.scan.deep.cron, function () {
-				LOG.info('Job tick for structure deep scan.')
-				scanStructure.scan(CONFIG.path, {stat: true, exif: true});
-			}).start();
-		}
-	}
-
 	CONFIG.stop.events.forEach(function (signalCode) {
 		process.on(signalCode, function () {
 			LOG.head('Received "' + signalCode + '" signal, stopping everything');
@@ -101,4 +77,30 @@ const CronJob = require('cron').CronJob;
 			})
 		});
 	});
+
+	if (CONFIG.structure.scan.enable) {
+		// run fast scan on start and then deep scan if allowed
+		if (CONFIG.structure.scan.fast.onStart) {
+			await scanStructure.scan(CONFIG.path, {stat: false, exif: false});
+			if (CONFIG.structure.scan.deep.onStart) {
+				await scanStructure.scan(CONFIG.path, {stat: true, exif: true});
+			}
+		} else if (CONFIG.structure.scan.deep.onStart) { // run deep scan only
+			await scanStructure.scan(CONFIG.path, {stat: true, exif: true});
+		}
+		// setup fast scan cron
+		if (CONFIG.structure.scan.fast.cron) {
+			new CronJob(CONFIG.structure.scan.fast.cron, async function () {
+				LOG.info('Job tick for structure fast scan.')
+				await scanStructure.scan(CONFIG.path, {stat: false, exif: false});
+			}).start();
+		}
+		// setup deep scan cron
+		if (CONFIG.structure.scan.deep.cron) {
+			new CronJob(CONFIG.structure.scan.deep.cron, async function () {
+				LOG.info('Job tick for structure deep scan.')
+				await scanStructure.scan(CONFIG.path, {stat: true, exif: true});
+			}).start();
+		}
+	}
 }());

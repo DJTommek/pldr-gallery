@@ -9,14 +9,11 @@ const readdirp = require('readdirp');
 const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
 const knex = require('./database.js');
 
-function scan(path, options = {}, callback = null) {
+async function scan(path, options = {}) {
 	options.exif = (typeof options.exif === 'boolean') ? options.exif : false;
 	options.stat = (typeof options.stat === 'boolean') ? options.stat : false;
 	if (module.exports.scanning) {
 		LOG.warning('Scanning is already in progress, try again later.');
-		if (callback && typeof callback === 'function') {
-			callback();
-		}
 		return;
 	}
 	module.exports.scanning = true;
@@ -28,18 +25,29 @@ function scan(path, options = {}, callback = null) {
 	const readDirStartHr = process.hrtime();
 	const readDirStart = new Date();
 
-	readdirp(path, {
+	for await (const entry of readdirp(path, {
 		type: 'files_directories',
 		depth: CONFIG.structure.scan.depth,
 		alwaysStat: options.stat,
 		lstat: false,
-	}).on('data', function (entry) {
+	})) {
+		if (CONFIG.structure.scan.itemCooldown) { // Wait before processing each item
+			await new Promise(resolve => setTimeout(resolve, CONFIG.structure.scan.itemCooldown));
+		}
+
 		try {
 			// dirent is available if alwaysStat=false
 			const item = entry.dirent || entry.stats;
 
-			if (item.isFile() && entry.basename.match((new FileExtensionMapper).regexAll) === null) {
-				return; // file has invalid extension
+			// If processed item is symbolic link, load stats for it to get real item (file or directory).
+			// isSymbolicLink() is always false if readdirp() option alwaysStat is true
+			let realItem = item;
+			if (item.isSymbolicLink()) {
+				realItem = FS.statSync(entry.fullPath);
+			}
+
+			if (realItem.isFile() && entry.basename.match((new FileExtensionMapper).regexAll) === null) {
+				continue; // file has invalid extension
 			}
 
 			let entryPath = pathCustom.absoluteToRelative(entry.fullPath, CONFIG.path);
@@ -47,22 +55,23 @@ function scan(path, options = {}, callback = null) {
 			let pathData = {
 				path: entryPath,
 				text: entryPath,
-				created: item.ctimeMs || null,
+				created: realItem.ctimeMs || null,
 				scanned: new Date(),
 			};
-			if (item.isDirectory()) {
+
+			if (realItem.isDirectory()) {
 				pathData.path += '/';
 				pathData.text += '/';
 				finds.folders.push(pathData);
-			} else if (item.isFile()) {
-				pathData.size = item.size || null;
+			} else if (realItem.isFile()) {
+				pathData.size = realItem.size || null;
 				if (options.exif) {
 					pathData = Object.assign(pathData, getCoordsFromExifFromFile(entry.fullPath));
 				}
 				finds.files.push(pathData);
 			} else {
 				LOG.warning('Unhandled type of file, full path: "' + entry.fullPath + '"');
-				return;
+				continue;
 			}
 
 			if (finds.files.length > 0 && finds.files.length % 1000 === 0) {
@@ -72,19 +81,11 @@ function scan(path, options = {}, callback = null) {
 		} catch (error) {
 			LOG.error('(ScanStructure) Scanning throwed error while processing readdirp results: ' + error);
 		}
-	}).on('warn', function (warning) {
-		LOG.warning('(ScanStructure) Scanning throwed warning: ' + warning);
-	}).on('error', function (error) {
-		LOG.error('(ScanStructure) Scanning throwed error: ' + error);
-	}).on('end', async function () {
-		let humanTime = msToHuman(hrtime(process.hrtime(readDirStartHr)));
-		LOG.info('(ScanStructure) Scanning is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
-		await updateDatabase(finds, readDirStart);
-		module.exports.scanning = false;
-		if (callback && typeof callback === 'function') {
-			callback();
-		}
-	});
+	}
+	let humanTime = msToHuman(hrtime(process.hrtime(readDirStartHr)));
+	LOG.info('(ScanStructure) Scanning is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
+	await updateDatabase(finds, readDirStart);
+	module.exports.scanning = false;
 }
 
 function getCoordsFromExifFromFile(fullPath) {
