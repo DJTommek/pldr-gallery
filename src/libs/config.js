@@ -93,6 +93,12 @@ let CONFIG = {
 		scan: {
 			enable: false,
 			depth: 20,
+			// To prevent 100% allocating system resources while scanning, wait a while before processing another item.
+			// Otherwise it would block other processes as responding to API requests which would lead to users waiting
+			// for responses for long time, maybe event until scan is completed.
+			// You might need to test it a little bit by running both fast and deep scans so dont hesitate to adjust this value.
+			// If your server is very fast (especially disk read speed), you can disable it by setting it to 0
+			itemCooldown: 1, // in milliseconds
 			fast: { // Fast scan updates only file and folder structure, without loading any metadata
 				onStart: true,
 				// Interval should be higher, than how long it takes to run quick scan
