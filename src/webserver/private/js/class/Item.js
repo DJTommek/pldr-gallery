@@ -12,6 +12,8 @@ class Item {
 		this.isImage = false;
 		this.isVideo = false;
 		this.isAudio = false;
+		this.size = null;
+		this.scanned = null; // Date object for database
 
 		Object.assign(this, item);
 		this.index = index;
@@ -110,6 +112,10 @@ class FileItem extends Item {
 				this.icon = (new Icon).FILE;
 			}
 		}
+		this.coordLat = null;
+		this.coordLon = null;
+		this.width = null;
+		this.height = null;
 	}
 
 	/**
