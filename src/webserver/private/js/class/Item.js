@@ -53,8 +53,8 @@ class Item {
  * FolderItem
  */
 class FolderItem extends Item {
-	constructor(...args) {
-		super(...args);
+	constructor(index, item) {
+		super(index, item);
 		this.isFolder = true;
 		this.icon = (this.icon || (new Icon).FOLDER);
 	}
@@ -95,15 +95,15 @@ class FolderItem extends Item {
  * FileItem
  */
 class FileItem extends Item {
-	constructor(...args) {
-		super(...args);
+	constructor(index, item) {
+		super(index, item);
 		this.isFile = true;
 		this.ext = this.paths.last().split('.').last().toLowerCase();
 		this.isImage = ((new FileExtensionMapper).getImage(this.ext) !== null);
 		this.isVideo = ((new FileExtensionMapper).getVideo(this.ext) !== null);
 		this.isAudio = ((new FileExtensionMapper).getAudio(this.ext) !== null);
-		if (args.icon) {
-			this.icon = args.icon;
+		if (item.icon) {
+			this.icon = item.icon;
 		} else {
 			const mapperData = (new FileExtensionMapper).get(this.ext);
 			if (mapperData && mapperData.icon) {
@@ -112,10 +112,10 @@ class FileItem extends Item {
 				this.icon = (new Icon).FILE;
 			}
 		}
-		this.coordLat = null;
-		this.coordLon = null;
-		this.width = null;
-		this.height = null;
+		this.coordLat = item.coordLat;
+		this.coordLon = item.coordLon;
+		this.width = item.width;
+		this.height = item.height;
 	}
 
 	/**
