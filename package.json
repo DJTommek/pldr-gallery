@@ -19,6 +19,7 @@
 	"dependencies": {
 		"archiver": "^5.3.0",
 		"body-parser": "latest",
+		"chokidar": "^3.5.1",
 		"compression": "^1.7.4",
 		"cookie-parser": "^1.4.5",
 		"cron": "^1.8.2",
