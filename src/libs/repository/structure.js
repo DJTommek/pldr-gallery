@@ -50,8 +50,8 @@ async function loadByPath(folderPath, options = {}) {
 					path: row.path,
 					size: row.size,
 					created: itemCreated,
-					coordinate_lat: row.coordinate_lat,
-					coordinate_lon: row.coordinate_lon,
+					coordLat: row.coordinate_lat,
+					coordLon: row.coordinate_lon,
 				}));
 			} else if (row.type === TYPE_FOLDER) {
 				result.push(new FolderItem(null, {

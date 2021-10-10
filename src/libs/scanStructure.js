@@ -57,7 +57,8 @@ async function scan(path, options = {}) {
 				resultItem = new FileItem(null, {path: entryPath});
 				resultItem.size = realEntryItem.size || null;
 				if (options.exif) {
-					resultItem = Object.assign(resultItem, getCoordsFromExifFromFile(entry.fullPath));
+					const exifData = getCoordsFromExifFromFile(entry.fullPath);
+					resultItem = Object.assign(resultItem, exifData);
 				}
 				filesCount++;
 			} else {
