@@ -5,6 +5,9 @@ const scanStructure = require('./libs/scanStructure.js');
 const FS = require("fs");
 const CONFIG = require('./libs/config.js');
 const CronJob = require('cron').CronJob;
+const chokidar = require('chokidar');
+const structureRepository = require('./libs/repository/structure.js');
+const LOG = require("./libs/log.js");
 
 (async function () {
 	const LOG = require('./libs/log.js');
@@ -103,4 +106,39 @@ const CronJob = require('cron').CronJob;
 			}).start();
 		}
 	}
+
+	// Watch for file and folder changes and update structure in database
+	chokidar.watch(CONFIG.path, {
+		ignoreInitial: true,
+		disableGlobbing: true,
+		alwaysStat: true,
+		awaitWriteFinish: true,
+		cwd: CONFIG.path,
+	}).on('add', function(relativePath, stats) {
+		relativePath = pathCustom.join(relativePath);
+		LOG.debug('Detected new file "' + relativePath + '", adding to structure database...');
+		const fileItem = new FileItem(null, {
+			path: relativePath,
+			scanned: new Date(),
+			created: stats.ctimeMs ? new Date(stats.ctimeMs) : null,
+		});
+		structureRepository.add(fileItem);
+	}).on('unlink', function(relativePath, stats) {
+		relativePath = pathCustom.join(relativePath);
+		LOG.debug('Detected deleted file "' + relativePath + '", removing from structure database...');
+		structureRepository.remove(relativePath);
+	}).on('addDir', function(relativePath, stats) {
+		relativePath = pathCustom.join(relativePath);
+		LOG.debug('Detected new folder "' + relativePath + '", adding to structure database...');
+		const folderItem = new FolderItem(null, {
+			path: relativePath + '/',
+			scanned: new Date(),
+			created: stats.ctimeMs ? new Date(stats.ctimeMs) : null,
+		})
+		structureRepository.add(folderItem);
+	}).on('unlinkDir', function(relativePath, stats) {
+		relativePath = pathCustom.join(relativePath);
+		LOG.debug('Detected deleted folder "' + relativePath + '", removing from structure database...');
+		structureRepository.remove(relativePath);
+	});
 }());
