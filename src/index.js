@@ -107,38 +107,41 @@ const LOG = require("./libs/log.js");
 		}
 	}
 
-	// Watch for file and folder changes and update structure in database
-	chokidar.watch(CONFIG.path, {
-		ignoreInitial: true,
-		disableGlobbing: true,
-		alwaysStat: true,
-		awaitWriteFinish: true,
-		cwd: CONFIG.path,
-	}).on('add', function(relativePath, stats) {
-		relativePath = pathCustom.join(relativePath);
-		LOG.debug('Detected new file "' + relativePath + '", adding to structure database...');
-		const fileItem = new FileItem(null, {
-			path: relativePath,
-			scanned: new Date(),
-			created: stats.ctimeMs ? new Date(stats.ctimeMs) : null,
+	if (CONFIG.structure.watch) { // Watch for file and folder changes and update structure in database
+		chokidar.watch(CONFIG.path, {
+			ignoreInitial: true,
+			disableGlobbing: true,
+			alwaysStat: true,
+			awaitWriteFinish: true,
+			cwd: CONFIG.path,
+		}).on('add', function (relativePath, stats) {
+			relativePath = pathCustom.join(relativePath);
+			LOG.debug('Detected new file "' + relativePath + '", adding to structure database...');
+			const fileItem = new FileItem(null, {
+				path: relativePath,
+				scanned: new Date(),
+				created: stats.ctimeMs ? new Date(stats.ctimeMs) : null,
+			});
+			structureRepository.add(fileItem);
+		}).on('unlink', function (relativePath) {
+			relativePath = pathCustom.join(relativePath);
+			LOG.debug('Detected deleted file "' + relativePath + '", removing from structure database...');
+			structureRepository.remove(relativePath);
+		}).on('addDir', function (relativePath, stats) {
+			relativePath = pathCustom.join(relativePath);
+			LOG.debug('Detected new folder "' + relativePath + '", adding to structure database...');
+			const folderItem = new FolderItem(null, {
+				path: relativePath + '/',
+				scanned: new Date(),
+				created: stats.ctimeMs ? new Date(stats.ctimeMs) : null,
+			})
+			structureRepository.add(folderItem);
+		}).on('unlinkDir', function (relativePath) {
+			relativePath = pathCustom.join(relativePath);
+			LOG.debug('Detected deleted folder "' + relativePath + '", removing from structure database...');
+			structureRepository.remove(relativePath);
+		}).on('error', function (error) {
+			LOG.error('(Chokidar) Error while watching: "' + error.message + '"');
 		});
-		structureRepository.add(fileItem);
-	}).on('unlink', function(relativePath, stats) {
-		relativePath = pathCustom.join(relativePath);
-		LOG.debug('Detected deleted file "' + relativePath + '", removing from structure database...');
-		structureRepository.remove(relativePath);
-	}).on('addDir', function(relativePath, stats) {
-		relativePath = pathCustom.join(relativePath);
-		LOG.debug('Detected new folder "' + relativePath + '", adding to structure database...');
-		const folderItem = new FolderItem(null, {
-			path: relativePath + '/',
-			scanned: new Date(),
-			created: stats.ctimeMs ? new Date(stats.ctimeMs) : null,
-		})
-		structureRepository.add(folderItem);
-	}).on('unlinkDir', function(relativePath, stats) {
-		relativePath = pathCustom.join(relativePath);
-		LOG.debug('Detected deleted folder "' + relativePath + '", removing from structure database...');
-		structureRepository.remove(relativePath);
-	});
+	}
 }());
