@@ -259,7 +259,6 @@ c.terser.filesToCompile.forEach(function (file) {
 });
 terser.minify(finalContent, c.terser.options).then(function (finalContentUgly) {
 	FS.mkdir(PATH.dirname(c.terser.destinationPath), {recursive: true}, function (error) {
-		console.log(PATH.dirname(c.terser.destinationPath));
 		if (error) {
 			LOG.error('(Cache) Error while creating folder for generated modules: ' + error.message);
 		} else {

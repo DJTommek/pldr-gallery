@@ -41,7 +41,7 @@ async function loadByPath(folderPath, options = {}) {
 	}
 	query.andWhere('path', 'LIKE', folderPath + '%')
 	query.orderBy(['level', 'path']);
-	console.log(query.toString());
+	LOG.debug('(Knex) Running SQL: ' + query.toString());
 	try {
 		(await query).forEach(function (row) {
 			const itemCreated = row.created === null ? null : new Date(row.created);
