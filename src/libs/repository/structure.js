@@ -123,6 +123,57 @@ async function updateData(newData, scanStart) {
 module.exports.updateData = updateData;
 
 /**
+ * @param {FileItem|FolderItem} item
+ */
+async function add(item) {
+	const row = {
+		path: item.path,
+		type: getItemType(item),
+		scanned: item.scanned.getTime(),
+	};
+	if (item.created !== null) {
+		row.created = item.created.getTime();
+	}
+	if (item.size !== null) {
+		row.size = item.size;
+	}
+	if (typeof item.coordLat === 'number' && typeof item.coordLon === 'number') {
+		row.coordinate_lat = item.coordLat;
+		row.coordinate_lon = item.coordLon;
+	}
+
+	try {
+		await knex(CONFIG.db.table.structure).insert(row).onConflict('path').merge();
+	} catch (error) {
+		LOG.error('Error while inserting item structure to database: ' + error.message);
+	}
+}
+
+module.exports.add = add;
+
+/**
+ * @param {FileItem|FolderItem|string} item
+ */
+async function remove(item) {
+	let pathToRemove = null;
+	if (item instanceof Item) {
+		pathToRemove = item.path;
+	} else if (typeof item === 'string') {
+		pathToRemove = item;
+	} else {
+		throw new Error('Invalid input for structure.remove: expected Item or string (path).');
+	}
+
+	try {
+		await knex(CONFIG.db.table.structure).delete().where({path: pathToRemove});
+	} catch (error) {
+		LOG.error('Error while removing path "' + pathToRemove + '" from structure database: ' + error.message);
+	}
+}
+
+module.exports.remove = remove;
+
+/**
  * @param {array<FileItem|FolderItem>} item
  */
 function getItemType(item) {
