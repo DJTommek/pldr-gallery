@@ -47,23 +47,22 @@ module.exports = function (webserver, endpoint) {
 
 		res.startTime('apistructure', 'Loading and processing data');
 		Promise.all([
-			getItemsHelper.foldersDb(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), {limit: itemLimit}),
-			getItemsHelper.filesDb(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), {limit: itemLimit}),
+			getItemsHelper.itemsDb(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), {limit: itemLimit}),
 			generateSpecificFilePromise('header.html'),
 			generateSpecificFilePromise('footer.html'),
 		]).then(function (data) {
 			res.endTime('apistructure');
 			res.result.setResult({
-				folders: data[0].items.map(x => x.serialize()),
-				foldersTotal: data[0].total,
+				folders: data[0].folders.map(x => x.serialize()),
+				foldersTotal: data[0].folders.total,
 				foldersLimit: data[0].limit,
 				foldersOffset: data[0].offset,
-				files: data[1].items.map(x => x.serialize()),
-				filesTotal: data[1].total,
-				filesLimit: data[1].limit,
-				filesOffset: data[1].offset,
-				header: data[2],
-				footer: data[3]
+				files: data[0].files.map(x => x.serialize()),
+				filesTotal: data[0].files.total,
+				filesLimit: data[0].limit,
+				filesOffset: data[0].offset,
+				header: data[1],
+				footer: data[2]
 			}).end();
 		});
 	});
