@@ -179,7 +179,7 @@ module.exports.remove = remove;
 function getItemType(item) {
 	if (item instanceof FileItem) {
 		return TYPE_FILE;
-	} else if (item instanceof FileItem) {
+	} else if (item instanceof FolderItem) {
 		return TYPE_FOLDER;
 	}
 }
