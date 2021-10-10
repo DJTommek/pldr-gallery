@@ -81,16 +81,17 @@ async function updateData(newData, scanStart) {
 			type: getItemType(item),
 			scanned: item.scanned.getTime(),
 		};
-		if (item.created) {
+		if (item.created !== null) {
 			row.created = item.created;
 		}
-		if (item.size) {
+		if (item.size !== null) {
 			row.size = item.size;
 		}
 		if (typeof item.coordLat === 'number' && typeof item.coordLon === 'number') {
 			row.coordinate_lat = item.coordLat;
 			row.coordinate_lon = item.coordLon;
 		}
+		return row;
 	});
 
 	try {
@@ -98,12 +99,11 @@ async function updateData(newData, scanStart) {
 		await knex.transaction(async function (transaction) {
 			const chunk = [];
 			let chunkCount = 0;
-			const allItems = findsFiles.concat(findsFolders);
-			LOG.debug('Loaded ' + allItems.length + ' items total, updating database...')
-			for (const row of allItems) {
+			LOG.debug('Loaded ' + rows.length + ' items total, updating database...')
+			for (const row of rows) {
 				chunk.push(row);
 				if (chunk.length === BATCH_SIZE) {
-					LOG.debug('Inserting batch #' + (chunkCount++) + ' to database, ' + (allItems.length - (BATCH_SIZE * chunkCount)) + ' rows remaining.')
+					LOG.debug('Inserting batch #' + (chunkCount++) + ' (' + chunk.length + ' rows) to database, ' + (rows.length - (BATCH_SIZE * chunkCount)) + ' rows remaining.')
 					await transaction(CONFIG.db.table.structure).insert(chunk).onConflict('path').merge();
 					chunk.length = 0;
 				}

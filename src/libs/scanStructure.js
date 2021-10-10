@@ -51,10 +51,10 @@ async function scan(path, options = {}) {
 
 			let resultItem = null;
 			if (realEntryItem.isDirectory()) {
-				resultItem = new FolderItem();
+				resultItem = new FolderItem(null, {path: entryPath + '/'});
 				foldersCount++;
 			} else if (realEntryItem.isFile()) {
-				resultItem = new FileItem();
+				resultItem = new FileItem(null, {path: entryPath});
 				resultItem.size = realEntryItem.size || null;
 				if (options.exif) {
 					resultItem = Object.assign(resultItem, getCoordsFromExifFromFile(entry.fullPath));
@@ -64,15 +64,9 @@ async function scan(path, options = {}) {
 				LOG.warning('Unhandled type of file, full path: "' + entry.fullPath + '"');
 				continue;
 			}
-			resultItem.path = entryPath;
-			resultItem.text = entryPath;
 			resultItem.created = realEntryItem.ctimeMs || null;
 			resultItem.scanned = new Date();
 
-			if (resultItem instanceof FolderItem) {
-				resultItem.path += '/';
-				resultItem.text += '/';
-			}
 			items.push(resultItem);
 
 			if (items.length > 0 && items.length % 1000 === 0) {
