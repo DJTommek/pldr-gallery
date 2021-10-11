@@ -115,7 +115,8 @@ const LOG = require("./libs/log.js");
 			awaitWriteFinish: true,
 			cwd: CONFIG.path,
 		}).on('add', function (relativePath, stats) {
-			relativePath = pathCustom.join(relativePath);
+			// @TODO do not add files, that extensions are not whitelisted
+			relativePath = '/' + pathCustom.join(relativePath);
 			LOG.debug('Detected new file "' + relativePath + '", adding to structure database...');
 			const fileItem = new FileItem(null, {
 				path: relativePath,
@@ -124,20 +125,20 @@ const LOG = require("./libs/log.js");
 			});
 			structureRepository.add(fileItem);
 		}).on('unlink', function (relativePath) {
-			relativePath = pathCustom.join(relativePath);
+			relativePath = '/' + pathCustom.join(relativePath);
 			LOG.debug('Detected deleted file "' + relativePath + '", removing from structure database...');
 			structureRepository.remove(relativePath);
 		}).on('addDir', function (relativePath, stats) {
-			relativePath = pathCustom.join(relativePath);
+			relativePath = '/' + pathCustom.join(relativePath) + '/';
 			LOG.debug('Detected new folder "' + relativePath + '", adding to structure database...');
 			const folderItem = new FolderItem(null, {
-				path: relativePath + '/',
+				path: relativePath,
 				scanned: new Date(),
 				created: stats.ctimeMs ? new Date(stats.ctimeMs) : null,
 			})
 			structureRepository.add(folderItem);
 		}).on('unlinkDir', function (relativePath) {
-			relativePath = pathCustom.join(relativePath);
+			relativePath = '/' + pathCustom.join(relativePath) + '/';
 			LOG.debug('Detected deleted folder "' + relativePath + '", removing from structure database...');
 			structureRepository.remove(relativePath);
 		}).on('error', function (error) {
