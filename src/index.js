@@ -107,7 +107,7 @@ const LOG = require("./libs/log.js");
 		}
 	}
 
-	if (CONFIG.structure.watch) { // Watch for file and folder changes and update structure in database
+	if (CONFIG.structure.watch.enable) { // Watch for file and folder changes and update structure in database
 		chokidar.watch(CONFIG.path, {
 			ignoreInitial: true,
 			disableGlobbing: true,
