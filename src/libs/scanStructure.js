@@ -1,6 +1,7 @@
 const CONFIG = require('./config.js');
 const LOG = require('./log.js');
 const FS = require('fs');
+const PATH = require('path');
 const pathCustom = require('./path.js');
 const readdirp = require('readdirp');
 const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
@@ -22,12 +23,22 @@ async function scan(absolutePath, options = {}) {
 	let filesCount = 0;
 	let foldersCount = 0;
 
-	for await (const entry of readdirp(absolutePath, {
+	const entries = readdirp(absolutePath, {
 		type: 'files_directories',
 		depth: CONFIG.structure.scan.depth,
 		alwaysStat: options.stat,
 		lstat: false,
-	})) {
+	});
+
+	// @HACK to include current directory into scan too
+	entries.push({
+		path: pathCustom.absoluteToRelative(absolutePath, CONFIG.path),
+		fullPath: absolutePath,
+		basename: PATH.basename(absolutePath),
+		stats: FS.statSync(absolutePath),
+	});
+
+	for await (const entry of entries) {
 		if (CONFIG.structure.scan.itemCooldown) { // Wait before processing each item
 			await new Promise(resolve => setTimeout(resolve, CONFIG.structure.scan.itemCooldown));
 		}
@@ -51,7 +62,8 @@ async function scan(absolutePath, options = {}) {
 
 			let resultItem = null;
 			if (realEntryItem.isDirectory()) {
-				resultItem = new FolderItem(null, {path: entryPath + '/'});
+				const pathToItem = entryPath === '/' ? entryPath : entryPath + '/'; // special case in root to prevent douhle slash: '//'
+				resultItem = new FolderItem(null, {path: pathToItem});
 				foldersCount++;
 			} else if (realEntryItem.isFile()) {
 				resultItem = new FileItem(null, {path: entryPath});
