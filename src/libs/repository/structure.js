@@ -1,6 +1,7 @@
 const CONFIG = require('../config.js');
 const LOG = require('../log.js');
 const knex = require('../database.js');
+const pathCustom = require("../path.js");
 
 const TYPE_FILE = 1;
 const TYPE_FOLDER = 0;
@@ -71,10 +72,11 @@ module.exports.loadByPath = loadByPath;
 
 
 /**
+ * @param {string} folderPath Path, that was scanned
  * @param {array<FileItem|FolderItem>} newData
  * @param {Date} scanStart Older items than this time will be deleted
  */
-async function updateData(newData, scanStart) {
+async function updateData(folderPath, newData, scanStart) {
 	const rows = newData.map(function (item) {
 		const row = {
 			path: item.path,
@@ -112,7 +114,16 @@ async function updateData(newData, scanStart) {
 				LOG.debug('Inserting final batch #' + (chunkCount++) + ' of ' + chunk.length + ' rows to database, no rows remaining.')
 				await transaction(CONFIG.db.table.structure).insert(chunk).onConflict('path').merge();
 			}
-			const deleted = await transaction(CONFIG.db.table.structure).delete().where('scanned', '<', scanStart.getTime());
+
+			const relativePath = pathCustom.absoluteToRelative(folderPath, CONFIG.path);
+			const folderItem = new FolderItem(null, {path: relativePath});
+			const searchingLevel = folderItem.paths.length + 1;
+			const deleted = await transaction(CONFIG.db.table.structure)
+				.delete()
+				.where('scanned', '<', scanStart.getTime())
+				.andWhere('level', '>=', searchingLevel)
+				.andWhere('path', 'LIKE', relativePath + '%')
+
 			LOG.info('(ScanStructure) Scanned structure in database was updated (' + deleted + ' deleted).');
 		});
 	} catch (error) {

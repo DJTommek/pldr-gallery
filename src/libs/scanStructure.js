@@ -6,7 +6,7 @@ const readdirp = require('readdirp');
 const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
 const structureRepository = require('./repository/structure.js');
 
-async function scan(path, options = {}) {
+async function scan(absolutePath, options = {}) {
 	options.exif = (typeof options.exif === 'boolean') ? options.exif : false;
 	options.stat = (typeof options.stat === 'boolean') ? options.stat : false;
 	if (module.exports.scanning) {
@@ -15,14 +15,14 @@ async function scan(path, options = {}) {
 	}
 	module.exports.scanning = true;
 	let items = [];
-	LOG.info('(ScanStructure) Scanning started for path "' + path + '" (options: ' + JSON.stringify(options) + ').');
+	LOG.info('(ScanStructure) Scanning started for path "' + absolutePath + '" (options: ' + JSON.stringify(options) + ').');
 	const readDirStartHr = process.hrtime();
 	const scanStarted = new Date();
 
 	let filesCount = 0;
 	let foldersCount = 0;
 
-	for await (const entry of readdirp(path, {
+	for await (const entry of readdirp(absolutePath, {
 		type: 'files_directories',
 		depth: CONFIG.structure.scan.depth,
 		alwaysStat: options.stat,
@@ -80,7 +80,7 @@ async function scan(path, options = {}) {
 	}
 	let humanTime = msToHuman(hrtime(process.hrtime(readDirStartHr)));
 	LOG.info('(ScanStructure) Scanning is done. Founded ' + filesCount + ' files and ' + foldersCount + ' folders in ' + humanTime + '.');
-	await structureRepository.updateData(items, scanStarted)
+	await structureRepository.updateData(absolutePath, items, scanStarted)
 	module.exports.scanning = false;
 }
 
