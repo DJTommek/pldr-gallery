@@ -45,21 +45,7 @@ async function loadByPath(folderPath, options = {}) {
 	LOG.debug('(Knex) Running SQL: ' + query.toString());
 	try {
 		(await query).forEach(function (row) {
-			const itemCreated = row.created === null ? null : new Date(row.created);
-			if (row.type === TYPE_FILE) {
-				result.push(new FileItem(null, {
-					path: row.path,
-					size: row.size,
-					created: itemCreated,
-					coordLat: row.coordinate_lat,
-					coordLon: row.coordinate_lon,
-				}));
-			} else if (row.type === TYPE_FOLDER) {
-				result.push(new FolderItem(null, {
-					path: row.path,
-					created: itemCreated,
-				}));
-			}
+			result.push(rowToItem(row));
 		});
 	} catch (error) {
 		LOG.error('[Knex] Error while loading and processing in "' + fullPath + '": ' + error.message);
@@ -193,4 +179,33 @@ function getItemType(item) {
 	} else if (item instanceof FolderItem) {
 		return TYPE_FOLDER;
 	}
+}
+
+/**
+ * Convert row to item depending on type.
+ *
+ * @param {RowDataPacket} row
+ * @returns FileItem|FolderItem
+ */
+function rowToItem(row) {
+	let item = null;
+	if (row.type === TYPE_FILE) {
+		item = new FileItem(null, {
+			path: row.path,
+			size: row.size,
+			coordLat: row.coordinate_lat,
+			coordLon: row.coordinate_lon,
+		});
+	} else if (row.type === TYPE_FOLDER) {
+		item = new FolderItem(null, {
+			path: row.path,
+		});
+	} else {
+		throw new Error('Unexpected item type "' + row.type + '".');
+	}
+	if (row.created !== null) {
+		item.created = new Date(row.created);
+	}
+	item.scanned = new Date(row.scanned);
+	return item;
 }
