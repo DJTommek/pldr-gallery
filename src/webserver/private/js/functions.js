@@ -500,3 +500,28 @@ function generateCoordsLinksHtml(lat, lon) {
 }
 
 global.generateCoordsLinksHtml = generateCoordsLinksHtml;
+
+/**
+ * Check if given element is visible in viewport
+ *
+ * @author https://stackoverflow.com/a/488073/3334403
+ * @param element DOM element
+ * @param fullyInView
+ * @returns {boolean}
+ */
+function isElementInView(element, fullyInView) {
+	const $element = $(element);
+	const $window = $(window);
+	const pageTop = $window.scrollTop();
+	const pageBottom = pageTop + $window.height();
+	const elementTop = $element.offset().top;
+	const elementBottom = elementTop + $element.height();
+
+	if (fullyInView === true) {
+		return ((pageTop < elementTop) && (pageBottom > elementBottom));
+	} else {
+		return ((elementTop <= pageBottom) && (elementBottom >= pageTop));
+	}
+}
+
+global.isElementInView = isElementInView;

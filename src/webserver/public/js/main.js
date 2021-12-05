@@ -815,17 +815,33 @@ function loadThumbnail() {
 	}
 	const thumbnailsNotLoaded = $('#structure .thumbnail-not-loaded:visible');
 	if (thumbnailsNotLoaded.length > 0) {
-		const firstThumbnail = thumbnailsNotLoaded.first();
-		const firstThumbnailParent = firstThumbnail.parent();
+		let thumbnailToLoad = null;
+
+		// prioritize items, that are hovered with mouse
+		thumbnailToLoad = thumbnailsNotLoaded.filter(function () {
+			return $(this).parent('a').is(':hover');
+		}).first();
+		if (thumbnailToLoad.length === 0) {
+			// prioritize items, that are visible in viewport
+			thumbnailToLoad = thumbnailsNotLoaded.filter(function () {
+				return isElementInView(this, true);
+			}).first();
+			if (thumbnailToLoad.length === 0) {
+				// no priority, load first available non-loaded thumbnail
+				thumbnailToLoad = thumbnailsNotLoaded.first();
+			}
+		}
+
+		const firstThumbnailParent = thumbnailToLoad.parent();
 		// @TODO save new generated DOM and use .remove() directly instead of find()
-		firstThumbnail.before('<i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin" title="Loading thumbnail..."></i>');
+		thumbnailToLoad.before('<i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin" title="Loading thumbnail..."></i>');
 			// trigger loading image after new src is loaded
 			// @Author https://stackoverflow.com/a/7439093/3334403 (http://jsfiddle.net/jfriend00/hmP5M/)
-			firstThumbnail.one('load error', function () {
+			thumbnailToLoad.one('load error', function () {
 				firstThumbnailParent.find('i.thumbnail-loading-icon').remove();
-				firstThumbnail.removeClass('thumbnail-not-loaded');
+				thumbnailToLoad.removeClass('thumbnail-not-loaded');
 				loadThumbnail();
-			}).attr('src', firstThumbnail.data('src'));
+			}).attr('src', thumbnailToLoad.data('src'));
 	}
 }
 
