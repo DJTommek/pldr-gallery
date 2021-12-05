@@ -26,7 +26,19 @@ module.exports = function (webserver, endpoint) {
 			return;
 		}
 
-		res.result.setResult({}, 'Scanning for directory "<b>' + res.locals.queryPath + '</b>" has started.').end();
-		await scanStructure.scan(res.locals.fullPathFolder, {stat: false, exif: false});
+		scanStructure.scan(res.locals.fullPathFolder, {stat: false, exif: false}); // intentionally missing await
+
+		// Wait a while until scan is finished. If is taking too long, response with default message.
+		let responseText = 'Scanning for directory "<b>' + res.locals.queryPath + '</b>" has started.';
+		let i = 0;
+		const scanCheckInterval = setInterval(function () {
+			if (scanStructure.scanning === false) {
+				responseText = 'Directory "<b>' + res.locals.queryPath + '</b>" was rescanned.';
+			}
+			if (i++ > 5 || scanStructure.scanning === false) {
+				clearInterval(scanCheckInterval);
+				res.result.setResult({scanning: scanStructure.scanning}, responseText).end();
+			}
+		}, 500);
 	});
 };
