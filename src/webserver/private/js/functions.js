@@ -193,6 +193,7 @@ Date.prototype.human = function (returnObject = false) {
 	};
 	res.date = res.year + '.' + res.month + '.' + res.day;
 	res.time = res.hour + ':' + res.minute + ':' + res.second;
+	res.datetime = res.date + ' ' + res.time;
 	res.toString = function () {
 		return (res.date + ' ' + res.time + '.' + res.milisecond);
 	};
