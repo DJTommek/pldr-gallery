@@ -32,8 +32,8 @@ async function scan(absolutePath, options = {}) {
 
 	// @HACK to include current directory into scan too
 	entries.push({
-		path: pathCustom.absoluteToRelative(absolutePath, CONFIG.path),
-		fullPath: absolutePath,
+		path: pathCustom.absoluteToRelative(absolutePath, CONFIG.path).replace(/^\/|\/$/g, ''), // empty string if relative root
+		fullPath: absolutePath.replace(/\/$/g, ''),
 		basename: PATH.basename(absolutePath),
 		stats: FS.statSync(absolutePath),
 	});
@@ -58,11 +58,11 @@ async function scan(absolutePath, options = {}) {
 				continue; // file has invalid extension
 			}
 
-			let entryPath = pathCustom.absoluteToRelative(entry.fullPath, CONFIG.path);
+			const entryPath = entry.path === '' ? '' : pathCustom.absoluteToRelative(entry.fullPath, CONFIG.path);
 
 			let resultItem = null;
 			if (realEntryItem.isDirectory()) {
-				const pathToItem = entryPath === '/' ? entryPath : entryPath + '/'; // special case in root to prevent douhle slash: '//'
+				const pathToItem = entryPath + '/';
 				resultItem = new FolderItem(null, {path: pathToItem});
 				foldersCount++;
 			} else if (realEntryItem.isFile()) {
