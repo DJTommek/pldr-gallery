@@ -1,6 +1,7 @@
 const FS = require('fs');
 const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
 const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
+const structureRepository = require('../../../libs/repository/structure');
 
 const getItemsHelper = require(__dirname + '/helpers/getItemsFromFolder.js');
 
@@ -45,9 +46,19 @@ module.exports = function (webserver, endpoint) {
 			});
 		}
 
+		const lastScanPromise = new Promise(function (resolve, reject) {
+			structureRepository.getByPath(res.locals.path).then(function (pathItem) {
+				resolve(pathItem ? pathItem.scanned : null);
+			}).catch(function (error) {
+				LOG.error('[Knex] Error while loading last scan for "' + res.locals.path + '": ' + error.message);
+				reject(error);
+			});
+		});
+
 		res.startTime('apistructure', 'Loading and processing data');
 		Promise.all([
 			getItemsHelper.itemsDb(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), {limit: itemLimit}),
+			lastScanPromise,
 			generateSpecificFilePromise('header.html'),
 			generateSpecificFilePromise('footer.html'),
 		]).then(function (data) {
@@ -61,9 +72,12 @@ module.exports = function (webserver, endpoint) {
 				filesTotal: data[0].files.total,
 				filesLimit: data[0].limit,
 				filesOffset: data[0].offset,
-				header: data[1],
-				footer: data[2]
+				lastScan: data[1],
+				header: data[2],
+				footer: data[3]
 			}).end();
+		}).catch(function (error) {
+			res.result.setError('Error while loading "<b>' + res.locals.queryPath + '</b>". Try again later or contact administrator.').end();
 		});
 	});
 };

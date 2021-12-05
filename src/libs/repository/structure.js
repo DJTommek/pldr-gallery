@@ -56,13 +56,34 @@ async function loadByPath(folderPath, options = {}) {
 
 module.exports.loadByPath = loadByPath;
 
+/**
+ * Load specific row.
+ *
+ * @param {string} relativePath
+ * @returns {null|FileItem|FolderItem}
+ */
+async function getByPath(relativePath) {
+	const query = knex.select('*')
+		.from(CONFIG.db.table.structure)
+		.where('path', 'LIKE', relativePath)
+		.limit(1);
+	const rows = await query;
+	if (rows.length === 0) {
+		return null;
+	} else {
+		return rowToItem(rows[0]);
+	}
+}
+
+module.exports.getByPath = getByPath;
+
 
 /**
- * @param {string} folderPath Path, that was scanned
+ * @param {string} absoluteFolderPath Path, that was scanned
  * @param {array<FileItem|FolderItem>} newData
  * @param {Date} scanStart Older items than this time will be deleted
  */
-async function updateData(folderPath, newData, scanStart) {
+async function updateData(absoluteFolderPath, newData, scanStart) {
 	const rows = newData.map(function (item) {
 		const row = {
 			path: item.path,
@@ -101,7 +122,7 @@ async function updateData(folderPath, newData, scanStart) {
 				await transaction(CONFIG.db.table.structure).insert(chunk).onConflict('path').merge();
 			}
 
-			const relativePath = pathCustom.absoluteToRelative(folderPath, CONFIG.path);
+			const relativePath = pathCustom.absoluteToRelative(absoluteFolderPath, CONFIG.path);
 			const folderItem = new FolderItem(null, {path: relativePath});
 			const searchingLevel = folderItem.paths.length + 1;
 			const deleted = await transaction(CONFIG.db.table.structure)

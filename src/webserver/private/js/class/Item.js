@@ -78,6 +78,9 @@ class FolderItem extends Item {
 		if (this.noFilter === true) {
 			result.noFilter = this.noFilter;
 		}
+		if (this.scanned) {
+			result.scanned = this.scanned;
+		}
 		return result
 	}
 
@@ -192,6 +195,9 @@ class FileItem extends Item {
 		if (this.width && this.height) {
 			result.width = this.width;
 			result.height = this.height;
+		}
+		if (this.scanned) {
+			result.scanned = this.scanned;
 		}
 		return result
 	}

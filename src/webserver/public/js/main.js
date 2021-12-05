@@ -432,6 +432,39 @@ $(function () {
 		}
 	});
 
+	// Event - clicked on rescan folder
+	$('#structure-scan-run').on('click', function (event) {
+		event.preventDefault();
+		const $btn = $(this);
+		const $btnIcon = $btn.children('i.fa');
+		loadedStructure.request = $.ajax({
+			url: '/api/scan',
+			method: 'GET',
+			data: {
+				path: btoa(encodeURIComponent(S.getCurrentFolder().path)),
+			},
+			success: function (result) {
+				const flashType = result.error === true ? 'danger' : 'info';
+				flashMessage(result.message, flashType);
+				console.log(result.result.scanning);
+				if (result.result.scanning === false) {
+					loadStructure(true);
+				}
+			},
+			error: function (result, errorTextStatus) {
+				flashMessage(result.responseJSON ? result.responseJSON.message : 'Chyba během zahájení scanování. Kontaktuj autora.', 'danger', false);
+			},
+			beforeSend: function () {
+				$btn.addClass('disabled');
+				$btnIcon.addClass('fa-circle-o-notch fa-spin').removeClass('fa-refresh');
+			},
+			complete: function () {
+				$btn.removeClass('disabled');
+				$btnIcon.addClass('fa-refresh').removeClass('fa-circle-o-notch fa-spin');
+			},
+		});
+	});
+
 	// Event - selected item in structure
 	$('#structure').on('click', '.structure-item', function (event) {
 		event.preventDefault();
@@ -947,6 +980,14 @@ function parseStructure(items) {
 		contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		contentTiles += ' <span class="name">Celkem je zde ' + (items.filesTotal) + ' souborů ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</span>';
 		contentTiles += '</a>';
+	}
+	if (items.lastScan) {
+		const lastScan = new Date(items.lastScan);
+		const lastScanAgoHuman = msToHuman(Math.max(new Date() - lastScan.getTime(), 0), true);
+		$('#structure-scan .date').html(lastScan.human(true).datetime + ' (' + lastScanAgoHuman.split(' ').slice(0, 1) + ' ago)');
+		$('#structure-scan').show();
+	} else {
+		$('#structure-scan').hide();
 	}
 	$('#structure-tiles').html(contentTiles);
 	$('#navbar-filter .total').text(maxVisible);
