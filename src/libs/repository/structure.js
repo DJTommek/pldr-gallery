@@ -59,10 +59,10 @@ module.exports.loadByPath = loadByPath;
 /**
  *
  * @param {string} folderPath
- * @param {string} search
+ * @param {string} searchString
  * @returns {Promise<array[FileItem|FolderItem]>}
  */
-async function search(folderPath, search) {
+async function search(folderPath, searchString) {
 	const hrstart = process.hrtime();
 
 	const result = [];
@@ -70,11 +70,17 @@ async function search(folderPath, search) {
 	const folderItem = new FolderItem(null, {path: folderPath});
 	const searchingLevel = folderItem.paths.length + 1;
 
+	// The \% and \_ sequences are used to search for literal instances of % and _ in pattern-matching contexts
+	// where they would otherwise be interpreted as wildcard characters.
+	// @see https://dev.mysql.com/doc/refman/8.0/en/string-literals.html
+	// In Javascript it needs to be double backslash, because one escapes the another
+	const searchStringEscaped = searchString.replaceAll('%', '\\%').replaceAll('_', '\\_');
+
 	const query = knex.select('*')
 		.from(CONFIG.db.table.structure)
 		.where('level', '>=', searchingLevel)
 		.andWhere('path', 'LIKE', folderPath + '%')
-		.andWhere('path', 'LIKE','%' + search + '%') // @TODO needs escape character '%'? Needs testing
+		.andWhere('path', 'LIKE','%' + searchStringEscaped + '%')
 		.orderBy(['level', 'path']);
 	LOG.debug('(Knex) Running SQL: ' + query.toString());
 	try {
