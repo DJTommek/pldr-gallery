@@ -20,13 +20,22 @@
 	<meta name="theme-color" content="#ffffff">
 
 	<script>
-		/* set user-saved theme as soon as possible to prevent blink of default theme */
-		let newTheme = 'default';
+		// set user-saved theme as soon as possible to prevent blink of default theme
+		let newTheme = 'default'; // light
 		try {
 			const savedTheme = localStorage.getItem('pldr-settings-theme');
 			if (savedTheme) {
 				newTheme = savedTheme;
+			} else if (window.matchMedia) {
+				// User's browser settings prefers specific theme
+				// @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme
+				if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+					newTheme = 'default';
+				} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+					newTheme = 'dark';
+				}
 			}
+			localStorage.setItem('pldr-settings-theme', newTheme);
 		} catch (error) {
 			// Local storage is not working (disabled, unsupported, ...)
 		}
