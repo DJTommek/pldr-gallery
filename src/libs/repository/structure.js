@@ -57,6 +57,40 @@ async function loadByPath(folderPath, options = {}) {
 module.exports.loadByPath = loadByPath;
 
 /**
+ *
+ * @param {string} folderPath
+ * @param {string} search
+ * @returns {Promise<array[FileItem|FolderItem]>}
+ */
+async function search(folderPath, search) {
+	const hrstart = process.hrtime();
+
+	const result = [];
+
+	const folderItem = new FolderItem(null, {path: folderPath});
+	const searchingLevel = folderItem.paths.length + 1;
+
+	const query = knex.select('*')
+		.from(CONFIG.db.table.structure)
+		.where('level', '>=', searchingLevel)
+		.andWhere('path', 'LIKE', folderPath + '%')
+		.andWhere('path', 'LIKE','%' + search + '%') // @TODO needs escape character '%'? Needs testing
+		.orderBy(['level', 'path']);
+	LOG.debug('(Knex) Running SQL: ' + query.toString());
+	try {
+		(await query).forEach(function (row) {
+			result.push(rowToItem(row));
+		});
+	} catch (error) {
+		LOG.error('[Knex] Error while searching and processing in "' + folderPath + '": ' + error.message);
+	}
+	LOG.debug('(Knex) Searching took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
+	return result;
+}
+
+module.exports.search = search;
+
+/**
  * Load specific row.
  *
  * @param {string} relativePath
