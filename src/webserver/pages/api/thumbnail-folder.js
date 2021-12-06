@@ -5,12 +5,11 @@ const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
 const cacheHelper = require('./helpers/cache');
 const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 const FS = require('fs');
+const structureRepository = require('../../../libs/repository/structure');
 
-const getItemsHelper = require('./helpers/getItemsFromFolder.js');
+module.exports = async function (webserver, endpoint) {
 
-module.exports = function (webserver, endpoint) {
-
-	webserver.get(endpoint, function (req, res) {
+	webserver.get(endpoint, async function (req, res) {
 		res.statusCode = 200;
 		if (c.thumbnails.folder.enabled !== true) {
 			// return res.result.setError('Folder thumbnail images are disabled in server config. Check out "config.thumbnails.folder.enabled".').end(403);
@@ -46,50 +45,48 @@ module.exports = function (webserver, endpoint) {
 		}
 
 		// load all image files from folder
-		res.startTime('apiload', 'Loading files');
-		getItemsHelper.files(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions()).then(function (data) {
-			res.endTime('apiload');
-			const imagesInFolder = data.items.filter(function (item) {
-				return item.isImage;
-			});
+		res.startTime('apiload', 'Loading random files');
+		const randomFiles = await structureRepository.randomFiles(res.locals.path);
+		res.endTime('apiload');
+		const randomFilesReal = randomFiles.filter(function (item) {
+			return item.isImage && perms.test(res.locals.user.getPermissions(), item.path);
+		});
 
-			if (imagesInFolder.length < c.thumbnails.folder.positions.length) {
-				return sendTransparentPixel();
-				// return res.result.setError('Not enough images available in this folder.').end(403);
+		if (randomFilesReal.length < c.thumbnails.folder.positions.length) {
+			return sendTransparentPixel();
+		}
+
+		// get random X images and generate promises for final composing
+		let resizePromises = [];
+		randomFilesReal.slice(0, c.thumbnails.folder.positions.length).forEach(function (folderItem, index) {
+			resizePromises.push(sharp(pathCustom.join(c.path, folderItem.path)).resize({
+				width: c.thumbnails.folder.positions[index].width,
+				height: c.thumbnails.folder.positions[index].height,
+			}).toBuffer());
+		});
+
+		res.startTime('apiresize', 'Resizing images');
+		// resize all loaded images and use them to build final thumbnail
+		Promise.all(resizePromises).then(function (resizedImages) {
+			res.endTime('apiresize');
+			res.startTime('apicompose', 'Composing thumbnail');
+			let toComposite = [];
+			resizedImages.forEach(function (resizedImage, index) {
+				toComposite.push({input: resizedImages[index], gravity: c.thumbnails.folder.positions[index].gravity})
+			});
+			const thumbnailImageStream = sharp(c.thumbnails.folder.inputOptions).composite(toComposite).png();
+
+			setHttpHeadersFromConfig();
+			res.setHeader('Content-Type', 'image/png');
+			thumbnailImageStream.pipe(res);
+
+			// if caching is enabled, save it
+			if (canUseCache && c.thumbnails.folder.cache === true) {
+				cacheHelper.saveStream(cacheHelper.TYPE.FOLDER, res.locals.path, thumbnailImageStream);
 			}
-
-			// get random X images and generate promises for final composing
-			let resizePromises = [];
-			imagesInFolder.sort(() => .5 - Math.random()).slice(0, c.thumbnails.folder.positions.length).forEach(function (folderItem, index) {
-				resizePromises.push(sharp(pathCustom.join(c.path, folderItem.path)).resize({
-					width: c.thumbnails.folder.positions[index].width,
-					height: c.thumbnails.folder.positions[index].height,
-				}).toBuffer());
-			});
-
-			res.startTime('apiresize', 'Resizing images');
-			// resize all loaded images and use them to build final thumbnail
-			Promise.all(resizePromises).then(function (resizedImages) {
-				res.endTime('apiresize');
-				res.startTime('apicompose', 'Composing thumbnail');
-				let toComposite = [];
-				resizedImages.forEach(function (resizedImage, index) {
-					toComposite.push({input: resizedImages[index], gravity: c.thumbnails.folder.positions[index].gravity})
-				});
-				const thumbnailImageStream = sharp(c.thumbnails.folder.inputOptions).composite(toComposite).png();
-
-				setHttpHeadersFromConfig();
-				res.setHeader('Content-Type', 'image/png');
-				thumbnailImageStream.pipe(res);
-
-				// if caching is enabled, save it
-				if (canUseCache && c.thumbnails.folder.cache === true) {
-					cacheHelper.saveStream(cacheHelper.TYPE.FOLDER, res.locals.path, thumbnailImageStream);
-				}
-			}).catch(function (error) {
-				LOG.error('Error while generating thumbnail image for folder "' + res.locals.path + '": ' + error.message);
-				return res.result.setError('Error while generating folder thumbnail image.').end(500);
-			});
+		}).catch(function (error) {
+			LOG.error('Error while generating thumbnail image for folder "' + res.locals.path + '": ' + error.message);
+			return res.result.setError('Error while generating folder thumbnail image.').end(500);
 		});
 
 		function setHttpHeadersFromConfig() {

@@ -57,6 +57,39 @@ async function loadByPath(folderPath, options = {}) {
 module.exports.loadByPath = loadByPath;
 
 /**
+ * Get random files from specified directory or any below
+ *
+ * @param folderPath
+ * @returns {Promise<array[FileItem|FolderItem]>}
+ */
+async function randomFiles(folderPath) {
+	const hrstart = process.hrtime();
+	const result = [];
+
+	const folderItem = new FolderItem(null, {path: folderPath});
+	const searchingLevel = folderItem.paths.length + 1;
+	const query = knex.select('*')
+		.from(CONFIG.db.table.structure)
+		.andWhere('type', TYPE_FILE)
+		.andWhere('level', '>=', searchingLevel)
+		.andWhere('path', 'LIKE', folderPath + '%')
+		.orderByRaw('RAND()')
+		.limit(1000);
+	LOG.debug('(Knex) Running SQL: ' + query.toString());
+	try {
+		(await query).forEach(function (row) {
+			result.push(rowToItem(row));
+		});
+	} catch (error) {
+		LOG.error('[Knex] Error while loading and processing random files in "' + folderPath + '": ' + error.message);
+	}
+	LOG.debug('(Knex) Loading random files took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
+	return result;
+}
+
+module.exports.randomFiles = randomFiles;
+
+/**
  *
  * @param {string} folderPath
  * @param {string} searchString
