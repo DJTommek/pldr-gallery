@@ -236,3 +236,16 @@ function getDataFromExifFromFile(fullPath) {
 }
 
 module.exports.getDataFromExifFromFile = getDataFromExifFromFile;
+
+
+/**
+ * @param {string} absolutePath
+ * @returns {string|null} Detected mime type or null
+ */
+function detectMimeType(absolutePath) {
+	const ext = pathCustom.extname(absolutePath);
+	const extData = (new FileExtensionMapper).get(ext);
+	return (extData && extData.mediaType) ? extData.mediaType : null;
+}
+
+module.exports.detectMimeType = detectMimeType;

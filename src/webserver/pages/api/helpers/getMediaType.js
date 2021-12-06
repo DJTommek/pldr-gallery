@@ -1,22 +1,20 @@
-const pathCustom = require(BASE_DIR_GET('/src/libs/path.js'));
+const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
 const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
 module.exports = function (webserver, endpointPath) {
 
 	/**
-	 * Set media type
+	 * Force set media type. If unable to detect, return error to HTTP
 	 *
 	 * @return next()
 	 */
 	webserver.get(endpointPath, function (req, res, next) {
 		if (res.locals.fullPathFile) {
-			const ext = pathCustom.extname(res.locals.fullPathFile);
-			const extData = (new FileExtensionMapper).get(ext);
-			if (extData && extData.mediaType) {
-				res.locals.mediaType = extData.mediaType;
+			const mimeType = HFS.detectMimeType(res.locals.fullPathFile);
+			if (mimeType) {
+				res.locals.mediaType = mimeType;
 			} else {
-				const error = 'File extension "' + ext + '" has no defined media type.';
-				LOG.error(error);
-				res.result.setError(error).end(500);
+				LOG.error('Unable to detect media type for file "' + res.locals.fullPathFile + '".');
+				res.result.setError('Unable to detect media type for file "' + res.locals.path + '".').end(500);
 			}
 		}
 		next();

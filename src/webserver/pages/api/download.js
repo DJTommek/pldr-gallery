@@ -1,5 +1,6 @@
 const FS = require('fs');
 const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
+const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
 module.exports = function (webserver, endpoint) {
 
 	/**
@@ -13,6 +14,11 @@ module.exports = function (webserver, endpoint) {
 		try {
 			if (!res.locals.fullPathFile) {
 				throw new Error('invalid or missing path');
+			}
+
+			const mimeType = HFS.detectMimeType(res.locals.fullPathFile);
+			if (mimeType) {
+				res.setHeader('Content-Type', mimeType);
 			}
 
 			res.setHeader('Content-Disposition', 'inline; filename="' + encodeURI(res.locals.fullPathFile.split('/').pop()) + '"');
