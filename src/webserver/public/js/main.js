@@ -999,8 +999,15 @@ function parseStructure(items) {
 	}
 	if (items.lastScan) {
 		const lastScan = new Date(items.lastScan);
+		const lastScanHuman = lastScan.human(true);
+		let dateHtml = '';
+		if ((new Date()).human(true).date !== lastScanHuman.date) { // show also date if scan was not performed today
+			dateHtml += lastScanHuman.date + ' ';
+		}
+		dateHtml += lastScanHuman.time;
 		const lastScanAgoHuman = msToHuman(Math.max(new Date() - lastScan.getTime(), 0), true);
-		$('#structure-scan .date').html(lastScan.human(true).datetime + ' (' + lastScanAgoHuman.split(' ').slice(0, 1) + ' ago)');
+		dateHtml += ' (' + lastScanAgoHuman.split(' ').slice(0, 1) + ' ago)';
+		$('#structure-scan .date').html(dateHtml);
 		$('#structure-scan').show();
 	} else {
 		$('#structure-scan').hide();
