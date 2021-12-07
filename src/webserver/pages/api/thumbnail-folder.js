@@ -6,6 +6,7 @@ const cacheHelper = require('./helpers/cache');
 const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 const FS = require('fs');
 const structureRepository = require('../../../libs/repository/structure');
+const HFS = require("../../../libs/helperFileSystem");
 
 module.exports = async function (webserver, endpoint) {
 
@@ -20,11 +21,11 @@ module.exports = async function (webserver, endpoint) {
 			return sendTransparentPixel();
 		}
 
-		const preparedThumbnailPath = pathCustom.join(res.locals.fullPathFolder, 'thumbnail.png');
-		if (FS.existsSync(preparedThumbnailPath)) {
+		const thumbnailPath = preparedThumbnailPath();
+		if (thumbnailPath) {
 			setHttpHeadersFromConfig();
-			res.setHeader('Content-Type', 'image/png');
-			res.sendFile(preparedThumbnailPath);
+			res.setHeader('Content-Type', HFS.detectMimeType(thumbnailPath));
+			res.sendFile(thumbnailPath);
 			return;
 		}
 
@@ -102,6 +103,18 @@ module.exports = async function (webserver, endpoint) {
 			res.setHeader('Content-Length', imgBuffer.length);
 			res.setHeader('Cache-Control', 'public, max-age=2592000'); // cache for one month
 			res.end(imgBuffer);
+		}
+
+		/** @returns {string|null} Absolute path of prepared thumbnail or null if no file is available */
+		function preparedThumbnailPath() {
+			const files = ['thumbnail.png', 'thumbnail.jpg'];
+			for (const filename of files) {
+				let fullPath = pathCustom.join(res.locals.fullPathFolder, filename);
+				if (FS.existsSync(fullPath)) {
+					return fullPath;
+				}
+			}
+			return null;
 		}
 	});
 
