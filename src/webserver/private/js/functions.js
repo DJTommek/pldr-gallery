@@ -7,16 +7,19 @@
  */
 global = (typeof global === 'undefined') ? {} : global;
 
-/**
- * Replace all elements in string
- *
- * @param search
- * @param replacement
- * @returns {string}
- */
-String.prototype.replaceAll = function (search, replacement) {
-	return this.split(search).join(replacement);
-};
+if (!String.prototype.replaceAll) {
+	/**
+	 * Replace all elements in string
+	 *
+	 * @param search
+	 * @param replacement
+	 * @returns {string}
+	 */
+	String.prototype.replaceAll = function (search, replacement) {
+		console.log('used replaceAll');
+		return this.split(search).join(replacement);
+	};
+}
 /**
  * Pad string
  *
