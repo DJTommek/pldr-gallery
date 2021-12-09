@@ -184,7 +184,7 @@ $(window).on('hashchange', function () {
 			]).then(function () {
 				S.selectorMove(currentFile.index); // highlight loaded image
 				if (currentFile.coordLat && currentFile.coordLon) {
-					$('#popup-location').attr('href', 'https://www.google.cz/maps/place/' + currentFile.coordLat + ',' + currentFile.coordLon).show();
+					$('#popup-location').attr('href', 'https://better-location.palider.cz/' + currentFile.coordLat + ',' + currentFile.coordLon).show();
 				} else {
 					$('#popup-location').hide();
 				}
