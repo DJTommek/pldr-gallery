@@ -22,12 +22,23 @@
 	margin: 0 auto;
 
 	.structure-item {
+		cursor: pointer;
 		.default-transition();
 
 		.name {
-			& .highlight {
+			&:hover {
+				text-decoration: none;
+			}
+
+			.highlight {
 				background-color: @theme-highlight-color;
 			}
+		}
+
+		.name,
+		.icon,
+		.thumbnail {
+			color: @theme-color-primary;
 		}
 
 		&:hover {
@@ -51,7 +62,6 @@
 		.structure-item {
 			position: relative;
 			margin: @item-margin-size;
-			cursor: pointer;
 			border-radius: 1em;
 
 			.thumbnail-loading-icon {
@@ -164,10 +174,13 @@
 
 		.icon,
 		.resolution,
-		.location,
 		.size,
 		.created {
 			color: @theme-color-text;
+		}
+
+		.location:hover {
+			text-decoration: none;
 		}
 
 		&:hover,
@@ -212,6 +225,7 @@
 					display: block;
 					padding-right: 1em;
 				}
+
 				.size {
 					width: 7em;
 					text-align: right;
@@ -289,6 +303,7 @@
 				.size {
 					top: 1.25em;
 				}
+
 				.location {
 					top: 1.25em;
 					right: 5em;

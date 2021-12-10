@@ -467,10 +467,12 @@ $(function () {
 
 	// Event - selected item in structure
 	$('#structure').on('click', '.structure-item', function (event) {
-		event.preventDefault();
-		if ($(this).data('index') !== undefined) {
-			S.selectorMove($(this).data('index'));
-			S.selectorSelect();
+		if ($(event.target).closest('.location').length === 0) { // do not select in structure, just open link
+			event.preventDefault();
+			if ($(this).data('index') !== undefined) {
+				S.selectorMove($(this).data('index'));
+				S.selectorSelect();
+			}
 		}
 	});
 
@@ -819,7 +821,7 @@ function loadThumbnail() {
 
 		// prioritize items, that are hovered with mouse
 		thumbnailToLoad = thumbnailsNotLoaded.filter(function () {
-			return $(this).parent('a').is(':hover');
+			return $(this).parent('.structure-item').is(':hover');
 		}).first();
 		if (thumbnailToLoad.length === 0) {
 			// prioritize items, that are visible in viewport
@@ -929,30 +931,30 @@ function parseStructure(items) {
 		if (item.noFilter) {
 			maxVisible--;
 		}
-		contentTiles += '<a href="#' + item.url + '" class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
+		contentTiles += '<span class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
 		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
 		if (!item.noFilter && CONFIG.thumbnails.folder.enabled === true) {
 			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="/api/thumbnail-folder?path=' + item.getEncodedPath() + '">';
 		} else {
 			contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		}
-		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
+		contentTiles += ' <a class="name" href="#' + item.url + '">' + item.text + '</a>';
 		if (item.created) {
 			const created = item.created.human(true);
 			contentTiles += ' <span class="created" title="' + created + ' (' + msToHuman(Math.max(new Date().getTime() - item.created, 0)) + ' ago)">' + created.date + ' <span>' + created.time + '</span></span>';
 		}
-		contentTiles += '</a>';
+		contentTiles += '</span>';
 	});
 	if (items.foldersTotal > items.folders.length) {
 		const text = 'Celkem je zde ' + (items.foldersTotal) + ' složek ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.';
-		contentTiles += '<a class="structure-item" href="#">';
+		contentTiles += '<span class="structure-item">';
 		contentTiles += ' <i class="icon fa fa-info fa-fw"></i>';
 		contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		contentTiles += ' <span class="name">' + text + '</span>';
-		contentTiles += '</a>';
+		contentTiles += '</span>';
 	}
 	S.getFiles().forEach(function (item) {
-		contentTiles += '<a class="structure-item item-index-' + item.index + '" href="#' + item.url + '" data-index="' + item.index + '">';
+		contentTiles += '<span class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
 		contentTiles += ' <i class="icon fa fa-' + item.icon + ' fa-fw"></i>';
 		if (item.isImage === true && CONFIG.thumbnails.image.enabled === true) {
 			// this image is rendered above icon so if image is loaded, icon will automatically hide
@@ -960,7 +962,7 @@ function parseStructure(items) {
 		} else {
 			contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		}
-		contentTiles += ' <span class="name"></i>' + item.text + '</span>';
+		contentTiles += ' <a href="#' + item.url + '" class="name">' + item.text + '</a>';
 		if (item.created) {
 			const created = item.created.human(true);
 			contentTiles += ' <span class="created" title="' + created + ' (' + msToHuman(Math.max(new Date().getTime() - item.created, 0)) + ' ago)">' + created.date + ' <span>' + created.time + '</span></span>';
@@ -973,29 +975,29 @@ function parseStructure(items) {
 		}
 		if (item.coordLat && item.coordLon) {
   			// @HACK Non-break space is necesssary to proper vertical alignment of the icon
-			contentTiles += ' <span class="location" title="Coordinates detected">&nbsp;<i class="fa fa-map-marker"></i></span>';
+			contentTiles += ' <a href="https://better-location.palider.cz/' + item.coordLat + ',' + item.coordLon + '" class="location" target="_blank" title="Open coordinates ' + item.coordLat + ',' + item.coordLon + ' in Better Location">&nbsp;<i class="fa fa-map-marker"></i></a>';
 		}
-		contentTiles += '</a>';
+		contentTiles += '</span>';
 	});
 	if (maxVisible === 0) {
-		contentTiles += '<a class="structure-item" href="#">';
+		contentTiles += '<span class="structure-item">';
 		contentTiles += ' <i class="icon fa fa-info fa-fw"></i>';
 		contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		contentTiles += ' <span class="name">Složka je prázdná.</span>';
-		contentTiles += '</a>';
+		contentTiles += '</span>';
 	} else { // @TODO quick workaround, should be available all the time and toggled visibilty in filter
-		contentTiles += '<a class="structure-item" href="#" id="filter-structure-empty" style="display: none;">';
+		contentTiles += '<span class="structure-item" id="filter-structure-empty" style="display: none;">';
 		contentTiles += ' <i class="icon fa fa-warning fa-fw"></i>';
 		contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
-		contentTiles += ' <span class="name">Zadanému filtru nevyhovuje žádná složka ani soubor.</span>';
-		contentTiles += '</a>';
+		contentTiles += ' <span class="name">Zadanému filtru nevyhovuje žádná složka ani soubor. Stiskni CTRL+Enter pro hledání v podsložkách</span>';
+		contentTiles += '</span>';
 	}
 	if (items.filesTotal > items.files.length) {
-		contentTiles += '<a class="structure-item" href="#">';
+		contentTiles += '<span class="structure-item">';
 		contentTiles += ' <i class="icon fa fa-info fa-fw"></i>';
 		contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		contentTiles += ' <span class="name">Celkem je zde ' + (items.filesTotal) + ' souborů ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</span>';
-		contentTiles += '</a>';
+		contentTiles += '</span>';
 	}
 	if (items.lastScan) {
 		const lastScan = new Date(items.lastScan);
