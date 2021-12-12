@@ -92,7 +92,7 @@ async function loadPasswordsDb() {
 	).forEach(function (data) {
 		// if null, password exists but don't have any permissions assigned
 		if (data.permission === null) {
-				LOG.warning('Password ID ' + data['id'] + ' don\'t have any permissions.');
+			LOG.warning('Password ID ' + data['id'] + ' don\'t have any permissions.');
 		} else {
 			const checkError = isPermisionValid(data.permission);
 			if (checkError) {
@@ -236,6 +236,7 @@ exports.getPassword = function getPassword(password) {
 
 exports.load = async function load(callback) {
 	LOG.info('(Perms) Loading permissions...');
+	clearCache();
 	await loadPasswordsDb();
 	await loadGroupsDb();
 	await loadUsersDb();
@@ -244,6 +245,12 @@ exports.load = async function load(callback) {
 	if (callback && typeof callback !== 'function') {
 		callback();
 	}
+}
+
+function clearCache() {
+	USERS = {};
+	PASSWORDS = {};
+	GROUPS = {}
 }
 
 class User {
