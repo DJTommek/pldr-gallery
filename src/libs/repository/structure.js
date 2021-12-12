@@ -2,6 +2,7 @@ const CONFIG = require('../config.js');
 const LOG = require('../log.js');
 const knex = require('../database.js');
 const pathCustom = require("../path.js");
+require(BASE_DIR_GET('/src/webserver/private/js/class/Coordinates.js'));
 
 const TYPE_FILE = 1;
 const TYPE_FOLDER = 0;
@@ -92,38 +93,70 @@ module.exports.randomFiles = randomFiles;
 /**
  *
  * @param {string} folderPath
- * @param {string} searchString
+ * @param options
  * @returns {Promise<array[FileItem|FolderItem]>}
  */
-async function search(folderPath, searchString) {
+async function search(folderPath, options = {}) {
 	const hrstart = process.hrtime();
-
 	const result = [];
 
 	const folderItem = new FolderItem(null, {path: folderPath});
 	const searchingLevel = folderItem.paths.length + 1;
 
-	// The \% and \_ sequences are used to search for literal instances of % and _ in pattern-matching contexts
-	// where they would otherwise be interpreted as wildcard characters.
-	// @see https://dev.mysql.com/doc/refman/8.0/en/string-literals.html
-	// In Javascript it needs to be double backslash, because one escapes the another
-	const searchStringEscaped = searchString.replaceAll('%', '\\%').replaceAll('_', '\\_');
+	const columnsToSelect = ['*'];
+	let columnsToOrder = ['level', 'path'];
 
-	const query = knex.select('*')
+	const query = knex
 		.from(CONFIG.db.table.structure)
 		.where('level', '>=', searchingLevel)
-		.andWhere('path', 'LIKE', folderPath + '%')
-		.andWhere('path', 'LIKE','%' + searchStringEscaped + '%')
-		.orderBy(['level', 'path']);
+		.where('path', 'LIKE', folderPath + '%')
+	if (options) {
+		if (options.searchString !== undefined) {
+			if (typeof options.searchString !== 'string' || options.searchString === '') {
+				throw new Error('Option "searchString" must be non-empty string');
+			}
+			// The \% and \_ sequences are used to search for literal instances of % and _ in pattern-matching contexts
+			// where they would otherwise be interpreted as wildcard characters.
+			// @see https://dev.mysql.com/doc/refman/8.0/en/string-literals.html
+			// In Javascript it needs to be double backslash, because one escapes the another
+			const searchStringEscaped = options.searchString.replaceAll('%', '\\%').replaceAll('_', '\\_');
+			query.where('path', 'LIKE', '%' + searchStringEscaped + '%')
+			// @TODO search only in basename?
+			// query.andWhere('basename', 'LIKE', '%' + searchStringEscaped + '%')
+		}
+
+		if (options.lat !== undefined || options.lon !== undefined) {
+			const coords = new Coordinates(options.lat, options.lon);
+			 // Measure distance to given lat/lon
+			 // @author https://stackoverflow.com/a/5548877/3334403
+			// columnsToSelect.push(knex.raw('SQRT( ' +
+			// 	' POW(111.2 * (coordinate_lat - ?), 2) + ' +
+			// 	' POW(111.2 * (? - coordinate_lon) * COS(coordinate_lat / 57.3), 2) ' +
+			// 	' ) AS distance', [coords.lat, coords.lon])
+			// );
+			// columnsToSelect.push(knex.raw('st_distance_sphere(POINT(?, ?), POINT(coordinate_lon, coordinate_lat)) AS distance', [coords.lon, coords.lat]));
+			columnsToSelect.push(knex.raw('st_distance_sphere(POINT(?, ?), coordinates) AS distance', [coords.lon, coords.lat]));
+			query.whereNotNull('coordinates')
+			columnsToOrder.unshift('distance');
+		}
+	}
+
+	query.select(columnsToSelect);
+	query.orderBy(columnsToOrder);
+	// query.limit(1000);
+
 	LOG.debug('(Knex) Running SQL: ' + query.toString());
 	try {
-		(await query).forEach(function (row) {
+		const queryStart = process.hrtime();
+		const rows = (await query);
+		const queryHuman = msToHuman(hrtime(process.hrtime(queryStart)));
+		rows.forEach(function (row) {
 			result.push(rowToItem(row));
 		});
+		LOG.debug('(Knex) Query took ' + queryHuman + '.', {console: true})
 	} catch (error) {
 		LOG.error('[Knex] Error while searching and processing in "' + folderPath + '": ' + error.message);
 	}
-	LOG.debug('(Knex) Searching took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
 	return result;
 }
 
