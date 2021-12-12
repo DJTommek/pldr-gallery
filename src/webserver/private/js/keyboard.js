@@ -141,7 +141,10 @@ jwerty.key('enter', function (e) {
 		// @TODO video open in fullscreen (also disable move left and right)
 	} else {
 		if ($("#navbar-filter .search").is(":focus")) {
-			$('#navbar-filter .search').trigger('click');
+			console.log('@TODO Do nothing');
+			// $('#navbar-filter .search').trigger('click');
+		} else if ($("#advanced-search-string").is(":focus")) {
+			console.log('do nothing');
 		} else {
 			S.selectorSelect();
 		}
@@ -154,7 +157,8 @@ jwerty.key('ctrl+enter', function (e) {
 	} else if (loadedStructure.popup) {
 
 	} else {
-		$('#navbar-filter .search').trigger('click');
+		console.log('@TODO Do nothing');
+		// $('#navbar-filter .search').trigger('click');
 	}
 });
 
