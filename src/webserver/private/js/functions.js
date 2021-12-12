@@ -235,6 +235,28 @@ function formatBytes(bytes, decimals = 2) {
 global.formatBytes = formatBytes;
 
 /**
+ * Format meters to human readable unit if too small
+ *
+ * @param {Number} meters
+ * @returns {string}
+ */
+function formatDistance(meters) {
+	if (typeof meters !== 'number' || meters < 0) {
+		throw new Error('Parameter "meters" has to be positive number.')
+	}
+
+	if (meters >= 100_000) {
+		return Math.floor(meters / 1000) + ' km';
+	} else if (meters >= 1_000) {
+		return (meters / 1000).toFixed(2) + ' km';
+	} else {
+		return Math.floor(meters) + ' m';
+	}
+}
+
+global.formatDistance = formatDistance;
+
+/**
  * Convert the result of process.hrtime() to milliseconds
  *
  * @author https://github.com/sindresorhus/convert-hrtime
