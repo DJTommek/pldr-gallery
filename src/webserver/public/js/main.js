@@ -16,6 +16,12 @@ const mapData = {
 	selectedMarker: null,
 	infoWindow: null
 };
+const mapDataSearch = {
+	map: null,
+	markers: {
+		selected: null,
+	},
+};
 
 const transparentPixelBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII';
 
@@ -349,8 +355,38 @@ $(function () {
 		audioToggle();
 	});
 
-	// Event - click on search button to run server searching
-	$('#navbar-filter .search').on('click', function (event) {
+	// Event - show/hide map in advanced search
+	$('#advanced-search-sort-closest').on('change', function (event) {
+		if ($(this).is(':checked')) {
+			$('#advanced-search-map-wrap').show();
+		} else {
+			$('#advanced-search-map-wrap').hide();
+		}
+	});
+
+	$('#advanced-search-load-user-location').on('click', function (event) {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				function (position) {
+					mapSearchMarkerClear();
+					const coords = new Coordinates(position.coords.latitude, position.coords.longitude);
+					mapSearchMarkerSet(coords, true);
+				},
+				function (error) {
+					mapSearchMarkerClear();
+					let errorText = 'Unable to get your location';
+					if (error && error.code === 1) {
+						errorText += ': you need to allow location access in your browser.';
+					}
+					flashMessage(errorText, 'danger');
+				}
+			);
+		} else {
+			flashMessage('Your browser does not support geolocation.', 'danger');
+		}
+	});
+
+	$('#advanced-search-run').on('click', function (event) {
 		event.preventDefault();
 		loadSearch();
 	});
@@ -762,9 +798,28 @@ function updateLoginButtons() {
 }
 
 function loadSearch(callback) {
-	let query = $('#navbar-filter input').val().trim();
-	if (!query) {
-		console.log("Search query is empty, cancel search request");
+	const requestData = {
+		path: btoa(encodeURIComponent(S.getCurrentFolder().path)),
+	}
+	let searchValidatorError = 'Buď napiš co hledáš anebo vyber bod v mapě';
+
+	let query = $('#advanced-search-string').val().trim();
+	if (query) {
+		requestData.query = query;
+		searchValidatorError = null;
+	}
+	if ($('#advanced-search-sort-closest').is(':checked')) {
+		const $selectedCoords = $('#advanced-search-coords');
+		requestData.lat = $selectedCoords.data('lat');
+		requestData.lon = $selectedCoords.data('lon');
+		if (Coordinates.isLat(requestData.lat) && Coordinates.isLon(requestData.lon)) {
+			searchValidatorError = null;
+		} else {
+			searchValidatorError = 'Pokud chceš seřadit od nejbližších, musíš mít vybraný bod v mapě.';
+		}
+	}
+	if (searchValidatorError) {
+		flashMessage(searchValidatorError, 'danger');
 		return;
 	}
 
@@ -775,10 +830,7 @@ function loadSearch(callback) {
 	loadedStructure.request = $.ajax({
 		url: '/api/search',
 		method: 'GET',
-		data: {
-			path: btoa(encodeURIComponent(S.getCurrentFolder().path)),
-			query: query
-		},
+		data: requestData,
 		success: function (result) {
 			if (result.error === true || !result.result) {
 				flashMessage(result.message || 'Chyba během hledání. Kontaktuj autora.', 'danger', false);
@@ -799,10 +851,12 @@ function loadSearch(callback) {
 		},
 		beforeSend: function () {
 			loadingStructure(true);
+			$('#advanced-search-run i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
 			$('#navbar-filter .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
 		},
 		complete: function () {
 			loadingStructure(false);
+			$('#advanced-search-run i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
 			$('#navbar-filter .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
 			(typeof callback === 'function' && callback());
 		}
@@ -980,6 +1034,9 @@ function parseStructure(items) {
 			// @HACK Non-break space is necesssary to proper vertical alignment of the icon
 			contentTiles += ' <a href="https://better-location.palider.cz/' + item.coordLat + ',' + item.coordLon + '" class="location" target="_blank" title="Open coordinates ' + item.coordLat + ',' + item.coordLon + ' in Better Location">&nbsp;<i class="fa fa-map-marker"></i></a>';
 		}
+		if (item.distance) {
+			contentTiles += ' <span class="distance">' + formatDistance(item.distance) + '</span>';
+		}
 		contentTiles += '</span>';
 	});
 	if (maxVisible === 0) {
@@ -1029,6 +1086,7 @@ function loadingStructure(loading) {
 		$('#navbar-filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
 		$('#navbar-filter input').prop('disabled', true);
 		$('#navbar-filter .search').prop('disabled', true);
+		$('#advanced-search-run').prop('disabled', true);
 		// @TODO set different message if searching
 		setStatus('Loading folder "<span title="' + S.getCurrentFolder().path + '">' + S.getCurrentFolder().text + '</span>"');
 	}
@@ -1037,6 +1095,7 @@ function loadingStructure(loading) {
 		$('#map').hide();
 		$('#navbar-filter input').prop('disabled', false);
 		$('#navbar-filter .search').prop('disabled', false);
+		$('#advanced-search-run').prop('disabled', false);
 
 		// Event - thumbnail can't be loaded, destroy that element
 		// @FIXME this handler should be created only once (on page load) instead on every structure load but for some reason it don't work
@@ -1092,17 +1151,63 @@ function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message
 }
 
 // noinspection JSUnusedGlobalSymbols (loaded by Google maps API library)
-function mapInit() {
+function mapsInit() {
+	mapStructureInit();
+	mapSearchInit();
+}
+
+function mapStructureInit() {
 	mapData.map = new google.maps.Map(document.getElementById('map'), {
 		zoom: 7,
 		center: new google.maps.LatLng(49.6, 15.2), // Czechia
 	});
-	console.log("Map loaded");
+	console.log("Structure items map loaded");
 
 	// init info window
 	mapData.infoWindow = new google.maps.InfoWindow({
 		content: 'Empty info window...'
 	});
+}
+
+function mapSearchInit() {
+	mapDataSearch.map = new google.maps.Map(document.getElementById('advanced-search-map'), {
+		zoom: 7,
+		center: new google.maps.LatLng(49.6, 15.2), // Czechia
+	});
+
+	mapDataSearch.map.addListener('click', function (event) {
+		mapSearchMarkerClear();
+		const coords = new Coordinates(event.latLng.lat(), event.latLng.lng());
+		mapSearchMarkerSet(coords, false);
+	});
+	console.log('Search map loaded');
+}
+
+function mapSearchMarkerSet(coords, centerToMarker) {
+	$('#advanced-search-coords')
+		.text(coords.toString())
+		.attr('href', 'https://better-location.palider.cz/' + coords.toString())
+		.data({lat: coords.lat, lon: coords.lon})
+		.show();
+	const selectedLocationGoogle = {lat: coords.lat, lng: coords.lon};
+	mapDataSearch.markers.selected = new google.maps.Marker({
+		map: mapDataSearch.map,
+		position: selectedLocationGoogle,
+		title: 'Selected location',
+		animation: google.maps.Animation.DROP,
+	});
+	if (centerToMarker) {
+		mapDataSearch.map.setCenter(selectedLocationGoogle);
+	}
+	$('#advanced-search-sort-closest').prop("checked", true);
+}
+
+function mapSearchMarkerClear() {
+	$('#advanced-search-coords').hide();
+	if (mapDataSearch.markers.selected !== null) {
+		mapDataSearch.markers.selected.setMap(null);
+		mapDataSearch.markers.selected = null;
+	}
 }
 
 /**

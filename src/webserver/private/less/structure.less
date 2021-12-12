@@ -86,6 +86,7 @@
 			.size,
 			.resolution,
 			.location,
+			.distance,
 			.created {
 				display: none;
 			}
@@ -175,6 +176,7 @@
 		.icon,
 		.resolution,
 		.size,
+		.distance,
 		.created {
 			color: @theme-color-text;
 		}
@@ -211,6 +213,7 @@
 				.size,
 				.resolution,
 				.location,
+				.distance,
 				.created {
 					display: none;
 				}
@@ -220,6 +223,7 @@
 				.size,
 				.resolution,
 				.location,
+				.distance,
 				.created {
 					float: right;
 					display: block;
@@ -278,6 +282,7 @@
 				.created,
 				.size,
 				.location,
+				.distance,
 				.resolution {
 					float: right;
 					display: block;
@@ -290,6 +295,7 @@
 			@media (max-width: 991px) {
 				.created,
 				.size,
+				.distance,
 				.location,
 				.resolution {
 					position: absolute;
@@ -310,6 +316,11 @@
 				}
 
 				.resolution {
+					top: 2.5em;
+				}
+
+				.distance {
+					right: 5em;
 					top: 2.5em;
 				}
 			}
