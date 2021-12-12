@@ -14,6 +14,7 @@ class Item {
 		this.isAudio = false;
 		this.size = null;
 		this.scanned = null; // Date object for database
+		this.distance = null; // dynamically created column just in SELECTs
 
 		Object.assign(this, item);
 		this.index = index;
@@ -119,6 +120,7 @@ class FileItem extends Item {
 		this.coordLon = item.coordLon;
 		this.width = item.width;
 		this.height = item.height;
+		this.distance = item.distance; // dynamically created column just in SELECTs
 	}
 
 	/**
@@ -198,6 +200,9 @@ class FileItem extends Item {
 		}
 		if (this.scanned) {
 			result.scanned = this.scanned;
+		}
+		if (this.distance) {
+			result.distance = this.distance; // dynamically created column just in SELECTs
 		}
 		return result
 	}
