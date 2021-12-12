@@ -164,6 +164,7 @@ let CONFIG = {
 		filesToCompile: [
 			'/src/webserver/private/js/functions.js',
 			// classes
+			'/src/webserver/private/js/class/Coordinates.js',
 			'/src/webserver/private/js/class/FileExtensionMapper.js',
 			'/src/webserver/private/js/class/Icon.js',
 			'/src/webserver/private/js/class/Item.js',
