@@ -206,6 +206,7 @@ $(window).on('hashchange', function () {
 					$('#popup-' + type + ' source').attr('src', src);
 					$('#popup-' + type + '')[0].load();
 				}
+
 				setMediaSrc('audio', '');
 				setMediaSrc('video', '');
 
@@ -615,6 +616,7 @@ function mapInfoWindowImageLoaded() {
 	$('#map-info-window .thumbnail-not-loaded').removeClass('thumbnail-not-loaded').show();
 	$('#map-info-window .thumbnail-loading-icon').remove();
 }
+
 function mapInfoWindowImageError() {
 	$('#map-info-window .thumbnail-loading-icon').removeClass('fa-circle-o-notch fa-spin').addClass('fa-' + (new Icon).IMAGE);
 }
@@ -765,6 +767,7 @@ function loadSearch(callback) {
 		console.log("Search query is empty, cancel search request");
 		return;
 	}
+
 	if (loadedStructure.request) {
 		console.log("Aborting previous request for creating new");
 		loadedStructure.request.abort();
@@ -837,13 +840,13 @@ function loadThumbnail() {
 		const firstThumbnailParent = thumbnailToLoad.parent();
 		// @TODO save new generated DOM and use .remove() directly instead of find()
 		thumbnailToLoad.before('<i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin" title="Loading thumbnail..."></i>');
-			// trigger loading image after new src is loaded
-			// @Author https://stackoverflow.com/a/7439093/3334403 (http://jsfiddle.net/jfriend00/hmP5M/)
-			thumbnailToLoad.one('load error', function () {
-				firstThumbnailParent.find('i.thumbnail-loading-icon').remove();
-				thumbnailToLoad.removeClass('thumbnail-not-loaded');
-				loadThumbnail();
-			}).attr('src', thumbnailToLoad.data('src'));
+		// trigger loading image after new src is loaded
+		// @Author https://stackoverflow.com/a/7439093/3334403 (http://jsfiddle.net/jfriend00/hmP5M/)
+		thumbnailToLoad.one('load error', function () {
+			firstThumbnailParent.find('i.thumbnail-loading-icon').remove();
+			thumbnailToLoad.removeClass('thumbnail-not-loaded');
+			loadThumbnail();
+		}).attr('src', thumbnailToLoad.data('src'));
 	}
 }
 
@@ -974,7 +977,7 @@ function parseStructure(items) {
 			contentTiles += ' <span class="resolution">' + item.width + ' x ' + item.height + '</span>';
 		}
 		if (item.coordLat && item.coordLon) {
-  			// @HACK Non-break space is necesssary to proper vertical alignment of the icon
+			// @HACK Non-break space is necesssary to proper vertical alignment of the icon
 			contentTiles += ' <a href="https://better-location.palider.cz/' + item.coordLat + ',' + item.coordLon + '" class="location" target="_blank" title="Open coordinates ' + item.coordLat + ',' + item.coordLon + ' in Better Location">&nbsp;<i class="fa fa-map-marker"></i></a>';
 		}
 		contentTiles += '</span>';

@@ -205,7 +205,7 @@ exports.getNonLoggedUser = function getNonLoggedUser() {
 }
 
 /**
- * Generate new User without saving to database
+ * Generate new User and save it to database
  *
  * @param {string} email
  * @returns {User}
