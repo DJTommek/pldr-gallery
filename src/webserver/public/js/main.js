@@ -73,6 +73,51 @@ function loadingDone(element) {
 }
 
 /**
+ * Get user's location
+ *
+ * @param {function(?Coordinates)} callback User's location or null if unable to load
+ * @param ask set false to try to get coordinates quietly (without asking)
+ */
+function getUsersLocation(callback, ask = true) {
+	if (navigator.geolocation) {
+		/**
+		 * Real user's location getter
+		 *
+		 * @param {function(?Coordinates)} callback User's location or null if unable to load
+		 */
+		function getUserLocationReal(callback) {
+			navigator.geolocation.getCurrentPosition(
+				function (position) {
+					callback(new Coordinates(position.coords.latitude, position.coords.longitude));
+				},
+				function () { // error while loading user's location
+					callback(null);
+				}
+			);
+		}
+
+		if (ask) {
+			getUserLocationReal(function (result) {
+				callback(result);
+			})
+		} else { // check if permission for loading user's location is already granted
+			navigator.permissions.query({
+				name: 'geolocation',
+			}).then(function (result) {
+				if (result.state === 'granted') {
+					getUserLocationReal(function (result) {
+						callback(result);
+					});
+					callback(null);
+				}
+			});
+		}
+	} else {
+		callback(null);
+	}
+}
+
+/**
  * Shortcuts to proper handling moving between items if popup is opened (respect presentation mode)
  */
 function itemPrev10(stopPresentation) {
@@ -355,8 +400,18 @@ $(function () {
 		audioToggle();
 	});
 
-	// Event - show/hide map in advanced search
-	$('#advanced-search-sort-closest').on('change', function (event) {
+	// Event - show/hide map in advanced search and try to silently load user's location
+	$('#advanced-search-sort-closest').on('change', function () {
+		// if not location is not yet selected, try to load user's current location
+		const selectedCoordsData = $('#advanced-search-coords').data();
+		if (selectedCoordsData.lat === undefined && selectedCoordsData.lon === undefined) {
+			getUsersLocation(function (coords) {
+				if (coords) {
+					mapSearchMarkerSet(coords, true);
+				}
+			}, false);
+		}
+
 		if ($(this).is(':checked')) {
 			$('#advanced-search-map-wrap').show();
 		} else {
@@ -374,26 +429,16 @@ $(function () {
 	});
 
 
-	$('#advanced-search-load-user-location').on('click', function (event) {
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(
-				function (position) {
-					mapSearchMarkerClear();
-					const coords = new Coordinates(position.coords.latitude, position.coords.longitude);
-					mapSearchMarkerSet(coords, true);
-				},
-				function (error) {
-					mapSearchMarkerClear();
-					let errorText = 'Unable to get your location';
-					if (error && error.code === 1) {
-						errorText += ': you need to allow location access in your browser.';
-					}
-					flashMessage(errorText, 'danger');
-				}
-			);
-		} else {
-			flashMessage('Your browser does not support geolocation.', 'danger');
-		}
+	// Event - load user's location and set it to advanced search map
+	$('#advanced-search-load-user-location').on('click', function () {
+		getUsersLocation(function (coords) {
+			mapSearchMarkerClear();
+			if (coords) {
+				mapSearchMarkerSet(coords, true);
+			} else {
+				flashMessage('Unable to get your location, choose it manually from the map.', 'warning');
+			}
+		}, true);
 	});
 
 	$('#advanced-search-run').on('click', function (event) {
