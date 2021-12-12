@@ -364,6 +364,16 @@ $(function () {
 		}
 	});
 
+	// Event - typing in structure filter will also type in advanced search
+	$('#navbar-filter input').on('keyup change', function () {
+		$('#advanced-search-string').val($(this).val());
+	});
+	// Event - typing in advanced search will also type in structure filter
+	$('#advanced-search-string').on('keyup change', function () {
+		$('#navbar-filter input').val($(this).val());
+	});
+
+
 	$('#advanced-search-load-user-location').on('click', function (event) {
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(
