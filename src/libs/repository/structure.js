@@ -289,6 +289,7 @@ function rowToItem(row) {
 			size: row.size,
 			coordLat: row.coordinate_lat,
 			coordLon: row.coordinate_lon,
+			distance: row.distance,
 		});
 	} else if (row.type === TYPE_FOLDER) {
 		item = new FolderItem(null, {
