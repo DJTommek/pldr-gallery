@@ -7,11 +7,12 @@ const loadedStructure = {
 	flashIndex: 0, // incremental index used for flashMessage()
 	request: null, // AJAX request structure object
 };
-const mapData = {
+const mapDataStructure = {
 	map: null,
 	mapBounds: null,
 	markers: {
 		photos: {},
+		userLocation: null,
 	},
 	selectedMarker: null,
 	infoWindow: null
@@ -78,7 +79,7 @@ function loadingDone(element) {
  * @param {function(?Coordinates)} callback User's location or null if unable to load
  * @param ask set false to try to get coordinates quietly (without asking)
  */
-function getUsersLocation(callback, ask = true) {
+function getUserLocation(callback, ask = true) {
 	if (navigator.geolocation) {
 		/**
 		 * Real user's location getter
@@ -263,7 +264,7 @@ $(window).on('hashchange', function () {
 
 				if (currentFile.isImage) {
 					$('#popup-image').attr('src', openUrl);
-					openInfoWindowMarker = mapData.markers.photos[currentFile.index] || null;
+					openInfoWindowMarker = mapDataStructure.markers.photos[currentFile.index] || null;
 				} else if (currentFile.isVideo) {
 					setMediaSrc('video', openUrl);
 				} else if (currentFile.isAudio) {
@@ -276,7 +277,7 @@ $(window).on('hashchange', function () {
 				if (openInfoWindowMarker) {
 					new google.maps.event.trigger(openInfoWindowMarker, 'click');
 				} else {
-					mapData.infoWindow.close();
+					mapDataStructure.infoWindow.close();
 				}
 
 				// @TODO upgrade counter to respect filter
@@ -405,7 +406,7 @@ $(function () {
 		// if not location is not yet selected, try to load user's current location
 		const selectedCoordsData = $('#advanced-search-coords').data();
 		if (selectedCoordsData.lat === undefined && selectedCoordsData.lon === undefined) {
-			getUsersLocation(function (coords) {
+			getUserLocation(function (coords) {
 				if (coords) {
 					mapSearchMarkerSet(coords, true);
 				}
@@ -431,7 +432,7 @@ $(function () {
 
 	// Event - load user's location and set it to advanced search map
 	$('#advanced-search-load-user-location').on('click', function () {
-		getUsersLocation(function (coords) {
+		getUserLocation(function (coords) {
 			mapSearchMarkerClear();
 			if (coords) {
 				mapSearchMarkerSet(coords, true);
@@ -1212,16 +1213,33 @@ function mapsInit() {
 }
 
 function mapStructureInit() {
-	mapData.map = new google.maps.Map(document.getElementById('map'), {
+	mapDataStructure.map = new google.maps.Map(document.getElementById('map'), {
 		zoom: 7,
 		center: new google.maps.LatLng(49.6, 15.2), // Czechia
 	});
 	console.log("Structure items map loaded");
 
 	// init info window
-	mapData.infoWindow = new google.maps.InfoWindow({
+	mapDataStructure.infoWindow = new google.maps.InfoWindow({
 		content: 'Empty info window...'
 	});
+
+	getUserLocation(function (coords) { // Show user's location in map
+		if (coords) {
+			const selectedLocationGoogle = {lat: coords.lat, lng: coords.lon};
+			mapDataStructure.markers.userLocation = new google.maps.Marker({
+				map: mapDataStructure.map,
+				position: selectedLocationGoogle,
+				title: 'Your location',
+				zIndex: 10000,
+				icon: {
+					url: 'images/marker-user.svg',
+					scaledSize: new google.maps.Size(11,11),
+					anchor: new google.maps.Point(6,6),
+				},
+			});
+		}
+	}, false);
 }
 
 function mapSearchInit() {
@@ -1229,6 +1247,23 @@ function mapSearchInit() {
 		zoom: 7,
 		center: new google.maps.LatLng(49.6, 15.2), // Czechia
 	});
+
+	getUserLocation(function (coords) { // Show user's location in map
+		if (coords) {
+			const selectedLocationGoogle = {lat: coords.lat, lng: coords.lon};
+			mapDataSearch.markers.userLocation = new google.maps.Marker({
+				map: mapDataSearch.map,
+				position: selectedLocationGoogle,
+				title: 'Your location',
+				zIndex: 10000,
+				icon: {
+					url: 'images/marker-user.svg',
+					scaledSize: new google.maps.Size(11,11),
+					anchor: new google.maps.Point(6,6),
+				},
+			});
+		}
+	}, false);
 
 	mapDataSearch.map.addListener('click', function (event) {
 		mapSearchMarkerClear();
@@ -1276,34 +1311,37 @@ function mapParsePhotos() {
 	let loadMapIntervalId = null;
 
 	function updateMapData() {
-		if (mapData.map === null) {
+		if (mapDataStructure.map === null) {
 			return; // try again later
 		} else { // map is loaded, stop interval
 			clearInterval(loadMapIntervalId);
 		}
 		let showMap = false;
-		mapData.mapBounds = new google.maps.LatLngBounds();
+		mapDataStructure.mapBounds = new google.maps.LatLngBounds();
 		// remove old markers
-		$.each(mapData.markers.photos, function (index, data) {
+		$.each(mapDataStructure.markers.photos, function (index, data) {
 			data.setMap(null);
-			delete mapData.markers.photos[index];
+			delete mapDataStructure.markers.photos[index];
 		});
 		// create new markers and insert them into map
 		S.getFiles().forEach(function (item) {
 			if (item.coordLat && item.coordLon) {
 				$('#map').show();
 				showMap = true; // at least one item has coordinates
-				mapData.markers.photos[item.index] = new google.maps.Marker({
-					map: mapData.map,
+				mapDataStructure.markers.photos[item.index] = new google.maps.Marker({
+					map: mapDataStructure.map,
 					position: {lat: item.coordLat, lng: item.coordLon},
 					title: item.text,
-					icon: 'images/marker-photo.png',
-					// animation: google.maps.Animation.DROP,
+					icon: {
+						url: 'images/marker-photo.svg',
+						scaledSize: new google.maps.Size(11,11),
+						anchor: new google.maps.Point(6,6),
+					},
 				});
 				// Show infoWindow
-				mapData.markers.photos[item.index].addListener('click', function () {
+				mapDataStructure.markers.photos[item.index].addListener('click', function () {
 					const links = generateCoordsLinks(item.coordLat, item.coordLon);
-					mapData.infoWindow.setContent('<div id="map-info-window" data-item-index="' + item.index + '">' +
+					mapDataStructure.infoWindow.setContent('<div id="map-info-window" data-item-index="' + item.index + '">' +
 						' <div class="image float-md-left">' +
 						'  <a href="' + item.getFileUrl() + '" target="_blank" title="Open in new window">' +
 						'   <i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin"></i>' +
@@ -1329,13 +1367,13 @@ function mapParsePhotos() {
 						'  </ul>' +
 						' </div>',
 						'</div>');
-					mapData.infoWindow.open(mapData.map, this);
+					mapDataStructure.infoWindow.open(mapDataStructure.map, this);
 				});
 
-				mapData.mapBounds.extend(mapData.markers.photos[item.index].position);
+				mapDataStructure.mapBounds.extend(mapDataStructure.markers.photos[item.index].position);
 			}
 		});
-		mapData.map.fitBounds(mapData.mapBounds);
+		mapDataStructure.map.fitBounds(mapDataStructure.mapBounds);
 		// there is nothing to show on the map so disable it
 		if (showMap === false) {
 			$('#map').hide();
@@ -1343,7 +1381,7 @@ function mapParsePhotos() {
 			// open InfoWindow in map if currently opened Item is FileItem with coordinates (marker)
 			const item = S.historyGet().last();
 			if (item) {
-				const marker = mapData.markers.photos[item.index];
+				const marker = mapDataStructure.markers.photos[item.index];
 				if (marker) {
 					new google.maps.event.trigger(marker, 'click');
 				}
