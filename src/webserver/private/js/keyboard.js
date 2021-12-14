@@ -144,7 +144,7 @@ jwerty.key('enter', function (e) {
 			console.log('@TODO Do nothing');
 			// $('#navbar-filter .search').trigger('click');
 		} else if ($("#advanced-search-string").is(":focus")) {
-			console.log('do nothing');
+			console.log('@TODO do nothing');
 		} else {
 			S.selectorSelect();
 		}

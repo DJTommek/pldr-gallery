@@ -16,7 +16,6 @@ if (!String.prototype.replaceAll) {
 	 * @returns {string}
 	 */
 	String.prototype.replaceAll = function (search, replacement) {
-		console.log('used replaceAll');
 		return this.split(search).join(replacement);
 	};
 }

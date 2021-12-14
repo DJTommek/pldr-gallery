@@ -539,7 +539,6 @@ $(function () {
 			success: function (result) {
 				const flashType = result.error === true ? 'danger' : 'info';
 				flashMessage(result.message, flashType);
-				console.log(result.result.scanning);
 				if (result.result.scanning === false) {
 					loadStructure(true);
 				}

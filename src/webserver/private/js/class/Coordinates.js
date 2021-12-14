@@ -1,11 +1,9 @@
 class Coordinates {
 	constructor(lat, lon) {
 		if (Coordinates.isLat(lat) === false) {
-			console.log(lat);
 			throw new Error('Latitude coordinate must be numeric between or equal from -90 to 90 degrees.');
 		}
 		if (Coordinates.isLon(lon) === false) {
-			console.log(lon);
 			throw new Error('Longitude coordinate must be numeric between or equal from -180 to 180 degrees.');
 		}
 		this.lat = lat;
