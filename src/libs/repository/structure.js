@@ -128,13 +128,6 @@ async function search(folderPath, options = {}) {
 		if (options.lat !== undefined || options.lon !== undefined) {
 			const coords = new Coordinates(options.lat, options.lon);
 			 // Measure distance to given lat/lon
-			 // @author https://stackoverflow.com/a/5548877/3334403
-			// columnsToSelect.push(knex.raw('SQRT( ' +
-			// 	' POW(111.2 * (coordinate_lat - ?), 2) + ' +
-			// 	' POW(111.2 * (? - coordinate_lon) * COS(coordinate_lat / 57.3), 2) ' +
-			// 	' ) AS distance', [coords.lat, coords.lon])
-			// );
-			// columnsToSelect.push(knex.raw('st_distance_sphere(POINT(?, ?), POINT(coordinate_lon, coordinate_lat)) AS distance', [coords.lon, coords.lat]));
 			columnsToSelect.push(knex.raw('st_distance_sphere(POINT(?, ?), coordinates) AS distance', [coords.lon, coords.lat]));
 			query.whereNotNull('coordinates')
 			columnsToOrder.unshift('distance');
@@ -143,17 +136,11 @@ async function search(folderPath, options = {}) {
 
 	query.select(columnsToSelect);
 	query.orderBy(columnsToOrder);
-	// query.limit(1000);
 
-	LOG.debug('(Knex) Running SQL: ' + query.toString());
 	try {
-		const queryStart = process.hrtime();
-		const rows = (await query);
-		const queryHuman = msToHuman(hrtime(process.hrtime(queryStart)));
-		rows.forEach(function (row) {
+		(await query).forEach(function (row) {
 			result.push(rowToItem(row));
 		});
-		LOG.debug('(Knex) Query took ' + queryHuman + '.', {console: true})
 	} catch (error) {
 		LOG.error('[Knex] Error while searching and processing in "' + folderPath + '": ' + error.message);
 	}
