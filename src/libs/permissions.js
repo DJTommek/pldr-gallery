@@ -161,18 +161,17 @@ exports.test = permissionCheck;
  * @returns {boolean}
  */
 function permissionCheck(permissions, path, fullAccess = false) {
-	let result = false;
-	permissions.some(function (permission) {
-		if (path.indexOf(permission) === 0) {
+	const pathAsDir = pathCustom.join(path + '/');
+	return permissions.some(function (permission) {
+		if (path.startsWith(permission)) {
 			// requested path is fully in perms
-			result = true;
+			return true;
 		}
-		if (fullAccess === false && permission.indexOf(pathCustom.join(path + '/')) === 0) {
+		if (fullAccess === false && permission.startsWith(pathAsDir)) {
 			// show folder, which lead to files saved deeper
-			result = true;
+			return true;
 		}
 	});
-	return result;
 }
 
 /**
