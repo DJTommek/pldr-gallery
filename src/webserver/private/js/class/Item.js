@@ -57,7 +57,7 @@ class FolderItem extends Item {
 	constructor(index, item) {
 		super(index, item);
 		this.isFolder = true;
-		this.icon = (this.icon || (new Icon).FOLDER);
+		this.icon = (this.icon || Icon.FOLDER);
 	}
 
 	/**
@@ -70,7 +70,7 @@ class FolderItem extends Item {
 		let result = {
 			path: this.path
 		};
-		if (this.icon !== (new Icon).FOLDER) {
+		if (this.icon !== Icon.FOLDER) {
 			result.icon = this.icon;
 		}
 		if (this.text !== this.paths.last()) {
@@ -113,7 +113,7 @@ class FileItem extends Item {
 			if (mapperData && mapperData.icon) {
 				this.icon = mapperData.icon;
 			} else {
-				this.icon = (new Icon).FILE;
+				this.icon = Icon.FILE;
 			}
 		}
 		this.coordLat = item.coordLat;
@@ -181,7 +181,7 @@ class FileItem extends Item {
 			created: this.created,
 		};
 
-		if ((new Icon).DEFAULT_FILES.inArray(this.icon) === false) {
+		if (Icon.DEFAULT_FILES.inArray(this.icon) === false) {
 			result.icon = this.icon;
 		}
 		if (this.text !== this.paths.last()) {

@@ -140,7 +140,7 @@ class Structure {
 		let self = this;
 		if (item) {
 			// Override default action with force refresh - cancel searching
-			if (item.icon === (new Icon).CLOSE_SEARCHING) {
+			if (item.icon === Icon.CLOSE_SEARCHING) {
 				loadStructure(true, function () {
 					self.selectorMove();
 				});

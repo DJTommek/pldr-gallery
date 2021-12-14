@@ -20,7 +20,7 @@ module.exports = function (webserver, endpoint) {
 					path: res.locals.path,
 					noFilter: true,
 					text: 'Zavřít vyhledávání',
-					icon: (new Icon).CLOSE_SEARCHING,
+					icon: Icon.CLOSE_SEARCHING,
 				}],
 				files: []
 			};

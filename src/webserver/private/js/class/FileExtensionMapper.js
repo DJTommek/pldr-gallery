@@ -33,122 +33,122 @@ class FileExtensionMapper {
 		this.images = {
 			apng: {
 				'mediaType': 'image/apng',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 			},
 			bmp: {
 				'mediaType': 'image/bmp',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 			},
 			gif: {
 				'mediaType': 'image/gif',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 			},
 			ico: {
 				'mediaType': 'image/x-icon',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 			},
 			cur: {
 				'mediaType': 'image/x-icon',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 			},
 			jpg: {
 				'mediaType': 'image/jpeg',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 				'exifBuffer': 65527
 			},
 			jpeg: {
 				'mediaType': 'image/jpeg',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 				'exifBuffer': 65527
 			},
 			jfif: {
 				'mediaType': 'image/jpeg',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 				'exifBuffer': 65527
 			},
 			pjpeg: {
 				'mediaType': 'image/jpeg',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 				'exifBuffer': 65527
 			},
 			pjp: {
 				'mediaType': 'image/jpeg',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 				'exifBuffer': 65527
 			},
 			png: {
 				'mediaType': 'image/png',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 				'exifBuffer': 150000
 			},
 			svg: {
 				'mediaType': 'image/svg+xml',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 			},
 			webp: {
 				'mediaType': 'image/webp',
-				'icon': (new Icon).IMAGE,
+				'icon': Icon.IMAGE,
 			},
 		};
 		// loading into <video> tag
 		this.videos = {
 			mp4: {
 				'mediaType': 'video/mp4',
-				'icon': (new Icon).VIDEO,
+				'icon': Icon.VIDEO,
 			},
 			mov: {
 				'mediaType': 'video/mp4',
-				'icon': (new Icon).VIDEO,
+				'icon': Icon.VIDEO,
 			},
 			webm: {
 				'mediaType': 'video/webm',
-				'icon': (new Icon).VIDEO,
+				'icon': Icon.VIDEO,
 			},
 			ogv: {
 				'mediaType': 'video/ogg',
-				'icon': (new Icon).VIDEO,
+				'icon': Icon.VIDEO,
 			},
 		};
 		// loading into <audio> tag
 		this.audios = {
 			mp3: {
 				'mediaType': 'audio/mpeg',
-				'icon': (new Icon).AUDIO,
+				'icon': Icon.AUDIO,
 			},
 			wav: {
 				'mediaType': 'audio/wav',
-				'icon': (new Icon).AUDIO,
+				'icon': Icon.AUDIO,
 			},
 			ogg: {
 				'mediaType': 'audio/ogg',
-				'icon': (new Icon).AUDIO,
+				'icon': Icon.AUDIO,
 			},
 		};
 		// allowing to download
 		this.downloads = {
 			zip: {
-				icon: (new Icon).ARCHIVE,
+				icon: Icon.ARCHIVE,
 			},
 			zip64: {
-				icon: (new Icon).ARCHIVE,
+				icon: Icon.ARCHIVE,
 			},
 			'7z': {
-				icon: (new Icon).ARCHIVE,
+				icon: Icon.ARCHIVE,
 			},
 			rar: {
-				icon: (new Icon).ARCHIVE,
+				icon: Icon.ARCHIVE,
 			},
 			gz: {
-				icon: (new Icon).ARCHIVE,
+				icon: Icon.ARCHIVE,
 			},
 			pdf: {
-				'icon': (new Icon).PDF
+				'icon': Icon.PDF
 			}, doc: {}, docx: {}, xls: {}, xlsx: {},
 			avi: { // video but can't be played in browser
-				'icon': (new Icon).VIDEO,
+				'icon': Icon.VIDEO,
 			},
 			mpg: { // video but can't be played in browser
-				'icon': (new Icon).VIDEO,
+				'icon': Icon.VIDEO,
 			},
 		};
 		this.all = {...this.images, ...this.videos, ...this.audios, ...this.downloads};

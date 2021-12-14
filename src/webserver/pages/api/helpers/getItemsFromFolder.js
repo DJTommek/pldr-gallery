@@ -230,6 +230,6 @@ function generateGoBackFolderItem(requestedPath) {
 		path: generateGoBackPath(requestedPath),
 		text: '..',
 		noFilter: true,
-		icon: (new Icon).FOLDER_GO_BACK,
+		icon: Icon.FOLDER_GO_BACK,
 	});
 }

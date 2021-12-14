@@ -709,7 +709,7 @@ function mapInfoWindowImageLoaded() {
 }
 
 function mapInfoWindowImageError() {
-	$('#map-info-window .thumbnail-loading-icon').removeClass('fa-circle-o-notch fa-spin').addClass('fa-' + (new Icon).IMAGE);
+	$('#map-info-window .thumbnail-loading-icon').removeClass('fa-circle-o-notch fa-spin').addClass('fa-' + Icon.IMAGE);
 }
 
 function popupOpen() {
