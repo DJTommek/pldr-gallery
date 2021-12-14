@@ -103,13 +103,13 @@ class FileItem extends Item {
 		super(index, item);
 		this.isFile = true;
 		this.ext = this.paths.last().split('.').last().toLowerCase();
-		this.isImage = ((new FileExtensionMapper).getImage(this.ext) !== null);
-		this.isVideo = ((new FileExtensionMapper).getVideo(this.ext) !== null);
-		this.isAudio = ((new FileExtensionMapper).getAudio(this.ext) !== null);
+		this.isImage = (FileExtensionMapperInstance.getImage(this.ext) !== null);
+		this.isVideo = (FileExtensionMapperInstance.getVideo(this.ext) !== null);
+		this.isAudio = (FileExtensionMapperInstance.getAudio(this.ext) !== null);
 		if (item.icon) {
 			this.icon = item.icon;
 		} else {
-			const mapperData = (new FileExtensionMapper).get(this.ext);
+			const mapperData = FileExtensionMapperInstance.get(this.ext);
 			if (mapperData && mapperData.icon) {
 				this.icon = mapperData.icon;
 			} else {

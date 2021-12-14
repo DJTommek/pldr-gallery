@@ -194,10 +194,10 @@ function getDataFromExifFromFile(fullPath) {
 	if (PATH.isAbsolute(fullPath) === false) {
 		throw new Error('Parameter "fullPath" must be absolute path but "' + fullPath + '" given.')
 	}
-	if (fullPath.match((new FileExtensionMapper).regexExif) === null) {
+	if (fullPath.match(FileExtensionMapperInstance.regexExif) === null) {
 		throw new Error('This file extension is not allowed to load EXIF data from.');
 	}
-	const extData = (new FileExtensionMapper).get(pathCustom.extname(fullPath));
+	const extData = FileExtensionMapperInstance.get(pathCustom.extname(fullPath));
 	if (extData === undefined || typeof extData.exifBuffer !== 'number') {
 		throw new Error('This file extension has not defined EXIF buffer.');
 	}
@@ -244,7 +244,7 @@ module.exports.getDataFromExifFromFile = getDataFromExifFromFile;
  */
 function detectMimeType(absolutePath) {
 	const ext = pathCustom.extname(absolutePath);
-	const extData = (new FileExtensionMapper).get(ext);
+	const extData = FileExtensionMapperInstance.get(ext);
 	return (extData && extData.mediaType) ? extData.mediaType : null;
 }
 

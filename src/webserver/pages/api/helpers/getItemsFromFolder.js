@@ -50,7 +50,7 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 				if (perms.test(permissions, dynamicPath) === false) {
 					return;
 				}
-				if (dynamicPath.match((new FileExtensionMapper).regexAll) === null) {
+				if (dynamicPath.match(FileExtensionMapperInstance.regexAll) === null) {
 					return;
 				}
 				filesLimitCount++;
@@ -114,7 +114,7 @@ module.exports.itemsDb = function (requestedPath, fullPath, permissions, options
 	function filterPathItems(pathItem) {
 		if (perms.test(permissions, pathItem.path) === false) {
 			return false;
-		} else if (pathItem.isFile && pathItem.path.match((new FileExtensionMapper).regexAll) === null) {
+		} else if (pathItem.isFile && pathItem.path.match(FileExtensionMapperInstance.regexAll) === null) {
 			return false;
 		} else {
 			return true;

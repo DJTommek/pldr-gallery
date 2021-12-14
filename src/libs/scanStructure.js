@@ -54,7 +54,7 @@ async function scan(absolutePath, options = {}) {
 				realEntryItem = FS.statSync(entry.fullPath);
 			}
 
-			if (realEntryItem.isFile() && entry.basename.match((new FileExtensionMapper).regexAll) === null) {
+			if (realEntryItem.isFile() && entry.basename.match(FileExtensionMapperInstance.regexAll) === null) {
 				continue; // file has invalid extension
 			}
 

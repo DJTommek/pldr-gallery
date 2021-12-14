@@ -20,7 +20,7 @@ module.exports = function (webserver, endpoint) {
 			if (!res.locals.fullPathFile) {
 				throw new Error('Invalid path or you dont have a permission.');
 			}
-			const extensionData = (new FileExtensionMapper).getImage(pathCustom.extname(res.locals.fullPathFile));
+			const extensionData = FileExtensionMapperInstance.getImage(pathCustom.extname(res.locals.fullPathFile));
 			if (!extensionData) {
 				throw new Error('File does not appear to be an image.');
 			}

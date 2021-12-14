@@ -157,8 +157,11 @@ class FileExtensionMapper {
 	}
 }
 
+const FileExtensionMapperInstance = new FileExtensionMapper();
+
 /**
  * This file is used also in nodejs backend, so these classes must be defined in "global"
  */
 global = (typeof global === 'undefined') ? {} : global;
 global.FileExtensionMapper = FileExtensionMapper;
+global.FileExtensionMapperInstance = FileExtensionMapperInstance;

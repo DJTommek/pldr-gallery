@@ -21,9 +21,9 @@ module.exports = function (webserver, endpointPath) {
 				throw new Error('File cannot be streamed because of missing media type.');
 			}
 			const ext = pathCustom.extname(res.locals.fullPathFile);
-			if (req.path === '/api/video' && !(new FileExtensionMapper).getVideo(ext)) {
+			if (req.path === '/api/video' && !FileExtensionMapperInstance.getVideo(ext)) {
 				throw new Error('File do not have file extension of video');
-			} else if (req.path === '/api/audio' && !(new FileExtensionMapper).getAudio(ext)) {
+			} else if (req.path === '/api/audio' && !FileExtensionMapperInstance.getAudio(ext)) {
 				throw new Error('File do not have file extension of audio');
 			}
 			const fileSize = FS.statSync(res.locals.fullPathFile).size;

@@ -37,7 +37,7 @@ function isPermisionValid(permission) {
 	let permissionToCheck = permission;
 	if (permission.endsWith('/')) {
 		// folder
-	} else if (permission.match((new FileExtensionMapper).regexAll)) {
+	} else if (permission.match(FileExtensionMapperInstance.regexAll)) {
 		// file
 	} else if (PATH.basename(permission) === 'header.html') {
 		// header
