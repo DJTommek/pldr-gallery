@@ -174,6 +174,16 @@ async function createTables() {
 			} catch (error) {
 				console.error('(Knex) Error while adding column "level" to table "' + CONFIG.db.table.structure + '": ' + error);
 			}
+			try {
+				// Add column "coordinates", which is generated - not supported in Knex library, so we have to update table manually
+				const query = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN coordinates POINT GENERATED ALWAYS AS (POINT(coordinate_lon, coordinate_lat)) STORED;'
+				await knex.schema.raw(query).then(function (result) {
+					console.log(result);
+				});
+				console.log('(Knex) Added column "coordinates" to table "' + CONFIG.db.table.structure + '".');
+			} catch (error) {
+				console.error('(Knex) Error while adding column "coordinates" to table "' + CONFIG.db.table.structure + '": ' + error);
+			}
 		});
 	} catch (error) {
 		console.error('(Knex) Error while creating table "' + CONFIG.db.table.structure + '": ' + error);
