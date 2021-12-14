@@ -56,7 +56,7 @@ module.exports = function (webserver, endpoint) {
 			LOG.info(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
 			res.result.setResult(finds, 'Done in ' + humanTime).end();
 		} catch (error) {
-			LOG.error(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
+			LOG.error('Error while searching: ' + error.message);
 			res.result.setError('Error while searching: ' + error.message).end();
 		}
 	});
