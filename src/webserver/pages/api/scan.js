@@ -26,15 +26,24 @@ module.exports = function (webserver, endpoint) {
 			return;
 		}
 
+		const scanOptions = {stat: false, exif: false};
+		let scanType = 'Fast';
+		if (req.query.deep !== undefined) {
+			scanType = 'Deep';
+			scanOptions.stat = true;
+			scanOptions.exif = true;
+		}
+
 		// noinspection ES6MissingAwait (intentionally missing await to send response to user within few seconds)
-		scanStructure.scan(res.locals.fullPathFolder, {stat: false, exif: false});
+		scanStructure.scan(res.locals.fullPathFolder, scanOptions);
 
 		// Wait a while until scan is finished. If is taking too long, response with default message.
-		let responseText = 'Scanning for directory "<b>' + res.locals.queryPath + '</b>" has started.';
+		const responseTextDefault = '<b>' + scanType + '</b> scan of directory "<b>' + res.locals.queryPath + '</b>" ';
+		let responseText = responseTextDefault + ' has started.';
 		let i = 0;
 		const scanCheckInterval = setInterval(function () {
 			if (scanStructure.scanning === false) {
-				responseText = 'Directory "<b>' + res.locals.queryPath + '</b>" was rescanned.';
+				responseText = responseTextDefault + ' has been finished.';
 			}
 			if (i++ > 5 || scanStructure.scanning === false) {
 				clearInterval(scanCheckInterval);
