@@ -938,9 +938,17 @@ function loadThumbnail() {
 
 		// prioritize items, that are hovered with mouse
 		if (loadedStructure.hoveredStructureItemElement) {
-			thumbnailToLoad = loadedStructure.hoveredStructureItemElement.children('.thumbnail');
-			if (thumbnailToLoad.hasClass('thumbnail-not-loaded') === false) {
-				thumbnailToLoad = null;
+			const hoveredItemThumbnail = loadedStructure.hoveredStructureItemElement.children('.thumbnail');
+			if (hoveredItemThumbnail.hasClass('thumbnail-not-loaded')) {
+				thumbnailToLoad = hoveredItemThumbnail;
+			}
+		}
+
+		// prioritize items, that are selected in structure
+		if (thumbnailToLoad === null) {
+			const selectedItemThumbnail = $('.item-index-' + S.selectedIndex).children('.thumbnail');
+			if (selectedItemThumbnail.hasClass('thumbnail-not-loaded')) {
+				thumbnailToLoad = selectedItemThumbnail;
 			}
 		}
 
