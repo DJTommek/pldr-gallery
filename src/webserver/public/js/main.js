@@ -6,6 +6,7 @@ const loadedStructure = {
 	filtering: false,
 	flashIndex: 0, // incremental index used for flashMessage()
 	request: null, // AJAX request structure object
+	hoveredStructureItemElement: null,
 };
 const mapDataStructure = {
 	map: null,
@@ -700,6 +701,10 @@ $(function () {
 		const itemIndex = $('#map-info-window').data('item-index');
 		S.selectorMove(itemIndex);
 		S.selectorSelect();
+	}).on('mouseenter', '.structure-item', function() {
+		loadedStructure.hoveredStructureItemElement = $(this);
+	}).on('mouseleave', '.structure-item', function() {
+		loadedStructure.hoveredStructureItemElement = null;
 	});
 });
 
@@ -932,10 +937,14 @@ function loadThumbnail() {
 		let thumbnailToLoad = null;
 
 		// prioritize items, that are hovered with mouse
-		thumbnailToLoad = thumbnailsNotLoaded.filter(function () {
-			return $(this).parent('.structure-item').is(':hover');
-		}).first();
-		if (thumbnailToLoad.length === 0) {
+		if (loadedStructure.hoveredStructureItemElement) {
+			thumbnailToLoad = loadedStructure.hoveredStructureItemElement.children('.thumbnail');
+			if (thumbnailToLoad.hasClass('thumbnail-not-loaded') === false) {
+				thumbnailToLoad = null;
+			}
+		}
+
+		if (thumbnailToLoad === null) {
 			// prioritize items, that are visible in viewport
 			thumbnailToLoad = thumbnailsNotLoaded.filter(function () {
 				return isElementInView(this, true);
