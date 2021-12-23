@@ -26,7 +26,8 @@ module.exports = function (webserver, endpoint) {
 			return;
 		}
 
-		scanStructure.scan(res.locals.fullPathFolder, {stat: false, exif: false}); // intentionally missing await
+		// noinspection ES6MissingAwait (intentionally missing await to send response to user within few seconds)
+		scanStructure.scan(res.locals.fullPathFolder, {stat: false, exif: false});
 
 		// Wait a while until scan is finished. If is taking too long, response with default message.
 		let responseText = 'Scanning for directory "<b>' + res.locals.queryPath + '</b>" has started.';
