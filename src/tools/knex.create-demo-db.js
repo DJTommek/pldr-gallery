@@ -199,6 +199,7 @@ async function purgeData() {
 			.dropTableIfExists(CONFIG.db.table.user_group)
 			.dropTableIfExists(CONFIG.db.table.user)
 			.dropTableIfExists(CONFIG.db.table.group)
+			.dropTableIfExists(CONFIG.db.table.structure)
 		console.log('(Knex) Data purged');
 	} catch (error) {
 		console.error('(Knex) Error while removing tables: ' + error.message);
