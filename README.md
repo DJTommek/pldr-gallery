@@ -7,16 +7,23 @@ https://pldr-gallery.redilap.cz/
 This exact demo is included in the source code, just follow Installation instructions.
 
 ## Requirements
-Installed **Node.js 12.14.1+**  
-Note: it should work with version 10, but some functions such as searching might not work as expected.
+- Node.js (currently developed with Node.js 16.13.1)
+- MySQL / MariaDB (currently developed with MariaDB 10.6.5)
+
+It might work with little bit older versions, try it.
 
 ## Installation
 1. Clone [DJTommek/pldr-gallery](https://github.com/DJTommek/pldr-gallery) repository
-1. Run `npm install`
-1. Run `node index.js`
-1. Open http://localhost:3000/
 
-Detailed info about installation you can find on [install page](docs/install.md).<br>
+2. Run `npm install`
+   - if creating database fails, go to next step, update database connection details (in `config.db.knex.connection.*`) and run this command again.
+
+3. Update newly generated `data/config.local.js` file
+
+4. Run `node index.js`
+
+5. Open http://localhost:3000/
+
 [Docker](https://docker.io/) is fully supported, see [this page](docs/docker.md) for more info.
 
 ## Features
