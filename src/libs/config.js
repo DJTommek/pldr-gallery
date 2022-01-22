@@ -304,8 +304,4 @@ if (!PATH.isAbsolute(CONFIG.path)) {
 	errorExit('ERROR: Path has to be absolute.');
 }
 
-if (CONFIG.db.knex.client === 'sqlite3') {
-	CONFIG.db.knex.connection.filename = pathCustom.join(CONFIG.db.knex.connection.filename);
-}
-
 module.exports = CONFIG;
