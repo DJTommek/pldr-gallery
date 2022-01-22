@@ -49,7 +49,7 @@ async function loadByPath(folderPath, options = {}) {
 			result.push(rowToItem(row));
 		});
 	} catch (error) {
-		LOG.error('[Knex] Error while loading and processing in "' + fullPath + '": ' + error.message);
+		LOG.error('[Knex] Error while loading and processing in "' + folderPath + '": ' + error.message);
 	}
 	LOG.debug('(Knex) Loading structure took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
 	return result;
