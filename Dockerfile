@@ -1,6 +1,5 @@
-FROM node:16
+FROM node:16-bullseye
 WORKDIR /app
-COPY package.json /app
-RUN npm install --production
 COPY . /app
+RUN npm install --production
 CMD ["node", "index.js"]
