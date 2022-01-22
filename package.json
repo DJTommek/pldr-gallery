@@ -30,6 +30,7 @@
 		"knex": "^0.95.2",
 		"less-middleware": "^3.1.0",
 		"lodash.merge": "^4.6.2",
+		"mysql": "^2.18.1",
 		"node-pldr-utils": "git+https://github.com/DJTommek/node-pldr-utils.git#1.0.1",
 		"readdirp": "^3.6.0",
 		"server-timing": "^3.3.1",
