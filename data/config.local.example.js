@@ -21,21 +21,14 @@ module.exports = {
 		}
 	},
 	db: {
-		// Database for saving permissions (in future probably more data)
-		// Default is the simplest in-file sqlite3
+		// Database for saving permissions, file and folder structure and more
 		knex: {
-			client: 'sqlite3',
 			connection: {
-				filename: __dirname + '/pldr-gallery.sqlite',
+				host: '127.0.0.1',
+				user: 'pldrgallery',
+				password: '',
+				database: 'pldrgallery',
 			},
-			// If you want to use other database server, like MySQL (MariaDB), use this example:
-			// client: 'mysql',
-			// connection: {
-			// 	host: '127.0.0.1',
-			// 	user: 'pldrgallery',
-			// 	password: '',
-			// 	database: 'pldrgallery',
-			// },
 		},
 	},
 
