@@ -91,7 +91,7 @@ let CONFIG = {
 	 */
 	structure: {
 		scan: {
-			enable: false,
+			enable: true,
 			depth: 20,
 			// To prevent 100% allocating system resources while scanning, wait a while before processing another item.
 			// Otherwise it would block other processes as responding to API requests which would lead to users waiting
@@ -105,7 +105,7 @@ let CONFIG = {
 				cron: '10 */5 * * * *', // every 5 minutes.
 			},
 			deep: { // Deep scan updates file and folder structure including file metadata and EXIF, which is significantly slower
-				onStart: true, // if fast.onStart is enabled, deepscan will run once fastscan is completed
+				onStart: false, // if fast.onStart is enabled, deepscan will run once fastscan is completed
 				// Interval should be higher, than how long it takes to run quick scan.
 				// Should be planned to start, when fastscan is not running.
 				cron: '0 0 4 * * *', // every day at 04:00:00
@@ -210,9 +210,13 @@ let CONFIG = {
 		 * @see http://knexjs.org/#Installation-node
 		 */
 		knex: {
-			client: 'sqlite3',
+			client: 'mysql',
 			connection: {
-				filename: './data/pldr-gallery.sqlite',
+				host: '127.0.0.1',
+				port: 3306,
+				user: 'root',
+				password: '',
+				database: 'pldrgallery',
 			},
 			useNullAsDefault: true,
 		},
