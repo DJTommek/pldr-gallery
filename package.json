@@ -36,7 +36,6 @@
 		"server-timing": "^3.3.1",
 		"sha1": "^1.1.1",
 		"sharp": "^0.27.2",
-		"sqlite3": "^5.0.2",
 		"terser": "^5.6.1"
 	},
 	"devDependencies": {
