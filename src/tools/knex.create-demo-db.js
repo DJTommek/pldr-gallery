@@ -16,16 +16,10 @@ const perms = require('../libs/permissions.js');
  */
 module.exports.run = async function run(purge = false, insertDemoData = true) {
 	console.log('(Knex) Starting creating demo database...');
-	if ((await checkIfTablesExists()) === true) {
-		console.log('(Knex) At least one table exists.');
-		if (purge === true) {
-			console.log('(Knex) Database purge is set to true, purging...');
-			await purgeData();
-			console.log('(Knex) Purge completed, continuing...');
-		} else {
-			console.log('(Knex) Database purge is set to false, quitting script.');
-			return exit();
-		}
+	if (purge === true) {
+		console.log('(Knex) Database purge is set to true, purging...');
+		await purgeData();
+		console.log('(Knex) Purge completed, continuing...');
 	}
 	await createTables();
 	if (insertDemoData === true) {
@@ -40,151 +34,156 @@ async function exit() {
 	console.log('(Knex) Disconnected from database.');
 }
 
-/**
- * Get list of tables
- *
- * @TODO currently sqlite3 only, add support at least for mysql
- * @author https://github.com/knex/knex/issues/360#issuecomment-68387974
- * @return {Promise<boolean>}
- */
-async function checkIfTablesExists() {
-	return await knex.schema.raw('SELECT name FROM sqlite_master WHERE type=\'table\';').then(function (tables) {
-		const tableNames = [];
-		tables.forEach(function (table) {
-			tableNames.push(table.name);
-		});
-
-		let tablesExists = false;
-		for (const configTable in CONFIG.db.table) {
-			if (tableNames.inArray(CONFIG.db.table[configTable]) === true) {
-				tablesExists = true;
-			}
-		}
-		return tablesExists;
-	});
-}
-
 async function createTables() {
 	try {
-		console.log('(Knex) Creating table "' + CONFIG.db.table.user + '"...');
-		await knex.schema.createTable(CONFIG.db.table.user, function (table) {
-			table.increments('id');
-			table.string('email');
-		});
-		console.log('(Knex) Created table "' + CONFIG.db.table.user + '".');
+		if (await knex.schema.hasTable(CONFIG.db.table.user) === false) {
+			console.log('(Knex) Creating table "' + CONFIG.db.table.user + '"...');
+			await knex.schema.createTable(CONFIG.db.table.user, function (table) {
+				table.increments('id');
+				table.string('email');
+			});
+			console.log('(Knex) Created table "' + CONFIG.db.table.user + '".');
+		} else {
+			console.log('(Knex) Table "' + CONFIG.db.table.user + '" already exists, skipping...');
+		}
 	} catch (error) {
 		console.error('(Knex) Error while creating table "' + CONFIG.db.table.user + '": ' + error);
 	}
+
 	try {
-		console.log('(Knex) Creating table "' + CONFIG.db.table.group + '"...');
-		await knex.schema.createTable(CONFIG.db.table.group, function (table) {
-			table.increments('id');
-			table.string('name');
-		})
-		console.log('(Knex) Created table "' + CONFIG.db.table.group + '".');
+		if (await knex.schema.hasTable(CONFIG.db.table.group) === false) {
+			console.log('(Knex) Creating table "' + CONFIG.db.table.group + '"...');
+			await knex.schema.createTable(CONFIG.db.table.group, function (table) {
+				table.increments('id');
+				table.string('name');
+			})
+			console.log('(Knex) Created table "' + CONFIG.db.table.group + '".');
+		} else {
+			console.log('(Knex) Table "' + CONFIG.db.table.group + '" already exists, skipping...');
+		}
 	} catch (error) {
 		console.error('(Knex) Error while creating table "' + CONFIG.db.table.group + '": ' + error);
 	}
+
 	try {
-		console.log('(Knex) Creating table "' + CONFIG.db.table.password + '"...');
-		await knex.schema.createTable(CONFIG.db.table.password, function (table) {
-			table.increments('id');
-			table.string('password');
-		})
-		console.log('(Knex) Created table "' + CONFIG.db.table.password + '".');
+		if (await knex.schema.hasTable(CONFIG.db.table.password) === false) {
+			console.log('(Knex) Creating table "' + CONFIG.db.table.password + '"...');
+			await knex.schema.createTable(CONFIG.db.table.password, function (table) {
+				table.increments('id');
+				table.string('password');
+			})
+			console.log('(Knex) Created table "' + CONFIG.db.table.password + '".');
+		} else {
+			console.log('(Knex) Table "' + CONFIG.db.table.password + '" already exists, skipping...');
+		}
 	} catch (error) {
 		console.error('(Knex) Error while creating table "' + CONFIG.db.table.password + '": ' + error);
 	}
+
 	try {
-		console.log('(Knex) Creating table "' + CONFIG.db.table.user_group + '"...');
-		await knex.schema.createTable(CONFIG.db.table.user_group, function (table) {
-			table
-				.integer('user_id')
-				.unsigned()
-				.notNullable()
-				.references(CONFIG.db.table.user + '.id');
-			table
-				.integer('group_id')
-				.unsigned()
-				.notNullable()
-				.references(CONFIG.db.table.group + '.id');
-		})
-		console.log('(Knex) Created table "' + CONFIG.db.table.user_group + '".');
+		if (await knex.schema.hasTable(CONFIG.db.table.user_group) === false) {
+			console.log('(Knex) Creating table "' + CONFIG.db.table.user_group + '"...');
+			await knex.schema.createTable(CONFIG.db.table.user_group, function (table) {
+				table
+					.integer('user_id')
+					.unsigned()
+					.notNullable()
+					.references(CONFIG.db.table.user + '.id');
+				table
+					.integer('group_id')
+					.unsigned()
+					.notNullable()
+					.references(CONFIG.db.table.group + '.id');
+			})
+			console.log('(Knex) Created table "' + CONFIG.db.table.user_group + '".');
+		} else {
+			console.log('(Knex) Table "' + CONFIG.db.table.user_group + '" already exists, skipping...');
+		}
 	} catch (error) {
 		console.error('(Knex) Error while creating table "' + CONFIG.db.table.user_group + '": ' + error);
 	}
+
 	try {
-		console.log('(Knex) Creating table "' + CONFIG.db.table.permission + '"...');
-		await knex.schema.createTable(CONFIG.db.table.permission, function (table) {
-			table.increments('id');
-			table
-				.integer('user_id')
-				.unsigned()
-				.references(CONFIG.db.table.user + '.id');
-			table
-				.integer('group_id')
-				.unsigned()
-				.references(CONFIG.db.table.group + '.id');
-			table
-				.integer('password_id')
-				.unsigned()
-				.references(CONFIG.db.table.password + '.id');
-			table
-				.string('permission')
-		})
-		console.log('(Knex) Created table "' + CONFIG.db.table.permission + '".');
+		if (await knex.schema.hasTable(CONFIG.db.table.permission) === false) {
+			console.log('(Knex) Creating table "' + CONFIG.db.table.permission + '"...');
+			await knex.schema.createTable(CONFIG.db.table.permission, function (table) {
+				table.increments('id');
+				table
+					.integer('user_id')
+					.unsigned()
+					.references(CONFIG.db.table.user + '.id');
+				table
+					.integer('group_id')
+					.unsigned()
+					.references(CONFIG.db.table.group + '.id');
+				table
+					.integer('password_id')
+					.unsigned()
+					.references(CONFIG.db.table.password + '.id');
+				table
+					.string('permission')
+			})
+			console.log('(Knex) Created table "' + CONFIG.db.table.permission + '".');
+		} else {
+			console.log('(Knex) Table "' + CONFIG.db.table.permission + '" already exists, skipping...');
+		}
 	} catch (error) {
 		console.error('(Knex) Error while creating table "' + CONFIG.db.table.permission + '": ' + error);
 	}
+
 	try {
-		console.log('(Knex) Creating table "' + CONFIG.db.table.structure + '"...');
-		await knex.schema.createTable(CONFIG.db.table.structure, async function (table) {
-			table.increments('id');
-			table
-				.string('path', 191) // 191 is max for servers with limit 765 characters (UTF-8 string is taking 4 characters instead of 1)
-				.unique('path')
-				.notNullable();
-			table
-				.integer('type', 1)
-				.notNullable()
-				.unsigned()
-				.index();
-			table
-				.bigInteger('created')
-				.unsigned();
-			table
-				.integer('size')
-				.unsigned();
-			table
-				.float('coordinate_lat', 10, 6);
-			table
-				.float('coordinate_lon', 10, 6);
-			table
-				.bigInteger('scanned')
-				.notNullable()
-				.unsigned();
-			console.log('(Knex) Created table "' + CONFIG.db.table.structure + '".');
-			try {
-				// Add column "level", which is generated - not supported in Knex library, so we have to update table manually
-				const query = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN level int AS (LENGTH(TRIM(TRAILING \'/\' FROM path)) - LENGTH(REPLACE(TRIM(TRAILING \'/\' FROM path), \'/\', \'\'))) STORED, ADD INDEX level;'
-				await knex.schema.raw(query).then(function (result) {
-					console.log(result);
-				});
-				console.log('(Knex) Added column "level" to table "' + CONFIG.db.table.structure + '".');
-			} catch (error) {
-				console.error('(Knex) Error while adding column "level" to table "' + CONFIG.db.table.structure + '": ' + error);
-			}
-			try {
-				// Add column "coordinates", which is generated - not supported in Knex library, so we have to update table manually
-				const query = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN coordinates POINT GENERATED ALWAYS AS (POINT(coordinate_lon, coordinate_lat)) STORED;'
-				await knex.schema.raw(query).then(function (result) {
-					console.log(result);
-				});
-				console.log('(Knex) Added column "coordinates" to table "' + CONFIG.db.table.structure + '".');
-			} catch (error) {
-				console.error('(Knex) Error while adding column "coordinates" to table "' + CONFIG.db.table.structure + '": ' + error);
-			}
-		});
+		if (await knex.schema.hasTable(CONFIG.db.table.structure) === false) {
+			console.log('(Knex) Creating table "' + CONFIG.db.table.structure + '"...');
+			await knex.schema.createTable(CONFIG.db.table.structure, async function (table) {
+				table.increments('id');
+				table
+					.string('path', 191) // 191 is max for servers with limit 765 characters (UTF-8 string is taking 4 characters instead of 1)
+					.unique('path')
+					.notNullable();
+				table
+					.integer('type', 1)
+					.notNullable()
+					.unsigned()
+					.index();
+				table
+					.bigInteger('created')
+					.unsigned();
+				table
+					.integer('size')
+					.unsigned();
+				table
+					.float('coordinate_lat', 10, 6);
+				table
+					.float('coordinate_lon', 10, 6);
+				table
+					.bigInteger('scanned')
+					.notNullable()
+					.unsigned();
+				console.log('(Knex) Created table "' + CONFIG.db.table.structure + '".');
+				try {
+					// Add column "level", which is generated - not supported in Knex library, so we have to update table manually
+					const query1 = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN level int AS (LENGTH(TRIM(TRAILING \'/\' FROM path)) - LENGTH(REPLACE(TRIM(TRAILING \'/\' FROM path), \'/\', \'\'))) STORED'
+					await knex.schema.raw(query1);
+					console.log('(Knex) Added generated column "level" to table "' + CONFIG.db.table.structure + '".');
+
+					const query2 = 'CREATE INDEX ' + CONFIG.db.table.structure + '_level ON ' + CONFIG.db.table.structure + ' (level)';
+					await knex.schema.raw(query2);
+					console.log('(Knex) Created index on generated column "level" to table "' + CONFIG.db.table.structure + '".');
+				} catch (error) {
+					console.error('(Knex) Error while adding column "level" to table "' + CONFIG.db.table.structure + '": ' + error);
+				}
+				try {
+					// Add column "coordinates", which is generated - not supported in Knex library, so we have to update table manually
+					const query = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN coordinates POINT GENERATED ALWAYS AS (POINT(coordinate_lon, coordinate_lat)) STORED;'
+					await knex.schema.raw(query);
+					console.log('(Knex) Added generated column "coordinates" to table "' + CONFIG.db.table.structure + '".');
+				} catch (error) {
+					console.error('(Knex) Error while adding column "coordinates" to table "' + CONFIG.db.table.structure + '": ' + error);
+				}
+			});
+		} else {
+			console.log('(Knex) Table "' + CONFIG.db.table.structure + '" already exists, skipping...');
+		}
 	} catch (error) {
 		console.error('(Knex) Error while creating table "' + CONFIG.db.table.structure + '": ' + error);
 	}
