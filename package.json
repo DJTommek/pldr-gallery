@@ -5,7 +5,6 @@
 	"main": "index.js",
 	"scripts": {
 		"preversion": "npm test",
-		"postinstall": "node postinstall.js",
 		"start": "node index.js",
 		"test": "mocha --exit --delay"
 	},

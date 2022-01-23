@@ -6,6 +6,7 @@ const CONFIG = require('../libs/config.js');
 const knex = require('knex')(CONFIG.db.knex);
 
 const perms = require('../libs/permissions.js');
+const {requestingCmdHelp} = require("../libs/utils/utils");
 
 /**
  * Prepare demo database via Knex according config.
@@ -276,4 +277,20 @@ async function fillDemoData() {
 		{password_id: 4, permission: '/passwords/'},
 	]);
 	console.log('(Knex) DB filled with permissions');
+}
+
+
+if (require.main === module) {
+	const args = process.argv.slice(2);
+	if (requestingCmdHelp(args)) {
+		console.log('Create tables in database if they does not exists.')
+		console.log('List of tables: ' + Object.values(CONFIG.db.table).join(', '))
+		console.log('Optional arguments:')
+		console.log('	--purge			delete existing tables first')
+		console.log('	--demo-data		insert demo data (example users, groups and passwords)')
+	} else {
+		const purge = args.includes('--purge');
+		const demoData = args.includes('--demo-data');
+		module.exports.run(purge, demoData);
+	}
 }

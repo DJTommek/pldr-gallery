@@ -1,5 +1,6 @@
 const FS = require('fs');
 const PATH = require('path');
+const {requestingCmdHelp} = require("../libs/utils/utils");
 const localConfig = PATH.join(__dirname, '../../data/config.local.js');
 const localExampleConfig = PATH.join(__dirname, '../../data/config.local.example.js');
 
@@ -24,9 +25,21 @@ module.exports.run = function (overrideConfig) {
 		}
 	}
 	if (!FS.existsSync(localExampleConfig)) {
-		console.error('Local example config file "' + localConfig + '" is missing. Download it from https://github.com/DJTommek/pldr-gallery/blob/master/data/config.local.example.js');
+		console.error('(Config) Local example config file "' + localConfig + '" is missing. Download it from https://github.com/DJTommek/pldr-gallery/blob/master/data/config.local.example.js');
 		return;
 	}
 	FS.copyFileSync(localExampleConfig, localConfig);
 	console.log('(Config) Local config file was generated, you can edit it now "' + localConfig + '".');
+}
+
+if (require.main === module) {
+	const args = process.argv.slice(2);
+	if (requestingCmdHelp(args)) {
+		console.log('Create config file as /data/config.local.js from "/data/config.local.example.js". Do nothing, if file already exists.')
+		console.log('Optional arguments:')
+		console.log('	--force		if file already exists, will be renamed and new config will be created.')
+	} else {
+		const override = args.includes('--force');
+		module.exports.run(override);
+	}
 }
