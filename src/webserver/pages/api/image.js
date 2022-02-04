@@ -40,7 +40,7 @@ module.exports = function (webserver, endpoint) {
 
 			// if compression is enabled, compress first
 			if (compressData !== false) {
-				imageStream = imageStream.pipe(sharp().resize(compressData));
+				imageStream = imageStream.pipe(sharp().withMetadata().resize(compressData));
 
 				// if thumbnail caching is enabled, save it
 				if (req.query.type === 'thumbnail' && c.thumbnails.image.cache === true) {
