@@ -6,16 +6,6 @@ class FileExtensionMapper {
 		return this.all.hasOwnProperty(ext) ? this.all[ext] : null;
 	}
 
-	getImageExif() {
-		let extensionsData = {};
-		for (const extension in this.images) {
-			if (this.images[extension].exifBuffer) {
-				extensionsData[extension] = this.images[extension];
-			}
-		}
-		return extensionsData;
-	}
-
 	getImage(ext) {
 		return (this.images.hasOwnProperty(ext) ? this.images[ext] : null);
 	}
@@ -54,32 +44,32 @@ class FileExtensionMapper {
 			jpg: {
 				'mediaType': 'image/jpeg',
 				'icon': Icon.IMAGE,
-				'exifBuffer': 65527
+				'metadataBuffer': 65527
 			},
 			jpeg: {
 				'mediaType': 'image/jpeg',
 				'icon': Icon.IMAGE,
-				'exifBuffer': 65527
+				'metadataBuffer': 65527
 			},
 			jfif: {
 				'mediaType': 'image/jpeg',
 				'icon': Icon.IMAGE,
-				'exifBuffer': 65527
+				'metadataBuffer': 65527
 			},
 			pjpeg: {
 				'mediaType': 'image/jpeg',
 				'icon': Icon.IMAGE,
-				'exifBuffer': 65527
+				'metadataBuffer': 65527
 			},
 			pjp: {
 				'mediaType': 'image/jpeg',
 				'icon': Icon.IMAGE,
-				'exifBuffer': 65527
+				'metadataBuffer': 65527
 			},
 			png: {
 				'mediaType': 'image/png',
 				'icon': Icon.IMAGE,
-				'exifBuffer': 150000
+				'metadataBuffer': 150000
 			},
 			svg: {
 				'mediaType': 'image/svg+xml',
@@ -95,6 +85,7 @@ class FileExtensionMapper {
 			mp4: {
 				'mediaType': 'video/mp4',
 				'icon': Icon.VIDEO,
+				'metadataBuffer': true,
 			},
 			mov: {
 				'mediaType': 'video/mp4',
@@ -153,7 +144,15 @@ class FileExtensionMapper {
 		};
 		this.all = {...this.images, ...this.videos, ...this.audios, ...this.downloads};
 		this.regexAll = new RegExp('\\.(' + Object.keys(this.all).join('|') + ')$', 'i');
-		this.regexExif = new RegExp('\\.(' + Object.keys(this.getImageExif()).join('|') + ')$', 'i');
+
+		// Get extensions, that can contain metadata
+		let extensionsData = {};
+		for (const extension in this.all) {
+			if (this.all[extension].metadataBuffer) {
+				extensionsData[extension] = this.all[extension];
+			}
+		}
+		this.regexMetadata = new RegExp('\\.(' + Object.keys(extensionsData).join('|') + ')$', 'i');
 	}
 }
 

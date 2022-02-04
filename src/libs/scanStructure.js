@@ -69,7 +69,7 @@ async function scan(absolutePath, options = {}) {
 				resultItem = new FileItem(null, {path: entryPath});
 				resultItem.size = realEntryItem.size || null;
 				if (options.exif) {
-					const exifData = getCoordsFromExifFromFile(entry.fullPath);
+					const exifData = await getCoordsFromExifFromFile(entry.fullPath);
 					resultItem = Object.assign(resultItem, exifData);
 				}
 				filesCount++;
@@ -96,15 +96,15 @@ async function scan(absolutePath, options = {}) {
 	module.exports.scanning = false;
 }
 
-function getCoordsFromExifFromFile(fullPath) {
+async function getCoordsFromExifFromFile(fullPath) {
 	try {
-		return HFS.getDataFromExifFromFile(fullPath);
+		return await HFS.getDataFromExifFromFile(fullPath);
 	} catch (error) {
 		if (error.message === 'Index out of range') {
 			LOG.warning('Number of bytes is too small buffer for loading EXIF from file "' + fullPath + '".');
 		} else if (error.message === 'Invalid JPEG section offset') {
 			// ignore, probably broken image and/or EXIF data, more info in https://github.com/bwindels/exif-parser/issues/13
-		} else if (error.message === 'This file extension is not allowed to load EXIF data from.') {
+		} else if (error.message === 'This file extension is not allowed to load metadata from.') {
 			// skip loading
 		} else {
 			LOG.error('Error while loading coordinates from EXIF for file "' + fullPath + '": ' + error);

@@ -4,6 +4,7 @@ const pathCustom = require('./path.js');
 const readline = require('readline');
 const LOG = require('./log.js');
 const exifParser = require('exif-parser');
+const ffmpeg = require('fluent-ffmpeg');
 
 /**
  * The same as PATH.dirname but keep trailing /
@@ -189,48 +190,75 @@ function getEndpointPath(filePath) {
 
 module.exports.getEndpointPath = getEndpointPath;
 
-
-function getDataFromExifFromFile(fullPath) {
+/**
+ * Try to load metadata for given file either by:
+ * - processing EXIF (first X bytes of file) typically for image
+ * - loading file metadata via ffmpeg (ffprobe)
+ *
+ * @param {string} fullPath full absolute path to file
+ * @returns {JSON} anonymous object eventually filled with metadata
+ */
+async function getDataFromExifFromFile(fullPath) {
 	if (PATH.isAbsolute(fullPath) === false) {
 		throw new Error('Parameter "fullPath" must be absolute path but "' + fullPath + '" given.')
 	}
-	if (fullPath.match(FileExtensionMapperInstance.regexExif) === null) {
-		throw new Error('This file extension is not allowed to load EXIF data from.');
+	if (fullPath.match(FileExtensionMapperInstance.regexMetadata) === null) {
+		throw new Error('This file extension is not allowed to load metadata from.');
 	}
 	const extData = FileExtensionMapperInstance.get(pathCustom.extname(fullPath));
-	if (extData === undefined || typeof extData.exifBuffer !== 'number') {
-		throw new Error('This file extension has not defined EXIF buffer.');
+	if (extData === undefined) {
+		throw new Error('This file extension has not defined metadata buffer.');
 	}
-
-	// how big in bytes should be buffer for loading EXIF from file (depends on specification)
-	// https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.eXIf
-	// jpeg: 2^16-9 (65 527) bytes = 65.53 KB
-	// png: 2^31-1 (2 147 483 647) bytes  = 2.15 GB
-
-	// create small buffer, fill it with first x bytes from image and parse
-	let exifBuffer = new Buffer.alloc(extData.exifBuffer);
-	const fd = FS.openSync(fullPath, 'r');
-	FS.readSync(fd, exifBuffer, 0, extData.exifBuffer, 0);
-	FS.closeSync(fd);
-	let parsed = exifParser.create(exifBuffer).parse();
 	let result = {}
+	if (extData.metadataBuffer === true) { // process by loading file metadata
+		// convert callback into promise
+		const parsed = await new Promise(function(resolve, reject) {
+			ffmpeg.ffprobe(fullPath, function (error, metadata) {
+				if (error) {
+					reject(error)
+				} else {
+					resolve(metadata);
+				}
+			});
+		});
+		if (parsed.format.tags.location) {
+			// @TODO currently works only for +/+ and needs to be updated for other hemispheres (+/-, -/+ and -/-)
+			const matches = parsed.format.tags.location.match(/\+([0-9]{1,2}\.[0-9]+)\+([0-9]{1,3}\.[0-9]+)/);
+			result.coordLat = parseFloat(matches[1]);
+			result.coordLon = parseFloat(matches[2]);
+		}
+	} else if (typeof extData.metadataBuffer === 'number') {
+		// how big in bytes should be buffer for loading EXIF from file (depends on specification)
+		// https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.eXIf
+		// jpeg: 2^16-9 (65 527) bytes = 65.53 KB
+		// png: 2^31-1 (2 147 483 647) bytes  = 2.15 GB
 
-	if (parsed.tags.GPSLatitude && parsed.tags.GPSLongitude) {
-		result.coordLat = numberRound(parsed.tags.GPSLatitude, 6);
-		result.coordLon = numberRound(parsed.tags.GPSLongitude, 6);
-	}
+		// create small buffer, fill it with first x bytes from image and parse
+		let metadataBuffer = new Buffer.alloc(extData.metadataBuffer);
+		const fd = FS.openSync(fullPath, 'r');
+		FS.readSync(fd, metadataBuffer, 0, extData.metadataBuffer, 0);
+		FS.closeSync(fd);
+		const parsed = exifParser.create(metadataBuffer).parse();
 
-	if (parsed.imageSize && parsed.imageSize.height && parsed.imageSize.height) {
-		result.width = parsed.imageSize.width;
-		result.height = parsed.imageSize.height;
-	} else if (parsed.tags.ImageWidth && parsed.tags.ImageHeight) {
-		result.width = parsed.tags.ImageWidth;
-		result.height = parsed.tags.ImageHeight;
-	} else if (parsed.tags.ExifImageWidth && parsed.tags.ExifImageHeight) {
-		result.width = parsed.tags.ExifImageWidth;
-		result.height = parsed.tags.ExifImageHeight;
+		if (parsed.tags.GPSLatitude && parsed.tags.GPSLongitude) {
+			result.coordLat = numberRound(parsed.tags.GPSLatitude, 6);
+			result.coordLon = numberRound(parsed.tags.GPSLongitude, 6);
+		}
+
+		if (parsed.imageSize && parsed.imageSize.height && parsed.imageSize.height) {
+			result.width = parsed.imageSize.width;
+			result.height = parsed.imageSize.height;
+		} else if (parsed.tags.ImageWidth && parsed.tags.ImageHeight) {
+			result.width = parsed.tags.ImageWidth;
+			result.height = parsed.tags.ImageHeight;
+		} else if (parsed.tags.ExifImageWidth && parsed.tags.ExifImageHeight) {
+			result.width = parsed.tags.ExifImageWidth;
+			result.height = parsed.tags.ExifImageHeight;
+		} else {
+			LOG.warning('File "' + fullPath + '" don\'t have any info about file resolution. Full list of available EXIF tags: ' + JSON.stringify(parsed));
+		}
 	} else {
-		LOG.warning('File "' + fullPath + '" don\'t have any info about file resolution. Full list of available EXIF tags: ' + JSON.stringify(parsed));
+		throw new Error('Invalid type of metadataBuffer parameter.');
 	}
 	return result;
 }
