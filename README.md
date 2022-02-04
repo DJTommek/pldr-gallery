@@ -15,6 +15,9 @@ This exact demo is included in the source code, just follow Installation instruc
 
 It might work with little bit older versions, try it.
 
+### Optional
+- [ffmpeg](https://ffmpeg.org/) (more precisely just [ffprobe](https://ffmpeg.org/ffprobe.html)) for reading coordinates from video files
+
 ## Installation
 
 1. Clone [DJTommek/pldr-gallery](https://github.com/DJTommek/pldr-gallery) repository
