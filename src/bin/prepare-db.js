@@ -150,7 +150,7 @@ async function createTables() {
 					.bigInteger('created')
 					.unsigned();
 				table
-					.integer('size')
+					.bigInteger('size')
 					.unsigned();
 				table
 					.float('coordinate_lat', 10, 6);
