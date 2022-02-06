@@ -100,14 +100,27 @@ async function getCoordsFromExifFromFile(fullPath) {
 	try {
 		return await HFS.getDataFromExifFromFile(fullPath);
 	} catch (error) {
-		if (error.message === 'Index out of range') {
-			LOG.warning('Number of bytes is too small buffer for loading EXIF from file "' + fullPath + '".');
+		const errorPrefix = '(Metadata) Error while loading metadata from file "' + fullPath + '": ';
+		if (error.message.includes('ffprobe exited with code')) {
+			// handle ffprobe-related errors manually, because all errors are huge multi-line strings, containing
+			// info about ffmpeg version, build settings, etc
+			if (error.message.trim().includes('moov atom not found')) {
+				LOG.warning(errorPrefix + '"moov atom not found". File seems to be corrupted, is it still playable?');
+			} else if (error.message.trim().includes('ffprobe was killed with signal SIGFPE')) { // @TODO what the heck is this error?
+				LOG.debug(errorPrefix + '"ffprobe was killed with signal SIGFPE"');
+			} else {
+				LOG.error(errorPrefix + error);
+			}
+		} else if (error.message.startsWith('Invalid format while decoding: ')) { // example of full error: "Invalid format while decoding: 28521"
+			// ignore
+		} else if (error.message === 'Index out of range') {
+			LOG.warning(errorPrefix + '"Index out of range". Tip: increase buffer size for this excension.');
 		} else if (error.message === 'Invalid JPEG section offset') {
 			// ignore, probably broken image and/or EXIF data, more info in https://github.com/bwindels/exif-parser/issues/13
 		} else if (error.message === 'This file extension is not allowed to load metadata from.') {
-			// skip loading
+			// ignore
 		} else {
-			LOG.error('Error while loading coordinates from EXIF for file "' + fullPath + '": ' + error);
+			LOG.error('(Metadata) Error while loading metadata from file "' + fullPath + '": ' + error);
 		}
 	}
 	return {}
