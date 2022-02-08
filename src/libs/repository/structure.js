@@ -125,12 +125,20 @@ async function search(folderPath, options = {}) {
 			// query.andWhere('basename', 'LIKE', '%' + searchStringEscaped + '%')
 		}
 
-		if (options.lat !== undefined || options.lon !== undefined) {
+		if (options.lat !== null && options.lon !== null) {
 			const coords = new Coordinates(options.lat, options.lon);
 			 // Measure distance to given lat/lon
 			columnsToSelect.push(knex.raw('st_distance_sphere(POINT(?, ?), coordinates) AS distance', [coords.lon, coords.lat]));
 			query.whereNotNull('coordinates')
 			columnsToOrder.unshift('distance');
+		}
+
+		if (options.sizeMin > 0 && options.sizeMax) {
+			query.whereBetween('size', [options.sizeMin, options.sizeMax]);
+		} else if (options.sizeMin) { // intentionally non-strict checking (higher than zero)
+			query.where('size','>=', options.sizeMin);
+		} else if (options.sizeMax) { // intentionally non-strict checking (higher than zero)
+			query.where('size','<=', options.sizeMax);
 		}
 	}
 
