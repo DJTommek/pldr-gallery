@@ -1,5 +1,6 @@
 const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
 const structureRepository = require('../../../libs/repository/structure');
+const utils = require('../../../libs/utils/utils.js');
 
 module.exports = function (webserver, endpoint) {
 
@@ -30,8 +31,10 @@ module.exports = function (webserver, endpoint) {
 
 			const searchOptions = {
 				searchString: req.query.query,
-				lat: req.query.lat,
-				lon: req.query.lon,
+				lat: req.query.lat !== undefined ? req.query.lat : null,
+				lon: req.query.lon !== undefined ? req.query.lon : null,
+				sizeMin: req.query.sizeMin !== undefined ? utils.clamp(parseInt(req.query.sizeMin)) : null,
+				sizeMax: req.query.sizeMax !== undefined ? utils.clamp(parseInt(req.query.sizeMax)) : null,
 			}
 
 			let logPrefix = '(Web) Searching in path "' + res.locals.path + '"';
