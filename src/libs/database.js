@@ -17,13 +17,21 @@ knex.on('query', function (query) {
 		sqlText = sqlText.substring(0, 500) + '...';
 	}
 
-	let bindingsText;
-	if (query.bindings.length > 10) {
-		bindingsText = query.bindings.slice(0, 10).join(', ') + ', and more...';
-	} else {
-		bindingsText = query.bindings.join(', ');
+	let logText = '(Knex) Query "' + sqlText + '"';
+	if (query.bindings) {
+		let bindingsText;
+		if (query.bindings.length > 10) {
+			bindingsText = query.bindings.slice(0, 10).join(', ') + ', and more...';
+		} else {
+			bindingsText = query.bindings.join(', ');
+		}
+		logText += ' with ' + query.bindings.length +  ' binding parameters [' + bindingsText + ']';
 	}
-	LOG.debug('(Knex) Query "' + sqlText + '" with ' + query.bindings.length +  ' binding parameters [' + bindingsText + '] took ' + msToHuman(elapsedMs) + ' and returned ' + response.length + ' rows.', {console: true});
+	logText += ' took ' + msToHuman(elapsedMs) + '';
+	if (response) {
+		logText += ' and returned ' + response.length + ' rows.';
+	}
+	LOG.debug(logText, {console: true});
 	delete queries[uid];
 });
 
