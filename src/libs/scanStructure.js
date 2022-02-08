@@ -67,7 +67,7 @@ async function scan(absolutePath, options = {}) {
 				foldersCount++;
 			} else if (realEntryItem.isFile()) {
 				resultItem = new FileItem(null, {path: entryPath});
-				resultItem.size = realEntryItem.size || null;
+				resultItem.size = typeof realEntryItem.size === 'bigint' ? realEntryItem.size : null;
 				if (options.exif) {
 					const exifData = await getCoordsFromExifFromFile(entry.fullPath);
 					resultItem = Object.assign(resultItem, exifData);
