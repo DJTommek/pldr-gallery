@@ -169,7 +169,7 @@ class PercentileSize {
  *
  * @param {number[]} percentiles Array of numbers between 0 and 1 inclusive, to which size percentile will be calculated.
  * @example sizePercentiles([0, 0.5, 1]) will return smallest file size, median and biggest file size
- * @returns {PercentileSize[]} Order of objects in array will be same as input
+ * @returns {null|PercentileSize[]} Order of objects in array will be same as input. Null if no files with size available
  */
 async function sizePercentiles(percentiles) {
 	let selectRaw = ' DISTINCT `type` ';
@@ -195,15 +195,20 @@ async function sizePercentiles(percentiles) {
 	const queryResult = await knex.select(knex.raw(selectRaw, selectRawParams))
 		.from(CONFIG.db.table.structure)
 		.where('type', TYPE_FILE)
-		.whereNotNull('size').first()
+		.whereNotNull('size').first();
 
-	const result = [];
-	key = 0;
-	for (const percent of percentiles) {
-		result.push(new PercentileSize(percent, queryResult['percentile_' + key]));
-		key++;
+	if (queryResult === undefined) {
+		// Probably there are no files with filled size
+		return null;
+	} else {
+		const result = [];
+		key = 0;
+		for (const percent of percentiles) {
+			result.push(new PercentileSize(percent, queryResult['percentile_' + key]));
+			key++;
+		}
+		return result;
 	}
-	return result;
 }
 
 module.exports.sizePercentiles = sizePercentiles;

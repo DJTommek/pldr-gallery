@@ -434,52 +434,56 @@ $(function () {
 	 * Advanced search file size slider
 	 */
 	(function () {
-		// Inicialize slider
-		const sizeSliderEl = document.getElementById('advanced-search-size');
-		const sizeMinEl = document.getElementById('advanced-search-size-min');
-		const sizeMaxEl = document.getElementById('advanced-search-size-max');
+		const sizeSliderWrapEl = document.getElementById('advanced-search-size-wrap');
+		if (FILE_SIZE_PERCENTILES !== null) { // show slider (default is hidden)
+			sizeSliderWrapEl.style.display = '';
+			// Inicialize slider
+			const sizeSliderEl = document.getElementById('advanced-search-size');
+			const sizeMinEl = document.getElementById('advanced-search-size-min');
+			const sizeMaxEl = document.getElementById('advanced-search-size-max');
 
-		const fileSizePercMin = FILE_SIZE_PERCENTILES[0];
-		const fileSizePercMax = FILE_SIZE_PERCENTILES[FILE_SIZE_PERCENTILES.length -1];
+			const fileSizePercMin = FILE_SIZE_PERCENTILES[0];
+			const fileSizePercMax = FILE_SIZE_PERCENTILES[FILE_SIZE_PERCENTILES.length -1];
 
-		const range = {};
-		for (const data of FILE_SIZE_PERCENTILES) {
-			if (data.percent === 0) {
-				range['min'] = 0 // override to show 0 in slider instead of smallest file;
-			} else if (data.percent === 1) {
-				range['max'] = data.fileSize;
-			} else {
-				const key = (data.percent * 100) + '%';
-				range[key] = data.fileSize;
+			const range = {};
+			for (const data of FILE_SIZE_PERCENTILES) {
+				if (data.percent === 0) {
+					range['min'] = 0 // override to show 0 in slider instead of smallest file;
+				} else if (data.percent === 1) {
+					range['max'] = data.fileSize;
+				} else {
+					const key = (data.percent * 100) + '%';
+					range[key] = data.fileSize;
+				}
 			}
-		}
 
-		noUiSlider.create(sizeSliderEl, {
-			start: [0, fileSizePercMax.fileSize],
-			connect: true,
-			tooltips: false,
-			pips: {
-				mode: 'count',
-				values: 6,
-				density: 12,
-				format: {
-					to: function(val) {
-						return formatBytes(val);
+			noUiSlider.create(sizeSliderEl, {
+				start: [0, fileSizePercMax.fileSize],
+				connect: true,
+				tooltips: false,
+				pips: {
+					mode: 'count',
+					values: 6,
+					density: 12,
+					format: {
+						to: function(val) {
+							return formatBytes(val);
+						},
 					},
 				},
-			},
-			range: range,
-		});
+				range: range,
+			});
 
-		// Initial values in form
-		sizeMinEl.textContent = formatBytes(fileSizePercMin.fileSize);
-		sizeMaxEl.textContent = formatBytes(fileSizePercMax.fileSize);
+			// Initial values in form
+			sizeMinEl.textContent = formatBytes(fileSizePercMin.fileSize);
+			sizeMaxEl.textContent = formatBytes(fileSizePercMax.fileSize);
 
-		sizeSliderEl.noUiSlider.on('update', function () {
-			const [min,max] = sizeSliderEl.noUiSlider.get(true);
-			sizeMinEl.textContent = formatBytes(min);
-			sizeMaxEl.textContent = formatBytes(max);
-		});
+			sizeSliderEl.noUiSlider.on('update', function () {
+				const [min,max] = sizeSliderEl.noUiSlider.get(true);
+				sizeMinEl.textContent = formatBytes(min);
+				sizeMaxEl.textContent = formatBytes(max);
+			});
+		}
 	})();
 
 	// Event - load user's location and set it to advanced search map
@@ -931,13 +935,15 @@ function loadSearch(callback) {
 	}
 
 	const slider = document.getElementById('advanced-search-size');
-	const [sizeMin, sizeMax] = slider.noUiSlider.get(true);
-	if (sizeMin !== 0) { // Send sizeMin only if higher than zero
-		requestData.sizeMin = Math.floor(sizeMin);
-	}
-	if (sizeMax !== FILE_SIZE_PERCENTILES[FILE_SIZE_PERCENTILES.length -1].fileSize) {
-		// Send sizeMax only if not equals to biggest file available
-		requestData.sizeMax = Math.ceil(sizeMax);
+	if (slider.noUiSlider) { // slider might not be available (eg. no scanned files with size)
+		const [sizeMin, sizeMax] = slider.noUiSlider.get(true);
+		if (sizeMin !== 0) { // Send sizeMin only if higher than zero
+			requestData.sizeMin = Math.floor(sizeMin);
+		}
+		if (sizeMax !== FILE_SIZE_PERCENTILES[FILE_SIZE_PERCENTILES.length -1].fileSize) {
+			// Send sizeMax only if not equals to biggest file available
+			requestData.sizeMax = Math.ceil(sizeMax);
+		}
 	}
 
 	if (searchValidatorError) {
