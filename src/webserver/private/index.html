@@ -351,7 +351,10 @@
 <script defer type="text/javascript" src="js/main.js?{{CACHEBUSTER_PUBLIC_JS_MAIN.JS}}"></script>
 <script defer src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_MAPS_API_KEY}}&callback=mapsInit"></script>
 <!-- @formatter:off -->
-<script id="server-config">const CONFIG = {{SERVER_CONFIG}}</script>
+<script>
+	const CONFIG = {{SERVER_CONFIG}};
+	const FILE_SIZE_PERCENTILES = {{FILE_SIZE_PERCENTILES}};
+</script>
 <!-- @formatter:on -->
 </body>
 </html>

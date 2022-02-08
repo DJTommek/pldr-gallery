@@ -8,6 +8,7 @@ const PATH = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const terser = require('terser');
+const structureRepository = require('../libs/repository/structure.js');
 
 const http = require('http');
 const https = require('https');
@@ -215,7 +216,7 @@ FS.readFile(BASE_DIR_GET('/src/webserver/private/index.html'), function (error, 
 		}));
 	});
 
-	Promise.all(promises).then(function (data) {
+	Promise.all(promises).then(async function (data) {
 		data.forEach(function (replacePair) {
 			if (replacePair) {
 				fileContent = fileContent.replace(replacePair.name, replacePair.value);
@@ -223,6 +224,7 @@ FS.readFile(BASE_DIR_GET('/src/webserver/private/index.html'), function (error, 
 		});
 		fileContent = fileContent.replace('{{GOOGLE_MAPS_API_KEY}}', c.google.mapApiKey);
 		fileContent = fileContent.replace('{{CACHEBUSTER_PUBLIC_JS_MODULES_MIN.JS}}', getNewestFileUpdateTime(c.terser.filesToCompile).toString());
+		fileContent = fileContent.replace('{{FILE_SIZE_PERCENTILES}}', JSON.stringify(await structurePrecentiles()));
 		// share some of server-side variables to FE
 		fileContent = fileContent.replace('{{SERVER_CONFIG}}', JSON.stringify({
 			thumbnails: {
@@ -333,4 +335,13 @@ function getNewestFileUpdateTime(files) {
 		lastUpdateTime = (fileStats.mtimeMs > lastUpdateTime) ? fileStats.mtimeMs : lastUpdateTime;
 	});
 	return Math.floor(lastUpdateTime);
+}
+
+async function structurePrecentiles() {
+	const percentiles = [
+		0, 0.01,
+		0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
+		0.99, 1
+	];
+	return structureRepository.sizePercentiles(percentiles);
 }
