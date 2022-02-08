@@ -7,6 +7,7 @@ const CONFIG = require('./libs/config.js');
 const CronJob = require('cron').CronJob;
 const chokidar = require('chokidar');
 const structureRepository = require('./libs/repository/structure.js');
+const fileGenerators = require('./webserver/fileGenerators.js');
 const LOG = require("./libs/log.js");
 
 (async function () {
@@ -87,9 +88,11 @@ const LOG = require("./libs/log.js");
 			await scanStructure.scan(CONFIG.path, {stat: false, exif: false});
 			if (CONFIG.structure.scan.deep.onStart) {
 				await scanStructure.scan(CONFIG.path, {stat: true, exif: true});
+				await fileGenerators.generateIndexHtml();
 			}
 		} else if (CONFIG.structure.scan.deep.onStart) { // run deep scan only
 			await scanStructure.scan(CONFIG.path, {stat: true, exif: true});
+			await fileGenerators.generateIndexHtml();
 		}
 		// setup fast scan cron
 		if (CONFIG.structure.scan.fast.cron) {
@@ -103,6 +106,7 @@ const LOG = require("./libs/log.js");
 			new CronJob(CONFIG.structure.scan.deep.cron, async function () {
 				LOG.info('Job tick for structure deep scan.')
 				await scanStructure.scan(CONFIG.path, {stat: true, exif: true});
+				await fileGenerators.generateIndexHtml();
 			}).start();
 		}
 	}
