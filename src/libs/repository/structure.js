@@ -157,6 +157,57 @@ async function search(folderPath, options = {}) {
 
 module.exports.search = search;
 
+class PercentileSize {
+	constructor(percent, fileSize) {
+		this.percent = percent;
+		this.fileSize = fileSize;
+	}
+}
+
+/**
+ * Calculate percentiles for column size.
+ *
+ * @param {number[]} percentiles Array of numbers between 0 and 1 inclusive, to which size percentile will be calculated.
+ * @example sizePercentiles([0, 0.5, 1]) will return smallest file size, median and biggest file size
+ * @returns {PercentileSize[]} Order of objects in array will be same as input
+ */
+async function sizePercentiles(percentiles) {
+	let selectRaw = ' DISTINCT `type` ';
+	let selectRawParams = [];
+	let key = 0;
+	for (const percent of percentiles) {
+		if (typeof percent !== 'number' || percent < 0 || percent > 1) {
+			throw new Error('Percentiles must be array of numbers between 0 and 1 inclusive.');
+		}
+
+		// Generate percentile_cont() query (@author https://stackoverflow.com/a/59930201/3334403)
+		if (percent === 0) {
+			selectRaw += ' , (' + knex.min('size').from(CONFIG.db.table.structure) + ') as percentile_' + key + ' ' ;
+		} else if (percent === 1) {
+			selectRaw += ' , (' + knex.max('size').from(CONFIG.db.table.structure) + ') as percentile_' + key + ' '  ;
+		} else {
+			selectRaw += ', percentile_cont(?) within group (order by `size`) over (partition by `type`) as percentile_' + key + ' ';
+			selectRawParams.push(percent);
+		}
+		key++;
+	}
+
+	const queryResult = await knex.select(knex.raw(selectRaw, selectRawParams))
+		.from(CONFIG.db.table.structure)
+		.where('type', TYPE_FILE)
+		.whereNotNull('size').first()
+
+	const result = [];
+	key = 0;
+	for (const percent of percentiles) {
+		result.push(new PercentileSize(percent, queryResult['percentile_' + key]));
+		key++;
+	}
+	return result;
+}
+
+module.exports.sizePercentiles = sizePercentiles;
+
 /**
  * Load specific row.
  *
