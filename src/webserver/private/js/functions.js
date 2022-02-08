@@ -287,23 +287,23 @@ global.isNumeric = isNumeric;
 /**
  * Format miliseconds to human redable string, 10d 2h 52m 684ms
  *
- * @param {int} miliseconds
+ * @param {number} input Milliseconds
  * @returns {String}
  */
 global.msToHuman = msToHuman;
 
-function msToHuman(miliseconds) {
-	if (typeof miliseconds !== 'number' || miliseconds < 0) {
+function msToHuman(input) {
+	if (typeof input !== 'number' || input < 0) {
 		throw new Error('Parameter "miliseconds" has to be positive number.');
 	}
-	if (miliseconds === 0) {
+	if (input < 1) {
 		return '0ms';
 	}
-	const milliseconds = Math.floor((miliseconds) % 1000);
-	const seconds = Math.floor((miliseconds / (1000)) % 60);
-	const minutes = Math.floor((miliseconds / (1000 * 60)) % 60);
-	const hours = Math.floor((miliseconds / (1000 * 60 * 60)) % 24);
-	const days = Math.floor((miliseconds / (1000 * 60 * 60 * 24)));
+	const milliseconds = Math.floor((input) % 1000);
+	const seconds = Math.floor((input / (1000)) % 60);
+	const minutes = Math.floor((input / (1000 * 60)) % 60);
+	const hours = Math.floor((input / (1000 * 60 * 60)) % 24);
+	const days = Math.floor((input / (1000 * 60 * 60 * 24)));
 
 	let result = '';
 	result += (days > 0 ? ' ' + days + 'd' : '');
