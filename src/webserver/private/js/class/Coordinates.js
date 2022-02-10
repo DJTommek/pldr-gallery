@@ -1,4 +1,8 @@
 class Coordinates {
+	/**
+	 * @param {number|string} lat Latitude
+	 * @param {number|string} lon Longitude
+	 */
 	constructor(lat, lon) {
 		if (Coordinates.isLat(lat) === false) {
 			throw new Error('Latitude coordinate must be numeric between or equal from -90 to 90 degrees.');
@@ -6,8 +10,8 @@ class Coordinates {
 		if (Coordinates.isLon(lon) === false) {
 			throw new Error('Longitude coordinate must be numeric between or equal from -180 to 180 degrees.');
 		}
-		this.lat = lat;
-		this.lon = lon;
+		this.lat = parseFloat(lat);
+		this.lon = parseFloat(lon);
 	}
 
 	toString() {
