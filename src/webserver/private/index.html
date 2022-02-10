@@ -50,7 +50,7 @@
 	<ol id="currentPath" class="breadcrumb">
 		<li class="breadcrumb-item active"><a href="#/"><i class="fa fa-home"></i></a></li>
 	</ol>
-	<button class="btn navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse-content">
+	<button class="btn navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-collapse-content">
 		Menu <i class="fa fa-bars"></i>
 	</button>
 
@@ -58,18 +58,14 @@
 		<form class="form-inline my-2 my-lg-0">
 			<div class="input-group" id="navbar-filter">
 				<input type="search" class="form-control" placeholder="Filter" disabled/>
-				<div class="input-group-append">
-					<span class="input-group-text">
-						<span class="filtered"><i class="fa fa-circle-o-notch fa-spin"></i></span>
-						/
-						<span class="total"><i class="fa fa-circle-o-notch fa-spin"></i></span>
-					</span>
-				</div>
-				<div class="input-group-append" title="Advanced search">
-					<button class="btn btn-outline-secondary search" data-toggle="modal" data-target="#modal-search" type="button">
-						<i class="fa fa-search"></i>
-					</button>
-				</div>
+				<span class="input-group-text">
+					<span class="filtered"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+					/
+					<span class="total"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+				</span>
+				<button class="btn btn-outline-secondary search" data-bs-toggle="modal" data-bs-target="#modal-search" type="button" title="Advanced search">
+					<i class="fa fa-search"></i>
+				</button>
 			</div>
 		</form>
 
@@ -84,12 +80,12 @@
 
 			<!-- Favourites -->
 			<li class="nav-item dropdown" title="Favourites">
-				<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" id="navbar-favourites-button" data-toggle="dropdown">
+				<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" id="navbar-favourites-button" data-bs-toggle="dropdown">
 					<span class="d-md-none">Favourites</span>
 					<i class="fa fa-star-o"></i>
 				</button>
 
-				<div class="dropdown-menu dropdown-menu-right" id="navbar-dropdown-content">
+				<div class="dropdown-menu dropdown-menu-end" id="navbar-dropdown-content">
 					<a class="dropdown-item" href="#" id="navbar-favourites-add">Add to favourites</a>
 					<a class="dropdown-item" href="#" id="navbar-favourites-remove" style="display: none;">Remove from favourites</a>
 					<div class="dropdown-divider"></div>
@@ -99,7 +95,7 @@
 
 			<!-- Settings -->
 			<li class="nav-item" title="Settings">
-				<button class="btn btn-outline-secondary" data-toggle="modal" data-target="#modal-settings">
+				<button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modal-settings">
 					<span class="d-md-none">Settings</span>
 					<i class="fa fa-wrench fa-fw"></i>
 				</button>
@@ -128,7 +124,7 @@
 <div id="structure">
 	<div class="d-flex flex-row justify-content-between">
 		<form id="structure-display-type">
-			<div class="btn-group" role="group" aria-label="Basic example">
+			<div class="btn-group" role="group">
 				<button type="button" class="btn btn-sm btn-outline-secondary" id="structure-display-type-rows-small">
 					<input type="radio" name="structure-display-type" value="rows-small" checked>
 					<i class="fa fa-fw fa-bars"></i> Small rows
@@ -190,27 +186,27 @@
 
 
 	<div id="popup-footer" class="list-inline">
-		<a id="popup-download" target="_blank" class="list-inline-item float-left" title="Download file"><i class="fa fa-download" aria-hidden="true"></i></a>
-		<a id="popup-share" target="_blank" class="list-inline-item float-left" title="Copy URL">
+		<a id="popup-download" target="_blank" class="list-inline-item float-start" title="Download file"><i class="fa fa-download" aria-hidden="true"></i></a>
+		<a id="popup-share" target="_blank" class="list-inline-item float-start" title="Copy URL">
 			<i class="fa fa-share-alt fa-fw"></i>
 		</a>
-		<a id="popup-location" target="_blank" style="display: none;" class="list-inline-item float-left" title="Open in Better Location">
+		<a id="popup-location" target="_blank" style="display: none;" class="list-inline-item float-start" title="Open in Better Location">
 			<i class="fa fa-map-marker fa-fw"></i>
 		</a>
-		<a id="popup-filename" target="_blank" class="list-inline-item float-left" title="Open file in new tab (Enter)">@Generated - Filename</a>
+		<a id="popup-filename" target="_blank" class="list-inline-item float-start" title="Open file in new tab (Enter)">@Generated - Filename</a>
 
-		<span id="popup-close" class="list-inline-item float-right" title="Close popup (Esc)">
+		<span id="popup-close" class="list-inline-item float-end" title="Close popup (Esc)">
 			<i class="fa fa-close fa-lg"></i>
 		</span>
-		<a id="popup-footer-next" class="list-inline-item popup-footer-button float-right d-none d-md-block" title="Next file (Arrow right)">
+		<a id="popup-footer-next" class="list-inline-item popup-footer-button float-end d-none d-md-block" title="Next file (Arrow right)">
 			<i class="fa fa-angle-right fa-lg"></i>
 		</a>
-		<a id="popup-footer-presentation" class="list-inline-item popup-footer-button float-right d-none d-md-block" title="Presentation mode (CTRL + Space)">
+		<a id="popup-footer-presentation" class="list-inline-item popup-footer-button float-end d-none d-md-block" title="Presentation mode (CTRL + Space)">
 			<span id="popup-counter"></span>
 			<i id="popup-footer-presentation-start" class="fa fa-play-circle fa-lg"></i>
 			<i id="popup-footer-presentation-stop" class="fa fa-stop-circle fa-lg" style="display: none;"></i>
 		</a>
-		<a class="list-inline-item popup-footer-button float-right d-none d-md-block" id="popup-footer-prev" title="Previous file (Arrow left)">
+		<a class="list-inline-item popup-footer-button float-end d-none d-md-block" id="popup-footer-prev" title="Previous file (Arrow left)">
 			<i class="fa fa-angle-left fa-lg"></i>
 		</a>
 		<div id="popup-footer-presentation-progress" style="display: none;"></div>
@@ -222,48 +218,46 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title"><i class="fa fa-wrench"></i> Nastavení</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
 				<form id="form-settings">
 
-					<div class="form-group" id="settings-theme">
+					<div class="mb-3" id="settings-theme">
 						<i class="fa fa-lightbulb-o fa-fw"></i> Téma:
-						<div class="custom-control custom-radio">
-							<input type="radio" id="settings-theme-default" name="theme" value="default" class="custom-control-input">
-							<label class="custom-control-label" for="settings-theme-default"><i class="fa fa-sun-o fa-fw"></i> Rozsvítit</label>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" id="settings-theme-default" name="theme" value="default">
+							<label class="form-check-label" for="settings-theme-default"><i class="fa fa-sun-o fa-fw"></i> Rozsvítit</label>
 						</div>
-						<div class="custom-control custom-radio">
-							<input type="radio" id="settings-theme-dark" name="theme" value="dark" class="custom-control-input">
-							<label class="custom-control-label" for="settings-theme-dark"><i class="fa fa-moon-o fa-fw"></i> Zhasnout</label>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" id="settings-theme-dark" name="theme" value="dark">
+							<label class="form-check-label" for="settings-theme-dark"><i class="fa fa-moon-o fa-fw"></i> Zhasnout</label>
 						</div>
 						<!-- DANGER! DO NOT UNCOMMENT THIS BLOCK OF CODE!
-						<div class="custom-control custom-radio">
-							<input type="radio" id="settings-theme-hellokitty" name="theme" value="hellokitty" class="custom-control-input">
-							<label class="custom-control-label" for="settings-theme-hellokitty"><i class="fa fa-gift fa-fw"></i> Hello Kitty</label>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" id="settings-theme-hellokitty" name="theme" value="dark">
+							<label class="form-check-label" for="settings-theme-hellokitty"><i class="fa fa-moon-o fa-fw"></i> Zhasnout</label>
 						</div>
 						-->
 					</div>
 
-					<div class="form-group" id="settings-compress">
-						<div class="custom-control custom-checkbox">
-							<input type="checkbox" name="compress" class="custom-control-input" id="settings-compress-checkbox">
-							<label class="custom-control-label" for="settings-compress-checkbox">Šetřit data</label>
+					<div class="mb-3" id="settings-compress">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" name="compress" id="settings-compress-checkbox">
+							<label class="form-check-label" for="settings-compress-checkbox">Šetřit data</label>
 						</div>
 						<small class="form-text text-muted">Obrázky budou zmenšeny na velikost max 1024 x 1024 pixelů při zachování poměru stran. V plné velikosti je možné je otevřít skrze ikonu
 							<i class="fa fa-download" aria-hidden="true"></i> vlevo dole.</small>
 					</div>
 
-					<div class="form-group">
-						<label for="settings-animationSpeed">Rychlost animací (v milisekundách):</label>
+					<div class="mb-3">
+						<label for="settings-animationSpeed" class="form-label">Rychlost animací (v milisekundách):</label>
 						<input type="number" required name="animationSpeed" id="settings-animationSpeed" class="form-control" min="0" max="10000">
 						<small class="form-text text-muted">0 = bez animací, 250 = výchozí hodnota</small>
 					</div>
 
-					<div class="form-group">
-						<label for="settings-structureItemLimit">Maximální počet zobrazovaných položek ve složce:</label>
+					<div class="mb-3">
+						<label for="settings-structureItemLimit" class="form-label">Maximální počet zobrazovaných položek ve složce:</label>
 						<input type="number" required name="structureItemLimit" id="settings-structureItemLimit" class="form-control" min="0">
 						<small class="form-text text-muted">
 							0 = všechny, 1000 = výchozí hodnota<br>
@@ -271,8 +265,8 @@
 						</small>
 					</div>
 
-					<div class="form-group">
-						<label for="settings-presentationSpeed">Rychlost přehrávání prezentace (v milisekundách):</label>
+					<div class="mb-3">
+						<label for="settings-presentationSpeed" class="form-label">Rychlost přehrávání prezentace (v milisekundách):</label>
 						<input type="number" required name="presentationSpeed" id="settings-presentationSpeed" class="form-control" min="0">
 						<small class="form-text text-muted">
 							0 = okamžitě po načtení, 5000 = výchozí hodnota<br>
@@ -302,18 +296,17 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title"><i class="fa fa-search"></i> Advanced search</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
 				<form id="advanced-search-form">
-					<div class="form-group">
-						<label for="advanced-search-string">Název složky či souboru</label>
-						<input type="text" required id="advanced-search-string" class="form-control">
+					<div class="mb-3">
+						<label for="advanced-search-string" class="form-label">Název složky či souboru</label>
+						<input type="text" id="advanced-search-string" class="form-control">
 					</div>
-					<div id="advanced-search-size-wrap" class="form-group" style="display: none;">
-						<label for="advanced-search-size">
+
+					<div id="advanced-search-size-wrap" style="display: none;">
+						<label for="advanced-search-size" class="form-label">
 							Velikost souborů (<span id="advanced-search-size-min"></span>
 							-
 							<span id="advanced-search-size-max"></span>)
@@ -321,32 +314,32 @@
 						<div id="advanced-search-size"></div>
 					</div>
 
-					<div class="form-group" id="advanced-search-sort">
+					<div id="advanced-search-sort">
 						<h5>Seřadit podle:</h5>
-						<div class="custom-control custom-radio">
-							<input type="radio" name="sort" value="name" checked class="custom-control-input" id="advanced-search-sort-name">
-							<label class="custom-control-label" for="advanced-search-sort-name">
+						<div class="form-check">
+							<input type="radio" name="sort" value="name" checked class="form-check-input" id="advanced-search-sort-name">
+							<label class="form-check-label" for="advanced-search-sort-name">
 								názvu
 							</label>
 						</div>
 
-						<div class="custom-control custom-radio">
-							<input type="radio" name="sort" value="size" class="custom-control-input" id="advanced-search-sort-size">
-							<label class="custom-control-label" for="advanced-search-sort-size">
+						<div class="form-check">
+							<input type="radio" name="sort" value="size" class="form-check-input" id="advanced-search-sort-size">
+							<label class="form-check-label" for="advanced-search-sort-size">
 								velikosti
 							</label>
 						</div>
 
-						<div class="custom-control custom-radio">
-							<input type="radio" name="sort" value="created" class="custom-control-input" id="advanced-search-sort-created">
-							<label class="custom-control-label" for="advanced-search-sort-created">
+						<div class="form-check">
+							<input type="radio" name="sort" value="created" class="form-check-input" id="advanced-search-sort-created">
+							<label class="form-check-label" for="advanced-search-sort-created">
 								vytvoření
 							</label>
 						</div>
 
-						<div class="custom-control custom-radio">
-							<input type="radio" name="sort" value="distance" class="custom-control-input" id="advanced-search-sort-distance">
-							<label class="custom-control-label" for="advanced-search-sort-distance">
+						<div class="form-check">
+							<input type="radio" name="sort" value="distance" class="form-check-input" id="advanced-search-sort-distance">
+							<label class="form-check-label" for="advanced-search-sort-distance">
 								vzdálenosti
 								<a href="#" id="advanced-search-coords" target="_blank" title="Open in BetterLocation" style="display: none"></a>
 							</label>
