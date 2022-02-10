@@ -68,7 +68,8 @@ class FolderItem extends Item {
 	 */
 	serialize() {
 		let result = {
-			path: this.path
+			path: this.path,
+			created: this.created,
 		};
 		if (this.icon !== Icon.FOLDER) {
 			result.icon = this.icon;
