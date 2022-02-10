@@ -1351,7 +1351,7 @@ function mapSearchInit() {
 
 	mapDataSearch.map.addListener('click', function (event) {
 		mapSearchMarkerClear();
-		const coords = new Coordinates(event.latLng.lat(), event.latLng.lng());
+		const coords = new Coordinates(event.latLng.lat().toFixed(6), event.latLng.lng().toFixed(6));
 		mapSearchMarkerSet(coords, false);
 	});
 	console.log('Search map loaded');
