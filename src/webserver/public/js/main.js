@@ -1274,10 +1274,10 @@ function setStatus(message) {
  */
 function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message') {
 	const currentFlashId = loadedStructure.flashIndex++
-	let html = '<div class="alert alert-' + type + ' fade show" id="alert-' + currentFlashId + '" role="alert">';
-	html += '<button class="close" data-dismiss="alert" title="Close (Esc)"><span>&times;</span></button>';
+	let html = '<div class="alert alert-' + type + ' fade show alert-dismissible" id="alert-' + currentFlashId + '" role="alert">';
+	html += '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
 	const now = new Date();
-	html += '<p class="datetime" title="' + now.human() + '">' + now.human(true).time + ' <span class="badge badge-danger" style="display: none">New</span></p>';
+	html += '<p class="datetime" title="' + now.human() + '">' + now.human(true).time + ' <span class="badge bg-danger" style="display: none">New</span></p>';
 	html += '<p class="content">' + text + '</p>';
 	html += '</div>';
 	$(target).prepend(html);
@@ -1427,13 +1427,13 @@ function mapParsePhotos() {
 				mapDataStructure.markers.photos[item.index].addListener('click', function () {
 					const links = generateCoordsLinks(item.coordLat, item.coordLon);
 					mapDataStructure.infoWindow.setContent('<div id="map-info-window" data-item-index="' + item.index + '">' +
-						' <div class="image float-md-left">' +
+						' <div class="image float-md-start">' +
 						'  <a href="' + item.getFileUrl() + '" target="_blank" title="Open in new window">' +
 						'   <i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin"></i>' +
 						'   <img class="thumbnail-not-loaded" src="' + item.getFileUrl() + '&type=thumbnail" onLoad="mapInfoWindowImageLoaded();" onError="mapInfoWindowImageError();" style="display: none;">' +
 						'  </a>' +
 						' </div>' +
-						' <div class="content float-md-right">' +
+						' <div class="content float-md-end">' +
 						'  <button class="btn btn-primary btn-sm item-select text-truncate" title="Open \'' + item.text + '\' in popup ">' + item.paths.slice(-1)[0] + '</button>' +
 						'  <h6>' + item.coordLat + ',' + item.coordLon + '</h6>' +
 						'  <span class="copy-to-clipboard as-a-link" data-to-copy="' + item.coordLat + ',' + item.coordLon + '" title="Copy to clipboard">Copy <i class="fa fa-clipboard"></i></span>' +
