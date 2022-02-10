@@ -35,6 +35,7 @@ module.exports = function (webserver, endpoint) {
 				lon: req.query.lon !== undefined ? req.query.lon : null,
 				sizeMin: req.query.sizeMin !== undefined ? utils.clamp(parseInt(req.query.sizeMin)) : null,
 				sizeMax: req.query.sizeMax !== undefined ? utils.clamp(parseInt(req.query.sizeMax)) : null,
+				sort: req.query.sort || null,
 			}
 
 			let logPrefix = '(Web) Searching in path "' + res.locals.path + '"';

@@ -403,19 +403,19 @@ $(function () {
 	});
 
 	// Event - show/hide map in advanced search and try to silently load user's location
-	$('#advanced-search-sort-closest').on('change', function () {
-		// if not location is not yet selected, try to load user's current location
-		const selectedCoordsData = $('#advanced-search-coords').data();
-		if (selectedCoordsData.lat === undefined && selectedCoordsData.lon === undefined) {
-			getUserLocation(function (coords) {
-				if (coords) {
-					mapSearchMarkerSet(coords, true);
-				}
-			}, false);
-		}
-
-		if ($(this).is(':checked')) {
+	$('#advanced-search-sort input[name=sort]').on('change', function () {
+		if ($(this).val() === 'distance') {
 			$('#advanced-search-map-wrap').show();
+
+			// if not location is not yet selected, try to load user's current location
+			const selectedCoordsData = $('#advanced-search-coords').data();
+			if (selectedCoordsData.lat === undefined && selectedCoordsData.lon === undefined) {
+				getUserLocation(function (coords) {
+					if (coords) {
+						mapSearchMarkerSet(coords, true);
+					}
+				}, false);
+			}
 		} else {
 			$('#advanced-search-map-wrap').hide();
 		}
@@ -915,7 +915,9 @@ function updateLoginButtons() {
 function loadSearch(callback) {
 	const requestData = {
 		path: btoa(encodeURIComponent(S.getCurrentFolder().path)),
+		sort: $('#advanced-search-sort input[name=sort]:checked').val(),
 	}
+
 	let searchValidatorError = null;
 
 	let query = $('#advanced-search-string').val().trim();
@@ -923,7 +925,7 @@ function loadSearch(callback) {
 		requestData.query = query;
 		searchValidatorError = null;
 	}
-	if ($('#advanced-search-sort-closest').is(':checked')) {
+	if ($('#advanced-search-sort-distance').is(':checked')) {
 		const $selectedCoords = $('#advanced-search-coords');
 		requestData.lat = $selectedCoords.data('lat');
 		requestData.lon = $selectedCoords.data('lon');
@@ -1373,7 +1375,6 @@ function mapSearchMarkerSet(coords, centerToMarker) {
 	if (centerToMarker) {
 		mapDataSearch.map.setCenter(selectedLocationGoogle);
 	}
-	$('#advanced-search-sort-closest').prop("checked", true);
 }
 
 function mapSearchMarkerClear() {

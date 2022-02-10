@@ -321,23 +321,46 @@
 						<div id="advanced-search-size"></div>
 					</div>
 
-					<div class="form-group" id="search-map">
-						<div class="custom-control custom-checkbox">
-							<input type="checkbox" name="map" class="custom-control-input" id="advanced-search-sort-closest">
-							<label class="custom-control-label" for="advanced-search-sort-closest">
-								Seřadit od nejbližších
+					<div class="form-group" id="advanced-search-sort">
+						<h5>Seřadit podle:</h5>
+						<div class="custom-control custom-radio">
+							<input type="radio" name="sort" value="name" checked class="custom-control-input" id="advanced-search-sort-name">
+							<label class="custom-control-label" for="advanced-search-sort-name">
+								názvu
+							</label>
+						</div>
+
+						<div class="custom-control custom-radio">
+							<input type="radio" name="sort" value="size" class="custom-control-input" id="advanced-search-sort-size">
+							<label class="custom-control-label" for="advanced-search-sort-size">
+								velikosti
+							</label>
+						</div>
+
+						<div class="custom-control custom-radio">
+							<input type="radio" name="sort" value="created" class="custom-control-input" id="advanced-search-sort-created">
+							<label class="custom-control-label" for="advanced-search-sort-created">
+								vytvoření
+							</label>
+						</div>
+
+						<div class="custom-control custom-radio">
+							<input type="radio" name="sort" value="distance" class="custom-control-input" id="advanced-search-sort-distance">
+							<label class="custom-control-label" for="advanced-search-sort-distance">
+								vzdálenosti
 								<a href="#" id="advanced-search-coords" target="_blank" title="Open in BetterLocation" style="display: none"></a>
 							</label>
 						</div>
 						<p class="form-text text-muted">
 							Zobrazí se pouze soubory, které obsahují informaci o poloze a seřadí se od nejbližšího k vybranému místu v mapě.<br>
 						</p>
-						<div id="advanced-search-map-wrap" style="display: none;">
-							<p class="form-text text-muted">
-								Pro vybrání bodu klikni do mapy anebo použij svou aktuální lokaci <span class="as-a-link" id="advanced-search-load-user-location">kliknutím sem</span>.
-							</p>
-							<div id="advanced-search-map"></div>
-						</div>
+					</div>
+
+					<div id="advanced-search-map-wrap" style="display: none;">
+						<p class="form-text text-muted">
+							Pro vybrání bodu klikni do mapy anebo použij svou aktuální lokaci <span class="as-a-link" id="advanced-search-load-user-location">kliknutím sem</span>.
+						</p>
+						<div id="advanced-search-map"></div>
 					</div>
 
 					<button type="button" id="advanced-search-run" class="btn btn-primary">

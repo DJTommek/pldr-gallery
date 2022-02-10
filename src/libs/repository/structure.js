@@ -111,6 +111,28 @@ async function search(folderPath, options = {}) {
 		.where('level', '>=', searchingLevel)
 		.where('path', 'LIKE', folderPath + '%')
 	if (options) {
+
+		switch (options.sort) {
+			case 'distance':
+				const coords = new Coordinates(options.lat, options.lon);
+				 // Measure distance to given lat/lon
+				columnsToSelect.push(knex.raw('st_distance_sphere(POINT(?, ?), coordinates) AS distance', [coords.lon, coords.lat]));
+				query.whereNotNull('coordinates');
+				columnsToOrder.unshift('distance');
+				break;
+			case 'created':
+				columnsToOrder.unshift({'column': 'created', 'order': 'DESC'});
+				break;
+			case 'size':
+				query.where('type', TYPE_FILE);
+				columnsToOrder.unshift({'column': 'size', 'order': 'DESC'});
+				break;
+			case 'name':
+			default:
+				// default sort
+				break;
+		}
+
 		if (options.searchString !== undefined) {
 			if (typeof options.searchString !== 'string' || options.searchString === '') {
 				throw new Error('Option "searchString" must be non-empty string');
@@ -123,14 +145,6 @@ async function search(folderPath, options = {}) {
 			query.where('path', 'LIKE', '%' + searchStringEscaped + '%')
 			// @TODO search only in basename?
 			// query.andWhere('basename', 'LIKE', '%' + searchStringEscaped + '%')
-		}
-
-		if (options.lat !== null && options.lon !== null) {
-			const coords = new Coordinates(options.lat, options.lon);
-			 // Measure distance to given lat/lon
-			columnsToSelect.push(knex.raw('st_distance_sphere(POINT(?, ?), coordinates) AS distance', [coords.lon, coords.lat]));
-			query.whereNotNull('coordinates')
-			columnsToOrder.unshift('distance');
 		}
 
 		if (options.sizeMin > 0 && options.sizeMax) {
