@@ -443,7 +443,7 @@ $(function () {
 			const sizeMaxEl = document.getElementById('advanced-search-size-max');
 
 			const fileSizePercMin = FILE_SIZE_PERCENTILES[0];
-			const fileSizePercMax = FILE_SIZE_PERCENTILES[FILE_SIZE_PERCENTILES.length -1];
+			const fileSizePercMax = FILE_SIZE_PERCENTILES[FILE_SIZE_PERCENTILES.length - 1];
 
 			const range = {};
 			for (const data of FILE_SIZE_PERCENTILES) {
@@ -466,7 +466,7 @@ $(function () {
 					values: 6,
 					density: 12,
 					format: {
-						to: function(val) {
+						to: function (val) {
 							return formatBytes(val);
 						},
 					},
@@ -479,7 +479,7 @@ $(function () {
 			sizeMaxEl.textContent = formatBytes(fileSizePercMax.fileSize);
 
 			sizeSliderEl.noUiSlider.on('update', function () {
-				const [min,max] = sizeSliderEl.noUiSlider.get(true);
+				const [min, max] = sizeSliderEl.noUiSlider.get(true);
 				sizeMinEl.textContent = formatBytes(min);
 				sizeMaxEl.textContent = formatBytes(max);
 			});
@@ -756,9 +756,9 @@ $(function () {
 		const itemIndex = $('#map-info-window').data('item-index');
 		S.selectorMove(itemIndex);
 		S.selectorSelect();
-	}).on('mouseenter', '.structure-item', function() {
+	}).on('mouseenter', '.structure-item', function () {
 		loadedStructure.hoveredStructureItemElement = $(this);
-	}).on('mouseleave', '.structure-item', function() {
+	}).on('mouseleave', '.structure-item', function () {
 		loadedStructure.hoveredStructureItemElement = null;
 	});
 });
@@ -942,7 +942,7 @@ function loadSearch(callback) {
 		if (sizeMin !== 0) { // Send sizeMin only if higher than zero
 			requestData.sizeMin = Math.floor(sizeMin);
 		}
-		if (sizeMax !== FILE_SIZE_PERCENTILES[FILE_SIZE_PERCENTILES.length -1].fileSize) {
+		if (sizeMax !== FILE_SIZE_PERCENTILES[FILE_SIZE_PERCENTILES.length - 1].fileSize) {
 			// Send sizeMax only if not equals to biggest file available
 			requestData.sizeMax = Math.ceil(sizeMax);
 		}
@@ -1320,8 +1320,8 @@ function mapStructureInit() {
 				zIndex: 10000,
 				icon: {
 					url: 'images/marker-user.svg',
-					scaledSize: new google.maps.Size(11,11),
-					anchor: new google.maps.Point(6,6),
+					scaledSize: new google.maps.Size(11, 11),
+					anchor: new google.maps.Point(6, 6),
 				},
 			});
 		}
@@ -1344,8 +1344,8 @@ function mapSearchInit() {
 				zIndex: 10000,
 				icon: {
 					url: 'images/marker-user.svg',
-					scaledSize: new google.maps.Size(11,11),
-					anchor: new google.maps.Point(6,6),
+					scaledSize: new google.maps.Size(11, 11),
+					anchor: new google.maps.Point(6, 6),
 				},
 			});
 		}
@@ -1419,8 +1419,8 @@ function mapParsePhotos() {
 					title: item.text,
 					icon: {
 						url: 'images/marker-photo.svg',
-						scaledSize: new google.maps.Size(11,11),
-						anchor: new google.maps.Point(6,6),
+						scaledSize: new google.maps.Size(11, 11),
+						anchor: new google.maps.Point(6, 6),
 					},
 				});
 				// Show infoWindow

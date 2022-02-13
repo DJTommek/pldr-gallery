@@ -41,14 +41,14 @@ module.exports = function (webserver, endpoint) {
 				return;
 			}
 			// Check token and get user email
-			oauth2Client.verifyIdToken({idToken: tokens.id_token}, function (errVerifyToken, login) {
+			oauth2Client.verifyIdToken({idToken: tokens.id_token}, function (errVerifyToken, loginTicket) {
 				if (errVerifyToken) {
 					LOG.error('(Login) Error while verifying Google token: ' + errVerifyToken);
 					res.status(500).send('Chyba behem ziskavani google tokenu. Zkus to <a href="/login">znovu</a> nebo kontaktuj admina.<br><a href="/logout">Odhlasit</a>');
 					return;
 				}
 				// Load info about user from Google
-				let payload = login.getPayload();
+				let payload = loginTicket.getPayload();
 				LOG.info('(Login) Logged user "' + payload.email + '".');
 				let tokenHash = sha1(tokens.id_token);
 
@@ -57,7 +57,7 @@ module.exports = function (webserver, endpoint) {
 					token_id: tokens.id_token,
 					token_hash: tokenHash,
 					ip: req.ip,
-					email: payload.email
+					email: payload.email,
 				}), 'utf8');
 				res.cookie(c.http.login.name, tokenHash, {expires: new Date(253402300000000)});
 				res.redirect('/');
