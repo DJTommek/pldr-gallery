@@ -349,7 +349,7 @@ $(function () {
 		window.dispatchEvent(new HashChangeEvent("hashchange"));
 	}
 	// S.setCurrent(pathFromUrl(window.location.hash));
-	$('#button-logout').on('click', function (event) {
+	$('#user-button-logout').on('click', function (event) {
 		event.preventDefault();
 		if (confirm('Opravdu se chceš odhlásit?')) {
 			// remove cookie on the server (without refreshing browser)
@@ -905,12 +905,12 @@ function audioPlay() {
 
 function updateLoginButtons() {
 	if (Cookies.get('google-login')) { // logged in
-		$('#button-login').hide();
-		$('#button-logout').show();
+		$('#user-logged-in').show();
+		$('#user-logged-out').hide();
 		$('#dynamic-styles').text('.logged-in {display: inherit;} .logged-out {display: none;}');
 	} else {
-		$('#button-login').show();
-		$('#button-logout').hide();
+		$('#user-logged-in').hide();
+		$('#user-logged-out').show();
 		$('#dynamic-styles').text('.logged-out {display: inherit;} .logged-in {display: none;}');
 	}
 }
@@ -922,7 +922,18 @@ function loadUserData() {
 		method: 'GET',
 		success: function (result) {
 			if (result.error === false) {
-				loadedStructure.user = result.result;
+				const user = result.result;
+				loadedStructure.user = user;
+				if (user && user.email) {
+					$('#user-logged-in .user-email').text(user.email);
+				}
+
+				const $userPicture = $('#user-picture');
+				if (user && user.picture) {
+					$userPicture.attr('src', user.picture);
+				}
+				$userPicture.show()
+				$('#user-picture-icon').remove();
 			}
 		}
 	});

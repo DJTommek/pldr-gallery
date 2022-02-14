@@ -73,16 +73,16 @@
 			<!-- Share -->
 			<li class="nav-item" title="Copy URL">
 				<a class="btn btn-outline-secondary" href="#" id="navbar-share">
-					<span class="d-md-none d-lg-none">Copy URL</span>
 					<i class="fa fa-share-alt fa-fw"></i>
+					<span class="d-md-none d-lg-none">Copy URL</span>
 				</a>
 			</li>
 
 			<!-- Favourites -->
 			<li class="nav-item dropdown" title="Favourites">
 				<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" id="navbar-favourites-button" data-bs-toggle="dropdown">
-					<span class="d-md-none">Favourites</span>
 					<i class="fa fa-star-o"></i>
+					<span class="d-md-none">Favourites</span>
 				</button>
 
 				<div class="dropdown-menu dropdown-menu-end" id="navbar-dropdown-content">
@@ -96,23 +96,40 @@
 			<!-- Settings -->
 			<li class="nav-item" title="Settings">
 				<button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modal-settings">
-					<span class="d-md-none">Settings</span>
 					<i class="fa fa-wrench fa-fw"></i>
+					<span class="d-md-none">Settings</span>
 				</button>
 			</li>
 
 			<!-- Login and logout -->
-			<li class="nav-item">
+			<li class="nav-item" id="user-logged-out" style="display: none">
 				<a class="btn btn-outline-secondary" id="button-login" href="/login" title="Login">
-					<span class="d-md-none d-lg-none">Login</span>
 					<i class="fa fa-sign-in fa-fw"></i>
-				</a>
-				<a class="btn btn-outline-secondary" id="button-logout" href="/logout" title="Logout" style="display: none;">
-					<span class="d-md-none d-lg-none">Logout</span>
-					<i class="fa fa-sign-out fa-fw"></i>
+					<span class="d-md-none d-lg-none">Login</span>
 				</a>
 			</li>
-
+			<li class="nav-item dropdown" id="user-logged-in">
+				<span class="btn btn-outline-secondary nav-link" data-bs-toggle="dropdown">
+					<i id="user-picture-icon" class="fa fa-circle-o-notch fa-spin user-picture"></i>
+					<img
+							src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=robohash"
+							id="user-picture"
+							class="rounded-circle user-picture"
+							style="display: none"
+					>
+					<span class="d-md-none d-lg-none">User</span>
+				</span>
+				<ul class="dropdown-menu dropdown-menu-end">
+					<li><span class="dropdown-item disabled user-email">Loading...</span></li>
+					<li><hr class="dropdown-divider"></li>
+					<li>
+						<a href="/logout" class="dropdown-item" id="user-button-logout">
+							<i class="fa fa-sign-out fa-fw"></i>
+							Logout
+						</a>
+					</li>
+				</ul>
+			</li>
 		</ul>
 	</div>
 </nav>

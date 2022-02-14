@@ -17,15 +17,21 @@
 	.dropdown-menu {
 		background-color: @theme-background-color-primary;
 
+		a.dropdown-item {
+			color: @theme-color-primary;
+		}
 		.dropdown-item {
 			text-align: right;
-			color: @theme-color-primary;
 
 			&:focus,
 			&:hover {
 				background-color: @theme-background-color-secondary;
 			}
 		}
+	}
+
+	.navbar-nav {
+		margin-right: 1em;
 	}
 
 	#navbar-filter {
@@ -52,6 +58,11 @@
 
 	.navbar-toggler {
 		color: @theme-color-text;
+	}
+
+	.user-picture {
+		width: 1.5em;
+		height: 1.5em;
 	}
 
 
