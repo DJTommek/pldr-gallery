@@ -7,6 +7,7 @@ const loadedStructure = {
 	flashIndex: 0, // incremental index used for flashMessage()
 	request: null, // AJAX request structure object
 	hoveredStructureItemElement: null,
+	user: null,
 };
 const mapDataStructure = {
 	map: null,
@@ -357,6 +358,7 @@ $(function () {
 				// Cookies.remove('google-login');
 				updateLoginButtons();
 				loadStructure(true);
+				loadUserData();
 				flashMessage('Odhlášení bylo úspěšné.');
 			});
 		}
@@ -366,6 +368,7 @@ $(function () {
 		$('#structure-download-archive').remove();
 	}
 
+	loadUserData();
 
 	$('#popup-close').on('click', function () {
 		popupClose();
@@ -910,6 +913,19 @@ function updateLoginButtons() {
 		$('#button-logout').hide();
 		$('#dynamic-styles').text('.logged-out {display: inherit;} .logged-in {display: none;}');
 	}
+}
+
+function loadUserData() {
+	// Load info about user
+	$.ajax({
+		url: '/api/user',
+		method: 'GET',
+		success: function (result) {
+			if (result.error === false) {
+				loadedStructure.user = result.result;
+			}
+		}
+	});
 }
 
 function loadSearch(callback) {
