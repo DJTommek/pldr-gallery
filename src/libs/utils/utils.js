@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 /**
  * Check, if any arguments is requesting showing help via typical attribute names
  *
@@ -49,4 +51,14 @@ module.exports.clamp = function (input, min = 0, max = null) {
 	}
 
 	return input;
+}
+
+/**
+ * Hash input text using md5
+ *
+ * @param {string} input
+ * @returns {string}
+ */
+module.exports.md5 = function(input) {
+	return crypto.createHash('md5').update(input).digest('hex');
 }
