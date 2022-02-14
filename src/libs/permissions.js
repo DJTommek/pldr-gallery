@@ -6,6 +6,7 @@ const knex = require('./database.js');
 const HFS = require('./helperFileSystem');
 require(BASE_DIR_GET('/src/webserver/private/js/class/Icon.js'));
 require(BASE_DIR_GET('/src/webserver/private/js/class/FileExtensionMapper.js'));
+const utils = require("./utils/utils");
 
 module.exports.GROUPS = {
 	ALL: 1,
@@ -313,6 +314,17 @@ class User {
 			permissions.push(...password.getPermissions());
 		}
 		return permissions;
+	}
+
+	/**
+	 * Generate avatar picture URL to Gravatar.com.
+	 * If email is not filled, generate default user icon
+	 *
+	 * @returns {string}
+	 */
+	gravatarPicture() {
+		const hash = this.email ? utils.md5(this.email)  : '00000000000000000000000000000000';
+		return 'https://www.gravatar.com/avatar/' + hash + '?d=robohash';
 	}
 }
 
