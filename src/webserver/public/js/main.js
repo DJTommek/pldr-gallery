@@ -237,8 +237,8 @@ $(window).on('hashchange', function () {
 				$('#popup-icon').fadeOut(Settings.load('animationSpeed')).promise(),
 			]).then(function () {
 				S.selectorMove(currentFile.index); // highlight loaded image
-				if (currentFile.coordLat && currentFile.coordLon) {
-					$('#popup-location').attr('href', 'https://better-location.palider.cz/' + currentFile.coordLat + ',' + currentFile.coordLon).show();
+				if (currentFile.coords) {
+					$('#popup-location').attr('href', 'https://better-location.palider.cz/' + currentFile.coords).show();
 				} else {
 					$('#popup-location').hide();
 				}
@@ -1199,9 +1199,9 @@ function parseStructure(items) {
 		if (item.width && item.height) {
 			contentTiles += ' <span class="resolution">' + item.width + ' x ' + item.height + '</span>';
 		}
-		if (item.coordLat && item.coordLon) {
+		if (item.coords) {
 			// @HACK Non-break space is necesssary to proper vertical alignment of the icon
-			contentTiles += ' <a href="https://better-location.palider.cz/' + item.coordLat + ',' + item.coordLon + '" class="location" target="_blank" title="Open coordinates ' + item.coordLat + ',' + item.coordLon + ' in Better Location">&nbsp;<i class="fa fa-map-marker"></i></a>';
+			contentTiles += ' <a href="https://better-location.palider.cz/' + item.coords + '" class="location" target="_blank" title="Open coordinates ' + item.coords + ' in Better Location">&nbsp;<i class="fa fa-map-marker"></i></a>';
 		}
 		if (item.distance) {
 			contentTiles += ' <span class="distance">' + formatDistance(item.distance) + '</span>';

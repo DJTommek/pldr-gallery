@@ -267,9 +267,9 @@ async function updateData(absoluteFolderPath, newData, scanStart) {
 		if (item.size !== null) {
 			row.size = item.size;
 		}
-		if (typeof item.coordLat === 'number' && typeof item.coordLon === 'number') {
-			row.coordinate_lat = item.coordLat;
-			row.coordinate_lon = item.coordLon;
+		if (item.coords) {
+			row.coordinate_lat = item.coords.lat;
+			row.coordinate_lon = item.coords.lon;
 		}
 		return row;
 	});
@@ -326,9 +326,9 @@ async function add(item) {
 	if (item.size !== null) {
 		row.size = item.size;
 	}
-	if (typeof item.coordLat === 'number' && typeof item.coordLon === 'number') {
-		row.coordinate_lat = item.coordLat;
-		row.coordinate_lon = item.coordLon;
+	if (item.coords) {
+		row.coordinate_lat = item.coords.lat;
+		row.coordinate_lon = item.coords.lon;
 	}
 
 	try {

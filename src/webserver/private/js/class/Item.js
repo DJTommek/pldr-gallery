@@ -117,8 +117,11 @@ class FileItem extends Item {
 				this.icon = Icon.FILE;
 			}
 		}
-		this.coordLat = item.coordLat;
-		this.coordLon = item.coordLon;
+
+		this.coords = Coordinates.safe(item.coordLat, item.coordLon);
+		this.coordLat = item.coordLat; // backward compatibility
+		this.coordLon = item.coordLon; // backward compatibility
+
 		this.width = item.width;
 		this.height = item.height;
 		this.distance = item.distance; // dynamically created column just in SELECTs
@@ -191,9 +194,9 @@ class FileItem extends Item {
 		if (this.noFilter === true) {
 			result.noFilter = this.noFilter;
 		}
-		if (this.coordLat && this.coordLon) {
-			result.coordLat = this.coordLat;
-			result.coordLon = this.coordLon;
+		if (this.coords) {
+			result.coordLat = this.coords.lat;
+			result.coordLon = this.coords.lon;
 		}
 		if (this.width && this.height) {
 			result.width = this.width;
