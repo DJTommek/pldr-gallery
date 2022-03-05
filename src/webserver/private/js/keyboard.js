@@ -245,6 +245,8 @@ $(window).on('keypress', function () {
 
 	} else if (loadedStructure.popup) {
 
+	} else if (loadedStructure.advancedSearchModal) {
+
 	} else {
 		$('#navbar-filter input').focus();
 	}

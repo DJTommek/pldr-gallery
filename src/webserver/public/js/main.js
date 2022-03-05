@@ -3,6 +3,7 @@ const loadedStructure = {
 	loadedFolder: '', // default is loaded nothing
 	popup: false, // Is popup visible?
 	settings: false, // is settings modal visible?
+	advancedSearchModal: false, // is advanced search modal visible?
 	filtering: false,
 	flashIndex: 0, // incremental index used for flashMessage()
 	request: null, // AJAX request structure object
