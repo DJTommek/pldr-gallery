@@ -479,6 +479,7 @@ function generateCoordsLinks(lat, lon) {
 		waze: 'https://www.waze.com/ul?ll=' + coords,
 		osm: 'https://www.openstreetmap.org/search?whereami=1&query=' + coords + '&mlat=' + lat + '&mlon=' + lon + '#map=17/' + lat + '/' + lon,
 		ingress: 'https://intel.ingress.com?ll=' + coords + '&pll=' + coords,
+		betterlocation: 'https://better-location.palider.cz/' + coords,
 		betterlocationbot: 'https://t.me/BetterLocationBot?start=' + lat.replace('.', '') + '_' + lon.replace('.', ''),
 	}
 	result['mapyczScreenshot'] = 'https://en.mapy.cz/screenshoter?url=' + encodeURIComponent(result['mapycz']) + '&p=3&l=0';

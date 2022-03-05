@@ -61,13 +61,11 @@ hr {
 }
 
 #map {
-	margin-top: 2em;
-	height: 30em;
-	width: 100%;
+	margin: 2em 2em 0; /* Leave gap on both sides to be able to have mouse here to scroll up and down */
+	height: 80vh;
+	min-height: 30em;
 
 	#map-info-window {
-		font-size: 1.1em;
-
 		h6 {
 			text-align: center;
 			margin-top: 0.5em;
@@ -82,33 +80,19 @@ hr {
 			text-align: center;
 			width: 200px;
 			height: 200px;
+			margin: 0.5em auto;
 
-			@media (max-width: 767px) {
-				margin-bottom: 0.5em;
-			}
-
-			a {
-				img {
-					border-radius: 1em;
-					text-align: center;
-					max-width: 200px;
-					max-height: 200px;
-				}
+			a img {
+				border-radius: 1em;
+				text-align: center;
+				max-width: 200px;
+				max-height: 200px;
 			}
 		}
 
-		.content {
-			max-width: 20em;
-			padding-left: 0.5em;
-
-			ul {
-				padding-left: 1em;
-			}
-
-			button {
-				width: 100%;
-				display: block;
-			}
+		.content button {
+			width: 100%;
+			display: block;
 		}
 	}
 }

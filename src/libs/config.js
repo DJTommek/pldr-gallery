@@ -170,6 +170,7 @@ let CONFIG = {
 			'/src/webserver/private/js/class/Item.js',
 			'/src/webserver/private/js/class/Presentation.js',
 			'/src/webserver/private/js/class/Structure.js',
+			'/src/webserver/private/js/class/StructureMap.js',
 			// modules
 			'/src/webserver/private/js/modules/cookie.js',
 			'/src/webserver/private/js/modules/settings.js',
