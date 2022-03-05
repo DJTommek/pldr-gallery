@@ -10,16 +10,8 @@ const loadedStructure = {
 	hoveredStructureItemElement: null,
 	user: null,
 };
-const mapDataStructure = {
-	map: null,
-	mapBounds: null,
-	markers: {
-		photos: {},
-		userLocation: null,
-	},
-	selectedMarker: null,
-	infoWindow: null
-};
+const structureMap = new StructureMap('map').init();
+
 const mapDataSearch = {
 	map: null,
 	markers: {
@@ -255,7 +247,6 @@ $(window).on('hashchange', function () {
 				$('#popup-filename').text(currentFile.text).attr('href', openUrl);
 				$('#popup-download').attr('href', downloadUrl);
 				popupOpen();
-				let openInfoWindowMarker = null;
 
 				function setMediaSrc(type, src) {
 					$('#popup-' + type + ' source').attr('src', src);
@@ -267,7 +258,6 @@ $(window).on('hashchange', function () {
 
 				if (currentFile.isImage) {
 					$('#popup-image').attr('src', openUrl);
-					openInfoWindowMarker = mapDataStructure.markers.photos[currentFile.index] || null;
 				} else if (currentFile.isVideo) {
 					setMediaSrc('video', openUrl);
 				} else if (currentFile.isAudio) {
@@ -276,11 +266,11 @@ $(window).on('hashchange', function () {
 					loadingDone();
 				}
 
-				// If currently opened Item in popup has marker, open InfoWindow in map
-				if (openInfoWindowMarker) {
-					new google.maps.event.trigger(openInfoWindowMarker, 'click');
-				} else {
-					mapDataStructure.infoWindow.close();
+				// If currently opened Item in popup has marker, open map-popup too
+				const currentFileMarker = structureMap.getMarkerFromStructureItem(currentFile);
+				if (currentFileMarker) {
+					structureMap.map.closePopup(); // Close all previously opened map-popups
+					currentFileMarker.openPopup();
 				}
 
 				// @TODO upgrade counter to respect filter
@@ -1001,7 +991,7 @@ function loadSearch(callback) {
 			} else {
 				parseStructure(result.result);
 				S.selectorMove('first');
-				mapParsePhotos();
+				structureMap.markersFromStructureFiles(S.getFiles());
 				S.filter();
 				loadThumbnail();
 			}
@@ -1107,7 +1097,7 @@ function loadStructure(force, callback) {
 				$('#structure-header').html(result.result.header || '');
 				$('#structure-footer').html(result.result.footer || '');
 				parseStructure(result.result);
-				mapParsePhotos();
+				structureMap.markersFromStructureFiles(S.getFiles());
 				$('#navbar-filter input').val('');
 				loadThumbnail();
 				S.filter();
@@ -1268,7 +1258,6 @@ function loadingStructure(loading) {
 	}
 	if (loading === false) {
 		setStatus(false);
-		$('#map').hide();
 		$('#navbar-filter input').prop('disabled', false);
 		$('#navbar-filter .search').prop('disabled', false);
 		$('#advanced-search-run').prop('disabled', false);
@@ -1326,40 +1315,8 @@ function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message
 	}
 }
 
-// noinspection JSUnusedGlobalSymbols (loaded by Google maps API library)
 function mapsInit() {
-	mapStructureInit();
 	mapSearchInit();
-}
-
-function mapStructureInit() {
-	mapDataStructure.map = new google.maps.Map(document.getElementById('map'), {
-		zoom: 7,
-		center: new google.maps.LatLng(49.6, 15.2), // Czechia
-	});
-	console.log("Structure items map loaded");
-
-	// init info window
-	mapDataStructure.infoWindow = new google.maps.InfoWindow({
-		content: 'Empty info window...'
-	});
-
-	getUserLocation(function (coords) { // Show user's location in map
-		if (coords) {
-			const selectedLocationGoogle = {lat: coords.lat, lng: coords.lon};
-			mapDataStructure.markers.userLocation = new google.maps.Marker({
-				map: mapDataStructure.map,
-				position: selectedLocationGoogle,
-				title: 'Your location',
-				zIndex: 10000,
-				icon: {
-					url: 'images/marker-user.svg',
-					scaledSize: new google.maps.Size(11, 11),
-					anchor: new google.maps.Point(6, 6),
-				},
-			});
-		}
-	}, false);
 }
 
 function mapSearchInit() {
@@ -1427,92 +1384,7 @@ function mapSearchMarkerClear() {
  * by periodic checking. After detecting, that map are already loaded, interval is stopped
  */
 function mapParsePhotos() {
-	let loadMapIntervalId = null;
-
-	function updateMapData() {
-		if (mapDataStructure.map === null) {
-			return; // try again later
-		} else { // map is loaded, stop interval
-			clearInterval(loadMapIntervalId);
-		}
-		let showMap = false;
-		mapDataStructure.mapBounds = new google.maps.LatLngBounds();
-		// remove old markers
-		$.each(mapDataStructure.markers.photos, function (index, data) {
-			data.setMap(null);
-			delete mapDataStructure.markers.photos[index];
-		});
-		// create new markers and insert them into map
-		S.getFiles().forEach(function (item) {
-			if (item.coordLat && item.coordLon) {
-				$('#map').show();
-				showMap = true; // at least one item has coordinates
-				mapDataStructure.markers.photos[item.index] = new google.maps.Marker({
-					map: mapDataStructure.map,
-					position: {lat: item.coordLat, lng: item.coordLon},
-					title: item.text,
-					icon: {
-						url: 'images/marker-photo.svg',
-						scaledSize: new google.maps.Size(11, 11),
-						anchor: new google.maps.Point(6, 6),
-					},
-				});
-				// Show infoWindow
-				mapDataStructure.markers.photos[item.index].addListener('click', function () {
-					const links = generateCoordsLinks(item.coordLat, item.coordLon);
-					mapDataStructure.infoWindow.setContent('<div id="map-info-window" data-item-index="' + item.index + '">' +
-						' <div class="image float-md-start">' +
-						'  <a href="' + item.getFileUrl() + '" target="_blank" title="Open in new window">' +
-						'   <i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin"></i>' +
-						'   <img class="thumbnail-not-loaded" src="' + item.getFileUrl() + '&type=thumbnail" onLoad="mapInfoWindowImageLoaded();" onError="mapInfoWindowImageError();" style="display: none;">' +
-						'  </a>' +
-						' </div>' +
-						' <div class="content float-md-end">' +
-						'  <button class="btn btn-primary btn-sm item-select text-truncate" title="Open \'' + item.text + '\' in popup ">' + item.paths.slice(-1)[0] + '</button>' +
-						'  <h6>' + item.coordLat + ',' + item.coordLon + '</h6>' +
-						'  <span class="copy-to-clipboard as-a-link" data-to-copy="' + item.coordLat + ',' + item.coordLon + '" title="Copy to clipboard">Copy <i class="fa fa-clipboard"></i></span>' +
-						'  ,' +
-						'  <a href="' + item.getFileUrl(true) + '" target="_blank" title="Download">download <i class="fa fa-download"></i></a>' +
-						'  ,' +
-						'  <span class="as-a-link item-share" title="Share URL">share <i class="fa fa-share-alt"></i></span>' +
-						'  or open in:' +
-						'  <ul>' +
-						'   <li><a href="' + links.betterlocationbot + '" target="_blank" title="Open in Telegram via BetterLocationBot">Telegram via @BetterLocationBot</a></li>' +
-						'   <li><a href="' + links.google + '" target="_blank" title="Google maps">Google Maps</a></li>' +
-						'   <li><a href="' + links.mapycz + '" target="_blank" title="Mapy.cz">Mapy.cz</a></li>' +
-						'   <li><a href="' + links.waze + '" target="_blank" title="">Waze</a></li>' +
-						'   <li><a href="' + links.here + '" target="_blank" title="">Here</a></li>' +
-						'   <li><a href="' + links.osm + '" target="_blank" title="">OSM</a></li>' +
-						'  </ul>' +
-						' </div>',
-						'</div>');
-					mapDataStructure.infoWindow.open(mapDataStructure.map, this);
-				});
-
-				mapDataStructure.mapBounds.extend(mapDataStructure.markers.photos[item.index].position);
-			}
-		});
-		mapDataStructure.map.fitBounds(mapDataStructure.mapBounds);
-		// there is nothing to show on the map so disable it
-		if (showMap === false) {
-			$('#map').hide();
-		} else {
-			// open InfoWindow in map if currently opened Item is FileItem with coordinates (marker)
-			const item = S.historyGet().last();
-			if (item) {
-				const marker = mapDataStructure.markers.photos[item.index];
-				if (marker) {
-					new google.maps.event.trigger(marker, 'click');
-				}
-			}
-		}
-	}
-
-	// Try to put markers in the map. Because of asynchronous operations, map could be loaded later than data for markers.
-	// Also, interval will server as timeout, to prevent blank map. See https://github.com/DJTommek/pldr-gallery/issues/61
-	loadMapIntervalId = setInterval(function () {
-		updateMapData();
-	}, 100);
+	
 }
 
 function shareUrl(niceUrl) {

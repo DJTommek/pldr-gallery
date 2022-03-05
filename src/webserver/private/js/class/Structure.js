@@ -162,7 +162,7 @@ class Structure {
 	/**
 	 * Get all files loaded into structure
 	 *
-	 * @returns []
+	 * @returns FileItem[]
 	 */
 	getFiles() {
 		return this.files;
