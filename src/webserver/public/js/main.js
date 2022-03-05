@@ -739,6 +739,12 @@ $(function () {
 		loadedStructure.settings = false;
 	});
 
+	$('#modal-search').on('show.bs.modal', function () {
+		loadedStructure.advancedSearchModal = true;
+	}).on('hidden.bs.modal', function () {
+		loadedStructure.advancedSearchModal = false;
+	});
+
 	$(document).on('click', '.copy-to-clipboard', function () {
 		const textToCopy = $(this).data('to-copy');
 		if (copyToClipboard(textToCopy)) {
