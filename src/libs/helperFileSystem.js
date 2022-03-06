@@ -224,8 +224,7 @@ async function getDataFromExifFromFile(fullPath) {
 		if (parsed.format.tags.location) {
 			// @TODO currently works only for +/+ and needs to be updated for other hemispheres (+/-, -/+ and -/-)
 			const matches = parsed.format.tags.location.match(/\+([0-9]{1,2}\.[0-9]+)\+([0-9]{1,3}\.[0-9]+)/);
-			result.coordLat = parseFloat(matches[1]);
-			result.coordLon = parseFloat(matches[2]);
+			result.coords = Coordinates.safe(matches[1], matches[2]);
 		}
 	} else if (typeof extData.metadataBuffer === 'number') {
 		// how big in bytes should be buffer for loading EXIF from file (depends on specification)
@@ -240,10 +239,7 @@ async function getDataFromExifFromFile(fullPath) {
 		FS.closeSync(fd);
 		const parsed = exifParser.create(metadataBuffer).parse();
 
-		if (parsed.tags.GPSLatitude && parsed.tags.GPSLongitude) {
-			result.coordLat = numberRound(parsed.tags.GPSLatitude, 6);
-			result.coordLon = numberRound(parsed.tags.GPSLongitude, 6);
-		}
+		result.coords = Coordinates.safe(parsed.tags.GPSLatitude, parsed.tags.GPSLongitude);
 
 		if (parsed.imageSize && parsed.imageSize.height && parsed.imageSize.height) {
 			result.width = parsed.imageSize.width;

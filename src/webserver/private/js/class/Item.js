@@ -118,7 +118,15 @@ class FileItem extends Item {
 			}
 		}
 
-		this.coords = Coordinates.safe(item.coordLat, item.coordLon);
+		// Allow filling coordinate property either via:
+		// - single "coords"
+		// - two separate values "coordLat" and "coordLon"
+		if (item.coords instanceof Coordinates) {
+			this.coords = item.coords;
+		} else {
+			this.coords = Coordinates.safe(item.coordLat, item.coordLon);
+		}
+
 		this.coordLat = item.coordLat; // backward compatibility
 		this.coordLon = item.coordLon; // backward compatibility
 

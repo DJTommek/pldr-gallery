@@ -385,8 +385,7 @@ function rowToItem(row) {
 		item = new FileItem(null, {
 			path: row.path,
 			size: row.size,
-			coordLat: row.coordinate_lat,
-			coordLon: row.coordinate_lon,
+			coords: Coordinates.safe(row.coordinate_lat, row.coordinate_lon),
 			distance: row.distance,
 		});
 	} else if (row.type === TYPE_FOLDER) {
