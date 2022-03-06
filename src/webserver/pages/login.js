@@ -22,7 +22,9 @@ module.exports = function (webserver, endpoint) {
 		// If is login successfull, user will be redirected back with req.code filled
 		if (code === undefined) {
 			res.redirect(oauth2Client.generateAuthUrl({
-				scope: 'email'
+				scope: [
+					'https://www.googleapis.com/auth/userinfo.email',
+				]
 			}));
 			return;
 		}
