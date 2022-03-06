@@ -65,7 +65,7 @@ class StructureMap extends AbstractMap {
 					'  </ul>' +
 					' </div>' +
 					'</div>';
-				const markerId = btoa(item.coords + item.path); // @TODO create hash instead of encoding
+				const markerId = btoa(encodeURIComponent(item.coords + item.path)); // @TODO create hash instead of encoding
 				this.addMarker(markerId, item.coords, item.text, popupContent);
 				mapBounds.extend(item.coords);
 			}
