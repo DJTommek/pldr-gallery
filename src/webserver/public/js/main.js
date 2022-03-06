@@ -10,16 +10,19 @@ const loadedStructure = {
 	hoveredStructureItemElement: null,
 	user: null,
 };
-const structureMap = new StructureMap('map').init();
-
-const mapDataSearch = {
-	map: null,
-	markers: {
-		selected: null,
-	},
-};
-
 const transparentPixelBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII';
+
+const structureMap = new StructureMap('map').init();
+const advancedSearchMap = new AdvancedSearchMap('advanced-search-map').init();
+advancedSearchMap.map.on('click', function (event) {
+	advancedSearchMap.setMarker(event.latlng);
+	const coords = new Coordinates(event.latlng.lat.toFixed(6), event.latlng.lng.toFixed(6));
+	$('#advanced-search-coords')
+		.text(coords.toString())
+		.attr('href', 'https://better-location.palider.cz/' + coords.toString())
+		.data({lat: coords.lat, lon: coords.lon})
+		.show();
+});
 
 const S = new Structure();
 const presentation = new Presentation();
@@ -65,51 +68,6 @@ function loadingDone(element) {
 		}
 	} else {
 		setStatus(false);
-	}
-}
-
-/**
- * Get user's location
- *
- * @param {function(?Coordinates)} callback User's location or null if unable to load
- * @param ask set false to try to get coordinates quietly (without asking)
- */
-function getUserLocation(callback, ask = true) {
-	if (navigator.geolocation) {
-		/**
-		 * Real user's location getter
-		 *
-		 * @param {function(?Coordinates)} callback User's location or null if unable to load
-		 */
-		function getUserLocationReal(callback) {
-			navigator.geolocation.getCurrentPosition(
-				function (position) {
-					callback(new Coordinates(position.coords.latitude, position.coords.longitude));
-				},
-				function () { // error while loading user's location
-					callback(null);
-				}
-			);
-		}
-
-		if (ask) {
-			getUserLocationReal(function (result) {
-				callback(result);
-			})
-		} else { // check if permission for loading user's location is already granted
-			navigator.permissions.query({
-				name: 'geolocation',
-			}).then(function (result) {
-				if (result.state === 'granted') {
-					getUserLocationReal(function (result) {
-						callback(result);
-					});
-					callback(null);
-				}
-			});
-		}
-	} else {
-		callback(null);
 	}
 }
 
@@ -399,19 +357,9 @@ $(function () {
 	// Event - show/hide map in advanced search and try to silently load user's location
 	$('#advanced-search-sort input[name=sort]').on('change', function () {
 		if ($(this).val() === 'distance') {
-			$('#advanced-search-map-wrap').show();
-
-			// if not location is not yet selected, try to load user's current location
-			const selectedCoordsData = $('#advanced-search-coords').data();
-			if (selectedCoordsData.lat === undefined && selectedCoordsData.lon === undefined) {
-				getUserLocation(function (coords) {
-					if (coords) {
-						mapSearchMarkerSet(coords, true);
-					}
-				}, false);
-			}
+			advancedSearchMap.mapShow();
 		} else {
-			$('#advanced-search-map-wrap').hide();
+			advancedSearchMap.mapHide();
 		}
 	});
 
@@ -479,18 +427,6 @@ $(function () {
 			});
 		}
 	})();
-
-	// Event - load user's location and set it to advanced search map
-	$('#advanced-search-load-user-location').on('click', function () {
-		getUserLocation(function (coords) {
-			mapSearchMarkerClear();
-			if (coords) {
-				mapSearchMarkerSet(coords, true);
-			} else {
-				flashMessage('Unable to get your location, choose it manually from the map.', 'warning');
-			}
-		}, true);
-	});
 
 	$('#advanced-search-run').on('click', function (event) {
 		event.preventDefault();
@@ -1313,78 +1249,6 @@ function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message
 			$('#alert-' + currentFlashId).alert('close');
 		}, fade);
 	}
-}
-
-function mapsInit() {
-	mapSearchInit();
-}
-
-function mapSearchInit() {
-	mapDataSearch.map = new google.maps.Map(document.getElementById('advanced-search-map'), {
-		zoom: 7,
-		center: new google.maps.LatLng(49.6, 15.2), // Czechia
-	});
-
-	getUserLocation(function (coords) { // Show user's location in map
-		if (coords) {
-			const selectedLocationGoogle = {lat: coords.lat, lng: coords.lon};
-			mapDataSearch.markers.userLocation = new google.maps.Marker({
-				map: mapDataSearch.map,
-				position: selectedLocationGoogle,
-				title: 'Your location',
-				zIndex: 10000,
-				icon: {
-					url: 'images/marker-user.svg',
-					scaledSize: new google.maps.Size(11, 11),
-					anchor: new google.maps.Point(6, 6),
-				},
-			});
-		}
-	}, false);
-
-	mapDataSearch.map.addListener('click', function (event) {
-		mapSearchMarkerClear();
-		const coords = new Coordinates(event.latLng.lat().toFixed(6), event.latLng.lng().toFixed(6));
-		mapSearchMarkerSet(coords, false);
-	});
-	console.log('Search map loaded');
-}
-
-function mapSearchMarkerSet(coords, centerToMarker) {
-	$('#advanced-search-coords')
-		.text(coords.toString())
-		.attr('href', 'https://better-location.palider.cz/' + coords.toString())
-		.data({lat: coords.lat, lon: coords.lon})
-		.show();
-	const selectedLocationGoogle = {lat: coords.lat, lng: coords.lon};
-	mapDataSearch.markers.selected = new google.maps.Marker({
-		map: mapDataSearch.map,
-		position: selectedLocationGoogle,
-		title: 'Selected location',
-		animation: google.maps.Animation.DROP,
-	});
-	if (centerToMarker) {
-		mapDataSearch.map.setCenter(selectedLocationGoogle);
-	}
-}
-
-function mapSearchMarkerClear() {
-	$('#advanced-search-coords').hide();
-	if (mapDataSearch.markers.selected !== null) {
-		mapDataSearch.markers.selected.setMap(null);
-		mapDataSearch.markers.selected = null;
-	}
-}
-
-/**
- * Put loaded photos into google maps
- *
- * Note: Because of asynchronous loading both structure data and Google maps,
- * putting markers into map must wait until maps are fully loaded. This is done by
- * by periodic checking. After detecting, that map are already loaded, interval is stopped
- */
-function mapParsePhotos() {
-	
 }
 
 function shareUrl(niceUrl) {

@@ -41,10 +41,6 @@ module.exports = {
 		// Domain, where will be redirected after Google login
 		// Note: include also :port if different than 80 on http or 443 on https
 		redirectUrl: 'http://tomas.palider.cz:3000/login',
-
-		// Generate your own "API key" for Google maps
-		// https://console.developers.google.com/apis/credentials
-		mapApiKey: 'AIzblahblahblahblahblahblahblahblahblah',
 	},
 	security: {
 		// password for emergency killing application via /api/kill?password=someSecureKillPassword

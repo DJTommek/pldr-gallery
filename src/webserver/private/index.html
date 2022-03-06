@@ -369,12 +369,7 @@
 						</p>
 					</div>
 
-					<div id="advanced-search-map-wrap" style="display: none;">
-						<p class="form-text text-muted">
-							Pro vybrání bodu klikni do mapy anebo použij svou aktuální lokaci <span class="as-a-link" id="advanced-search-load-user-location">kliknutím sem</span>.
-						</p>
-						<div id="advanced-search-map"></div>
-					</div>
+					<div id="advanced-search-map" style="display: none;"></div>
 
 					<button type="button" id="advanced-search-run" class="btn btn-primary">
 						<i class="fa fa-search"></i>
@@ -395,7 +390,6 @@
 <script defer type="text/javascript" src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
 <script defer type="text/javascript" src="js/modules.min.js?{{CACHEBUSTER_PUBLIC_JS_MODULES_MIN.JS}}"></script>
 <script defer type="text/javascript" src="js/main.js?{{CACHEBUSTER_PUBLIC_JS_MAIN.JS}}"></script>
-<script defer src="https://maps.googleapis.com/maps/api/js?key={{GOOGLE_MAPS_API_KEY}}&callback=mapsInit"></script>
 <!-- @formatter:off -->
 <script>
 	const CONFIG = {{SERVER_CONFIG}};

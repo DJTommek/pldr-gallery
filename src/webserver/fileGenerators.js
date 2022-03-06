@@ -10,7 +10,6 @@ const structureRepository = require('../libs/repository/structure.js');
 /**
  * Generate public/index.html
  *
- * - inject Google maps API key from config
  * - run cachebuster by replacing every variable {{CACHEBUSTER_<FILE_PATH>}} with modified time in miliseconds
  * 	 For example, if "public/main.css" was lastly modified at 2020-01-01 00:00:00, string {{CACHEBUSTER_PUBLIC_MAIN.CSS}} will be replaced with 1577833200000
  *   In your code:
@@ -48,7 +47,6 @@ module.exports.generateIndexHtml = function() {
 					fileContent = fileContent.replace(replacePair.name, replacePair.value);
 				}
 			});
-			fileContent = fileContent.replace('{{GOOGLE_MAPS_API_KEY}}', CONFIG.google.mapApiKey);
 			fileContent = fileContent.replace('{{CACHEBUSTER_PUBLIC_JS_MODULES_MIN.JS}}', getNewestFileUpdateTime(CONFIG.terser.filesToCompile).toString());
 			fileContent = fileContent.replace('{{FILE_SIZE_PERCENTILES}}', JSON.stringify(await structurePercentiles()));
 			// share some of server-side variables to FE
