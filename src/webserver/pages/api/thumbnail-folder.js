@@ -35,11 +35,16 @@ module.exports = async function (webserver, endpoint) {
 		// User2 with access to images 1, 2 is able to see thumbnail generated from images 1, 2, 3, 4 because it was cached before
 		const canUseCache = perms.test(res.locals.user.getPermissions(), res.locals.path, true);
 
+		const dispositionHeader = 'inline; filename="' + encodeURI(
+			'directory thumbnail - ' + res.locals.fullPathFolder.split('/').at(-2) + '.png'
+		) + '"';
+
 		// Use cached file if possible
 		const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.FOLDER, res.locals.path, true);
 		if (canUseCache && c.thumbnails.folder.cache === true && cacheFilePath) {
 			setHttpHeadersFromConfig();
 			res.setHeader('Content-Type', 'image/png');
+			res.setHeader('Content-Disposition', dispositionHeader);
 			res.startTime('apicache', 'Loading cached thumbnail');
 			res.sendFile(cacheFilePath);
 			return;
@@ -79,6 +84,7 @@ module.exports = async function (webserver, endpoint) {
 
 			setHttpHeadersFromConfig();
 			res.setHeader('Content-Type', 'image/png');
+			res.setHeader('Content-Disposition', dispositionHeader);
 			thumbnailImageStream.pipe(res);
 
 			// if caching is enabled, save it

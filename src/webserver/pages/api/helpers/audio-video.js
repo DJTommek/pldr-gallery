@@ -28,6 +28,7 @@ module.exports = function (webserver, endpointPath) {
 			}
 			const fileSize = FS.statSync(res.locals.fullPathFile).size;
 			const range = req.headers.range;
+			const dispositionHeader = 'inline; filename="' + encodeURI(res.locals.fullPathFile.split('/').pop()) + '"';
 			if (range) {
 				const parts = range.replace(/bytes=/, "").split("-");
 				const start = parseInt(parts[0], 10);
@@ -37,13 +38,15 @@ module.exports = function (webserver, endpointPath) {
 					'Content-Range': `bytes ${start}-${end}/${fileSize}`,
 					'Accept-Ranges': 'bytes',
 					'Content-Length': (end - start) + 1, // chunk size
-					'Content-Type': res.locals.mediaType
+					'Content-Type': res.locals.mediaType,
+					'Content-Disposition': dispositionHeader,
 				});
 				file.pipe(res);
 			} else {
 				res.writeHead(200, {
 					'Content-Length': fileSize,
-					'Content-Type': res.locals.mediaType
+					'Content-Type': res.locals.mediaType,
+					'Content-Disposition': dispositionHeader,
 				});
 				FS.createReadStream(res.locals.fullPathFile).pipe(res);
 			}
