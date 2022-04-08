@@ -208,6 +208,18 @@ if (c.thumbnails.folder.enabled === true && c.thumbnails.folder.cache === true) 
 }
 
 /**
+ * Create cache directory for video if thumbnails are enabled (caching is always enabled)
+ */
+if (c.thumbnails.video.enabled === true) {
+	const path = pathCustom.join(c.cache.path, '/thumbnails/video/');
+	FS.mkdir(path, {recursive: true}, function (error) {
+		if (error) {
+			LOG.error('(Cache) Error while creating folder for video-thumbnails: ' + error.message);
+		}
+	});
+}
+
+/**
  * Create folder for generated less files
  */
 FS.mkdir(PATH.dirname(c.less.options.dest), {recursive: true}, function (error) {
