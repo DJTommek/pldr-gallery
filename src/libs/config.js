@@ -84,6 +84,16 @@ let CONFIG = {
 				// For details about gravity look into Sharp API Composite (https://sharp.pixelplumbing.com/api-composite)
 			],
 		},
+		/**
+		 * Generate thumbnail image from video
+		 * All generated thumbnail are saved into server cache - currently there is no way how to disable it via config.
+		 */
+		video: {
+			enabled: true,
+			httpHeaders: [
+				{name: 'Cache-Control', value: 'public, max-age=31536000'}, // keep generated thumbnail image in user's browser cache
+			],
+		},
 	},
 
 	/**

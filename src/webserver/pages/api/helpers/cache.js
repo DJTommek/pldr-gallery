@@ -6,6 +6,7 @@ const SHA1 = require('sha1');
 module.exports.TYPE = {
 	IMAGE: 0,
 	FOLDER: 1,
+	VIDEO: 2,
 };
 
 /**
@@ -22,6 +23,8 @@ module.exports.getPath = function (type, identificator, check = false) {
 		cacheSubpath = '/thumbnails/image/';
 	} else if (type === this.TYPE.FOLDER) {
 		cacheSubpath = '/thumbnails/folder/';
+	} else if (type === this.TYPE.VIDEO) {
+		cacheSubpath = '/thumbnails/video/';
 	} else {
 		throw new Error('Unknown type "' + type + '" to get thumbnail path.');
 	}

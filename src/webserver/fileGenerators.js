@@ -60,6 +60,9 @@ module.exports.generateIndexHtml = function() {
 					folder: {
 						enabled: CONFIG.thumbnails.folder.enabled,
 					},
+					video: {
+						enabled: CONFIG.thumbnails.video.enabled,
+					},
 				},
 				archive: {
 					enabled: CONFIG.archive.enabled,
