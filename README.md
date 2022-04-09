@@ -10,10 +10,10 @@ This exact demo is included in the source code, just follow Installation instruc
 
 ## Requirements
 
-- Node.js (currently developed with Node.js 16.13.1)
-- MySQL / MariaDB (currently developed with MariaDB 10.6.5)
+- [Node.js](https://nodejs.org/) (currently developed with Node.js 16.13.1)
+- [MySQL](https://www.mysql.com/) / [MariaDB](https://mariadb.org/) (currently developed with MariaDB 10.6.5)
 
-It might work with little bit older versions, try it.
+It might work with older/newer versions, try it.
 
 ### Optional
 - [ffmpeg](https://ffmpeg.org/) for generating thumbnails for video files
