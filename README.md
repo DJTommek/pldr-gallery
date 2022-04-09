@@ -16,7 +16,8 @@ This exact demo is included in the source code, just follow Installation instruc
 It might work with little bit older versions, try it.
 
 ### Optional
-- [ffmpeg](https://ffmpeg.org/) (more precisely just [ffprobe](https://ffmpeg.org/ffprobe.html)) for reading coordinates from video files
+- [ffmpeg](https://ffmpeg.org/) for generating thumbnails for video files
+- [ffprobe](https://ffmpeg.org/ffprobe.html) for reading metadata (eg. coordinates) from video files
 
 ## Installation
 
