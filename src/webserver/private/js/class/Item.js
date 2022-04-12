@@ -107,6 +107,7 @@ class FileItem extends Item {
 		this.isImage = (FileExtensionMapperInstance.getImage(this.ext) !== null);
 		this.isVideo = (FileExtensionMapperInstance.getVideo(this.ext) !== null);
 		this.isAudio = (FileExtensionMapperInstance.getAudio(this.ext) !== null);
+		this.isPdf = this.ext === 'pdf';
 		if (item.icon) {
 			this.icon = item.icon;
 		} else {

@@ -171,8 +171,14 @@ $(window).on('hashchange', function () {
 		if (currentFile) { // loaded item is file
 			setStatus(currentFile.getStatusLoadingText(Settings.load('compress')));
 			S.historyAdd(currentFile);
-			if (presentation.running === true && currentFile.isImage === false && currentFile.isAudio === false && currentFile.isVideo === false) {
-				// file is not viewable (zip, pdf...) so skip in presentation
+			if (
+				presentation.running === true
+				&& currentFile.isImage === false
+				&& currentFile.isAudio === false
+				&& currentFile.isVideo === false
+				&& currentFile.isPdf === false
+			) {
+				// file is not viewable (zip...) so skip in presentation
 				// @TODO causing bug, that file-icon is being visible under next viewable item (eg. audio)
 				presentation.next();
 			}
@@ -185,6 +191,7 @@ $(window).on('hashchange', function () {
 				$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise(),
 				$('#popup-audio').fadeOut(Settings.load('animationSpeed')).promise(),
 				$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise(),
+				$('#popup-pdf').fadeOut(Settings.load('animationSpeed')).promise(),
 				$('#popup-icon').fadeOut(Settings.load('animationSpeed')).promise(),
 			]).then(function () {
 				S.selectorMove(currentFile.index); // highlight loaded image
@@ -216,6 +223,8 @@ $(window).on('hashchange', function () {
 
 				if (currentFile.isImage) {
 					$('#popup-image').attr('src', openUrl);
+				} else if (currentFile.isPdf) {
+					$('#popup-pdf').attr('data', downloadUrl).show();
 				} else if (currentFile.isVideo) {
 					setMediaSrc('video', openUrl);
 				} else if (currentFile.isAudio) {
@@ -610,6 +619,10 @@ $(function () {
 		});
 	});
 
+	$('#popup-pdf').on('load', function () {
+		loadingDone(this);
+	});
+
 	$('#popup-video').on('loadeddata', function () {
 		loadingDone(this);
 	}).on('ended', function () {
@@ -720,6 +733,7 @@ function popupClose() {
 	// animation in promise will skip if elements are already faded out
 	$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise();
 	$('#popup-audio').fadeOut(Settings.load('animationSpeed')).promise();
+	$('#popup-pdf').fadeOut(Settings.load('animationSpeed')).promise();
 	// update image src to cancel loading
 	// @author https://stackoverflow.com/a/5278475/3334403
 	$('#popup-image').attr('src', transparentPixelBase64).fadeOut(Settings.load('animationSpeed')).promise();
