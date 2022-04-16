@@ -37,7 +37,7 @@ module.exports = async function (webserver, endpoint) {
 			const canUseCache = perms.test(res.locals.user.getPermissions(), res.locals.path, true);
 
 			const dispositionHeader = 'inline; filename="' + encodeURI(
-				'directory thumbnail - ' + res.locals.fullPathFolder.split('/').at(-2) + '.png'
+				'directory thumbnail - ' + res.locals.fullPathFolder.split('/').slice(-2, -1) + '.png'
 			) + '"';
 
 			// Use cached file if possible
