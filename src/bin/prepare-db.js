@@ -161,27 +161,30 @@ async function createTables() {
 					.notNullable()
 					.unsigned();
 				console.log('(Knex) Created table "' + CONFIG.db.table.structure + '".');
-				try {
-					// Add column "level", which is generated - not supported in Knex library, so we have to update table manually
-					const query1 = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN level int AS (LENGTH(TRIM(TRAILING \'/\' FROM path)) - LENGTH(REPLACE(TRIM(TRAILING \'/\' FROM path), \'/\', \'\'))) STORED'
-					await knex.schema.raw(query1);
-					console.log('(Knex) Added generated column "level" to table "' + CONFIG.db.table.structure + '".');
-
-					const query2 = 'CREATE INDEX ' + CONFIG.db.table.structure + '_level ON ' + CONFIG.db.table.structure + ' (level)';
-					await knex.schema.raw(query2);
-					console.log('(Knex) Created index on generated column "level" to table "' + CONFIG.db.table.structure + '".');
-				} catch (error) {
-					console.error('(Knex) Error while adding column "level" to table "' + CONFIG.db.table.structure + '": ' + error);
-				}
-				try {
-					// Add column "coordinates", which is generated - not supported in Knex library, so we have to update table manually
-					const query = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN coordinates POINT GENERATED ALWAYS AS (POINT(coordinate_lon, coordinate_lat)) STORED;'
-					await knex.schema.raw(query);
-					console.log('(Knex) Added generated column "coordinates" to table "' + CONFIG.db.table.structure + '".');
-				} catch (error) {
-					console.error('(Knex) Error while adding column "coordinates" to table "' + CONFIG.db.table.structure + '": ' + error);
-				}
 			});
+			try {
+				console.log('(Knex) Altering table "' + CONFIG.db.table.structure + '": adding column "level"...');
+				// Add column "level", which is generated - not supported in Knex library, so we have to update table manually
+				const query1 = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN level int AS (LENGTH(TRIM(TRAILING \'/\' FROM path)) - LENGTH(REPLACE(TRIM(TRAILING \'/\' FROM path), \'/\', \'\'))) STORED'
+				await knex.schema.raw(query1);
+				console.log('(Knex) Added generated column "level" to table "' + CONFIG.db.table.structure + '".');
+
+				console.log('(Knex) Altering table "' + CONFIG.db.table.structure + '": creating index for column "level"...');
+				const query2 = 'CREATE INDEX ' + CONFIG.db.table.structure + '_level ON ' + CONFIG.db.table.structure + ' (level)';
+				await knex.schema.raw(query2);
+				console.log('(Knex) Created index on generated column "level" to table "' + CONFIG.db.table.structure + '".');
+			} catch (error) {
+				console.error('(Knex) Error while adding column "level" to table "' + CONFIG.db.table.structure + '": ' + error);
+			}
+			try {
+				console.log('(Knex) Altering table "' + CONFIG.db.table.structure + '": adding column "coordinates"...');
+				// Add column "coordinates", which is generated - not supported in Knex library, so we have to update table manually
+				const query = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN coordinates POINT GENERATED ALWAYS AS (POINT(coordinate_lon, coordinate_lat)) STORED;'
+				await knex.schema.raw(query);
+				console.log('(Knex) Added generated column "coordinates" to table "' + CONFIG.db.table.structure + '".');
+			} catch (error) {
+				console.error('(Knex) Error while adding column "coordinates" to table "' + CONFIG.db.table.structure + '": ' + error);
+			}
 		} else {
 			console.log('(Knex) Table "' + CONFIG.db.table.structure + '" already exists, skipping...');
 		}
