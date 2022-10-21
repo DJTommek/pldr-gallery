@@ -272,7 +272,7 @@ exports.load = async function load(callback) {
 function clearCache() {
 	USERS = {};
 	PASSWORDS = {};
-	GROUPS = {}
+	GROUPS = {};
 }
 
 class User {
@@ -345,7 +345,7 @@ class User {
 	 * @returns {string}
 	 */
 	gravatarPicture() {
-		const hash = this.email ? utils.md5(this.email)  : '00000000000000000000000000000000';
+		const hash = this.email ? utils.md5(this.email) : '00000000000000000000000000000000';
 		return 'https://www.gravatar.com/avatar/' + hash + '?d=robohash';
 	}
 }
