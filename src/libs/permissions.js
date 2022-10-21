@@ -77,6 +77,28 @@ async function loadGroupsDb() {
 			GROUPS[data['id']].addPermission(data.permission);
 		}
 	});
+
+	checkAndFixDefaultGroups();
+}
+
+/**
+ * Check if default groups are created and return warning
+ */
+function checkAndFixDefaultGroups() {
+	checkAndFixDefaultGroup(module.exports.GROUPS.ALL, 'all')
+	checkAndFixDefaultGroup(module.exports.GROUPS.NON_LOGGED, 'non-logged')
+	checkAndFixDefaultGroup(module.exports.GROUPS.LOGGED, 'logged')
+}
+
+function checkAndFixDefaultGroup(groupId, groupName) {
+	if (!(groupId in GROUPS)) {
+		const sqlString = knex(CONFIG.db.table.user).insert({id: groupId, name: groupName}).toString();
+		LOG.warning('Default group ID ' + groupId + ' (name = ' + groupName + ') is not created in database - application ' +
+			'might misbehave, eg. by not showing all directories and files. ' +
+			'This should be fixed, example: ' +
+			'"' + sqlString + '"');
+		GROUPS[groupId] = new Group(groupId, groupName);
+	}
 }
 
 async function loadPasswordsDb() {
