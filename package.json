@@ -36,7 +36,7 @@
 		"server-timing": "^3.3.1",
 		"sha1": "^1.1.1",
 		"sharp": "^0.30.5",
-		"terser": "^5.6.1"
+		"terser": "^5.14.2"
 	},
 	"devDependencies": {
 		"mocha": "^8.3.2"
