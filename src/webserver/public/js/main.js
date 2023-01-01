@@ -135,6 +135,61 @@ window.onerror = function (msg, url, line, col, error) {
 	// return true;
 };
 
+class MediaInfoRenderer {
+	static GROUP_GENERAL = 'General';
+	static GROUP_LOCATION = 'Location';
+
+	constructor(fileItem) {
+		this.fileItem = fileItem;
+		this.groups = {};
+		this.groups[MediaInfoRenderer.GROUP_GENERAL] = {
+			'Name': fileItem.text,
+			'Path': fileItem.path,
+			'Type': (fileItem.icon ? '<i class="fa fa-' + fileItem.icon + '"></i> ' : '') + fileItem.getTypeText(),
+			'Size': formatBytes(fileItem.size, 2),
+			'Created': fileItem.created.human(true).toString2(),
+		};
+
+		if (fileItem.coords) {
+			const coordsStr = fileItem.coords.toString();
+			this.addInfo(
+				MediaInfoRenderer.GROUP_LOCATION,
+				'Coordinates',
+				'<a href="https://better-location.palider.cz/' + coordsStr + '" target="_blank">' + coordsStr + '</a>'
+			);
+		}
+	}
+
+	addInfo(group, name, value) {
+		if (group in this.groups === false) {
+			this.groups[group] = {};
+		}
+		this.groups[group][name] = value;
+	}
+
+	/**
+	 * @return {string}
+	 */
+	renderHtml() {
+		let mediaInfoHtml = '<table class="table">';
+		for (const groupName in this.groups) {
+			if (groupName !== MediaInfoRenderer.GROUP_GENERAL) {
+				mediaInfoHtml += '<tr><td colspan="2" class="media-info-group-name">' + groupName + '</td></tr>';
+			}
+			const group = this.groups[groupName];
+			for (const mediaInfoName in group) {
+				const mediaInfoValue = group[mediaInfoName];
+				mediaInfoHtml += '<tr>';
+				mediaInfoHtml += '<td>' + mediaInfoName + '</td>';
+				mediaInfoHtml += '<td>' + mediaInfoValue + '</td>';
+				mediaInfoHtml += '</tr>';
+			}
+		}
+		mediaInfoHtml += '</table>';
+		return mediaInfoHtml;
+	}
+}
+
 // If hash is changed, something is being loaded (image of folder)
 $(window).on('hashchange', function () {
 	// save currently loaded folder but can't save FileItem, because we dont know structure yet.
@@ -188,6 +243,8 @@ $(window).on('hashchange', function () {
 
 				let openUrl = currentFile.getFileUrl();
 				const downloadUrl = currentFile.getFileUrl(true);
+				const shareUrl = window.location.origin + '/#' + S.getCurrentFile().url;
+
 				if (openUrl === null) { // If item has no view url, use icon to indicate it is file that has to be downloaded
 					openUrl = downloadUrl;
 					$('#popup-icon').removeClass().addClass('fa fa-5x fa-' + currentFile.icon).fadeIn(Settings.load('animationSpeed'), function () {
@@ -195,7 +252,12 @@ $(window).on('hashchange', function () {
 					});
 				}
 				$('#popup-filename').text(currentFile.text).attr('href', openUrl);
-				$('#popup-download').attr('href', downloadUrl);
+				$('#popup-media-details-download').attr('href', downloadUrl);
+				$('#popup-media-details-share').attr('href', shareUrl);
+
+				const mediaInfoRenderer = new MediaInfoRenderer(currentFile);
+				$('#popup-media-details .data').html(mediaInfoRenderer.renderHtml());
+
 				popupOpen();
 
 				function setMediaSrc(type, src) {
@@ -312,7 +374,7 @@ $(function () {
 
 	loadUserData();
 
-	$('#popup-close').on('click', function () {
+	$('#popup-close, #popup-top-left').on('click', function () {
 		popupClose();
 	});
 	$('#popup-content').on('click', function (event) {
@@ -654,7 +716,7 @@ $(function () {
 	});
 
 	// Event - share file url from popup
-	$('#popup-share').on('click', function () {
+	$('#popup-media-details-share').on('click', function () {
 		shareUrl(window.location.origin + '/#' + S.getCurrentFile().url);
 	});
 
@@ -1256,6 +1318,7 @@ function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message
 }
 
 function shareUrl(niceUrl) {
+	// @TODO probably is not working in Chrome DevTools mobile device emulator
 	if (copyToClipboard(niceUrl)) {
 		flashMessage('URL was copied to clipboard.')
 	} else {

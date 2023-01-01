@@ -159,6 +159,21 @@ class FileItem extends Item {
 	}
 
 	/**
+	 * @return {string}
+	 */
+	getTypeText() {
+		if (this.isImage) {
+			return 'image';
+		} else if (this.isAudio) {
+			return 'audio';
+		} else if (this.isVideo) {
+			return 'video';
+		} else {
+			return 'file';
+		}
+	}
+
+	/**
 	 * Return loading text
 	 *
 	 * @param compressed
