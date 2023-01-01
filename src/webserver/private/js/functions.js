@@ -177,6 +177,16 @@ Array.prototype.pushUnique = function (item) {
 	return this;
 };
 
+const weekDays = [
+	'Sunday',
+	'Monday',
+	'Tuesday',
+	'Wednesday',
+	'Thursday',
+	'Friday',
+	'Saturday',
+];
+
 /**
  * Generate human readable datetime
  *
@@ -185,19 +195,25 @@ Array.prototype.pushUnique = function (item) {
  */
 Date.prototype.human = function (returnObject = false) {
 	let res = {
-		milisecond: (this.getMilliseconds() + '').pad(3, '0', 'left') + '',
-		second: (this.getSeconds() + '').pad(2, '0', 'left') + '',
-		minute: (this.getMinutes() + '').pad(2, '0', 'left') + '',
-		hour: (this.getHours() + '').pad(2, '0', 'left') + '',
-		day: (this.getDate() + '').pad(2, '0', 'left') + '',
-		month: (this.getMonth() + 1 + '').pad(2, '0', 'left') + '',
-		year: (this.getFullYear() + '').pad(2, '0', 'left') + ''
+		milisecond: (this.getMilliseconds() + '').padStart(3, '0') + '',
+		second: (this.getSeconds() + '').padStart(2, '0') + '',
+		minute: (this.getMinutes() + '').padStart(2, '0') + '',
+		hour: (this.getHours() + '').padStart(2, '0') + '',
+		day: (this.getDate() + '').padStart(2, '0') + '',
+		month: (this.getMonth() + 1 + '').padStart(2, '0') + '',
+		year: (this.getFullYear() + '').padStart(2, '0') + '',
 	};
-	res.date = res.year + '.' + res.month + '.' + res.day;
+	res.date = res.year + '-' + res.month + '-' + res.day;
 	res.time = res.hour + ':' + res.minute + ':' + res.second;
+	res.timeMs = res.time + '.' + res.milisecond;
 	res.datetime = res.date + ' ' + res.time;
+	res.datetimeMs = res.datetime + '.' + res.milisecond;
+	res.weekDay = weekDays[this.getDay()];
 	res.toString = function () {
-		return (res.date + ' ' + res.time + '.' + res.milisecond);
+		return res.datetime;
+	};
+	res.toString2 = function () {
+		return res.weekDay + ' ' + res.day + '.' + res.month + '.' + res.year + ' ' + res.time;
 	};
 	if (returnObject === true) {
 		return res;
