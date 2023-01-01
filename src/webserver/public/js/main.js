@@ -346,6 +346,8 @@ $(function () {
 		itemNext(false);
 	}).on("swipeRight.sd", function () {
 		itemPrev(true);
+	}).on("swipeDown.sd", function () {
+		popupClose();
 	});
 
 	// Event - click on image to open in new tab
