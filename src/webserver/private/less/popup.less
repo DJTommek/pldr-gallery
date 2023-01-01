@@ -5,7 +5,7 @@
 	right: 0;
 	bottom: 0;
 	z-index: 1030; /* has to be bigger than #navbar */
-	background: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.9);
 	transition: background-color .3s ease-in-out;
 	text-align: center;
 }
@@ -13,8 +13,9 @@
 #popup-content {
 	width: 100%;
 	height: 100%;
+
 	&.wiggle {
-	  animation: wiggle 0.5s;
+		animation: wiggle 0.5s;
 	}
 }
 
@@ -24,8 +25,8 @@
 #popup-pdf,
 #popup-icon,
 #popup-loading {
-	max-height: inherit;
-	max-width: inherit;
+	max-height: 100%;
+	max-width: 100%;
 	/**
 	 * Vertical and horizontal center image
 	 * This solution respect parent size with gap for footer
@@ -132,3 +133,66 @@
 	left: 0;
 	border-radius: 0 0.5em 0.5em 0;
 }
+
+#popup-top-left,
+#popup-top-right {
+	z-index: 1; /* show above video but has to be under audio */
+	cursor: pointer;
+	position: absolute;
+	top: 0.5em;
+	height: 2em;
+	width: 2em;
+	padding-top: 0.5em;
+	background-color: rgba(@theme-color-text, 0.25);
+	color: @theme-color-primary;
+	font-size: 1.5em;
+	border-radius: 50%;
+
+	&:hover {
+		text-decoration: none;
+		background-color: rgba(@theme-color-text, 0.5);
+	}
+}
+
+#popup-top-left {
+	left: 1em;
+}
+
+#popup-top-right {
+	right: 1em;
+}
+
+#popup-media-details {
+	background-color: @theme-background-color;
+	color: @theme-color-text;
+
+	.buttons {
+		text-align: right;
+		margin-right: 1em;
+
+		a {
+			display: inline-block;
+			padding: 0.5em;
+			border-radius: 50%;
+			background-color: rgba(@theme-color-text, 0.25);
+			color: @theme-color-primary;
+			&:hover {
+				text-decoration: none;
+				background-color: rgba(@theme-color-text, 0.5);
+			}
+		}
+	}
+
+	.data table {
+		color: @theme-color-text; /* override Bootstrap's coloring */
+		.media-info-group-name {
+			padding-top: 1em;
+			font-size: 1.5em;
+		}
+
+		td {
+			vertical-align: middle;
+		}
+	}
+}
+

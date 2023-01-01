@@ -217,20 +217,21 @@
 		<a id="popup-next" href="#" title="Next item (arrow right)"><i class="fa fa-angle-right fa-lg"></i></a>
 	</div>
 
+	<div id="popup-top-left">
+		<i class="fa fa-times"></i>
+	</div>
 
-	<div id="popup-footer" class="list-inline">
-		<a id="popup-download" target="_blank" class="list-inline-item float-start" title="Download file"><i class="fa fa-download" aria-hidden="true"></i></a>
-		<a id="popup-share" target="_blank" class="list-inline-item float-start" title="Copy URL">
-			<i class="fa fa-share-alt fa-fw"></i>
-		</a>
+	<div id="popup-top-right" data-bs-toggle="offcanvas" data-bs-target="#popup-media-details" aria-controls="popup-media-details">
+		<i class="fa fa-ellipsis-v"></i>
+	</div>
+
+	<!-- @TODO redesign WIP -->
+	<div id="popup-details" class="list-inline" style="display: none">
 		<a id="popup-location" target="_blank" style="display: none;" class="list-inline-item float-start" title="Open in Better Location">
 			<i class="fa fa-map-marker fa-fw"></i>
 		</a>
 		<a id="popup-filename" target="_blank" class="list-inline-item float-start" title="Open file in new tab (Enter)">@Generated - Filename</a>
 
-		<span id="popup-close" class="list-inline-item float-end" title="Close popup (Esc)">
-			<i class="fa fa-close fa-lg"></i>
-		</span>
 		<a id="popup-footer-next" class="list-inline-item popup-footer-button float-end d-none d-md-block" title="Next file (Arrow right)">
 			<i class="fa fa-angle-right fa-lg"></i>
 		</a>
@@ -243,6 +244,28 @@
 			<i class="fa fa-angle-left fa-lg"></i>
 		</a>
 		<div id="popup-footer-presentation-progress" style="display: none;"></div>
+	</div>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="popup-media-details" aria-labelledby="popup-media-details-name">
+	<div class="offcanvas-header">
+		<h5 class="offcanvas-title" id="popup-media-details-name">Details</h5>
+		<div class="buttons">
+			<a class="btn btn-outline-secondary" href="#" id="popup-media-details-download" target="_blank">
+				<i class="fa fa-download"></i>
+			</a>
+			<a class="btn btn-outline-secondary" href="#" id="popup-media-details-share">
+				<i class="fa fa-share-alt"></i>
+			</a>
+			<a class="btn btn-outline-secondary" href="#" id="popup-media-details-close" data-bs-dismiss="offcanvas" aria-label="Close">
+				<i class="fa fa-times"></i>
+			</a>
+		</div>
+	</div>
+	<div class="offcanvas-body">
+		<div class="data">
+			<!-- Will be filled when media is opened -->
+		</div>
 	</div>
 </div>
 
