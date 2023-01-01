@@ -141,6 +141,10 @@ class FileExtensionMapper {
 			mpg: { // video but can't be played in browser
 				'icon': Icon.VIDEO,
 			},
+			heic: { // image but can't be displayed in browser (@TODO https://github.com/lovell/sharp/issues/1105#issuecomment-516010573)
+				'mediaType': 'image/heic',
+				'icon': Icon.IMAGE,
+			},
 		};
 		this.all = {...this.images, ...this.videos, ...this.audios, ...this.downloads};
 		this.regexAll = new RegExp('\\.(' + Object.keys(this.all).join('|') + ')$', 'i');
