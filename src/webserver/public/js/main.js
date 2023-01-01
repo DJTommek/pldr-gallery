@@ -27,21 +27,6 @@ advancedSearchMap.map.on('click', function (event) {
 const S = new Structure();
 const presentation = new Presentation();
 
-function loadAndResize() {
-	// resize image in popup to fit the screen
-	const height = window.innerHeight - $('#popup-footer').outerHeight();
-	$('#popup')
-		.css('height', height)
-		.css('width', window.innerWidth);
-	$('#popup-content')
-		.css('max-height', height)
-		.css('max-width', window.innerWidth);
-}
-
-$(window).on('resize', function () {
-	loadAndResize();
-});
-
 function loadingDone(element) {
 	if (element) {
 		$(element).fadeIn(Settings.load('animationSpeed'), function () {
@@ -289,7 +274,6 @@ $(window).on('hashchange', function () {
  * Webpage loading is done
  */
 $(function () {
-	loadAndResize();
 	updateLoginButtons();
 
 	// Save original title into data property
