@@ -386,13 +386,17 @@ $(function () {
 		popupClose();
 	});
 
-	// Event - swipe left and right to get previous or next item
+	// Event - swipe in popup
 	// @TODO not detecting if swipe starts in different DOM than defined (eg. #status)
 	$('#popup-content').swipeDetector()
 		.on('swipeLeft.sd', () => itemNext(false))
 		.on('swipeRight.sd', () => itemPrev(true))
 		.on('swipeDown.sd', () => popupClose())
 		.on('swipeUp.sd', () => bootstrap.Offcanvas.getOrCreateInstance('#popup-media-details').show());
+
+	// Event - swipe in popup media details
+	$('#popup-media-details').swipeDetector()
+		.on('swipeRight.sd', () => bootstrap.Offcanvas.getOrCreateInstance('#popup-media-details').hide())
 
 	// Event - click on image to open in new tab
 	$("#popup-image").on('click', function () {
