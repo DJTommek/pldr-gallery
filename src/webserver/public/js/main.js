@@ -773,6 +773,7 @@ function popupOpen() {
 	loadedStructure.popup = true;
 	$("#navbar-filter input").trigger('blur');
 	$('#popup').fadeIn(Settings.load('animationSpeed'));
+	document.body.style.overflow = 'hidden';
 }
 
 function popupClose() {
@@ -791,6 +792,7 @@ function popupClose() {
 	audioPause();
 	presentation.stop();
 	setStatus(false);
+	document.body.style.overflow = null;
 }
 
 function favouritesAdd(path) {
