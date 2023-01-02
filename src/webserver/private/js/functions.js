@@ -223,6 +223,26 @@ Date.prototype.human = function (returnObject = false) {
 };
 
 /**
+ * Return diff between today and provided date.
+ *
+ * @returns {number}
+ */
+Date.prototype.ago = function () {
+	const now = new Date();
+	return now.getTime() - this.getTime();
+};
+
+/**
+ * Format diff between now and provided date
+ *
+ * @param {boolean} short
+ * @return {string}
+ */
+Date.prototype.agoHuman = function (short = false) {
+	return msToHuman(Math.max(this.ago(), 0), short);
+};
+
+/**
  * Format bytes to human readable unit (kb, mb, gb etc) depending on how many bytes
  *
  * @author https://stackoverflow.com/a/18650828/3334403
@@ -304,11 +324,12 @@ global.isNumeric = isNumeric;
  * Format miliseconds to human redable string, 10d 2h 52m 684ms
  *
  * @param {number} input Milliseconds
+ * @param {boolean} short Return only highest value (eg 10d)
  * @returns {String}
  */
 global.msToHuman = msToHuman;
 
-function msToHuman(input) {
+function msToHuman(input, short = false) {
 	if (typeof input !== 'number' || input < 0) {
 		throw new Error('Parameter "miliseconds" has to be positive number.');
 	}
@@ -320,14 +341,23 @@ function msToHuman(input) {
 	const minutes = Math.floor((input / (1000 * 60)) % 60);
 	const hours = Math.floor((input / (1000 * 60 * 60)) % 24);
 	const days = Math.floor((input / (1000 * 60 * 60 * 24)));
+	const years = Math.floor((input / (1000 * 60 * 60 * 24 * 365.25)));
 
 	let result = '';
+	result += (years > 0 ? ' ' + years + 'y' : '');
 	result += (days > 0 ? ' ' + days + 'd' : '');
 	result += (hours > 0 ? ' ' + hours + 'h' : '');
 	result += (minutes > 0 ? ' ' + minutes + 'm' : '');
 	result += (seconds > 0 ? ' ' + seconds + 's' : '');
 	result += (milliseconds > 0 ? ' ' + milliseconds + 'ms' : '');
-	return result.trim();
+	result = result.trim();
+
+	if (short) {
+		return result.split(' ').slice(0, 1);
+	}
+
+	return result;
+
 }
 
 /**
