@@ -147,7 +147,7 @@ class MediaInfoRenderer {
 			'Path': fileItem.path,
 			'Type': (fileItem.icon ? '<i class="fa fa-' + fileItem.icon + '"></i> ' : '') + fileItem.getTypeText(),
 			'Size': formatBytes(fileItem.size, 2),
-			'Created': fileItem.created.human(true).toString2(),
+			'Created': fileItem.created.human(true).toString2() + ' (' + fileItem.created.agoHuman(true) + ' ago)',
 		};
 
 		if (fileItem.coords) {
@@ -1237,8 +1237,7 @@ function parseStructure(items) {
 			dateHtml += lastScanHuman.date + ' ';
 		}
 		dateHtml += lastScanHuman.time;
-		const lastScanAgoHuman = msToHuman(Math.max(new Date() - lastScan.getTime(), 0), true);
-		dateHtml += ' (' + lastScanAgoHuman.split(' ').slice(0, 1) + ' ago)';
+		dateHtml += ' (' + lastScan.agoHuman(true) + ' ago)';
 		$('#structure-scan .date').html(dateHtml);
 		$('#structure-scan').show();
 	} else {
