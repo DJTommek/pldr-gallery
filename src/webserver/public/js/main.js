@@ -3,6 +3,7 @@ const loadedStructure = {
 	loadedFolder: '', // default is loaded nothing
 	popup: false, // Is popup visible?
 	settings: false, // is settings modal visible?
+	mediaInfo: false, // is media info offcanvas visible?
 	advancedSearchModal: false, // is advanced search modal visible?
 	filtering: false,
 	flashIndex: 0, // incremental index used for flashMessage()
@@ -191,7 +192,15 @@ class MediaInfoRenderer {
 }
 
 // If hash is changed, something is being loaded (image of folder)
-$(window).on('hashchange', function () {
+$(window).on('hashchange', function (event) {
+
+	if (loadedStructure.mediaInfo) {
+		// Close currently opened media info
+		// @HACK This supposed to be on "back" button (web browser or Android back) but no native event is available
+		bootstrap.Offcanvas.getOrCreateInstance('#popup-media-details').hide();
+		event.preventDefault();
+	}
+
 	// save currently loaded folder but can't save FileItem, because we dont know structure yet.
 	S.setCurrent(pathFromUrl(window.location.hash));
 
@@ -367,6 +376,10 @@ $(function () {
 			});
 		}
 	});
+
+	const mediaDetailsOffcanvas = document.getElementById('popup-media-details');
+	mediaDetailsOffcanvas.addEventListener('show.bs.offcanvas', event => loadedStructure.mediaInfo = true);
+	mediaDetailsOffcanvas.addEventListener('hidden.bs.offcanvas', event => loadedStructure.mediaInfo = false);
 
 	if (CONFIG.archive.enabled === false) {
 		$('#structure-download-archive').remove();
