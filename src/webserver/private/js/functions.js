@@ -340,7 +340,7 @@ function msToHuman(input, short = false) {
 	const seconds = Math.floor((input / (1000)) % 60);
 	const minutes = Math.floor((input / (1000 * 60)) % 60);
 	const hours = Math.floor((input / (1000 * 60 * 60)) % 24);
-	const days = Math.floor((input / (1000 * 60 * 60 * 24)));
+	const days = Math.floor((input / (1000 * 60 * 60 * 24)) % 365.25);
 	const years = Math.floor((input / (1000 * 60 * 60 * 24 * 365.25)));
 
 	let result = '';
