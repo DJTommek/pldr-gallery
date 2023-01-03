@@ -1195,15 +1195,14 @@ function parseStructure(items) {
 	S.getFiles().forEach(function (item) {
 		contentTiles += '<span class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
 		contentTiles += ' <i class="icon fa fa-' + item.icon + ' fa-fw"></i>';
-		if (item.isImage && CONFIG.thumbnails.image.enabled) {
-			// this image is rendered above icon so if image is loaded, icon will automatically hide
-			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="' + item.getFileUrl() + '&type=thumbnail">';
-		} else if (item.isVideo && CONFIG.thumbnails.video.enabled) {
-			// this image is rendered above icon so if image is loaded, icon will automatically hide
-			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="/api/thumbnail-video?path=' + item.getEncodedPath() + '">';
+
+		const thumbnailUrl = item.getThumbnailUrl();
+		if (thumbnailUrl) {
+			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="' + thumbnailUrl + '">';
 		} else {
 			contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		}
+
 		contentTiles += ' <a href="#' + item.url + '" class="name">' + item.text + '</a>';
 
 		if (item.coords) {

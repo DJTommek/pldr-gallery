@@ -44,7 +44,7 @@ class StructureMap extends AbstractMap {
 					' <div class="image col-md">' +
 					'  <a href="' + item.getFileUrl() + '" target="_blank" title="Open in new window">' +
 					'   <i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin"></i>' +
-					'   <img class="thumbnail-not-loaded" src="' + item.getFileUrl() + '&type=thumbnail" onLoad="mapInfoWindowImageLoaded();" onError="mapInfoWindowImageError();" style="display: none;">' +
+					'   <img class="thumbnail-not-loaded" src="' + item.getThumbnailUrl() + '" onLoad="mapInfoWindowImageLoaded();" onError="mapInfoWindowImageError();" style="display: none;">' +
 					'  </a>' +
 					' </div>' +
 					' <div class="content col-md">' +

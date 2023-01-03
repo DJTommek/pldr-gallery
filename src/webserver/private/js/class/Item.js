@@ -159,6 +159,19 @@ class FileItem extends Item {
 	}
 
 	/**
+	 * @return {null|string}
+	 */
+	getThumbnailUrl() {
+		if (this.isImage) {
+			return '/api/image?path=' + this.getEncodedPath() + '&type=thumbnail';
+		}
+		if (this.isVideo) {
+			return '/api/thumbnail-video?path=' + this.getEncodedPath();
+		}
+		return null;
+	}
+
+	/**
 	 * @return {string}
 	 */
 	getTypeText() {
