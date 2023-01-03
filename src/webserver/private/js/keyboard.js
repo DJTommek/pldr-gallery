@@ -218,6 +218,11 @@ jwerty.key('backspace', function (e) {
 });
 
 jwerty.key('esc', function (e) {
+	if (loadedStructure.mediaInfo) {
+		bootstrap.Offcanvas.getOrCreateInstance('#popup-media-details').hide();
+		return;
+	}
+
 	// close newest opened flash message
 	if ($('#flash-message > div').length > 0) {
 		$('#flash-message > div').first().alert('close');
