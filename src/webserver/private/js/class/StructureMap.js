@@ -7,7 +7,7 @@ class StructureMap extends AbstractMap {
 		iconUrl: 'images/marker-photo.svg',
 		iconSize: [11, 11],
 		iconAnchor: [5, 5],
-	})
+	});
 
 	init() {
 		super.init();
@@ -66,7 +66,7 @@ class StructureMap extends AbstractMap {
 					' </div>' +
 					'</div>';
 				const markerId = btoa(encodeURIComponent(item.coords + item.path)); // @TODO create hash instead of encoding
-				this.addMarker(markerId, item.coords, item.text, popupContent);
+				this.addMarker(markerId, item, popupContent);
 				mapBounds.extend(item.coords);
 			}
 		}
@@ -84,20 +84,27 @@ class StructureMap extends AbstractMap {
 		return this.getMarker(btoa(item.coords + item.path));
 	}
 
-	addMarker(uniqueId, coords, title = null, popupContent = null) {
+	generateThumbnailIcon(item) {
+		const thumbnailUrl = item.getThumbnailUrl();
+		return L.divIcon({
+			className: 'custom-div-icon',
+			html: '<div class="map-thumbnail-icon"><img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="' + thumbnailUrl + '"></div>',
+			iconSize: [50, 50],
+			iconAnchor: [25, 25]
+		});
+	}
+
+	addMarker(uniqueId, item, popupContent = null) {
 		if (uniqueId in this.markers) {
-			throw new Error('Marker with ID already exists (coords: ' + coords + ')');
+			throw new Error('Marker with ID already exists (coords: ' + item.coords + ')');
 		}
 
-		const marker = L.marker(coords, {
-			title: title ? title : '',
-			icon: this.defaultIcon,
+		const marker = L.marker(item.coords, {
+			title: item.text ? item.text : '',
+			icon: (item.isImage || item.isVideo) ? this.generateThumbnailIcon(item) : this.defaultIcon,
 		});
 		if (popupContent) {
 			const popup = L.popup().setContent(popupContent);
-			marker.on('popupopen', function (event) {
-				console.log('Popup open on marker coords ' + coords);
-			});
 			marker.bindPopup(popup);
 		}
 		marker.addTo(this.map);

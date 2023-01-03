@@ -95,6 +95,19 @@ hr {
 			display: block;
 		}
 	}
+
+	.map-thumbnail-icon {
+		img {
+			border-radius: 50%;
+			background-color: rgba(@theme-background-color-secondary, 0.1);
+			height: 50px;
+			width: 50px;
+			border: 0.2em solid rgba(@theme-background-color-secondary, 0.1);
+			&:hover {
+				border-color: @theme-color-primary;
+			}
+		}
+	}
 }
 
 #advanced-search-map {
