@@ -1037,11 +1037,11 @@ function loadSearch(callback) {
  * After first thumbnail is loaded (or error while loading) it will call itself again and load next thumbnail image
  */
 function loadThumbnail() {
-	if ($('#structure .structure-item .thumbnail-loading-icon').length > 0) {
+	if ($('.thumbnail-loading-icon').length > 0) {
 		console.log('Thumbnail is already loading, canceling new request.');
 		return;
 	}
-	const thumbnailsNotLoaded = $('#structure .thumbnail-not-loaded:visible');
+	const thumbnailsNotLoaded = $('.thumbnail-not-loaded:visible');
 	if (thumbnailsNotLoaded.length > 0) {
 		let thumbnailToLoad = null;
 
