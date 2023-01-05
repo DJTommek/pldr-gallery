@@ -218,8 +218,8 @@ jwerty.key('backspace', function (e) {
 });
 
 jwerty.key('esc', function (e) {
-	if (loadedStructure.mediaInfo) {
-		bootstrap.Offcanvas.getOrCreateInstance('#popup-media-details').hide();
+	if (loadedStructure.mediaInfoCanvas.isShown()) {
+		loadedStructure.mediaInfoCanvas.hide();
 		return;
 	}
 

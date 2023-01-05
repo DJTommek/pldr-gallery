@@ -3,7 +3,7 @@ const loadedStructure = {
 	loadedFolder: '', // default is loaded nothing
 	popup: false, // Is popup visible?
 	settings: false, // is settings modal visible?
-	mediaInfo: false, // is media info offcanvas visible?
+	mediaInfoCanvas: null, // MediaDetailsCanvas instance
 	advancedSearchModal: false, // is advanced search modal visible?
 	filtering: false,
 	flashIndex: 0, // incremental index used for flashMessage()
@@ -191,13 +191,53 @@ class MediaInfoRenderer {
 	}
 }
 
+class MediaDetailsCanvas {
+	constructor() {
+		this.item = null;
+		this.elementId = 'popup-media-details';
+		this.bootstrapInstance = bootstrap.Offcanvas.getOrCreateInstance('#' + this.elementId);
+	}
+
+	/**
+	 * @param {FileItem} item
+	 */
+	setItem(item) {
+		this.item = item;
+		this.render();
+		return this;
+	}
+
+	render() {
+		const mediaInfoRenderer = new MediaInfoRenderer(this.item);
+		$('#' + this.elementId + ' .data').html(mediaInfoRenderer.renderHtml());
+		return this;
+	}
+
+	/**
+	 * @return {boolean}
+	 */
+	isShown() {
+		return this.bootstrapInstance._isShown;
+	}
+
+	show() {
+		this.bootstrapInstance.show();
+		return this;
+	}
+
+	hide() {
+		this.bootstrapInstance.hide();
+		return this;
+	}
+}
+
 // If hash is changed, something is being loaded (image of folder)
 $(window).on('hashchange', function (event) {
 
-	if (loadedStructure.mediaInfo) {
+	if (loadedStructure.mediaInfoCanvas.isShown()) {
 		// Close currently opened media info
 		// @HACK This supposed to be on "back" button (web browser or Android back) but no native event is available
-		bootstrap.Offcanvas.getOrCreateInstance('#popup-media-details').hide();
+		loadedStructure.mediaInfoCanvas.hide();
 		event.preventDefault();
 	}
 
@@ -264,8 +304,7 @@ $(window).on('hashchange', function (event) {
 				$('#popup-media-details-download').attr('href', downloadUrl);
 				$('#popup-media-details-share').attr('href', shareUrl);
 
-				const mediaInfoRenderer = new MediaInfoRenderer(currentFile);
-				$('#popup-media-details .data').html(mediaInfoRenderer.renderHtml());
+				loadedStructure.mediaInfoCanvas.setItem(currentFile);
 
 				popupOpen();
 
@@ -355,6 +394,9 @@ $(function () {
 		window.location.hash = pathToUrl(Cookies.get('pmg-redirect'));
 		Cookies.remove('pmg-redirect');
 	}
+
+	loadedStructure.mediaInfoCanvas = new MediaDetailsCanvas();
+
 	// If not set hash, load url from last time
 	if (!window.location.hash && Settings.load('hashBeforeUnload')) {
 		window.location.hash = pathToUrl(Settings.load('hashBeforeUnload'));
@@ -377,13 +419,10 @@ $(function () {
 		}
 	});
 
-	const mediaDetailsOffcanvas = document.getElementById('popup-media-details');
-	mediaDetailsOffcanvas.addEventListener('show.bs.offcanvas', event => loadedStructure.mediaInfo = true);
-	mediaDetailsOffcanvas.addEventListener('hidden.bs.offcanvas', event => loadedStructure.mediaInfo = false);
-
 	if (CONFIG.archive.enabled === false) {
 		$('#structure-download-archive').remove();
 	}
+
 
 	loadUserData();
 
@@ -405,11 +444,11 @@ $(function () {
 		.on('swipeLeft.sd', () => itemNext(false))
 		.on('swipeRight.sd', () => itemPrev(true))
 		.on('swipeDown.sd', () => popupClose())
-		.on('swipeUp.sd', () => bootstrap.Offcanvas.getOrCreateInstance('#popup-media-details').show());
+		.on('swipeUp.sd', () => loadedStructure.mediaInfoCanvas.show());
 
 	// Event - swipe in popup media details
 	$('#popup-media-details').swipeDetector()
-		.on('swipeRight.sd', () => bootstrap.Offcanvas.getOrCreateInstance('#popup-media-details').hide())
+		.on('swipeRight.sd', () => loadedStructure.mediaInfoCanvas.hide())
 
 	// Event - click on image to open in new tab
 	$("#popup-image").on('click', function () {
