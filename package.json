@@ -27,7 +27,7 @@
 		"fluent-ffmpeg": "^2.1",
 		"globby": "^11.1",
 		"google-auth-library": "^7.0",
-		"knex": "^0.95",
+		"knex": "^2.4",
 		"less-middleware": "^3.1",
 		"lodash.merge": "^4.6",
 		"mysql": "^2.18",
