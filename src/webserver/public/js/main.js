@@ -530,9 +530,10 @@ $(function () {
 		}
 	})();
 
-	$('#advanced-search-run').on('click', async function (event) {
+	$('.advanced-search-run').on('click', async function (event) {
 		event.preventDefault();
-		await loadSearch();
+		const searchDir = $(this).data('searchDir') ?? null;
+		await loadSearch(searchDir);
 	});
 
 	$('#popup-footer-presentation').on('click', function () {
@@ -1056,12 +1057,12 @@ async function loadSearch(path = null) {
 		},
 		beforeSend: function () {
 			loadingStructure(true);
-			$('#advanced-search-run i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
+			$('.advanced-search-run i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
 			$('#structure-search .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
 		},
 		complete: function () {
 			loadingStructure(false);
-			$('#advanced-search-run i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
+			$('.advanced-search-run i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
 			$('#structure-search .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
 		}
 	});

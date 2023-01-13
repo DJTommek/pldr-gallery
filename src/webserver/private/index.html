@@ -163,17 +163,74 @@
 	</div>
 
 	<div id="structure-search" class="input-group">
-		<input id="structure-search-input" type="search" class="form-control" placeholder="Filter" disabled/>
+		<input id="structure-search-input" type="search" class="form-control" placeholder="Vyhledávání" disabled/>
 		<span class="input-group-text">
 			<span class="filtered"><i class="fa fa-circle-o-notch fa-spin"></i></span>
 			/
 			<span class="total"><i class="fa fa-circle-o-notch fa-spin"></i></span>
 		</span>
-		<button class="btn btn-outline-secondary" type="button" title="Advanced search">
+		<button class="btn btn-outline-secondary" type="button" title="Advanced search" data-bs-toggle="collapse" data-bs-target="#advanced-search-form">
 			<i class="fa fa-caret-down"></i>
 			<span class="d-none d-sm-inline">Advanced</span>
 		</button>
 	</div>
+
+	<form id="advanced-search-form" class="accordion-collapse collapse">
+		<div id="advanced-search-size-wrap" style="display: none;">
+			<label for="advanced-search-size" class="form-label">
+				Velikost souborů (<span id="advanced-search-size-min"></span>
+				-
+				<span id="advanced-search-size-max"></span>)
+			</label>
+			<div id="advanced-search-size"></div>
+		</div>
+
+		<div id="advanced-search-sort">
+			<h5>Seřadit podle:</h5>
+			<div class="form-check">
+				<input type="radio" name="sort" value="name" checked class="form-check-input" id="advanced-search-sort-name">
+				<label class="form-check-label" for="advanced-search-sort-name">
+					názvu
+				</label>
+			</div>
+
+			<div class="form-check">
+				<input type="radio" name="sort" value="size" class="form-check-input" id="advanced-search-sort-size">
+				<label class="form-check-label" for="advanced-search-sort-size">
+					velikosti
+				</label>
+			</div>
+
+			<div class="form-check">
+				<input type="radio" name="sort" value="created" class="form-check-input" id="advanced-search-sort-created">
+				<label class="form-check-label" for="advanced-search-sort-created">
+					vytvoření
+				</label>
+			</div>
+
+			<div class="form-check">
+				<input type="radio" name="sort" value="distance" class="form-check-input" id="advanced-search-sort-distance">
+				<label class="form-check-label" for="advanced-search-sort-distance">
+					vzdálenosti
+					<a href="#" id="advanced-search-coords" target="_blank" title="Open in BetterLocation" style="display: none"></a>
+				</label>
+			</div>
+			<p class="form-text text-muted">
+				Zobrazí se pouze soubory, které obsahují informaci o poloze a seřadí se od nejbližšího k vybranému místu v mapě.<br>
+			</p>
+		</div>
+
+		<div id="advanced-search-map" style="display: none;"></div>
+
+		<button type="button" class="btn btn-primary advanced-search-run" data-search-dir="/">
+			<i class="fa fa-search"></i>
+			Hledat ve všech složkách
+		</button>
+		<button type="button" class="btn btn-primary advanced-search-run">
+			<i class="fa fa-search"></i>
+			Hledat v podsložkách
+		</button>
+	</form>
 
 	<div id="structure-tiles"></div>
 	<div id="structure-scan" style="display: none;">
@@ -336,76 +393,6 @@
 				<button type="button" id="settings-passwords-load" class="btn btn-primary">Načíst</button>
 				<p id="settings-passwords-nothing" style="display: none;">Na tomto zařízení nejsou uložená žádná hesla.</p>
 				<div id="settings-passwords-list"></div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div id="modal-search" class="modal fade" tabindex="-1" role="dialog">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title"><i class="fa fa-search"></i> Advanced search</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<form id="advanced-search-form">
-					<div class="mb-3">
-						<label for="advanced-search-string" class="form-label">Název složky či souboru</label>
-						<input type="text" id="advanced-search-string" class="form-control">
-					</div>
-
-					<div id="advanced-search-size-wrap" style="display: none;">
-						<label for="advanced-search-size" class="form-label">
-							Velikost souborů (<span id="advanced-search-size-min"></span>
-							-
-							<span id="advanced-search-size-max"></span>)
-						</label>
-						<div id="advanced-search-size"></div>
-					</div>
-
-					<div id="advanced-search-sort">
-						<h5>Seřadit podle:</h5>
-						<div class="form-check">
-							<input type="radio" name="sort" value="name" checked class="form-check-input" id="advanced-search-sort-name">
-							<label class="form-check-label" for="advanced-search-sort-name">
-								názvu
-							</label>
-						</div>
-
-						<div class="form-check">
-							<input type="radio" name="sort" value="size" class="form-check-input" id="advanced-search-sort-size">
-							<label class="form-check-label" for="advanced-search-sort-size">
-								velikosti
-							</label>
-						</div>
-
-						<div class="form-check">
-							<input type="radio" name="sort" value="created" class="form-check-input" id="advanced-search-sort-created">
-							<label class="form-check-label" for="advanced-search-sort-created">
-								vytvoření
-							</label>
-						</div>
-
-						<div class="form-check">
-							<input type="radio" name="sort" value="distance" class="form-check-input" id="advanced-search-sort-distance">
-							<label class="form-check-label" for="advanced-search-sort-distance">
-								vzdálenosti
-								<a href="#" id="advanced-search-coords" target="_blank" title="Open in BetterLocation" style="display: none"></a>
-							</label>
-						</div>
-						<p class="form-text text-muted">
-							Zobrazí se pouze soubory, které obsahují informaci o poloze a seřadí se od nejbližšího k vybranému místu v mapě.<br>
-						</p>
-					</div>
-
-					<div id="advanced-search-map" style="display: none;"></div>
-
-					<button type="button" id="advanced-search-run" class="btn btn-primary">
-						<i class="fa fa-search"></i>
-						Hledat
-					</button>
-				</form>
 			</div>
 		</div>
 	</div>
