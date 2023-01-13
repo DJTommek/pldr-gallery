@@ -25,7 +25,7 @@ advancedSearchMap.map.on('click', function (event) {
 		.show();
 });
 
-const S = new Structure();
+const structure = new Structure();
 const presentation = new Presentation();
 
 function loadingDone(element) {
@@ -62,7 +62,7 @@ function loadingDone(element) {
  */
 function itemPrev10(stopPresentation) {
 	for (let i = 0; i < 9; i++) { // only 9 times. 10th time is in itemPrev()
-		S.selectorMove('up');
+		structure.selectorMove('up');
 	}
 	itemPrev(stopPresentation);
 }
@@ -74,15 +74,15 @@ function itemPrev(stopPresentation) {
 	presentation.clearTimeout(); // to prevent running multiple presentation timeouts at the same time
 	videoPause();
 	audioPause();
-	const currentFileIndex = S.selectedIndex;
-	S.selectorMove('up');
+	const currentFileIndex = structure.selectedIndex;
+	structure.selectorMove('up');
 	// if new selected item is not file, select first file and show it
-	if (S.getItem(S.selectedIndex).isFile === false) {
-		S.selectorMove(S.getFirstFile().index);
+	if (structure.getItem(structure.selectedIndex).isFile === false) {
+		structure.selectorMove(structure.getFirstFile().index);
 	}
-	S.selectorSelect();
+	structure.selectorSelect();
 	// do wiggle animation if there is no item to move to
-	if (currentFileIndex === S.selectedIndex) {
+	if (currentFileIndex === structure.selectedIndex) {
 		$('#popup-content').addClass('wiggle');
 		setTimeout(function () {
 			$('#popup-content').removeClass('wiggle');
@@ -97,11 +97,11 @@ function itemNext(stopPresentation) {
 	presentation.clearTimeout(); // to prevent running multiple presentation timeouts at the same time
 	videoPause();
 	audioPause();
-	const currentFileIndex = S.selectedIndex;
-	S.selectorMove('down');
-	S.selectorSelect();
+	const currentFileIndex = structure.selectedIndex;
+	structure.selectorMove('down');
+	structure.selectorSelect();
 	// do wiggle animation if there is no item to move to
-	if (currentFileIndex === S.selectedIndex) {
+	if (currentFileIndex === structure.selectedIndex) {
 		$('#popup-content').addClass('wiggle');
 		setTimeout(function () {
 			$('#popup-content').removeClass('wiggle');
@@ -111,7 +111,7 @@ function itemNext(stopPresentation) {
 
 function itemNext10(stopPresentation) {
 	for (let i = 0; i < 9; i++) { // only 9 times. 10th time is in itemNext()
-		S.selectorMove('down');
+		structure.selectorMove('down');
 	}
 	itemNext(stopPresentation);
 }
@@ -242,24 +242,24 @@ $(window).on('hashchange', function (event) {
 	}
 
 	// save currently loaded folder but can't save FileItem, because we dont know structure yet.
-	S.setCurrent(pathFromUrl(window.location.hash));
+	structure.setCurrent(pathFromUrl(window.location.hash));
 
 	// Update browser title as browsing folders or files
-	$('html head title').text(S.getCurrentFolder().path + ' ☁ ' + $('html head title').data('original-title'));
+	$('html head title').text(structure.getCurrentFolder().path + ' ☁ ' + $('html head title').data('original-title'));
 
 	// load folder structure
 	loadStructure(false, function () {
 
 		// save currently loaded folder AND currently selected file (if any) because structure is already loaded
-		S.setCurrent(pathFromUrl(window.location.hash)); // save file if is opened in popup
+		structure.setCurrent(pathFromUrl(window.location.hash)); // save file if is opened in popup
 
 		/*
 		 * Open popup to show file
 		 */
-		const currentFile = S.getCurrentFile();
+		const currentFile = structure.getCurrentFile();
 		if (currentFile) { // loaded item is file
 			setStatus(currentFile.getStatusLoadingText(Settings.load('compress')));
-			S.historyAdd(currentFile);
+			structure.historyAdd(currentFile);
 			if (
 				presentation.running === true
 				&& currentFile.isImage === false
@@ -283,7 +283,7 @@ $(window).on('hashchange', function (event) {
 				$('#popup-pdf').fadeOut(Settings.load('animationSpeed')).promise(),
 				$('#popup-icon').fadeOut(Settings.load('animationSpeed')).promise(),
 			]).then(function () {
-				S.selectorMove(currentFile.index); // highlight loaded image
+				structure.selectorMove(currentFile.index); // highlight loaded image
 				if (currentFile.coords) {
 					$('#popup-location').attr('href', 'https://better-location.palider.cz/' + currentFile.coords).show();
 				} else {
@@ -292,7 +292,7 @@ $(window).on('hashchange', function (event) {
 
 				let openUrl = currentFile.getFileUrl();
 				const downloadUrl = currentFile.getFileUrl(true);
-				const shareUrl = window.location.origin + '/#' + S.getCurrentFile().url;
+				const shareUrl = window.location.origin + '/#' + structure.getCurrentFile().url;
 
 				if (openUrl === null) { // If item has no view url, use icon to indicate it is file that has to be downloaded
 					openUrl = downloadUrl;
@@ -336,10 +336,10 @@ $(window).on('hashchange', function (event) {
 				}
 
 				// @TODO upgrade counter to respect filter
-				$('#popup-counter').text((currentFile.index + 1 - S.getFolders().length) + '/' + S.getFiles().length);
+				$('#popup-counter').text((currentFile.index + 1 - structure.getFolders().length) + '/' + structure.getFiles().length);
 
 				// generate URL for previous file buttons
-				const prevFile = S.getPrevious(currentFile.index);
+				const prevFile = structure.getPrevious(currentFile.index);
 				let prevFileUrl = currentFile.url; // default is current file (do nothing)
 				if (prevFile && prevFile.isFile) { // if there is some previous file
 					prevFileUrl = prevFile.url;
@@ -348,7 +348,7 @@ $(window).on('hashchange', function (event) {
 				$('#popup-prev').attr('href', '#' + prevFileUrl);
 
 				// generate URL for next file buttons
-				const nextFile = S.getNext(currentFile.index);
+				const nextFile = structure.getNext(currentFile.index);
 				let nextFileUrl = currentFile.url; // default is current file (do nothing)
 				if (nextFile && nextFile.isFile) { // if there is some next file
 					nextFileUrl = nextFile.url;
@@ -358,24 +358,24 @@ $(window).on('hashchange', function (event) {
 			})
 		} else { // If selected item is folder, load structure of that folder
 			popupClose();
-			S.historyAdd(S.getCurrentFolder());
+			structure.historyAdd(structure.getCurrentFolder());
 
 			// Detect which file should be loaded
 			let selectIndex = 0;
-			const previousItem = S.historyGet().last(2);
+			const previousItem = structure.historyGet().last(2);
 			if (previousItem instanceof FolderItem) {
 				// changing folder (item should always be something)
 				// deeper - this will find "go back" folder
 				// closer to root - this will find previously opened folder
-				const item = S.getByName(previousItem.path);
+				const item = structure.getByName(previousItem.path);
 				if (item) {
 					selectIndex = item.index;
 				}
 			} else if (previousItem instanceof FileItem) {
 				// Popup was just closed, dont change selected index
-				selectIndex = S.selectedIndex;
+				selectIndex = structure.selectedIndex;
 			}
-			S.selectorMove(selectIndex);
+			structure.selectorMove(selectIndex);
 		}
 	});
 });
@@ -631,7 +631,7 @@ $(function () {
 			url: '/api/scan',
 			method: 'GET',
 			data: {
-				path: btoa(encodeURIComponent(S.getCurrentFolder().path)),
+				path: btoa(encodeURIComponent(structure.getCurrentFolder().path)),
 			},
 			success: function (result) {
 				const flashType = result.error === true ? 'danger' : 'info';
@@ -658,9 +658,10 @@ $(function () {
 	$('#structure').on('click', '.structure-item', function (event) {
 		if ($(event.target).closest('.location').length === 0) { // do not select in structure, just open link
 			event.preventDefault();
-			if ($(this).data('index') !== undefined) {
-				S.selectorMove($(this).data('index'));
-				S.selectorSelect();
+			const itemIndex = $(this).data('index');
+			if (itemIndex !== undefined) {
+				structure.selectorMove(itemIndex);
+				structure.selectorSelect();
 			}
 		}
 	});
@@ -751,13 +752,13 @@ $(function () {
 
 	$('#navbar').on('click', '#navbar-share', function (event) { // Event - share URL
 		event.preventDefault();
-		shareUrl(window.location.origin + '/#' + S.getCurrentFolder().url);
+		shareUrl(window.location.origin + '/#' + structure.getCurrentFolder().url);
 	}).on('click', '#navbar-favourites-add', function (event) { // Event - add to favourites
 		event.preventDefault();
-		favouritesAdd(S.getCurrentFolder().path);
+		favouritesAdd(structure.getCurrentFolder().path);
 	}).on('click', '#navbar-favourites-remove', function (event) { // Event - remove from favourites
 		event.preventDefault();
-		favouritesRemove(S.getCurrentFolder().path);
+		favouritesRemove(structure.getCurrentFolder().path);
 	});
 
 	// Event - load next item if possible
@@ -771,7 +772,7 @@ $(function () {
 
 	// Event - share file url from popup
 	$('#popup-media-details-share').on('click', function () {
-		shareUrl(window.location.origin + '/#' + S.getCurrentFile().url);
+		shareUrl(window.location.origin + '/#' + structure.getCurrentFile().url);
 	});
 
 	$('#modal-settings').on('show.bs.modal', function () {
@@ -801,12 +802,12 @@ $(function () {
 	}).on('click', '#map-info-window .item-share', function (event) {
 		event.preventDefault();
 		const itemIndex = $('#map-info-window').data('item-index');
-		shareUrl(window.location.origin + '/#' + S.getFile(itemIndex).url);
+		shareUrl(window.location.origin + '/#' + structure.getFile(itemIndex).url);
 	}).on('click', '#map-info-window .item-select', function (event) {
 		event.preventDefault();
 		const itemIndex = $('#map-info-window').data('item-index');
-		S.selectorMove(itemIndex);
-		S.selectorSelect();
+		structure.selectorMove(itemIndex);
+		structure.selectorSelect();
 	}).on('mouseenter', '.structure-item', function () {
 		loadedStructure.hoveredStructureItemElement = $(this);
 	}).on('mouseleave', '.structure-item', function () {
@@ -841,7 +842,7 @@ function popupClose() {
 	// @author https://stackoverflow.com/a/5278475/3334403
 	$('#popup-image').attr('src', transparentPixelBase64).fadeOut(Settings.load('animationSpeed')).promise();
 	loadedStructure.popup = false;
-	window.location.hash = S.getCurrentFolder().url;
+	window.location.hash = structure.getCurrentFolder().url;
 	videoPause();
 	audioPause();
 	presentation.stop();
@@ -885,7 +886,7 @@ function favouritesGenerateMenu() {
 	});
 
 	// Update navbar favourites button and toggle showing add to and remove from favourites
-	const currentFolderPath = S.getCurrentFolder().path;
+	const currentFolderPath = structure.getCurrentFolder().path;
 	if (favouritesIs(currentFolderPath)) { // show button only to remove from favourites
 		$('#navbar-favourites-button i.fa').addClass('fa-star').removeClass('fa-star-o');
 		$('#navbar-favourites-add').hide();
@@ -1044,9 +1045,9 @@ function loadSearch(callback) {
 				flashMessage(result.message || 'Chyba během hledání. Kontaktuj autora.', 'danger', false);
 			} else {
 				parseStructure(result.result);
-				S.selectorMove('first');
-				structureMap.markersFromStructureFiles(S.getFiles());
-				S.filter();
+				structure.selectorMove('first');
+				structureMap.markersFromStructureFiles(structure.getFiles());
+				structure.filter();
 				loadThumbnail();
 			}
 		},
@@ -1094,7 +1095,7 @@ function loadThumbnail() {
 
 		// prioritize items, that are selected in structure
 		if (thumbnailToLoad === null) {
-			const selectedItemThumbnail = $('.item-index-' + S.selectedIndex).children('.thumbnail');
+			const selectedItemThumbnail = $('.item-index-' + structure.selectedIndex).children('.thumbnail');
 			if (selectedItemThumbnail.hasClass('thumbnail-not-loaded')) {
 				thumbnailToLoad = selectedItemThumbnail;
 			}
@@ -1126,7 +1127,7 @@ function loadThumbnail() {
 
 function loadStructure(force, callback) {
 	// in case of triggering loading the same structure again (already loaded), skip it
-	if (force !== true && loadedStructure.loadedFolder === S.getCurrentFolder().path) {
+	if (force !== true && loadedStructure.loadedFolder === structure.getCurrentFolder().path) {
 		console.log("Structure is already loaded, skip");
 		return (typeof callback === 'function' && callback());
 	}
@@ -1138,7 +1139,7 @@ function loadStructure(force, callback) {
 		url: '/api/structure',
 		method: 'GET',
 		data: {
-			path: btoa(encodeURIComponent(S.getCurrentFolder().path))
+			path: btoa(encodeURIComponent(structure.getCurrentFolder().path))
 		},
 		success: function (result) {
 			if (result.error === true || !result.result) {
@@ -1151,10 +1152,10 @@ function loadStructure(force, callback) {
 				$('#structure-header').html(result.result.header || '');
 				$('#structure-footer').html(result.result.footer || '');
 				parseStructure(result.result);
-				structureMap.markersFromStructureFiles(S.getFiles());
-				$('#navbar-filter input').val('');
+				structureMap.markersFromStructureFiles(structure.getFiles());
+				$('#structure-search input').val('');
 				loadThumbnail();
-				S.filter();
+				structure.filter();
 			}
 		},
 		error: function (result, errorTextStatus) {
@@ -1179,14 +1180,14 @@ function parseStructure(items) {
 	// in case of triggering loading the same structure again (already loaded), skip it
 	updateLoginButtons(); // might be logged out
 
-	loadedStructure.loadedFolder = S.getCurrentFolder().path;
-	S.setAll(items);
-	const currentFolder = S.getCurrentFolder();
+	loadedStructure.loadedFolder = structure.getCurrentFolder().path;
+	structure.setAll(items);
+	const currentFolder = structure.getCurrentFolder();
 
 	/**
 	 * Generate breadcrumb urls in menu
 	 */
-	let maxVisible = S.getItems().length;
+	let maxVisible = structure.getItems().length;
 	let breadcrumbHtml = '';
 	// noinspection HtmlUnknownAnchorTarget
 	breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/" title="Go to root folder"><i class="fa fa-home"></i></a></li>';
@@ -1198,7 +1199,7 @@ function parseStructure(items) {
 
 	favouritesGenerateMenu();
 
-	$('#structure-download-archive').attr('href', S.getCurrentFolder().getArchiveUrl());
+	$('#structure-download-archive').attr('href', structure.getCurrentFolder().getArchiveUrl());
 
 	/**
 	 * Generate structure content
@@ -1231,7 +1232,7 @@ function parseStructure(items) {
 		contentTiles += '</span>';
 	}
 
-	S.getFiles().forEach(function (item) {
+	structure.getFiles().forEach(function (item) {
 		contentTiles += '<span class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
 		contentTiles += ' <i class="icon fa fa-' + item.icon + ' fa-fw"></i>';
 
@@ -1307,7 +1308,7 @@ function loadingStructure(loading) {
 		$('#navbar-filter .search').prop('disabled', true);
 		$('#advanced-search-run').prop('disabled', true);
 		// @TODO set different message if searching
-		setStatus('Loading folder "<span title="' + S.getCurrentFolder().path + '">' + S.getCurrentFolder().text + '</span>"');
+		setStatus('Loading folder "<span title="' + structure.getCurrentFolder().path + '">' + structure.getCurrentFolder().text + '</span>"');
 	}
 	if (loading === false) {
 		setStatus(false);
