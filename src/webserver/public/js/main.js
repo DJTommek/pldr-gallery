@@ -1254,11 +1254,11 @@ function parseStructure(items) {
 
 		contentTiles += ' <a href="#' + item.url + '" class="name">' + item.text + '</a>';
 
-		if (item.coords) {
-			contentTiles += ' <a href="https://better-location.palider.cz/' + item.coords + '" class="location" target="_blank" title="Open coordinates ' + item.coords + ' in Better Location"><i class="fa fa-map-marker"></i></a>';
-		}
 		if (item.distance) {
 			contentTiles += ' <span class="distance">' + formatDistance(item.distance) + '</span>';
+		}
+		if (item.coords) {
+			contentTiles += ' <a href="https://better-location.palider.cz/' + item.coords + '" class="location" target="_blank" title="Open coordinates ' + item.coords + ' in Better Location"><i class="fa fa-map-marker"></i></a>';
 		}
 		if (item.size !== null) {
 			contentTiles += ' <span class="size">' + formatBytes(item.size, 2) + '</span>';
