@@ -530,9 +530,9 @@ $(function () {
 		}
 	})();
 
-	$('#advanced-search-run').on('click', function (event) {
+	$('#advanced-search-run').on('click', async function (event) {
 		event.preventDefault();
-		loadSearch();
+		await loadSearch();
 	});
 
 	$('#popup-footer-presentation').on('click', function () {
@@ -982,9 +982,9 @@ function loadUserData() {
 	});
 }
 
-function loadSearch(callback) {
+async function loadSearch(path = null) {
 	const requestData = {
-		path: btoa(encodeURIComponent(S.getCurrentFolder().path)),
+		path: btoa(path !== null ? path : encodeURIComponent(structure.getCurrentFolder().path)),
 		sort: $('#advanced-search-sort input[name=sort]:checked').val(),
 	}
 
@@ -1058,7 +1058,6 @@ function loadSearch(callback) {
 			loadingStructure(false);
 			$('#advanced-search-run i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
 			$('#structure-search .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
-			(typeof callback === 'function' && callback());
 		}
 	});
 }
