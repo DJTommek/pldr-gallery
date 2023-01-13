@@ -12,6 +12,8 @@ class Icon {
 	static ARCHIVE = 'file-archive-o';
 	static PDF = 'file-pdf-o';
 
+	static COMMAND = 'bolt';
+
 	static CLOSE_SEARCHING = 'long-arrow-left'; // icon is reserved to close searching (force reload structure)
 
 	static DEFAULT_FILES = [this.FILE, this.IMAGE, this.VIDEO, this.AUDIO, this.PDF, this.ARCHIVE];

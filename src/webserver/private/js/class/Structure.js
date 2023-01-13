@@ -139,8 +139,10 @@ class Structure {
 		let item = this.getItem(this.selectedIndex);
 		let self = this;
 		if (item) {
-			// Override default action with force refresh - cancel searching
-			if (item.icon === Icon.CLOSE_SEARCHING) {
+			if (item instanceof ActionItem) {
+				item.run();
+			} else if (item.icon === Icon.CLOSE_SEARCHING) {
+				// Override default action with force refresh - cancel searching
 				loadStructure(true, function () {
 					self.selectorMove();
 				});

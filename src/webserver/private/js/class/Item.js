@@ -55,6 +55,24 @@ class Item {
 	}
 }
 
+class ActionItem extends Item {
+	constructor(index, item) {
+		super(index, item);
+
+		// action is required
+		console.assert(typeof item.action === 'function');
+		this.action = item.action
+
+		this.icon = (this.icon || Icon.COMMAND);
+		this.hide = item.hide ?? true;
+		this.noFilter = item.noFilter ?? true;
+	}
+
+	run() {
+		this.action();
+	}
+}
+
 /*!
  * FolderItem
  */
