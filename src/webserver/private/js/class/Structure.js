@@ -3,6 +3,10 @@
  * Manage loaded items, currently selected item
  */
 class Structure {
+
+	static ACTION_INDEX_SEARCH_SUBDIRECTORY = 0;
+	static ACTION_INDEX_SEARCH_ROOT = 1;
+
 	constructor() {
 		// currently selected item index
 		this.selectedIndex = 0;
@@ -74,9 +78,24 @@ class Structure {
 	setAll(items) {
 		// clear all previous data
 		this.items = [];
+		this.actions = [];
 		this.files = [];
 		this.folders = [];
-		let index = 0;
+
+		this.actions.push(new ActionItem(Structure.ACTION_INDEX_SEARCH_SUBDIRECTORY, {
+			text: 'Vyhledat v podsložce <b>' + this.getCurrentFolder().toString().escapeHtml() + '</b>',
+			action: loadSearch,
+			hide: true
+		}));
+
+		this.actions.push(new ActionItem(Structure.ACTION_INDEX_SEARCH_ROOT, {
+			text: 'Vyhledat ve <b>všech</b> složkách',
+			action: async function() { await loadSearch('/'); },
+			hide: true,
+		}));
+
+		let index = Structure.ACTION_INDEX_SEARCH_ROOT + 1;
+
 		items.folders.forEach(function (item) {
 			this.folders.push(new FolderItem(index, item));
 			index++;
@@ -85,7 +104,11 @@ class Structure {
 			this.files.push(new FileItem(index, item));
 			index++;
 		}, this);
-		this.items = this.folders.concat(this.files);
+		this._recalculate();
+	}
+
+	_recalculate() {
+		this.items = [].concat(this.actions, this.folders, this.files);
 	}
 
 	/**
@@ -159,6 +182,20 @@ class Structure {
 	 */
 	getFolders() {
 		return this.folders;
+	}
+
+	/**
+	 * @returns []
+	 */
+	getActions() {
+		return this.actions;
+	}
+
+	/**
+	 * @returns {?ActionItem}
+	 */
+	getAction(index) {
+		return this.actions[index] ?? null;
 	}
 
 	/**
@@ -370,6 +407,15 @@ class Structure {
 				// filterText = filterText.preg_quote();
 				filterText = filterText.trim().preg_quote();
 			}
+
+			const showDeepSearchRoot = filterText !== '';
+			this.getAction(Structure.ACTION_INDEX_SEARCH_ROOT).hide = !showDeepSearchRoot;
+			$('#structure .structure-item.item-index-' + Structure.ACTION_INDEX_SEARCH_ROOT + '').toggle(showDeepSearchRoot);
+
+			const showDeepSearchSubdirectory = filterText !== '' && this.getCurrentFolder().isRoot() === false;
+			this.getAction(Structure.ACTION_INDEX_SEARCH_SUBDIRECTORY).hide = !showDeepSearchSubdirectory;
+			$('#structure .structure-item.item-index-' + Structure.ACTION_INDEX_SEARCH_SUBDIRECTORY + '').toggle(showDeepSearchSubdirectory);
+
 			const regex = new RegExp(filterText, 'gi');
 
 			loadedStructure.filtering = true;

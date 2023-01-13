@@ -1195,7 +1195,20 @@ function parseStructure(items) {
 	 * Generate structure content
 	 */
 	let contentTiles = '';
-	S.getFolders().forEach(function (item) {
+
+	structure.getActions().forEach(function (item) {
+		if (item.noFilter) {
+			maxVisible--;
+		}
+		const itemStyle = item.hide ? 'style="display: none;"' : '';
+		contentTiles += '<span class="structure-item item-index-' + item.index + '" data-index="' + item.index + '" ' + itemStyle + '>';
+		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
+		contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
+		contentTiles += ' <a class="name" href="#">' + item.text + '</a>';
+		contentTiles += '</span>';
+	});
+
+	structure.getFolders().forEach(function (item) {
 		if (item.noFilter) {
 			maxVisible--;
 		}
@@ -1260,7 +1273,7 @@ function parseStructure(items) {
 		contentTiles += '<span class="structure-item" id="filter-structure-empty" style="display: none;">';
 		contentTiles += ' <i class="icon fa fa-warning fa-fw"></i>';
 		contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
-		contentTiles += ' <span class="name">Zadanému filtru nevyhovuje žádná složka ani soubor. Stiskni CTRL+Enter pro hledání v podsložkách</span>';
+		contentTiles += ' <span class="name">Zadanému filtru nevyhovuje žádná složka ani soubor.</span>';
 		contentTiles += '</span>';
 	}
 	if (items.filesTotal > items.files.length) {
