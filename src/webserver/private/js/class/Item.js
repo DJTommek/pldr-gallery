@@ -32,17 +32,22 @@ class Item {
 
 		this.urls = this.paths.map(pathToUrl); // split path to folders and remove empty elements (if path start or end with /)
 		if (!this.text) { // do not override if set by server
-			if (this.path === '/') { // special case for root
+			if (this.isRoot()) {
 				this.text = this.path;
 			} else {
 				this.text = this.paths.last().escapeHtml()
 			}
 		}
-		this.hide = false;
+		this.hide = item.hide ?? false;
+		this.noFilter = item.noFilter ?? false;
 	}
 
 	getEncodedPath() {
 		return btoa(encodeURIComponent(this.path));
+	}
+
+	isRoot() {
+		return this.path === '/';
 	}
 
 	toString() {
