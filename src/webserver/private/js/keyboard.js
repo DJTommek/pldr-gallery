@@ -2,7 +2,7 @@ function isTilesView() {
 	return (Settings.load('structureDisplayType').includes('tiles'));
 }
 function isFilterFocused() {
-	return $("#navbar-filter input").is(":focus");
+	return $("#structure-search input").is(":focus");
 }
 jwerty.key('up', function (e) {
 	if (loadedStructure.settings) {
@@ -151,7 +151,7 @@ jwerty.key('ctrl+enter', function (e) {
 
 	} else {
 		console.log('@TODO Do nothing');
-		// $('#navbar-filter .search').trigger('click');
+		// $('#structure-search .search').trigger('click');
 	}
 });
 
@@ -224,7 +224,7 @@ jwerty.key('esc', function (e) {
 
 	if (isFilterFocused()) {
 		e.preventDefault();
-		$("#navbar-filter input").trigger('blur');
+		$("#structure-search input").trigger('blur');
 	} else if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
@@ -246,12 +246,12 @@ $(window).on('keypress', function () {
 	} else if (loadedStructure.advancedSearchModal) {
 
 	} else {
-		$('#navbar-filter input').focus();
+		$('#structure-search input').focus();
 	}
 });
 
 let filterTimeout = null;
-$('#navbar-filter input').on('keyup change', function (event) {
+$('#structure-search input').on('keyup change', function (event) {
 	// do not run filter if are used keys to move in structure
 	if ([
 		// undefined, // triggered on "change",
@@ -265,7 +265,7 @@ $('#navbar-filter input').on('keyup change', function (event) {
 	].indexOf(event.keyCode) >= 0) {
 		return;
 	}
-	$('#navbar-filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>'); // @TODO in case of filtering, this "loading" might stuck
+	$('#structure-search .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>'); // @TODO in case of filtering, this "loading" might stuck
 	// Run filter after a little bit of inactivity
 	// @Author: https://schier.co/blog/2014/12/08/wait-for-user-to-stop-typing-using-javascript.html
 	clearTimeout(filterTimeout);
