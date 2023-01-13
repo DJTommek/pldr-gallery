@@ -474,15 +474,6 @@ $(function () {
 		}
 	});
 
-	// Event - typing in structure filter will also type in advanced search
-	$('#navbar-filter input').on('keyup change', function () {
-		$('#advanced-search-string').val($(this).val());
-	});
-	// Event - typing in advanced search will also type in structure filter
-	$('#advanced-search-string').on('keyup change', function () {
-		$('#navbar-filter input').val($(this).val());
-	});
-
 	/**
 	 * Advanced search file size slider
 	 */
@@ -826,7 +817,7 @@ function mapInfoWindowImageError() {
 
 function popupOpen() {
 	loadedStructure.popup = true;
-	$("#navbar-filter input").trigger('blur');
+	$("#structure-search input").trigger('blur');
 	$('#popup').fadeIn(Settings.load('animationSpeed'));
 	document.body.style.overflow = 'hidden';
 }
@@ -999,7 +990,7 @@ function loadSearch(callback) {
 
 	let searchValidatorError = null;
 
-	let query = $('#advanced-search-string').val().trim();
+	let query = $('#structure-search-input').val().trim();
 	if (query) {
 		requestData.query = query;
 		searchValidatorError = null;
@@ -1061,12 +1052,12 @@ function loadSearch(callback) {
 		beforeSend: function () {
 			loadingStructure(true);
 			$('#advanced-search-run i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
-			$('#navbar-filter .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
+			$('#structure-search .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
 		},
 		complete: function () {
 			loadingStructure(false);
 			$('#advanced-search-run i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
-			$('#navbar-filter .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
+			$('#structure-search .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
 			(typeof callback === 'function' && callback());
 		}
 	});
@@ -1295,26 +1286,24 @@ function parseStructure(items) {
 		$('#structure-scan').hide();
 	}
 	$('#structure-tiles').html(contentTiles);
-	$('#navbar-filter .total').text(maxVisible);
-	$('#navbar-filter .filtered').text(maxVisible);
+	$('#structure-search .total').text(maxVisible);
+	$('#structure-search .filtered').text(maxVisible);
 }
 
 function loadingStructure(loading) {
 	if (loading === true) {
 		// add loading icon to specific item in structure
-		$('#navbar-filter .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-		$('#navbar-filter .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-		$('#navbar-filter input').prop('disabled', true);
-		$('#navbar-filter .search').prop('disabled', true);
-		$('#advanced-search-run').prop('disabled', true);
+		$('#structure-search .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+		$('#structure-search .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
+		$('#structure-search input').prop('disabled', true);
+		$('#structure-search .search').prop('disabled', true);
 		// @TODO set different message if searching
 		setStatus('Loading folder "<span title="' + structure.getCurrentFolder().path + '">' + structure.getCurrentFolder().text + '</span>"');
 	}
 	if (loading === false) {
 		setStatus(false);
-		$('#navbar-filter input').prop('disabled', false);
-		$('#navbar-filter .search').prop('disabled', false);
-		$('#advanced-search-run').prop('disabled', false);
+		$('#structure-search input').prop('disabled', false);
+		$('#structure-search .search').prop('disabled', false);
 
 		// Event - thumbnail can't be loaded, destroy that element
 		// @FIXME this handler should be created only once (on page load) instead on every structure load but for some reason it don't work

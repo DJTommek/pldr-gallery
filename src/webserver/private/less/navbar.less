@@ -34,17 +34,6 @@
 		margin-right: 1em;
 	}
 
-	#navbar-filter {
-		width: 15rem;
-
-		& input,
-		& .input-group-text {
-			border: @theme-background-color;
-			color: @theme-color-text;
-			background-color: @theme-background-color;
-		}
-	}
-
 	.nav-item .btn {
 		border: none;
 		color: @theme-color-primary;
@@ -75,15 +64,6 @@
 				margin: 2px;
 				padding: 2px;
 			}
-		}
-	}
-
-	/* while in collapsed navbar */
-	@media (max-width: 767px) {
-		/* all items should be in full width */
-		#navbar-filter,
-		.nav-item .btn {
-			width: 100%;
 		}
 	}
 }

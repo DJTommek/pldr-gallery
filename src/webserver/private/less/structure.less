@@ -5,6 +5,23 @@
 	transition-timing-function: ease-in-out;
 }
 
+#structure-search {
+	max-width: 30em;
+	margin: 0.5em;
+	margin-left: auto;
+
+	input,
+	.input-group-text {
+		border-color: @theme-background-color-secondary;
+		color: @theme-color-text;
+		background-color: @theme-background-color;
+	}
+
+	button {
+		border-color: @theme-background-color-secondary;
+	}
+}
+
 #structure-display-type input {
 	display: none;
 }
@@ -215,6 +232,7 @@
 			.created {
 				margin-left: 1em;
 			}
+
 			.created {
 				padding-right: @structure-item-padding-right-screen;
 			}
@@ -230,6 +248,7 @@
 			.created {
 				display: none;
 			}
+
 			.location {
 				padding-right: @structure-item-padding-right-screen;
 			}
@@ -243,6 +262,7 @@
 			.name {
 				padding-left: 0.5em;
 			}
+
 			.thumbnail {
 				display: none;
 			}

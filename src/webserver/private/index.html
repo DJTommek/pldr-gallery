@@ -58,20 +58,6 @@
 	</button>
 
 	<div class="collapse navbar-collapse justify-content-end" id="navbar-collapse-content">
-		<form class="form-inline my-2 my-lg-0">
-			<div class="input-group" id="navbar-filter">
-				<input type="search" class="form-control" placeholder="Filter" disabled/>
-				<span class="input-group-text">
-					<span class="filtered"><i class="fa fa-circle-o-notch fa-spin"></i></span>
-					/
-					<span class="total"><i class="fa fa-circle-o-notch fa-spin"></i></span>
-				</span>
-				<button class="btn btn-outline-secondary search" data-bs-toggle="modal" data-bs-target="#modal-search" type="button" title="Advanced search">
-					<i class="fa fa-search"></i>
-				</button>
-			</div>
-		</form>
-
 		<ul class="navbar-nav">
 			<!-- Share -->
 			<li class="nav-item" title="Copy URL">
@@ -175,6 +161,20 @@
 			</a>
 		</div>
 	</div>
+
+	<div id="structure-search" class="input-group">
+		<input id="structure-search-input" type="search" class="form-control" placeholder="Filter" disabled/>
+		<span class="input-group-text">
+			<span class="filtered"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+			/
+			<span class="total"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+		</span>
+		<button class="btn btn-outline-secondary" type="button" title="Advanced search">
+			<i class="fa fa-caret-down"></i>
+			<span class="d-none d-sm-inline">Advanced</span>
+		</button>
+	</div>
+
 	<div id="structure-tiles"></div>
 	<div id="structure-scan" style="display: none;">
 		Last scan of this directory: <span class="date"></span>

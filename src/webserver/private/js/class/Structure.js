@@ -358,7 +358,7 @@ class Structure {
 			return;
 		}
 		try {
-			let filterText = $('#navbar-filter input').val();
+			let filterText = $('#structure-search input').val();
 			// check, if string has delimiters, then make raw regex
 			if (filterText.match(/^\/.+\/$/)) {
 				filterText = filterText.slice(1, -1);
@@ -410,13 +410,13 @@ class Structure {
 			}
 
 			if (allHidden) { // if no item passed filter, show warning
-				$('#navbar-filter input').addClass('is-invalid');
+				$('#structure-search input').addClass('is-invalid');
 				$('#filter-structure-empty').show();
 			} else {
-				$('#navbar-filter input').removeClass('is-invalid');
+				$('#structure-search input').removeClass('is-invalid');
 				$('#filter-structure-empty').hide();
 			}
-			$('#navbar-filter .filtered').text(visible);
+			$('#structure-search .filtered').text(visible);
 			const item = this.getItem(this.selectedIndex);
 			if (!item) { // new opened folder is empty, do not move with selector
 				loadedStructure.filtering = false;
@@ -436,7 +436,7 @@ class Structure {
 			// delete previous flash error message (if any) before showing new
 			$('#filter-error').parent().remove();
 			flashMessage('<p id="filter-error">Filter regex is not valid: <b>' + error.message + '</b></p>', 'danger');
-			$('#navbar-filter .filtered').text('?');
+			$('#structure-search .filtered').text('?');
 		}
 		loadThumbnail();
 		loadedStructure.filtering = false;
