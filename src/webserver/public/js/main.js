@@ -794,11 +794,16 @@ $(function () {
 		event.preventDefault();
 		const itemIndex = $('#map-info-window').data('item-index');
 		shareUrl(window.location.origin + '/#' + structure.getFile(itemIndex).url);
-	}).on('click', '#map-info-window .item-select', function (event) {
+	}).on('click', '#map-info-window .open-media-popup', function (event) {
 		event.preventDefault();
 		const itemIndex = $('#map-info-window').data('item-index');
 		structure.selectorMove(itemIndex);
 		structure.selectorSelect();
+	}).on('click', '#map-info-window .open-media-info', function (event) {
+		event.preventDefault();
+		const itemIndex = $('#map-info-window').data('item-index');
+		const item = structure.getItem(itemIndex);
+		loadedStructure.mediaInfoCanvas.setItem(item).show();
 	}).on('mouseenter', '.structure-item', function () {
 		loadedStructure.hoveredStructureItemElement = $(this);
 	}).on('mouseleave', '.structure-item', function () {
