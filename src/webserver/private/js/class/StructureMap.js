@@ -39,7 +39,6 @@ class StructureMap extends AbstractMap {
 		const mapBounds = new L.LatLngBounds();
 		for (const item of fileItems) {
 			if (item.coords) {
-				const links = generateCoordsLinks(item.coords.lat, item.coords.lon);
 				const popupContent = '<div id="map-info-window" data-item-index="' + item.index + '" class="row">' +
 					' <div class="image col-md">' +
 					'  <a href="' + item.getFileUrl() + '" target="_blank" title="Open in new window">' +
@@ -48,21 +47,11 @@ class StructureMap extends AbstractMap {
 					'  </a>' +
 					' </div>' +
 					' <div class="content col-md">' +
-					'  <button class="btn btn-primary btn-sm item-select text-truncate" title="Open \'' + item.text + '\' in popup ">' + item.paths.slice(-1)[0] + '</button>' +
-					'  <h6>' + item.coords + ' ' +
-					'   <i class="fa fa-clipboard copy-to-clipboard as-a-link" data-to-copy="' + item.coords + '" title="Copy ' + item.coords + ' to clipboard"></i>' +
-					'   <a href="' + item.getFileUrl(true) + '" target="_blank" title="Download"><i class="fa fa-download"></i></a>' +
-					'   <span class="as-a-link item-share" title="Share URL"><i class="fa fa-share-alt"></i></span>' +
-					'  </h6>' +
-					'  <ul class="list-inline">' +
-					'   <li class="list-inline-item"><a href="' + links.betterlocation + '" target="_blank" title="Better Location">Better Location</a></li>' +
-					'   <li class="list-inline-item"><a href="' + links.betterlocationbot + '" target="_blank" title="Open in Telegram via BetterLocationBot">Telegram</a></li>' +
-					'   <li class="list-inline-item"><a href="' + links.google + '" target="_blank" title="Google maps">Google Maps</a></li>' +
-					'   <li class="list-inline-item"><a href="' + links.mapycz + '" target="_blank" title="Mapy.cz">Mapy.cz</a></li>' +
-					'   <li class="list-inline-item"><a href="' + links.waze + '" target="_blank" title="">Waze</a></li>' +
-					'   <li class="list-inline-item"><a href="' + links.here + '" target="_blank" title="">Here</a></li>' +
-					'   <li class="list-inline-item"><a href="' + links.osm + '" target="_blank" title="">OSM</a></li>' +
-					'  </ul>' +
+					'  <h6>' + item.text + '</h6>' +
+					'  <div class="btn-group" role="group">' +
+					'   <button class="btn btn-outline-primary btn-sm open-media-popup text-truncate" title="Open media in popup">Popup</button>' +
+					'   <button class="btn btn-outline-primary btn-sm open-media-info text-truncate" title="Show detailed file info">Info</button>' +
+					'  </div>' +
 					' </div>' +
 					'</div>';
 				const markerId = btoa(encodeURIComponent(item.coords + item.path)); // @TODO create hash instead of encoding
@@ -105,7 +94,9 @@ class StructureMap extends AbstractMap {
 		});
 		if (popupContent) {
 			const popup = L.popup().setContent(popupContent);
-			marker.bindPopup(popup);
+			marker.bindPopup(popup, {
+				minWidth: 200,
+			});
 		}
 		marker.addTo(this.map);
 		this.markers[uniqueId] = marker;
