@@ -14,10 +14,10 @@ jwerty.key('up', function (e) {
 		} else {
 			if (isTilesView()) {
 				for (let i = 0; i < getTilesCount(); i++) {
-					S.selectorMove('up');
+					structure.selectorMove('up');
 				}
 			} else {
-				S.selectorMove('up');
+				structure.selectorMove('up');
 			}
 		}
 	}
@@ -32,7 +32,7 @@ jwerty.key('left', function (e) {
 		itemPrev(true);
 	} else {
 		if (isTilesView()) {
-			S.selectorMove('up');
+			structure.selectorMove('up');
 		}
 	}
 });
@@ -47,10 +47,10 @@ jwerty.key('down', function (e) {
 		} else {
 			if (isTilesView()) {
 				for (let i = 0; i < getTilesCount(); i++) {
-					S.selectorMove('down');
+					structure.selectorMove('down');
 				}
 			} else {
-				S.selectorMove('down');
+				structure.selectorMove('down');
 			}
 		}
 	}
@@ -66,7 +66,7 @@ jwerty.key('right', function (e) {
 		itemNext(false);
 	} else {
 		if (isTilesView()) {
-			S.selectorMove('down');
+			structure.selectorMove('down');
 		}
 	}
 });
@@ -78,7 +78,7 @@ jwerty.key('home', function (e) {
 
 	} else {
 		e.preventDefault();
-		S.selectorMove('first');
+		structure.selectorMove('first');
 		if (loadedStructure.popup) {
 			itemPrev(true); // it will automatically find first file and opens it
 		}
@@ -95,7 +95,7 @@ jwerty.key('page-up', function (e) {
 		} else {
 			const moveBy = isTilesView() ? (getTilesCount() * 4) : 10;
 			for (let i = 0; i < moveBy; i++) {
-				S.selectorMove('up');
+				structure.selectorMove('up');
 			}
 		}
 	}
@@ -111,7 +111,7 @@ jwerty.key('page-down', function (e) {
 		} else {
 			const moveBy = isTilesView() ? (getTilesCount() * 4) : 10;
 			for (let i = 0; i < moveBy; i++) {
-				S.selectorMove('down');
+				structure.selectorMove('down');
 			}
 		}
 	}
@@ -124,7 +124,7 @@ jwerty.key('end', function (e) {
 
 	} else {
 		e.preventDefault();
-		S.selectorMove('last');
+		structure.selectorMove('last');
 		if (loadedStructure.popup) {
 			itemNext(true);
 		}
@@ -135,19 +135,12 @@ jwerty.key('enter', function (e) {
 	if (loadedStructure.settings) {
 		$("#form-settings").submit();
 	} else if (loadedStructure.popup) {
-		if (S.getCurrentFile().isImage) {
+		if (structure.getCurrentFile().isImage) {
 			$('#popup-filename')[0].click();
 		}
 		// @TODO video open in fullscreen (also disable move left and right)
 	} else {
-		if ($("#navbar-filter .search").is(":focus")) {
-			console.log('@TODO Do nothing');
-			// $('#navbar-filter .search').trigger('click');
-		} else if ($("#advanced-search-string").is(":focus")) {
-			console.log('@TODO do nothing');
-		} else {
-			S.selectorSelect();
-		}
+		structure.selectorSelect();
 	}
 });
 
@@ -169,7 +162,7 @@ jwerty.key('space', function (e) {
 
 	} else if (loadedStructure.popup) {
 		e.preventDefault(); // do not type in filter
-		const currentFile = S.getCurrentFile();
+		const currentFile = structure.getCurrentFile();
 		const focusedElementId = $(':focus').attr('id');
 		if (currentFile.isVideo) {
 			if (focusedElementId === 'popup-video') {
@@ -237,10 +230,10 @@ jwerty.key('esc', function (e) {
 	} else if (loadedStructure.popup) {
 		popupClose();
 	} else { // go back
-		let item = S.getFirst();
+		let item = structure.getFirst();
 		if (item.text === '..') { // @HACK should be some property to recognize "go back"
-			S.selectorMove(item.index);
-			S.selectorSelect();
+			structure.selectorMove(item.index);
+			structure.selectorSelect();
 		}
 	}
 });
@@ -277,6 +270,6 @@ $('#navbar-filter input').on('keyup change', function (event) {
 	// @Author: https://schier.co/blog/2014/12/08/wait-for-user-to-stop-typing-using-javascript.html
 	clearTimeout(filterTimeout);
 	filterTimeout = setTimeout(function () {
-		S.filter();
+		structure.filter();
 	}, 300); // @TODO this cooldown should be bigger when there is too many items to filter
 });

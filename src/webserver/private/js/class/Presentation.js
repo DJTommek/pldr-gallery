@@ -16,9 +16,9 @@ class Presentation {
 		$('#popup-footer-presentation-progress').show();
 		presentation.running = true;
 		// if video, first play it
-		if (S.getCurrentFile().isVideo) {
+		if (structure.getCurrentFile().isVideo) {
 			videoPlay();
-		} else if (S.getCurrentFile().isAudio) {
+		} else if (structure.getCurrentFile().isAudio) {
 			audioPlay();
 		} else {
 			itemNext(false);
@@ -48,7 +48,7 @@ class Presentation {
 	}
 
 	isLast() {
-		return S.getNextFile(S.getCurrentFile().index) === null;
+		return structure.getNextFile(structure.getCurrentFile().index) === null;
 	}
 
 	next() {
