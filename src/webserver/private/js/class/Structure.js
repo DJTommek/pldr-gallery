@@ -85,12 +85,14 @@ class Structure {
 		this.actions.push(new ActionItem(Structure.ACTION_INDEX_SEARCH_SUBDIRECTORY, {
 			text: 'Vyhledat v podsložce <b>' + this.getCurrentFolder().toString().escapeHtml() + '</b>',
 			action: loadSearch,
+			icon: Icon.SEARCH,
 			hide: true
 		}));
 
 		this.actions.push(new ActionItem(Structure.ACTION_INDEX_SEARCH_ROOT, {
 			text: 'Vyhledat ve <b>všech</b> složkách',
 			action: async function() { await loadSearch('/'); },
+			icon: Icon.SEARCH,
 			hide: true,
 		}));
 
