@@ -360,6 +360,14 @@ class Structure {
 
 	}
 
+	showSearchActions(showRoot, showSubdirectory) {
+		this.getAction(Structure.ACTION_INDEX_SEARCH_ROOT).hide = !showRoot;
+		$('#structure .structure-item.item-index-' + Structure.ACTION_INDEX_SEARCH_ROOT + '').toggle(showRoot);
+
+		this.getAction(Structure.ACTION_INDEX_SEARCH_SUBDIRECTORY).hide = !showSubdirectory;
+		$('#structure .structure-item.item-index-' + Structure.ACTION_INDEX_SEARCH_SUBDIRECTORY + '').toggle(showSubdirectory);
+	}
+
 	runFilterRegex(regex, text) {
 		// searching = searching.slice(1, -1); // remove delimiters, new RegExp will add automatically
 		// const re = RegExp(searching, 'gi');
@@ -408,13 +416,10 @@ class Structure {
 				filterText = filterText.trim().preg_quote();
 			}
 
-			const showDeepSearchRoot = filterText !== '';
-			this.getAction(Structure.ACTION_INDEX_SEARCH_ROOT).hide = !showDeepSearchRoot;
-			$('#structure .structure-item.item-index-' + Structure.ACTION_INDEX_SEARCH_ROOT + '').toggle(showDeepSearchRoot);
-
-			const showDeepSearchSubdirectory = filterText !== '' && this.getCurrentFolder().isRoot() === false;
-			this.getAction(Structure.ACTION_INDEX_SEARCH_SUBDIRECTORY).hide = !showDeepSearchSubdirectory;
-			$('#structure .structure-item.item-index-' + Structure.ACTION_INDEX_SEARCH_SUBDIRECTORY + '').toggle(showDeepSearchSubdirectory);
+			this.showSearchActions(
+				filterText !== '',
+				filterText !== '' && this.getCurrentFolder().isRoot() === false
+			);
 
 			const regex = new RegExp(filterText, 'gi');
 
