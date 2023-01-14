@@ -11,9 +11,7 @@ class Presentation {
 		if (presentation.isLast()) {
 			return; // there are no more items to go so dont even start the presentation
 		}
-		$('#popup-footer-presentation-stop').show();
-		$('#popup-footer-presentation-start').hide();
-		$('#popup-footer-presentation-progress').show();
+		$('#popup-presentation-progress').show();
 		presentation.running = true;
 		// if video, first play it
 		if (structure.getCurrentFile().isVideo) {
@@ -26,9 +24,7 @@ class Presentation {
 	}
 
 	stop() {
-		$('#popup-footer-presentation-start').show();
-		$('#popup-footer-presentation-stop').hide();
-		$('#popup-footer-presentation-progress').hide().css('width', '100%');
+		$('#popup-presentation-progress').hide().css('width', '100%');
 		this.running = false;
 		this.clearTimeout();
 	}
@@ -42,8 +38,8 @@ class Presentation {
 	}
 
 	clearTimeout() {
-		$('#popup-footer-presentation-progress').css({'transition': ''});
-		$('#popup-footer-presentation-progress').css('width', '100%');
+		$('#popup-presentation-progress').css({'transition': ''});
+		$('#popup-presentation-progress').css('width', '100%');
 		clearTimeout(this.intervalId);
 	}
 

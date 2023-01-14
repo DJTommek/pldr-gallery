@@ -44,8 +44,8 @@ function loadingDone(element) {
 		} else if ($(element).is('img')) {
 			if (presentation.running) { // presentation is enabled
 				const duration = Settings.load('presentationSpeed');
-				$('#popup-footer-presentation-progress').css('transition', 'width ' + duration + 'ms linear');
-				$('#popup-footer-presentation-progress').css('width', '0%');
+				$('#popup-presentation-progress').css('transition', 'width ' + duration + 'ms linear');
+				$('#popup-presentation-progress').css('width', '0%');
 				// Load next item after presentation timeout.
 				presentation.intervalId = setTimeout(function () {
 					presentation.next();
@@ -344,7 +344,6 @@ $(window).on('hashchange', function (event) {
 				if (prevFile && prevFile.isFile) { // if there is some previous file
 					prevFileUrl = prevFile.url;
 				}
-				$('#popup-footer-prev').attr('href', '#' + prevFileUrl);
 				$('#popup-prev').attr('href', '#' + prevFileUrl);
 
 				// generate URL for next file buttons
@@ -353,7 +352,6 @@ $(window).on('hashchange', function (event) {
 				if (nextFile && nextFile.isFile) { // if there is some next file
 					nextFileUrl = nextFile.url;
 				}
-				$('#popup-footer-next').attr('href', '#' + nextFileUrl);
 				$('#popup-next').attr('href', '#' + nextFileUrl);
 			})
 		} else { // If selected item is folder, load structure of that folder
@@ -529,14 +527,6 @@ $(function () {
 			});
 		}
 	})();
-
-	$('#popup-footer-presentation').on('click', function () {
-		if (presentation.running) {
-			presentation.stop();
-		} else {
-			presentation.start();
-		}
-	});
 
 	/**
 	 * Fill form settings with values from Settings class
@@ -748,11 +738,11 @@ $(function () {
 	});
 
 	// Event - load next item if possible
-	$('#popup-next, #popup-footer-next').on('click', function () {
+	$('#popup-next').on('click', function () {
 		itemNext(false); // dont stop presentation mode
 	});
 	// Event - load previous item if possible
-	$('#popup-prev, #popup-footer-prev').on('click', function () {
+	$('#popup-prev').on('click', function () {
 		itemPrev(true);
 	});
 
