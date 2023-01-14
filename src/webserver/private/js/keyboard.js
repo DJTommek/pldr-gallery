@@ -191,7 +191,13 @@ jwerty.key('ctrl+space', function (e) {
 	if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
-		presentation.toggle();
+		if (presentation.running) {
+			presentation.stop();
+			flashMessage('Presentation stopped', 'info', 2000);
+		} else {
+			presentation.start();
+			flashMessage('Presentation started', 'info', 2000);
+		}
 	} else {
 		// filter is focused, dont do anything special
 	}
