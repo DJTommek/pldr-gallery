@@ -13,6 +13,7 @@ class Icon {
 	static PDF = 'file-pdf-o';
 
 	static COMMAND = 'bolt';
+	static SEARCH = 'search';
 
 	static CLOSE_SEARCHING = 'long-arrow-left'; // icon is reserved to close searching (force reload structure)
 
