@@ -8,6 +8,14 @@
 	background: rgba(0, 0, 0, 0.9);
 	transition: background-color .3s ease-in-out;
 	text-align: center;
+
+	#popup-presentation-progress {
+		background-color: @theme-color-primary;
+		width: 100%;
+		height: 1px;
+		bottom: 0;
+		position: absolute;
+	}
 }
 
 #popup-content {
@@ -58,41 +66,6 @@
 #popup-audio {
 	width: 75%;
 	z-index: 2; /* has to be above #popup-prev and #popup-next */
-}
-
-#popup-footer {
-	height: 3em;
-	width: 100%;
-	max-width: 1920px;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	position: fixed;
-	margin: 0 auto;
-	background-color: @theme-background-color-primary;
-
-	.list-inline-item {
-		height: 3em;
-		min-width: 2.5em;
-		line-height: 1em;
-		padding: 1em 0.5em;
-		transition: all 0.2s ease-in-out;
-		cursor: pointer;
-		margin: 0;
-		color: @theme-color-primary;
-
-		&:hover {
-			background-color: @theme-background-color-secondary;
-		}
-	}
-
-	#popup-footer-presentation-progress {
-		background-color: @theme-color-primary;
-		width: 100%;
-		height: 1px;
-		bottom: 0;
-		position: absolute;
-	}
 }
 
 /**
@@ -176,6 +149,7 @@
 			border-radius: 50%;
 			background-color: rgba(@theme-color-text, 0.25);
 			color: @theme-color-primary;
+
 			&:hover {
 				text-decoration: none;
 				background-color: rgba(@theme-color-text, 0.5);
@@ -185,6 +159,7 @@
 
 	.data table {
 		color: @theme-color-text; /* override Bootstrap's coloring */
+
 		.media-info-group-name {
 			padding-top: 1em;
 			font-size: 1.5em;
