@@ -417,6 +417,18 @@ $(function () {
 		}
 	});
 
+	const advancedSearchFormEl = document.getElementById('advanced-search-form');
+	advancedSearchFormEl.addEventListener('show.bs.collapse', function (event) {
+		structure.showSearchActions(true, structure.getCurrentFolder().isRoot() === false);
+	});
+	advancedSearchFormEl.addEventListener('hide.bs.collapse', function (event) {
+		const filterTextEmpty = $('#structure-search input').val() === '';
+		structure.showSearchActions(
+			filterTextEmpty === false,
+			filterTextEmpty === false && structure.getCurrentFolder().isRoot() === false,
+		);
+	});
+
 	if (CONFIG.archive.enabled === false) {
 		$('#structure-download-archive').remove();
 	}
