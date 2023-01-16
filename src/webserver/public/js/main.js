@@ -147,9 +147,15 @@ class MediaInfoRenderer {
 			'Name': fileItem.text,
 			'Path': fileItem.path,
 			'Type': (fileItem.icon ? '<i class="fa fa-' + fileItem.icon + '"></i> ' : '') + fileItem.getTypeText(),
-			'Size': formatBytes(fileItem.size, 2),
-			'Created': fileItem.created.human(true).toString2() + ' (' + fileItem.created.agoHuman(true) + ' ago)',
 		};
+
+		if (fileItem.size) {
+			this.groups[MediaInfoRenderer.GROUP_GENERAL]['Size'] = formatBytes(fileItem.size, 2);
+		}
+
+		if (fileItem.created) {
+			this.groups[MediaInfoRenderer.GROUP_GENERAL]['Created'] = fileItem.created.human(true).toString2() + ' (' + fileItem.created.agoHuman(true) + ' ago)';
+		}
 
 		if (fileItem.coords) {
 			const coordsStr = fileItem.coords.toString();
