@@ -49,8 +49,8 @@ class StructureMap extends AbstractMap {
 					' <div class="content col-md">' +
 					'  <h6>' + item.text + '</h6>' +
 					'  <div class="btn-group" role="group">' +
-					'   <button class="btn btn-outline-primary btn-sm open-media-popup text-truncate" title="Open media in popup">Popup</button>' +
-					'   <button class="btn btn-outline-primary btn-sm open-media-info text-truncate" title="Show detailed file info">Info</button>' +
+					'   <button class="btn btn-outline-primary btn-sm open-media-popup text-truncate" title="Open media in popup">Open</button>' +
+					'   <button class="btn btn-outline-primary btn-sm open-media-info text-truncate" title="Show detailed file info">Details</button>' +
 					'  </div>' +
 					' </div>' +
 					'</div>';
