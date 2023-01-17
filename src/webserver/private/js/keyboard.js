@@ -136,7 +136,7 @@ jwerty.key('enter', function (e) {
 		$("#form-settings").submit();
 	} else if (loadedStructure.popup) {
 		if (structure.getCurrentFile().isImage) {
-			$('#popup-filename')[0].click();
+			$('#popup-open-media-url')[0].click();
 		}
 		// @TODO video open in fullscreen (also disable move left and right)
 	} else {
@@ -178,7 +178,7 @@ jwerty.key('space', function (e) {
 			}
 		} else if (currentFile.isImage) {
 			// open file in new tab
-			$('#popup-filename')[0].click();
+			$('#popup-open-media-url')[0].click();
 		} else {
 			// probably non-viewable file, do nothing
 		}

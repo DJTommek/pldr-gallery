@@ -324,7 +324,7 @@ $(window).on('hashchange', function (event) {
 						setStatus(false);
 					});
 				}
-				$('#popup-filename').text(currentFile.text).attr('href', openUrl);
+				$('#popup-open-media-url').attr('href', openUrl);
 				$('#popup-media-details-download').attr('href', downloadUrl);
 				$('#popup-media-details-share').attr('href', shareUrl);
 
@@ -468,13 +468,12 @@ $(function () {
 		popupClose();
 	});
 	$('#popup-content').on('click', function (event) {
-		if (event.target !== this) {
-			// don't close popup if clicked on anything than background around item (image, video, etc)
-			// @author https://stackoverflow.com/a/6411507/3334403
-			return false;
+		if (event.target === this) {
+			// Close popup if clicked on background area around
+			// media but not if clicked on any other element on page
+			vibrateApi.vibrate(Settings.load('vibrationOk'));
+			popupClose();
 		}
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		popupClose();
 	});
 
 	// Event - swipe in popup
@@ -492,7 +491,7 @@ $(function () {
 	// Event - click on image to open in new tab
 	$("#popup-image").on('click', function () {
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		$('#popup-filename')[0].click();
+		$('#popup-open-media-url')[0].click();
 	});
 
 	// Event - click on video to pause/play
