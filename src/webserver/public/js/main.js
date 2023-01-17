@@ -27,6 +27,7 @@ advancedSearchMap.map.on('click', function (event) {
 
 const structure = new Structure();
 const presentation = new Presentation();
+const vibrateApi = new VibrateApi();
 
 function loadingDone(element) {
 	if (element) {
