@@ -54,8 +54,7 @@ class StructureMap extends AbstractMap {
 					'  </div>' +
 					' </div>' +
 					'</div>';
-				const markerId = btoa(encodeURIComponent(item.coords + item.path)); // @TODO create hash instead of encoding
-				this.addMarker(markerId, item, popupContent);
+				this.addMarker(this.generateMarkerId(item), item, popupContent);
 				mapBounds.extend(item.coords);
 			}
 		}
@@ -69,8 +68,21 @@ class StructureMap extends AbstractMap {
 		}
 	}
 
+	/**
+	 * @TODO create hash instead of encoding (encoding might be unnecessary too long)
+	 * @param {Item} item
+	 * @return {string}
+	 */
+	generateMarkerId(item) {
+		let result = item.getEncodedPath();
+		if (item.coords) {
+			result += item.coords;
+		}
+		return btoa(result);
+	}
+
 	getMarkerFromStructureItem(item) {
-		return this.getMarker(btoa(item.coords + item.path));
+		return this.getMarker(this.generateMarkerId(item));
 	}
 
 	generateThumbnailIcon(item) {
