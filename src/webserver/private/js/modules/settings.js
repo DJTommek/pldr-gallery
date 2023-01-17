@@ -7,6 +7,16 @@
 	let settingsValues = {
 		theme: 'default',
 		animationSpeed: 250,
+		/**
+		 * {number|array<number>} in milliseconds
+		 * @link https://developer.mozilla.org/en-US/docs/Web/API/Navigator/vibrate
+		 */
+		vibrationOk: 100,
+		/**
+		 * {number|array<number>} in milliseconds
+		 * @link https://developer.mozilla.org/en-US/docs/Web/API/Navigator/vibrate
+		 */
+		vibrationError: [100, 200, 100, 200, 100],
 		structureItemLimit: 1000,
 		favouriteFolders: [],
 		hashBeforeUnload: '/',

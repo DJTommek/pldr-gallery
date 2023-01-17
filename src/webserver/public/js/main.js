@@ -16,6 +16,7 @@ const transparentPixelBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA
 const structureMap = new StructureMap('map').init();
 const advancedSearchMap = new AdvancedSearchMap('advanced-search-map').init();
 advancedSearchMap.map.on('click', function (event) {
+	vibrateApi.vibrate(Settings.load('vibrationOk'));
 	advancedSearchMap.setMarker(event.latlng);
 	const coords = new Coordinates(event.latlng.lat.toFixed(6), event.latlng.lng.toFixed(6));
 	$('#advanced-search-coords')
@@ -84,10 +85,13 @@ function itemPrev(stopPresentation) {
 	structure.selectorSelect();
 	// do wiggle animation if there is no item to move to
 	if (currentFileIndex === structure.selectedIndex) {
+		vibrateApi.vibrate(Settings.load('vibrationError'));
 		$('#popup-content').addClass('wiggle');
 		setTimeout(function () {
 			$('#popup-content').removeClass('wiggle');
 		}, 500);
+	} else {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 	}
 }
 
@@ -103,10 +107,13 @@ function itemNext(stopPresentation) {
 	structure.selectorSelect();
 	// do wiggle animation if there is no item to move to
 	if (currentFileIndex === structure.selectedIndex) {
+		vibrateApi.vibrate(Settings.load('vibrationError'));
 		$('#popup-content').addClass('wiggle');
 		setTimeout(function () {
 			$('#popup-content').removeClass('wiggle');
 		}, 1000);
+	} else {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 	}
 }
 
@@ -202,7 +209,15 @@ class MediaDetailsCanvas {
 	constructor() {
 		this.item = null;
 		this.elementId = 'popup-media-details';
-		this.bootstrapInstance = bootstrap.Offcanvas.getOrCreateInstance('#' + this.elementId);
+		this.element = document.getElementById(this.elementId);
+		this.bootstrapInstance = bootstrap.Offcanvas.getOrCreateInstance(this.element);
+
+		this.element.addEventListener('show.bs.offcanvas', function (event) {
+			vibrateApi.vibrate(Settings.load('vibrationOk'));
+		});
+		this.element.addEventListener('hide.bs.offcanvas', function (event) {
+			vibrateApi.vibrate(Settings.load('vibrationOk'));
+		});
 	}
 
 	/**
@@ -228,11 +243,13 @@ class MediaDetailsCanvas {
 	}
 
 	show() {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		this.bootstrapInstance.show();
 		return this;
 	}
 
 	hide() {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		this.bootstrapInstance.hide();
 		return this;
 	}
@@ -410,6 +427,7 @@ $(function () {
 	}
 	// S.setCurrent(pathFromUrl(window.location.hash));
 	$('#user-button-logout').on('click', function (event) {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		event.preventDefault();
 		if (confirm('Opravdu se chceš odhlásit?')) {
 			// remove cookie on the server (without refreshing browser)
@@ -426,9 +444,11 @@ $(function () {
 
 	const advancedSearchFormEl = document.getElementById('advanced-search-form');
 	advancedSearchFormEl.addEventListener('show.bs.collapse', function (event) {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		structure.showSearchActions(true, structure.getCurrentFolder().isRoot() === false);
 	});
 	advancedSearchFormEl.addEventListener('hide.bs.collapse', function (event) {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		const filterTextEmpty = $('#structure-search input').val() === '';
 		structure.showSearchActions(
 			filterTextEmpty === false,
@@ -444,6 +464,7 @@ $(function () {
 	loadUserData();
 
 	$('#popup-close, #popup-top-left').on('click', function () {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		popupClose();
 	});
 	$('#popup-content').on('click', function (event) {
@@ -452,6 +473,7 @@ $(function () {
 			// @author https://stackoverflow.com/a/6411507/3334403
 			return false;
 		}
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		popupClose();
 	});
 
@@ -469,16 +491,19 @@ $(function () {
 
 	// Event - click on image to open in new tab
 	$("#popup-image").on('click', function () {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		$('#popup-filename')[0].click();
 	});
 
 	// Event - click on video to pause/play
 	$("#popup-video").on('click', function () {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		videoToggle();
 	});
 
 	// Event - click on video to pause/play
 	$("#popup-audio").on('click', function () {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		audioToggle();
 	});
 
@@ -607,11 +632,13 @@ $(function () {
 
 	// Event - changed type of tiles view
 	$('#structure-display-type button').on('click', function () {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		structureViewChange($(this).find('input').val());
 	});
 
 	// Event - clicked on zip download
 	$('#structure-download-archive').on('click', function (event) {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		if (confirm('Opravdu chceš stáhnout obsah této složky i všech podsložek jako ZIP?') === false) {
 			event.preventDefault();
 		}
@@ -620,6 +647,7 @@ $(function () {
 	// Event - clicked on rescan folder
 	$('#structure-scan-run').on('click', function (event) {
 		event.preventDefault();
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		const $btn = $(this);
 		const $btnIcon = $btn.children('i.fa');
 		loadedStructure.request = $.ajax({
@@ -655,6 +683,7 @@ $(function () {
 			event.preventDefault();
 			const itemIndex = $(this).data('index');
 			if (itemIndex !== undefined) {
+				vibrateApi.vibrate(Settings.load('vibrationOk'));
 				structure.selectorMove(itemIndex);
 				structure.selectorSelect();
 			}
@@ -688,6 +717,7 @@ $(function () {
 	 * Showing saved passwords in settings
 	 */
 	$('#settings-passwords-load').on('click', function () {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		const button = this;
 		$(button).html('Načítám <i class="fa fa-circle-o-notch fa-spin"></i>').prop('disabled', true);
 
@@ -747,44 +777,55 @@ $(function () {
 
 	$('#navbar').on('click', '#navbar-share', function (event) { // Event - share URL
 		event.preventDefault();
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		shareUrl(window.location.origin + '/#' + structure.getCurrentFolder().url);
 	}).on('click', '#navbar-favourites-add', function (event) { // Event - add to favourites
 		event.preventDefault();
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		favouritesAdd(structure.getCurrentFolder().path);
 	}).on('click', '#navbar-favourites-remove', function (event) { // Event - remove from favourites
 		event.preventDefault();
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		favouritesRemove(structure.getCurrentFolder().path);
 	});
 
 	// Event - load next item if possible
 	$('#popup-next').on('click', function () {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		itemNext(false); // dont stop presentation mode
 	});
 	// Event - load previous item if possible
 	$('#popup-prev').on('click', function () {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		itemPrev(true);
 	});
 
 	// Event - share file url from popup
 	$('#popup-media-details-share').on('click', function () {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		shareUrl(window.location.origin + '/#' + structure.getCurrentFile().url);
 	});
 
 	$('#modal-settings').on('show.bs.modal', function () {
 		loadedStructure.settings = true;
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 	}).on('hidden.bs.modal', function () {
 		loadedStructure.settings = false;
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 	});
 
 	$('#modal-search').on('show.bs.modal', function () {
 		loadedStructure.advancedSearchModal = true;
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 	}).on('hidden.bs.modal', function () {
 		loadedStructure.advancedSearchModal = false;
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 	});
 
 	$(document).on('click', '.copy-to-clipboard', function () {
 		const textToCopy = $(this).data('to-copy');
 		if (copyToClipboard(textToCopy)) {
+			vibrateApi.vibrate(Settings.load('vibrationOk'));
 			flashMessage('Text "<b>' + textToCopy + '</b>" was copied to clipboard.')
 		} else {
 			// noinspection JSJQueryEfficiency - delete previous flash error message (if any) before showing new
@@ -796,15 +837,24 @@ $(function () {
 		}
 	}).on('click', '#map-info-window .item-share', function (event) {
 		event.preventDefault();
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		const itemIndex = $('#map-info-window').data('item-index');
 		shareUrl(window.location.origin + '/#' + structure.getFile(itemIndex).url);
+	}).on('click', '#navbar .breadcrumb-item', function (event) {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
+	}).on('click', '#user-logged-in', function (event) {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
+	}).on('click', '#user-logged-out', function (event) {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 	}).on('click', '#map-info-window .open-media-popup', function (event) {
 		event.preventDefault();
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		const itemIndex = $('#map-info-window').data('item-index');
 		structure.selectorMove(itemIndex);
 		structure.selectorSelect();
 	}).on('click', '#map-info-window .open-media-info', function (event) {
 		event.preventDefault();
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		const itemIndex = $('#map-info-window').data('item-index');
 		const item = structure.getItem(itemIndex);
 		loadedStructure.mediaInfoCanvas.setItem(item).show();

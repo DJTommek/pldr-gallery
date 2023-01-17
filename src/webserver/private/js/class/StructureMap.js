@@ -98,6 +98,9 @@ class StructureMap extends AbstractMap {
 				minWidth: 200,
 			});
 		}
+		marker.on('click', function (event) {
+			vibrateApi.vibrate(Settings.load('vibrationOk'));
+		});
 		marker.addTo(this.map);
 		this.markers[uniqueId] = marker;
 	}
