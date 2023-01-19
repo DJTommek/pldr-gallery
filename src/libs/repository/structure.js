@@ -111,23 +111,24 @@ async function search(folderPath, options = {}) {
 		.where('level', '>=', searchingLevel)
 		.where('path', 'LIKE', folderPath + '%')
 	if (options) {
-
-		switch (options.sort) {
+		switch (options?.sort?.column) {
 			case 'distance':
 				const coords = new Coordinates(options.lat, options.lon);
-				 // Measure distance to given lat/lon
+				// Measure distance to given lat/lon
 				columnsToSelect.push(knex.raw('st_distance_sphere(POINT(?, ?), coordinates) AS distance', [coords.lon, coords.lat]));
 				query.whereNotNull('coordinates');
-				columnsToOrder.unshift('distance');
+				columnsToOrder.unshift(options.sort);
+				break;
+			case 'name':
+				columnsToOrder.unshift({column: 'path', order: options.sort.order});
 				break;
 			case 'created':
-				columnsToOrder.unshift({'column': 'created', 'order': 'DESC'});
+				columnsToOrder.unshift(options.sort);
 				break;
 			case 'size':
 				query.where('type', TYPE_FILE);
-				columnsToOrder.unshift({'column': 'size', 'order': 'DESC'});
+				columnsToOrder.unshift(options.sort);
 				break;
-			case 'name':
 			default:
 				// default sort
 				break;
@@ -150,9 +151,9 @@ async function search(folderPath, options = {}) {
 		if (options.sizeMin > 0 && options.sizeMax) {
 			query.whereBetween('size', [options.sizeMin, options.sizeMax]);
 		} else if (options.sizeMin) { // intentionally non-strict checking (higher than zero)
-			query.where('size','>=', options.sizeMin);
+			query.where('size', '>=', options.sizeMin);
 		} else if (options.sizeMax) { // intentionally non-strict checking (higher than zero)
-			query.where('size','<=', options.sizeMax);
+			query.where('size', '<=', options.sizeMax);
 		}
 	}
 
@@ -196,9 +197,9 @@ async function sizePercentiles(percentiles) {
 
 		// Generate percentile_cont() query (@author https://stackoverflow.com/a/59930201/3334403)
 		if (percent === 0) {
-			selectRaw += ' , (' + knex.min('size').from(CONFIG.db.table.structure) + ') as percentile_' + key + ' ' ;
+			selectRaw += ' , (' + knex.min('size').from(CONFIG.db.table.structure) + ') as percentile_' + key + ' ';
 		} else if (percent === 1) {
-			selectRaw += ' , (' + knex.max('size').from(CONFIG.db.table.structure) + ') as percentile_' + key + ' '  ;
+			selectRaw += ' , (' + knex.max('size').from(CONFIG.db.table.structure) + ') as percentile_' + key + ' ';
 		} else {
 			selectRaw += ', percentile_cont(?) within group (order by `size`) over (partition by `type`) as percentile_' + key + ' ';
 			selectRawParams.push(percent);
