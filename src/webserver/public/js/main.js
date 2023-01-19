@@ -508,7 +508,8 @@ $(function () {
 
 	// Event - show/hide map in advanced search and try to silently load user's location
 	$('#advanced-search-sort input[name=sort]').on('change', function () {
-		if ($(this).val() === 'distance') {
+		const value = $(this).val().toLowerCase();
+		if (value === 'distance asc' || value === 'distance desc') {
 			advancedSearchMap.mapShow();
 		} else {
 			advancedSearchMap.mapHide();
@@ -1053,7 +1054,7 @@ async function loadSearch(path = null) {
 		requestData.query = query;
 		searchValidatorError = null;
 	}
-	if ($('#advanced-search-sort-distance').is(':checked')) {
+	if ($('input.advanced-search-sort-distance:checked').length > 0) {
 		const $selectedCoords = $('#advanced-search-coords');
 		requestData.lat = $selectedCoords.data('lat');
 		requestData.lon = $selectedCoords.data('lon');

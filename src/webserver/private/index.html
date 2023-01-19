@@ -186,38 +186,41 @@
 		</div>
 
 		<div id="advanced-search-sort">
-			<h5>Seřadit podle:</h5>
-			<div class="form-check">
-				<input type="radio" name="sort" value="name" checked class="form-check-input" id="advanced-search-sort-name">
-				<label class="form-check-label" for="advanced-search-sort-name">
-					názvu
-				</label>
-			</div>
-
-			<div class="form-check">
-				<input type="radio" name="sort" value="size" class="form-check-input" id="advanced-search-sort-size">
-				<label class="form-check-label" for="advanced-search-sort-size">
-					velikosti
-				</label>
-			</div>
-
-			<div class="form-check">
-				<input type="radio" name="sort" value="created" class="form-check-input" id="advanced-search-sort-created">
-				<label class="form-check-label" for="advanced-search-sort-created">
-					vytvoření
-				</label>
-			</div>
-
-			<div class="form-check">
-				<input type="radio" name="sort" value="distance" class="form-check-input" id="advanced-search-sort-distance">
-				<label class="form-check-label" for="advanced-search-sort-distance">
-					vzdálenosti
-					<a href="#" id="advanced-search-coords" target="_blank" title="Open in BetterLocation" style="display: none"></a>
-				</label>
-			</div>
-			<p class="form-text text-muted">
-				Zobrazí se pouze soubory, které obsahují informaci o poloze a seřadí se od nejbližšího k vybranému místu v mapě.<br>
-			</p>
+			<table>
+				<thead>
+				<tr>
+					<th><i class="fa fa-sort-alpha-asc"></i></th>
+					<th><i class="fa fa-sort-alpha-desc"></i></th>
+					<th>Seřadit podle:</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr>
+					<td><input type="radio" name="sort" value="name asc" checked class="form-check-input"></td>
+					<td><input type="radio" name="sort" value="name desc" class="form-check-input"></td>
+					<td>názvu</td>
+				</tr>
+				<tr>
+					<td><input type="radio" name="sort" value="size asc" class="form-check-input"></td>
+					<td><input type="radio" name="sort" value="size desc" class="form-check-input"></td>
+					<td>velikosti</td>
+				</tr>
+				<tr>
+					<td><input type="radio" name="sort" value="created asc" class="form-check-input"></td>
+					<td><input type="radio" name="sort" value="created desc" class="form-check-input"></td>
+					<td>vytvoření</td>
+				</tr>
+				<tr>
+					<td><input type="radio" name="sort" value="distance asc" class="form-check-input advanced-search-sort-distance"></td>
+					<td><input type="radio" name="sort" value="distance desc" class="form-check-input advanced-search-sort-distance"></td>
+					<td>
+						vzdálenosti
+						<a href="#" id="advanced-search-coords" target="_blank" title="Open in BetterLocation" style="display: none"></a>
+						(zobrazí se pouze soubory obsahující lokaci)
+					</td>
+				</tr>
+				</tbody>
+			</table>
 		</div>
 
 		<div id="advanced-search-map" style="display: none;"></div>
