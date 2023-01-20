@@ -46,7 +46,11 @@ module.exports = function (webserver, endpoint) {
 			const requestedOffset = req.query.offset !== undefined ? utils.clamp(parseInt(req.query.offset)) : 0;
 			let processedOffset = 0;
 
-			(await structureRepository.search(res.locals.path, searchOptions)).forEach(function (item) {
+			res.startTime('apisearching-db', 'Searching (database query)');
+			const queryResult = await structureRepository.search(res.locals.path, searchOptions);
+			res.endTime('apisearching-db');
+
+			queryResult.forEach(function (item) {
 				// do not count 'go back' directory
 				const alreadyCollectedItemsCount = finds.folders.length - 1 + finds.files.length;
 				if (alreadyCollectedItemsCount >= requestedLimit) {
