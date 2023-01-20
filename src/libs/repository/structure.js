@@ -157,6 +157,8 @@ async function search(folderPath, options = {}) {
 		}
 	}
 
+	columnsToOrder.unshift('type');
+
 	query.select(columnsToSelect);
 	query.orderBy(columnsToOrder);
 

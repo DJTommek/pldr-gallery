@@ -128,14 +128,32 @@ module.exports.itemsDb = function (requestedPath, fullPath, permissions, options
 		offset: 0,
 	};
 
+	const requestedLimit = options.limit || 1000;
+	const requestedOffset = options.offset || 0;
+	let processedOffset = 0;
+
+	let goBackIndexCount = 0;
 	if (requestedPath !== '/') { // if requested folder is not root, add one FolderItem to go back
 		result.folders.push(generateGoBackFolderItem(requestedPath));
+		goBackIndexCount = 1;
 	}
 
 	return new Promise(function (resolve) {
 		structureRepository.loadByPath(requestedPath).then(function (pathItems) {
-			pathItems = pathItems.filter(filterPathItems)
+			pathItems = pathItems.filter(filterPathItems);
 			pathItems.forEach(function (item) {
+				// do not count 'go back' directory (if available)
+				const alreadyCollectedItemsCount = result.folders.length - goBackIndexCount + result.files.length;
+
+				if (alreadyCollectedItemsCount >= requestedLimit) {
+					return; // already collected enough of items
+				}
+
+				if (processedOffset < requestedOffset) {
+					processedOffset++; // still not within range (>= offset and <= offset + limit)
+					return;
+				}
+
 				if (item instanceof FileItem) {
 					result.files.push(item);
 				} else if (item instanceof FolderItem) {

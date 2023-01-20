@@ -42,17 +42,29 @@ module.exports = function (webserver, endpoint) {
 			res.startTime('apisearching', 'Searching');
 			let searchingStart = process.hrtime();
 
+			const requestedLimit = req.query.limit !== undefined ? utils.clamp(parseInt(req.query.limit), 1, 1000) : 1000;
+			const requestedOffset = req.query.offset !== undefined ? utils.clamp(parseInt(req.query.offset)) : 0;
+			let processedOffset = 0;
+
 			(await structureRepository.search(res.locals.path, searchOptions)).forEach(function (item) {
-				if (finds.folders.length < 1000 && finds.files.length < 1000) {
-					if (res.locals.user.testPathPermission(item.path) === false) {
-						return;	// filter out items, that user don't have permission on
-					}
-					item.text = item.path;
-					if (item.isFolder) {
-						finds.folders.push(item.serialize());
-					} else if (item.isFile) {
-						finds.files.push(item.serialize());
-					}
+				// do not count 'go back' directory
+				const alreadyCollectedItemsCount = finds.folders.length - 1 + finds.files.length;
+				if (alreadyCollectedItemsCount >= requestedLimit) {
+					return; // already collected enough of items
+				}
+				if (res.locals.user.testPathPermission(item.path) === false) {
+					return;	// filter out items, that user don't have permission on
+				}
+				if (processedOffset < requestedOffset) {
+					processedOffset++; // still not within range (between offset and offset + limit)
+					return;
+				}
+
+				item.text = item.path;
+				if (item.isFolder) {
+					finds.folders.push(item.serialize());
+				} else if (item.isFile) {
+					finds.files.push(item.serialize());
 				}
 			})
 			res.endTime('apisearching');

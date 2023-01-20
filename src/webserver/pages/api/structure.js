@@ -8,6 +8,7 @@ const getItemsHelper = require(__dirname + '/helpers/getItemsFromFolder.js');
 require(BASE_DIR_GET('/src/webserver/private/js/class/FileExtensionMapper.js'));
 require(BASE_DIR_GET('/src/webserver/private/js/class/Icon.js'));
 require(BASE_DIR_GET('/src/webserver/private/js/class/Item.js'));
+const utils = require('../../../libs/utils/utils');
 
 module.exports = function (webserver, endpoint) {
 
@@ -55,9 +56,14 @@ module.exports = function (webserver, endpoint) {
 			});
 		});
 
+		const options = {
+			limit: req.query.limit !== undefined ? utils.clamp(parseInt(req.query.limit), 1, 1000) : 1000,
+			offset: req.query.offset !== undefined ? utils.clamp(parseInt(req.query.offset)) : 0,
+		};
+
 		res.startTime('apistructure', 'Loading and processing data');
 		Promise.all([
-			getItemsHelper.itemsDb(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), {limit: itemLimit}),
+			getItemsHelper.itemsDb(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), options),
 			lastScanPromise,
 			generateSpecificFilePromise('header.html'),
 			generateSpecificFilePromise('footer.html'),
