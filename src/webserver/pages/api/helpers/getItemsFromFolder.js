@@ -141,17 +141,17 @@ module.exports.itemsDb = function (requestedPath, fullPath, permissions, options
 	return new Promise(function (resolve) {
 		structureRepository.loadByPath(requestedPath).then(function (pathItems) {
 			pathItems = pathItems.filter(filterPathItems);
-			pathItems.forEach(function (item) {
+			for (const item of pathItems) {
 				// do not count 'go back' directory (if available)
 				const alreadyCollectedItemsCount = result.folders.length - goBackIndexCount + result.files.length;
 
 				if (alreadyCollectedItemsCount >= requestedLimit) {
-					return; // already collected enough of items
+					break; // already collected enough of items
 				}
 
 				if (processedOffset < requestedOffset) {
-					processedOffset++; // still not within range (>= offset and <= offset + limit)
-					return;
+					processedOffset++;
+					continue; // still not within range (>= offset and <= offset + limit)
 				}
 
 				if (item instanceof FileItem) {
@@ -159,7 +159,7 @@ module.exports.itemsDb = function (requestedPath, fullPath, permissions, options
 				} else if (item instanceof FolderItem) {
 					result.folders.push(item);
 				}
-			});
+			}
 		}).catch(function (error) {
 			LOG.error('[Knex] Error while loading and processing in "' + fullPath + '": ' + error.message);
 		}).finally(function () {

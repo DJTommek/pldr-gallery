@@ -50,18 +50,18 @@ module.exports = function (webserver, endpoint) {
 			const queryResult = await structureRepository.search(res.locals.path, searchOptions);
 			res.endTime('apisearching-db');
 
-			queryResult.forEach(function (item) {
+			for (const item of queryResult) {
 				// do not count 'go back' directory
 				const alreadyCollectedItemsCount = finds.folders.length - 1 + finds.files.length;
 				if (alreadyCollectedItemsCount >= requestedLimit) {
-					return; // already collected enough of items
+					break; // already collected enough of items
 				}
 				if (res.locals.user.testPathPermission(item.path) === false) {
-					return;	// filter out items, that user don't have permission on
+					continue; // filter out items, that user don't have permission on
 				}
 				if (processedOffset < requestedOffset) {
 					processedOffset++; // still not within range (between offset and offset + limit)
-					return;
+					continue;
 				}
 
 				item.text = item.path;
@@ -70,7 +70,7 @@ module.exports = function (webserver, endpoint) {
 				} else if (item.isFile) {
 					finds.files.push(item.serialize());
 				}
-			})
+			}
 			res.endTime('apisearching');
 			let humanTime = msToHuman(hrtime(process.hrtime(searchingStart)));
 			LOG.info(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
