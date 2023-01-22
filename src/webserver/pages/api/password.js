@@ -77,7 +77,7 @@ module.exports = function (webserver, endpoint) {
 				res.redirect('/');
 			}
 		} catch (error) {
-			res.result.setError('Error while checking password: ' + error.message).end();
+			res.result.setError('Error while checking password: ' + error.message);
 		}
 		res.result.end();
 	});
