@@ -128,7 +128,7 @@ module.exports.itemsDb = function (requestedPath, fullPath, permissions, options
 		offset: 0,
 	};
 
-	const requestedLimit = options.limit || 1000;
+	const requestedLimit = options.limit || 2000;
 	const requestedOffset = options.offset || 0;
 	let processedOffset = 0;
 

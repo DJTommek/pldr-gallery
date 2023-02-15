@@ -75,7 +75,7 @@ async function randomFiles(folderPath) {
 		.andWhere('level', '>=', searchingLevel)
 		.andWhere('path', 'LIKE', folderPath + '%')
 		.orderByRaw('RAND()')
-		.limit(1000);
+		.limit(2000);
 	LOG.debug('(Knex) Running SQL: ' + query.toString());
 	try {
 		(await query).forEach(function (row) {

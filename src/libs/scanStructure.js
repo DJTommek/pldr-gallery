@@ -82,7 +82,7 @@ async function scan(absolutePath, options = {}) {
 
 			items.push(resultItem);
 
-			if (items.length > 0 && items.length % 1000 === 0) {
+			if (items.length > 0 && items.length % 2000 === 0) {
 				let humanTime = msToHuman(hrtime(process.hrtime(readDirStartHr)));
 				LOG.debug('(ScanStructure) So far scanned ' + filesCount + ' files and ' + foldersCount + ' folders in ' + humanTime + '.')
 			}

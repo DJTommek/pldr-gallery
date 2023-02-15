@@ -40,7 +40,7 @@ function getFileLines(options, callback) {
 				throw new Error('Param options.limit is not valid. It must be positive number.');
 			}
 		} else { // set default value
-			options.limit = 1000;
+			options.limit = 2000;
 		}
 		// check optional parameter offset
 		if (options.offset) {
@@ -49,7 +49,7 @@ function getFileLines(options, callback) {
 			}
 			throw new Error('Param options.offset is not implemented.'); // @TODO implement offset
 		} else { // set default value
-			options.offset = 1000;
+			options.offset = 2000;
 		}
 		// check optional parameter order
 		const allowedOrders = ['asc', 'desc'];

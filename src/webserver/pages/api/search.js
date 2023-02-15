@@ -42,7 +42,7 @@ module.exports = function (webserver, endpoint) {
 			res.startTime('apisearching', 'Searching');
 			let searchingStart = process.hrtime();
 
-			const requestedLimit = req.query.limit !== undefined ? utils.clamp(parseInt(req.query.limit), 1, 1000) : 1000;
+			const requestedLimit = req.query.limit !== undefined ? utils.clamp(parseInt(req.query.limit), 1, 2000) : 2000;
 			const requestedOffset = req.query.offset !== undefined ? utils.clamp(parseInt(req.query.offset)) : 0;
 			let processedOffset = 0;
 

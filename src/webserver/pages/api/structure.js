@@ -27,7 +27,7 @@ module.exports = function (webserver, endpoint) {
 
 		let itemLimit = parseInt(req.cookies['pmg-item-limit']);
 		if (itemLimit <= 0) {
-			itemLimit = 1000;
+			itemLimit = 2000;
 		}
 
 		function generateSpecificFilePromise(filename) {
@@ -57,7 +57,7 @@ module.exports = function (webserver, endpoint) {
 		});
 
 		const options = {
-			limit: req.query.limit !== undefined ? utils.clamp(parseInt(req.query.limit), 1, 1000) : 1000,
+			limit: req.query.limit !== undefined ? utils.clamp(parseInt(req.query.limit), 1, 2000) : 2000,
 			offset: req.query.offset !== undefined ? utils.clamp(parseInt(req.query.offset)) : 0,
 		};
 
