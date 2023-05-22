@@ -16,15 +16,9 @@ class AbstractMap {
 		this.markers = {};
 
 		this.tileLayers = {
-			'OSM default': L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-				attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>',
-				maxZoom: 22,
-				minZoom: 1,
-				id: 'mapbox/streets-v11',
-				tileSize: 512,
-				zoomOffset: -1,
-				// @TODO change access_token (this is taken from from example on https://leafletjs.com/examples/quick-start/)
-				accessToken: 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw'
+			'OSM default': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				maxZoom: 19,
+				attribution: 'copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 			}),
 			'Mapy.cz hiking': L.tileLayer('https://mapserver.mapy.cz/turist-m/{z}-{x}-{y}', {
 				minZoom: 2,
