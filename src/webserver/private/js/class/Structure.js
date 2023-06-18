@@ -8,11 +8,17 @@ class Structure {
 	static ACTION_INDEX_SEARCH_ROOT = 1;
 
 	constructor() {
-		// currently selected item index
+		/**
+		 * @type {number} Currently selected item index
+		 */
 		this.selectedIndex = 0;
-		// currently loaded folder (always FolderItem object)
+		/**
+		 * @type {FolderItem|null} Currently loaded directory
+		 */
 		this.currentFolderItem = null;
-		// currently opened file if popup is opened (FileItem object), null otherwise
+		/**
+		 * @type {FileItem|null} Currently opened file if popup is opened, null otherwise
+		 */
 		this.currentFileItem = null;
 
 		this.items = [];
