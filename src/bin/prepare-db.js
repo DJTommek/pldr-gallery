@@ -13,9 +13,10 @@ const {requestingCmdHelp} = require("../libs/utils/utils");
  *
  * @param {boolean} purge Remove tables
  * @param {boolean} insertDemoData Insert demo data
+ * @param {boolean} insertDemoRootData Insert demo root data (everyone sees everything)
  * @return {void}
  */
-module.exports.run = async function run(purge = false, insertDemoData = true) {
+module.exports.run = async function run(purge = false, insertDemoData = true, insertDemoRootData = false) {
 	console.log('(Knex) Starting creating demo database...');
 	if (purge === true) {
 		console.log('(Knex) Database purge is set to true, purging...');
@@ -25,6 +26,8 @@ module.exports.run = async function run(purge = false, insertDemoData = true) {
 	await createTables();
 	if (insertDemoData === true) {
 		await fillDemoData();
+	} else if (insertDemoRootData) {
+		await fillDemoRootData();
 	}
 	return exit();
 }
@@ -282,6 +285,21 @@ async function fillDemoData() {
 	console.log('(Knex) DB filled with permissions');
 }
 
+async function fillDemoRootData() {
+	console.log('(Knex) Filling db with root demo data...');
+	console.log('(Knex) DB filling with groups...');
+	await knex.batchInsert(CONFIG.db.table.group, [
+		{id: perms.GROUPS.ALL, name: 'all'},
+		{id: perms.GROUPS.NON_LOGGED, name: 'non-logged'},
+		{id: perms.GROUPS.LOGGED, name: 'logged'},
+	]);
+	console.log('(Knex) DB filled with groups');
+	console.log('(Knex) DB filling with permissions...');
+	await knex.batchInsert(CONFIG.db.table.permission, [
+		{group_id: perms.GROUPS.ALL, permission: '/'},
+	]);
+	console.log('(Knex) DB filled with permissions');
+}
 
 if (require.main === module) {
 	const args = process.argv.slice(2);
@@ -289,11 +307,13 @@ if (require.main === module) {
 		console.log('Create tables in database if they does not exists.')
 		console.log('List of tables: ' + Object.values(CONFIG.db.table).join(', '))
 		console.log('Optional arguments:')
-		console.log('	--purge			delete existing tables first')
-		console.log('	--demo-data		insert demo data (example users, groups and passwords)')
+		console.log('    --purge             delete existing tables first')
+		console.log('    --demo-data         insert demo data (example users, groups and passwords)')
+		console.log('    --demo-root-data    insert default data, where everyone sees everything')
 	} else {
 		const purge = args.includes('--purge');
 		const demoData = args.includes('--demo-data');
-		module.exports.run(purge, demoData);
+		const demoRootData = args.includes('--demo-root-data');
+		module.exports.run(purge, demoData, demoRootData);
 	}
 }
