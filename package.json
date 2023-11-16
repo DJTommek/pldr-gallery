@@ -35,7 +35,7 @@
 		"readdirp": "^3.6",
 		"server-timing": "^3.3",
 		"sha1": "^1.1",
-		"sharp": "^0.31",
+		"sharp": "^0.32",
 		"terser": "^5.16"
 	},
 	"devDependencies": {
