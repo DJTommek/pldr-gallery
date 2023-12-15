@@ -326,7 +326,7 @@ $(window).on('hashchange', function (event) {
 						setStatus(false);
 					});
 				}
-				$('#popup-open-media-url').attr('href', openUrl);
+				$('#popup-open-media-url').attr('href', openUrlFull);
 				$('#popup-media-details-download').attr('href', downloadUrl);
 				$('#popup-media-details-open-full').attr('href', openUrlFull);
 				$('#popup-media-details-share').attr('href', shareUrl);
