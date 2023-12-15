@@ -163,9 +163,10 @@ class FileItem extends Item {
 	 * Get file URL
 	 *
 	 * @param {boolean} [download] get download URL instead of view
+	 * @param {boolean} [compress] use true or false to force enable or disable compression. Set null to respect user settings
 	 * @returns {null|string} URL or null if item type has no view URL
 	 */
-	getFileUrl(download = false) {
+	getFileUrl(download = false, compress = null) {
 		if (download === true) {
 			return '/api/download?path=' + this.getEncodedPath();
 		}
@@ -176,7 +177,11 @@ class FileItem extends Item {
 			return '/api/audio?path=' + this.getEncodedPath();
 		}
 		if (this.isImage) {
-			return '/api/image?path=' + this.getEncodedPath();
+			let urlPath = '/api/image?path=' + this.getEncodedPath();
+			if (compress !== null) {
+				urlPath += '&compress=' + compress;
+			}
+			return urlPath;
 		}
 		return null;
 	}
