@@ -314,18 +314,21 @@ $(window).on('hashchange', function (event) {
 					$('#popup-location').hide();
 				}
 
-				let openUrl = currentFile.getFileUrl();
+				let openUrl = currentFile.getFileUrl(false);
+				let openUrlFull = currentFile.getFileUrl(false, false);
 				const downloadUrl = currentFile.getFileUrl(true);
 				const shareUrl = window.location.origin + '/#' + structure.getCurrentFile().url;
 
 				if (openUrl === null) { // If item has no view url, use icon to indicate it is file that has to be downloaded
 					openUrl = downloadUrl;
+					openUrlFull = downloadUrl;
 					$('#popup-icon').removeClass().addClass('fa fa-5x fa-' + currentFile.icon).fadeIn(Settings.load('animationSpeed'), function () {
 						setStatus(false);
 					});
 				}
 				$('#popup-open-media-url').attr('href', openUrl);
 				$('#popup-media-details-download').attr('href', downloadUrl);
+				$('#popup-media-details-open-full').attr('href', openUrlFull);
 				$('#popup-media-details-share').attr('href', shareUrl);
 
 				loadedStructure.mediaInfoCanvas.setItem(currentFile);
