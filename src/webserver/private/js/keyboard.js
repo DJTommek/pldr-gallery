@@ -159,6 +159,7 @@ jwerty.key('ctrl+s', function (e) {
 	if (loadedStructure.settings) {
 
 	} else if (loadedStructure.popup) {
+		e.preventDefault();
 		$('#popup-media-details-download')[0].click();
 	} else {
 
