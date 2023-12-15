@@ -21,7 +21,7 @@ module.exports = function (webserver, endpoint) {
 				res.setHeader('Content-Type', mimeType);
 			}
 
-			res.setHeader('Content-Disposition', 'inline; filename="' + encodeURI(res.locals.fullPathFile.split('/').pop()) + '"');
+			res.setHeader('Content-Disposition', 'attachment; filename="' + encodeURI(res.locals.fullPathFile.split('/').pop()) + '"');
 			LOG.info('(Web) Streaming file to download: ' + res.locals.fullPathFile);
 			return FS.createReadStream(res.locals.fullPathFile).pipe(res);
 		} catch (error) {
