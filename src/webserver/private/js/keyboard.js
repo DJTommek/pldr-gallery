@@ -155,6 +155,16 @@ jwerty.key('ctrl+enter', function (e) {
 	}
 });
 
+jwerty.key('ctrl+s', function (e) {
+	if (loadedStructure.settings) {
+
+	} else if (loadedStructure.popup) {
+		$('#popup-media-details-download')[0].click();
+	} else {
+
+	}
+});
+
 jwerty.key('space', function (e) {
 	if (isFilterFocused()) {
 
