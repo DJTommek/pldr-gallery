@@ -778,10 +778,10 @@ $(function () {
 		setStatus(false);
 	})
 
-	$('#navbar').on('click', '#navbar-share', function (event) { // Event - share URL
+	$('#navbar').on('click', '#navbar-share', async function (event) { // Event - share URL
 		event.preventDefault();
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		shareUrl(window.location.origin + '/#' + structure.getCurrentFolder().url);
+		await shareItem(structure.getCurrentFolder());
 	}).on('click', '#navbar-favourites-add', function (event) { // Event - add to favourites
 		event.preventDefault();
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
@@ -804,9 +804,9 @@ $(function () {
 	});
 
 	// Event - share file url from popup
-	$('#popup-media-details-share').on('click', function () {
+	$('#popup-media-details-share').on('click', async function () {
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		shareUrl(window.location.origin + '/#' + structure.getCurrentFile().url);
+		await shareItem(structure.getCurrentFile());
 	});
 
 	$('#modal-settings').on('show.bs.modal', function () {
@@ -838,11 +838,11 @@ $(function () {
 			// noinspection JSJQueryEfficiency
 			$('#copy-to-clipboard-flash').trigger('focus').trigger('select');
 		}
-	}).on('click', '#map-info-window .item-share', function (event) {
+	}).on('click', '#map-info-window .item-share', async function (event) {
 		event.preventDefault();
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		const itemIndex = $('#map-info-window').data('item-index');
-		shareUrl(window.location.origin + '/#' + structure.getFile(itemIndex).url);
+		await shareItem(structure.getFile(itemIndex));
 	}).on('click', '#navbar .breadcrumb-item', function (event) {
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 	}).on('click', '#user-logged-in', function (event) {
@@ -1430,7 +1430,30 @@ function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message
 	}
 }
 
-function shareUrl(niceUrl) {
+/**
+ * Prompt share on user's device. Try to copy to clipboard if native browser sharing is not possible
+ *
+ * @param {Item} item
+ */
+async function shareItem(item) {
+	const niceUrl = window.location.origin + '/#' + item.url
+
+	if (navigator.canShare !== undefined) {
+		const shareData = {
+			title: item.text,
+			text: item.path,
+			url: niceUrl,
+		};
+		if (navigator.canShare(shareData)) {
+			try {
+				await navigator.share(shareData);
+				return;
+			} catch (error) {
+				// Ignore, continue with fallback
+			}
+		}
+	}
+
 	// @TODO probably is not working in Chrome DevTools mobile device emulator
 	if (copyToClipboard(niceUrl)) {
 		flashMessage('URL was copied to clipboard.')
