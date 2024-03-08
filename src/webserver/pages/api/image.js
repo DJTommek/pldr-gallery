@@ -7,6 +7,7 @@ const cacheHelper = require('./helpers/cache');
 module.exports = function (webserver, endpoint) {
 
 	require(__dirname + '/helpers/getMediaType.js')(webserver, endpoint);
+	require(__dirname + '/helpers/setCors.js')(webserver, endpoint);
 
 	/**
 	 * Stream image.

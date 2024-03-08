@@ -110,21 +110,26 @@
 #popup-top-left,
 #popup-top-right {
 	z-index: 1; /* show above video but has to be under audio */
-	cursor: pointer;
 	position: absolute;
 	top: 0.5em;
-	height: 2em;
-	width: 2em;
-	padding-top: 0.5em;
-	background-color: rgba(@theme-color-text, 0.25);
-	color: @theme-color-primary;
-	font-size: 1.5em;
-	border-radius: 50%;
 
-	&:hover {
-		text-decoration: none;
-		background-color: rgba(@theme-color-text, 0.5);
+	> div {
+		height: 2em;
+		width: 2em;
+		cursor: pointer;
+		padding-top: 0.5em;
+		background-color: rgba(@theme-color-text, 0.25);
+		color: @theme-color-primary;
+		font-size: 1.5em;
+		border-radius: 50%;
+		display: inline-block;
+
+		&:hover {
+			text-decoration: none;
+			background-color: rgba(@theme-color-text, 0.5);
+		}
 	}
+
 }
 
 #popup-top-left {

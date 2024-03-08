@@ -272,11 +272,19 @@
 	</div>
 
 	<div id="popup-top-left">
-		<i class="fa fa-times"></i>
+		<div id="popup-close">
+			<i class="fa fa-times"></i>
+		</div>
 	</div>
 
-	<div id="popup-top-right" data-bs-toggle="offcanvas" data-bs-target="#popup-media-details" aria-controls="popup-media-details">
-		<i class="fa fa-ellipsis-v"></i>
+	<div id="popup-top-right">
+		<div id="cast">
+			<!-- @TODO Change icon to cast -->
+			<i class="fa fa-youtube-play"></i>
+		</div>
+		<div data-bs-toggle="offcanvas" data-bs-target="#popup-media-details" aria-controls="popup-media-details">
+			<i class="fa fa-ellipsis-v"></i>
+		</div>
 	</div>
 
 	<div id="popup-presentation-progress" style="display: none;"></div>
@@ -388,6 +396,8 @@
 <script defer type="text/javascript" src="https://cdn.jsdelivr.net/npm/leaflet-fullscreen@1.0.2/dist/Leaflet.fullscreen.min.js" integrity="sha256-RQN1bmEq/28pzVG8Csu34O677VNj5/1xl1wUGyDjMuo=" crossorigin="anonymous"></script>
 <script defer type="text/javascript" src="js/modules.min.js?{{CACHEBUSTER_PUBLIC_JS_MODULES_MIN.JS}}"></script>
 <script defer type="text/javascript" src="js/main.js?{{CACHEBUSTER_PUBLIC_JS_MAIN.JS}}"></script>
+<!--<script defer type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/castjs/5.2.0/cast.min.js"></script>-->
+<script defer type="text/javascript" src="js/cast.js"></script>
 <!-- @formatter:off -->
 <script>
 	const CONFIG = {{SERVER_CONFIG}};

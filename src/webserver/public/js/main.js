@@ -466,7 +466,7 @@ $(function () {
 
 	loadUserData();
 
-	$('#popup-close, #popup-top-left').on('click', function () {
+	$('#popup-close').on('click', function () {
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		popupClose();
 	});
@@ -477,6 +477,47 @@ $(function () {
 			vibrateApi.vibrate(Settings.load('vibrationOk'));
 			popupClose();
 		}
+	});
+
+	$('#cast').on('click', function (event) {
+		vibrateApi.vibrate(Settings.load('vibrationOk'));
+		const castJs = new Castjs();
+		castJs.on('event', function () {
+			console.log(this);
+		})
+		// .on('error', function () {
+		// 	// console.error(this);
+		// });
+		console.log(castJs);
+		if (castJs.available === false) {
+			debugger;
+			alert('Casting is not available');
+			return;
+		}
+		if (structure.currentFileItem === null) {
+			alert('No item to cast');
+			return;
+		}
+
+		const currentFile = structure.currentFileItem;
+
+		const metadata = {
+			title: currentFile.text,
+			description: 'some random description',
+		};
+
+		let castUrl = window.location.origin;
+		if (currentFile.isImage) {
+			// castUrl += structure.currentFileItem.getThumbnailUrl();
+			castUrl += structure.currentFileItem.getFileUrl(true);
+		} else {
+			castUrl += structure.currentFileItem.getFileUrl();
+		}
+
+		console.log(castUrl);
+		console.log(metadata);
+
+		castJs.cast(castUrl, metadata);
 	});
 
 	// Event - swipe in popup
