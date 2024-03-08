@@ -10,8 +10,8 @@ This exact demo is included in the source code, just follow Installation instruc
 
 ## Requirements
 
-- [Node.js](https://nodejs.org/) (currently developed with Node.js 16.13.1)
-- [MySQL](https://www.mysql.com/) / [MariaDB](https://mariadb.org/) (currently developed with MariaDB 10.6.5)
+- [Node.js](https://nodejs.org/) (currently developed with Node.js 20.10.0)
+- [MySQL](https://www.mysql.com/) / [MariaDB](https://mariadb.org/) (currently developed with MariaDB 11.2.2)
 
 It might work with older/newer versions, try it.
 
