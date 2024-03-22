@@ -1134,7 +1134,6 @@ function loadThumbnail() {
 		return;
 	}
 	const thumbnailsNotLoaded = $('.thumbnail-not-loaded:not(.thumbnail-loading)');
-	console.log(thumbnailsNotLoaded.length);
 	if (thumbnailsNotLoaded.length === 0) {
 		console.log('All thumbnails are already loaded, canceling new request.');
 		return;
