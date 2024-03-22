@@ -31,6 +31,14 @@ class StructureMap extends AbstractMap {
 				locateControl.start();
 			}
 		});
+
+		// Markers for hidden overlays are not rendered and HTML does not exists, yet. When markers are rendered,
+		// by default they are loaded with .thumbnail-not-loaded class and images must be loaded manually.
+		// If images were loaded previously, eg in structure, they are loaded instantly once loadThumbnail() is called,
+		// thanks to in-browser caching.
+		this.map.on('overlayadd', loadThumbnail);
+		this.overlays['Clustered'].on('clusterclick', loadThumbnail);
+
 		return this;
 	}
 
@@ -113,11 +121,14 @@ class StructureMap extends AbstractMap {
 		marker.on('click', function (event) {
 			vibrateApi.vibrate(Settings.load('vibrationOk'));
 		});
-		marker.addTo(this.map);
+		marker.addTo(this.overlays['Default']);
+		marker.addTo(this.overlays['Clustered']);
 		this.markers[uniqueId] = marker;
 	}
 
 	clearMarkers() {
+		this.overlays['Default'].clearLayers()
+		this.overlays['Clustered'].clearLayers()
 		for (const markerId in this.markers) {
 			this.markers[markerId].remove();
 			delete this.markers[markerId];

@@ -28,6 +28,10 @@ class AbstractMap {
 				zoomOffset: 0,
 			}),
 		};
+		this.overlays = {
+			'Default': L.layerGroup([]),
+			'Clustered': L.markerClusterGroup(),
+		};
 	}
 
 	init() {
@@ -35,8 +39,9 @@ class AbstractMap {
 		this.map = L.map(this.element, {
 			fullscreenControl: true,
 		}).setView(this.defaultCoords, this.defaultZoom);
-		L.control.layers(this.tileLayers).addTo(this.map);
+		L.control.layers(this.tileLayers, this.overlays).addTo(this.map);
 		this.tileLayers['OSM default'].addTo(this.map); // Default layer to be displayed on page load
+		this.overlays['Clustered'].addTo(this.map);
 		return this;
 	}
 
