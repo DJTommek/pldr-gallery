@@ -1123,56 +1123,66 @@ async function loadSearch(path = null) {
 }
 
 /**
- * Load thumbnail image one-by-one.
+ * Load multiple thumbnail images at once, specified by internal priority
  * After first thumbnail is loaded (or error while loading) it will call itself again and load next thumbnail image
  */
 function loadThumbnail() {
-	if ($('.thumbnail-loading-icon').length > 0) {
+	const maxThumbnailsLoadingCount = 5;
+
+	if ($('.thumbnail-loading-icon').length > maxThumbnailsLoadingCount) {
 		console.log('Thumbnail is already loading, canceling new request.');
 		return;
 	}
-	const thumbnailsNotLoaded = $('.thumbnail-not-loaded:visible');
-	if (thumbnailsNotLoaded.length > 0) {
-		let thumbnailToLoad = null;
-
-		// prioritize items, that are hovered with mouse
-		if (loadedStructure.hoveredStructureItemElement) {
-			const hoveredItemThumbnail = loadedStructure.hoveredStructureItemElement.children('.thumbnail');
-			if (hoveredItemThumbnail.hasClass('thumbnail-not-loaded')) {
-				thumbnailToLoad = hoveredItemThumbnail;
-			}
-		}
-
-		// prioritize items, that are selected in structure
-		if (thumbnailToLoad === null) {
-			const selectedItemThumbnail = $('.item-index-' + structure.selectedIndex).children('.thumbnail');
-			if (selectedItemThumbnail.hasClass('thumbnail-not-loaded')) {
-				thumbnailToLoad = selectedItemThumbnail;
-			}
-		}
-
-		if (thumbnailToLoad === null) {
-			// prioritize items, that are visible in viewport
-			thumbnailToLoad = thumbnailsNotLoaded.filter(function () {
-				return isElementInView(this, true);
-			}).first();
-			if (thumbnailToLoad.length === 0) {
-				// no priority, load first available non-loaded thumbnail
-				thumbnailToLoad = thumbnailsNotLoaded.first();
-			}
-		}
-
-		const firstThumbnailParent = thumbnailToLoad.parent();
-		// @TODO save new generated DOM and use .remove() directly instead of find()
-		thumbnailToLoad.before('<i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin" title="Loading thumbnail..."></i>');
-		// trigger loading image after new src is loaded
-		// @Author https://stackoverflow.com/a/7439093/3334403 (http://jsfiddle.net/jfriend00/hmP5M/)
-		thumbnailToLoad.one('load error', function () {
-			firstThumbnailParent.find('i.thumbnail-loading-icon').remove();
-			thumbnailToLoad.removeClass('thumbnail-not-loaded');
-			loadThumbnail();
-		}).attr('src', thumbnailToLoad.data('src'));
+	const thumbnailsNotLoaded = $('.thumbnail-not-loaded:visible:not(.thumbnail-loading)');
+	console.log(thumbnailsNotLoaded.length);
+	if (thumbnailsNotLoaded.length === 0) {
+		console.log('All thumbnails are already loaded, canceling new request.');
+		return;
 	}
+
+	let thumbnailToLoad = null;
+
+	// prioritize items, that are hovered with mouse
+	if (loadedStructure.hoveredStructureItemElement) {
+		const hoveredItemThumbnail = loadedStructure.hoveredStructureItemElement.children('.thumbnail');
+		if (hoveredItemThumbnail.hasClass('thumbnail-not-loaded') && hoveredItemThumbnail.hasClass('thumbnail-loading') === false) {
+			thumbnailToLoad = hoveredItemThumbnail;
+		}
+	}
+
+	// prioritize items, that are selected in structure
+	if (thumbnailToLoad === null) {
+		const selectedItemThumbnail = $('.item-index-' + structure.selectedIndex).children('.thumbnail');
+		if (selectedItemThumbnail.hasClass('thumbnail-not-loaded') && selectedItemThumbnail.hasClass('thumbnail-loading') === false) {
+			thumbnailToLoad = selectedItemThumbnail;
+		}
+	}
+
+	if (thumbnailToLoad === null) {
+		// prioritize items, that are visible in viewport
+		const visibleThumbnailsToLoad = thumbnailsNotLoaded.filter(function () {
+			return isElementInView(this, true);
+		});
+		if (visibleThumbnailsToLoad.length > 0) {
+			thumbnailToLoad = visibleThumbnailsToLoad.first();
+		} else {
+			// no priority, load first available non-loaded thumbnail
+			thumbnailToLoad = thumbnailsNotLoaded.first();
+		}
+	}
+
+	thumbnailToLoad.addClass('thumbnail-loading');
+	const firstThumbnailParent = thumbnailToLoad.parent();
+	// @TODO save new generated DOM and use .remove() directly instead of find()
+	thumbnailToLoad.before('<i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin" title="Loading thumbnail..."></i>');
+	// trigger loading image after new src is loaded
+	// @Author https://stackoverflow.com/a/7439093/3334403 (http://jsfiddle.net/jfriend00/hmP5M/)
+	thumbnailToLoad.one('load error', function () {
+		firstThumbnailParent.find('i.thumbnail-loading-icon').remove();
+		thumbnailToLoad.removeClass('thumbnail-not-loaded');
+		loadThumbnail();
+	}).attr('src', thumbnailToLoad.data('src'));
+	loadThumbnail();
 }
 
 function loadStructure(force, callback) {
