@@ -62,17 +62,20 @@ module.exports = function (webserver, endpoint) {
 			}
 		} catch (error) {
 			res.statusCode = 404;
-			let fontSize = 40;
-			let textBuffer = new Buffer.from(
-				'<svg height="' + (fontSize) + '" width="700">' +
-				'  <text x="50%" y="30" dominant-baseline="hanging" text-anchor="middle" font-size="' + fontSize + '" fill="#fff">' + error.message + '</text>' +
-				'</svg>'
-			);
+			const height = c.thumbnails.height;
+			const width = c.thumbnails.width;
+
+			// @TODO resolve text overflow
+			let textBuffer = new Buffer.from(`
+<svg height="${width}" width="${height}" viewBox="0 0 ${height} ${width}">
+  <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#000">${error.message}</text>
+</svg>
+			`);
 
 			sharp({
 				create: {
-					width: 700,
-					height: 100,
+					width: width,
+					height: height,
 					channels: 4,
 					background: {r: 220, g: 53, b: 69,}
 				}
