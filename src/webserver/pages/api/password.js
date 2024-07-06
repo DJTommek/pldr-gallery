@@ -57,28 +57,24 @@ module.exports = function (webserver, endpoint) {
 			} else {
 				res.cookie('pmg-passwords', req.query.password, {expires: new Date(253402300000000)});
 			}
-			// return list of permissions to this password
-			res.result.setResult({
-				password: req.query.password,
-				permissions: passwordObject
-			}, 'Password "' + req.query.password + '" is valid.');
-			if (req.xhr) {
-				// no redirect if ajax request
-			} else if (req.query.redirect && req.query.redirect === 'false') {
-				// no redirect if param redirect=false
-			} else {
-				// automatic redirect to the folder
-				let redirectFolder = passwordObject.getPermissions()[0];
-				if (redirectFolder.slice(-1) !== '/') {
-					// this is not folder, redirect to dirname of this path
-					redirectFolder = pathCustom.dirname(redirectFolder);
-				}
-				res.cookie('pmg-redirect', redirectFolder, {expires: new Date(253402300000000)});
-				res.redirect('/');
+			if (req.xhr || req.query.redirect === 'false') {
+				// return list of permissions to this password
+				res.result.setResult({
+					password: req.query.password,
+					permissions: passwordObject
+				}, 'Password "' + req.query.password + '" is valid.').end();
+				return;
 			}
+			// automatic redirect to the folder
+			let redirectFolder = passwordObject.getPermissions()[0];
+			if (redirectFolder.slice(-1) !== '/') {
+				// this is not folder, redirect to dirname of this path
+				redirectFolder = pathCustom.dirname(redirectFolder);
+			}
+			res.cookie('pmg-redirect', redirectFolder, {expires: new Date(253402300000000)});
+			res.redirect('/');
 		} catch (error) {
-			res.result.setError('Error while checking password: ' + error.message);
+			res.result.setError('Error while checking password: ' + error.message).end();
 		}
-		res.result.end();
 	});
 };
