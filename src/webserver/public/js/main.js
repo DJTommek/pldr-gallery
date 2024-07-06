@@ -1309,7 +1309,11 @@ function parseStructure(items) {
 		contentTiles += ' <i class="icon fa fa-' + item.icon + ' fa-fw"></i>';
 
 		const thumbnailUrl = item.getThumbnailUrl();
-		if (thumbnailUrl) {
+		const thumbnailEnabled = (
+			(item.isImage && CONFIG.thumbnails.image.enabled)
+			|| (item.isVideo && CONFIG.thumbnails.video.enabled)
+		)
+		if (thumbnailEnabled && thumbnailUrl) {
 			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="' + thumbnailUrl + '">';
 		} else {
 			contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
