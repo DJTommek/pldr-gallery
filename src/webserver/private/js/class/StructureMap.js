@@ -108,9 +108,18 @@ class StructureMap extends AbstractMap {
 			throw new Error('Marker with ID already exists (coords: ' + item.coords + ')');
 		}
 
+		let markerIcon = null;
+		if (
+			(item.isImage && CONFIG.thumbnails.image.enabled)
+			|| (item.isVideo && CONFIG.thumbnails.video.enabled)
+		) {
+			markerIcon = this.generateThumbnailIcon(item);
+		}
+		markerIcon = markerIcon ?? this.defaultIcon;
+
 		const marker = L.marker(item.coords, {
 			title: item.text ? item.text : '',
-			icon: (item.isImage || item.isVideo) ? this.generateThumbnailIcon(item) : this.defaultIcon,
+			icon: markerIcon,
 		});
 		if (popupContent) {
 			const popup = L.popup().setContent(popupContent);
