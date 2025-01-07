@@ -23,7 +23,7 @@
 		"cookie-parser": "^1.4",
 		"cron": "^1.8",
 		"exif-parser": "https://github.com/DJTommek/exif-parser.git",
-		"express": "^4.20",
+		"express": "^4.21",
 		"fluent-ffmpeg": "^2.1",
 		"globby": "^14.0",
 		"google-auth-library": "^7.0",
