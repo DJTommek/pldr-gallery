@@ -1,6 +1,5 @@
 const pathCustom = require(BASE_DIR_GET('/src/libs/path.js'));
 const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
-const globby = require('globby');
 const CONFIG = require(BASE_DIR_GET('/src/libs/config.js'));
 const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 const FS = require('fs');
@@ -34,7 +33,7 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 		throw new Error('Parameter "options.stat" must be boolean');
 	}
 
-	return new Promise(function (resolve) {
+	return new Promise(async function (resolve) {
 		let filesLimitCount = 0;
 		let files = [];
 		// @TODO temporary fix, more info in https://github.com/DJTommek/pldr-gallery/issues/7
@@ -44,6 +43,7 @@ module.exports.files = function (requestedPath, fullPath, permissions, options =
 		} else {
 			globbyPathPattern += '*';
 		}
+		const globby = await import('globby');
 		globby(globbyPathPattern, {onlyFiles: true}).then(function (rawPathsFiles) {
 			rawPathsFiles.forEach(function (fullPath) {
 				const dynamicPath = pathCustom.absoluteToRelative(fullPath, CONFIG.path);

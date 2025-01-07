@@ -25,7 +25,7 @@
 		"exif-parser": "https://github.com/DJTommek/exif-parser.git",
 		"express": "^4.20",
 		"fluent-ffmpeg": "^2.1",
-		"globby": "^11.1",
+		"globby": "^14.0",
 		"google-auth-library": "^7.0",
 		"knex": "^2.4",
 		"less-middleware": "^3.1",
