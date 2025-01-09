@@ -1,6 +1,7 @@
 const c = require(BASE_DIR_GET('/src/libs/config.js'));
 const pathCustom = require(BASE_DIR_GET('/src/libs/path.js'));
-const FS = require("fs");
+const FS = require('fs');
+const path = require('path');
 const SHA1 = require('sha1');
 
 module.exports.TYPE = {
@@ -28,7 +29,18 @@ module.exports.getPath = function (type, identificator, check = false) {
 	} else {
 		throw new Error('Unknown type "' + type + '" to get thumbnail path.');
 	}
-	const fullPath = pathCustom.join(c.cache.path, cacheSubpath, SHA1(identificator)) + '.png';
+
+	const fileHashId = SHA1(identificator);
+	const pathParts = [
+		c.cache.path,
+		cacheSubpath,
+		fileHashId.substring(0, 2),
+		fileHashId.substring(2, 4),
+		fileHashId.substring(4, 6),
+		fileHashId + '.jpg',
+	];
+
+	const fullPath = pathCustom.join(...pathParts);
 	if (check === true && FS.existsSync(fullPath) === false) {
 		return null;
 	}
@@ -42,7 +54,7 @@ module.exports.getPath = function (type, identificator, check = false) {
  * @param identificator
  * @returns {ReadStream}
  */
-module.exports.getStream = function(type, identificator) {
+module.exports.getStream = function (type, identificator) {
 	const path = this.getPath(type, identificator, true);
 	return FS.createReadStream(path);
 };
