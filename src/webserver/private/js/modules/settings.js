@@ -5,7 +5,7 @@
 (function (window) {
 	// Defined settings with default values
 	let settingsValues = {
-		theme: 'default',
+		theme: 'auto',
 		animationSpeed: 250,
 		/**
 		 * {number|array<number>} in milliseconds

@@ -26,26 +26,89 @@
 	<meta name="theme-color" content="#ffffff">
 
 	<script>
-		// set user-saved theme as soon as possible to prevent blink of default theme
-		let newTheme = 'default'; // light
-		try {
-			const savedTheme = localStorage.getItem('pldr-settings-theme');
-			if (savedTheme) {
-				newTheme = savedTheme;
-			} else if (window.matchMedia) {
-				// User's browser settings prefers specific theme
-				// @see https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme
-				if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-					newTheme = 'default';
-				} else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-					newTheme = 'dark';
+		(() => {
+			'use strict'
+			// Inspired from example on Bootstrap: https://getbootstrap.com/docs/5.3/customize/color-modes/#dark-mode
+			// set user-saved theme as soon as possible to prevent blink of default theme
+
+			const localStorageKey = 'pldr-settings-theme';
+
+			function setThemeBasic(theme) {
+				// If invalid theme is provided, then 'auto' is used
+				if (['dark', 'light', 'auto'].includes(theme) === false) {
+					theme = 'auto';
 				}
+
+				// Save theme into local storage
+				localStorage.setItem(localStorageKey, theme);
+
+				// Set theme to HTML
+				let themeReal = theme;
+				if (theme === 'auto') {
+					themeReal = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+				}
+
+				// Backward compatibility: CSS File is named 'default' instead of 'light'
+				if (themeReal === 'light') {
+					themeReal = 'default';
+				}
+				document.getElementById('style-theme').setAttribute('href', 'main-' + themeReal + '.css?{{CACHEBUSTER_PRIVATE_LESS_MAIN.LESS}}');
+
+				// @TODO Convert custom page theming into bootstrap-based like this instead of using custom CSS styles
+				// document.documentElement.setAttribute('data-bs-theme', themeReal);
 			}
-			localStorage.setItem('pldr-settings-theme', newTheme);
-		} catch (error) {
-			// Local storage is not working (disabled, unsupported, ...)
-		}
-		document.getElementById('style-theme').setAttribute('href', 'main-' + newTheme + '.css?{{CACHEBUSTER_PRIVATE_LESS_MAIN.LESS}}');
+
+			// Set theme as soon as possible to prevent blinking
+			setThemeBasic(localStorage.getItem(localStorageKey) ?? 'auto');
+
+			document.addEventListener('DOMContentLoaded', function () {
+				const selector = document.getElementById('theme-selector')
+				if (selector === null) { // eg. page is in headless mode
+					return;
+				}
+				const selectorButtons = selector.querySelectorAll('a')
+
+				const themeIconMap = {
+					auto: 'fa-lightbulb-o',
+					light: 'fa-sun-o',
+					dark: 'fa-moon-o',
+				}
+
+				function setTheme(theme) {
+					setThemeBasic(theme)
+
+					// Hide / show checkmark next to selected theme
+					for (const selectorButton of selectorButtons) {
+						const check = selectorButton.querySelector('.fa-check');
+						check.classList.add('d-none');
+						if (theme === selectorButton.dataset.theme) {
+							check.classList.remove('d-none');
+						}
+					}
+
+					// Change main icon in selector
+					const themeSelectorClassList = document
+						.getElementById('theme-selector')
+						.querySelector('button.dropdown-toggle .fa')
+						.classList;
+
+					for (const themeName of Object.keys(themeIconMap)) {
+						themeSelectorClassList.remove(themeIconMap[themeName]);
+					}
+					themeSelectorClassList.add(themeIconMap[theme]);
+				}
+
+				// Add listeners on manual theme change
+				for (const selectorButton of selectorButtons) {
+					selectorButton.addEventListener('click', function (event) {
+						event.preventDefault();
+						setTheme(selectorButton.dataset.theme);
+					});
+				}
+
+				setTheme(localStorage.getItem(localStorageKey) ?? 'auto');
+			});
+		})();
 	</script>
 </head>
 <body>
@@ -91,6 +154,38 @@
 					<span class="d-md-none">Settings</span>
 				</button>
 			</li>
+
+			<li class="nav-item dropdown" id="theme-selector" title="Toggle theme">
+				<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown">
+					<i class="fa fa-lightbulb-o fa-fw"></i>
+					<span class="d-md-none">Theme</span>
+				</button>
+
+				<ul class="dropdown-menu dropdown-menu-end">
+					<li title="Select Light theme">
+						<a href="#" class="dropdown-item" data-theme="light">
+							<i class="fa fa-check"></i>
+							Light
+							<i class="fa fa-sun-o"></i>
+						</a>
+					</li>
+					<li title="Select dark theme">
+						<a href="#" class="dropdown-item" data-theme="dark">
+							<i class="fa fa-check"></i>
+							Dark
+							<i class="fa fa-moon-o"></i>
+						</a>
+					</li>
+					<li title="Respect system/browser theme">
+						<a href="#" class="dropdown-item" data-theme="auto">
+							<i class="fa fa-check"></i>
+							Auto
+							<i class="fa fa-lightbulb-o"></i>
+						</a>
+					</li>
+				</ul>
+			</li>
+
 
 			<!-- Login and logout -->
 			<li class="nav-item" id="user-logged-out" style="display: none">
@@ -318,24 +413,6 @@
 			</div>
 			<div class="modal-body">
 				<form id="form-settings">
-
-					<div class="mb-3" id="settings-theme">
-						<i class="fa fa-lightbulb-o fa-fw"></i> Téma:
-						<div class="form-check">
-							<input class="form-check-input" type="radio" id="settings-theme-default" name="theme" value="default">
-							<label class="form-check-label" for="settings-theme-default"><i class="fa fa-sun-o fa-fw"></i> Rozsvítit</label>
-						</div>
-						<div class="form-check">
-							<input class="form-check-input" type="radio" id="settings-theme-dark" name="theme" value="dark">
-							<label class="form-check-label" for="settings-theme-dark"><i class="fa fa-moon-o fa-fw"></i> Zhasnout</label>
-						</div>
-						<!-- DANGER! DO NOT UNCOMMENT THIS BLOCK OF CODE!
-						<div class="form-check">
-							<input class="form-check-input" type="radio" id="settings-theme-hellokitty" name="theme" value="dark">
-							<label class="form-check-label" for="settings-theme-hellokitty"><i class="fa fa-moon-o fa-fw"></i> Zhasnout</label>
-						</div>
-						-->
-					</div>
 
 					<div class="mb-3" id="settings-compress">
 						<div class="form-check">
