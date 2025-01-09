@@ -4,6 +4,7 @@ const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
 const cacheHelper = require('./helpers/cache');
 const FS = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
+const path = require('path');
 
 module.exports = async function (webserver, endpoint) {
 
@@ -27,41 +28,42 @@ module.exports = async function (webserver, endpoint) {
 		) + '"';
 
 		const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.VIDEO, res.locals.path);
-		if (sendCachedFile(cacheFilePath) === false) {
-			const pathSplit = cacheFilePath.split('/');
-			const cacheFileName = pathSplit.pop()
-			const cacheDir = pathSplit.join('/')
-
-			res.startTime('apigeneratevideothumbnail', 'Generate thumbnail image for video');
-			const errorPrefix = 'Unable to generate thumbnail for video "' + res.locals.fullPathFile + '": ';
-			let stderrLines = [];
-			ffmpeg(res.locals.fullPathFile)
-				.screenshots({
-					count: 1, // 1 = thumbnail from middle of video
-					folder: cacheDir,
-					filename: cacheFileName,
-					size: c.thumbnails.width + 'x' + c.thumbnails.height,
-				})
-				.autopad()
-				.on('error', function (error) {
-					sendTransparentPixel();
-					if (error.message.includes('moov atom not found')) {
-						LOG.warning(errorPrefix + '"moov atom not found". File seems to be corrupted, is it still playable?');
-					} else {
-						LOG.error(errorPrefix + error);
-					}
-				})
-				.on('stderr', function (stderrLine) {
-					stderrLines.push(stderrLine);
-				})
-				.on('end', function () {
-					res.endTime('apigeneratevideothumbnail');
-					if (sendCachedFile(cacheFilePath) === false) {
-						sendTransparentPixel();
-						LOG.warning(errorPrefix + 'thumbnail file was not created but no errors was thrown. Check stderr lines for more info: ' + stderrLines.join('\n'));
-					}
-				});
+		if (sendCachedFile(cacheFilePath)) {
+			return;
 		}
+
+		const cacheFileDir = path.dirname(cacheFilePath)
+		FS.mkdirSync(cacheFileDir, {recursive: true});
+
+		res.startTime('apigeneratevideothumbnail', 'Generate thumbnail image for video');
+		const errorPrefix = 'Unable to generate thumbnail for video "' + res.locals.fullPathFile + '": ';
+		let stderrLines = [];
+		ffmpeg(res.locals.fullPathFile)
+			.screenshots({
+				count: 1, // 1 = thumbnail from middle of video
+				folder: cacheFileDir,
+				filename: path.basename(cacheFilePath),
+				size: c.thumbnails.width + 'x' + c.thumbnails.height,
+			})
+			.autopad()
+			.on('error', function (error) {
+				sendTransparentPixel();
+				if (error.message.includes('moov atom not found')) {
+					LOG.warning(errorPrefix + '"moov atom not found". File seems to be corrupted, is it still playable?');
+				} else {
+					LOG.error(errorPrefix + error);
+				}
+			})
+			.on('stderr', function (stderrLine) {
+				stderrLines.push(stderrLine);
+			})
+			.on('end', function () {
+				res.endTime('apigeneratevideothumbnail');
+				if (sendCachedFile(cacheFilePath) === false) {
+					sendTransparentPixel();
+					LOG.warning(errorPrefix + 'thumbnail file was not created but no errors was thrown. Check stderr lines for more info: ' + stderrLines.join('\n'));
+				}
+			});
 
 		function setHttpHeadersFromConfig() {
 			c.thumbnails.video.httpHeaders.forEach(function (header) {
