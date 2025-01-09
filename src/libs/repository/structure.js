@@ -251,6 +251,18 @@ async function getByPath(relativePath) {
 
 module.exports.getByPath = getByPath;
 
+/**
+ * Get all rows from database as iterator.
+ *
+ * @TODO improve to return stream of FileItem and FolderItem objects instead of raw rows.
+ */
+async function all() {
+	return knex.select('*')
+		.from(CONFIG.db.table.structure)
+		.stream({highWaterMark: 5});
+}
+
+module.exports.all = all;
 
 /**
  * @param {string} absoluteFolderPath Path, that was scanned
