@@ -233,6 +233,10 @@ let CONFIG = {
 				password: '',
 				database: 'pldrgallery',
 			},
+			pool: {
+				min: 0,
+				max: 10,
+			},
 			useNullAsDefault: true,
 		},
 		table: {
