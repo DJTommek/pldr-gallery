@@ -130,7 +130,6 @@ module.exports = function (webserver, baseEndpoint) {
 				res.locals.pathItem = null;
 			} else {
 				res.locals.pathItem = await structureRepository.getByPath(result.path);
-				console.log(res.locals.pathItem)
 			}
 		}
 		next();
