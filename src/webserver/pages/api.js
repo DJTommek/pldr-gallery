@@ -7,6 +7,7 @@ const PATH = require('path');
 const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
 const pathCustom = require(BASE_DIR_GET('/src/libs/path.js'));
 const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
+const structureRepository = require(BASE_DIR_GET('/src/libs/repository/structure.js'));
 
 module.exports = function (webserver, baseEndpoint) {
 
@@ -126,6 +127,10 @@ module.exports = function (webserver, baseEndpoint) {
 				// Error handling must be done on APIs endpoints because everyone returning different format of data (JSON, image stream, video stream, audio stream...)
 				// if res.locals.path exists, everything is ok
 				LOG.debug('(Web) Requested invalid path "' + req.query.path + '", error: ' + result.error + '.', {console: true});
+				res.locals.pathItem = null;
+			} else {
+				res.locals.pathItem = await structureRepository.getByPath(result.path);
+				console.log(res.locals.pathItem)
 			}
 		}
 		next();
