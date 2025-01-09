@@ -139,26 +139,29 @@
 	background-color: @theme-background-color;
 	color: @theme-color-text;
 
-	.buttons {
-		text-align: right;
-		margin-right: 1em;
+	.offcanvas-header {
+		justify-content: space-between;
 
-		a {
-			display: inline-block;
-			padding: 0.5em;
-			border-radius: 50%;
-			background-color: rgba(@theme-color-text, 0.25);
-			color: @theme-color-primary;
+		.buttons {
+			text-align: right;
+			margin-right: 1em;
 
-			&:hover {
-				text-decoration: none;
-				background-color: rgba(@theme-color-text, 0.5);
+			a {
+				display: inline-block;
+				padding: 0.5em;
+				border-radius: 50%;
+				background-color: rgba(@theme-color-text, 0.25);
+				color: @theme-color-primary;
+
+				&:hover {
+					text-decoration: none;
+					background-color: rgba(@theme-color-text, 0.5);
+				}
 			}
 		}
 	}
 
 	.data table {
-		color: @theme-color-text; /* override Bootstrap's coloring */
 
 		.media-info-group-name {
 			padding-top: 1em;
@@ -166,6 +169,8 @@
 		}
 
 		td {
+			color: @theme-color-text; /* override Bootstrap's coloring */
+			background-color: @theme-background-color; /* override Bootstrap's coloring */
 			vertical-align: middle;
 		}
 	}
