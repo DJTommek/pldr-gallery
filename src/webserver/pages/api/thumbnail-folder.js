@@ -37,14 +37,14 @@ module.exports = async function (webserver, endpoint) {
 			const canUseCache = perms.test(res.locals.user.getPermissions(), res.locals.path, true);
 
 			const dispositionHeader = 'inline; filename="' + encodeURI(
-				'directory thumbnail - ' + res.locals.fullPathFolder.split('/').slice(-2, -1) + '.png'
+				res.locals.pathItem.basename + '.' + c.thumbnails.extension
 			) + '"';
 
 			// Use cached file if possible
 			const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.FOLDER, res.locals.path, true);
 			if (canUseCache && c.thumbnails.folder.cache === true && cacheFilePath) {
 				setHttpHeadersFromConfig();
-				res.setHeader('Content-Type', 'image/png');
+				res.setHeader('Content-Type', 'image/' + c.thumbnails.extension);
 				res.setHeader('Content-Disposition', dispositionHeader);
 				res.startTime('apicache', 'Loading cached thumbnail');
 				res.sendFile(cacheFilePath);
@@ -81,10 +81,12 @@ module.exports = async function (webserver, endpoint) {
 				resizedImages.forEach(function (resizedImage, index) {
 					toComposite.push({input: resizedImages[index], gravity: c.thumbnails.folder.positions[index].gravity})
 				});
-				const thumbnailImageStream = sharp(c.thumbnails.folder.inputOptions).composite(toComposite).png();
+				const thumbnailImageStream = sharp(c.thumbnails.folder.inputOptions)
+					.toFormat(c.thumbnails.extension)
+					.composite(toComposite);
 
 				setHttpHeadersFromConfig();
-				res.setHeader('Content-Type', 'image/png');
+				res.setHeader('Content-Type', 'image/' + c.thumbnails.extension);
 				res.setHeader('Content-Disposition', dispositionHeader);
 				thumbnailImageStream.pipe(res);
 

@@ -53,6 +53,13 @@ class Item {
 	toString() {
 		return this.path;
 	}
+
+	/**
+	 * @return {String}
+	 */
+	get basename() {
+		return this.paths.last();
+	}
 }
 
 class ActionItem extends Item {
@@ -236,6 +243,12 @@ class FileItem extends Item {
 		return text + '...';
 	}
 
+	/**
+	 * @return {String}
+	 */
+	get basenameNoExt() {
+		return this.basename.replace(/\.[^/.]+$/, '');
+	}
 
 	/**
 	 * Prepare data to send in AJAX

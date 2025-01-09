@@ -40,6 +40,7 @@ let CONFIG = {
 	thumbnails: {
 		width: 200,
 		height: 200,
+		extension: 'jpg', // Used also for mime type, "image/<extension>"
 		/**
 		 * Resize image and generate thumbnail
 		 */

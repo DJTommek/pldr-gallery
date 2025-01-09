@@ -380,7 +380,7 @@ function getItemType(item) {
  * Convert row to item depending on type.
  *
  * @param {RowDataPacket} row
- * @returns FileItem|FolderItem
+ * @returns {FileItem|FolderItem}
  */
 function rowToItem(row) {
 	let item = null;
@@ -404,3 +404,5 @@ function rowToItem(row) {
 	item.scanned = new Date(row.scanned);
 	return item;
 }
+
+module.exports.rowToItem = rowToItem;
