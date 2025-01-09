@@ -14,25 +14,26 @@ module.exports = function (webserver, endpoint) {
 	 *
 	 * @returns image stream (in case of error, streamed image with error text)
 	 */
-	webserver.get(endpoint, function (req, res) {
+	webserver.get(endpoint, async function (req, res) {
 		res.statusCode = 200;
+
 		try {
-			if (!res.locals.fullPathFile) {
+			if (!res.locals.pathItem) {
 				throw new Error('Invalid path or you dont have a permission.');
 			}
-			const extensionData = FileExtensionMapperInstance.getImage(pathCustom.extname(res.locals.fullPathFile));
-			if (!extensionData) {
-				throw new Error('File does not appear to be an image.');
+			if (res.locals.pathItem.isImage === false) {
+				throw new Error('Requested path is not an image.');
 			}
+
+			/** @var {FileItem} */
+			const fileItem = res.locals.pathItem;
 
 			// Use cached file if exists
 			const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.IMAGE, res.locals.path, true);
 			if (req.query.type === 'thumbnail' && c.thumbnails.image.cache === true && cacheFilePath) {
 				setCacheControlHeader();
-				res.setHeader('Content-Disposition', 'inline; filename="' + encodeURI(
-					'thumbnail ' + res.locals.fullPathFile.split('/').pop()
-				) + '"');
-				res.setHeader('Content-Type', 'image/png');
+				res.setHeader('Content-Disposition', 'inline; filename="' + getResponseThumbnailFilename(fileItem) + '"');
+				res.setHeader('Content-Type', 'image/' + c.thumbnails.extension);
 				res.sendFile(cacheFilePath);
 				return;
 			}
@@ -47,16 +48,18 @@ module.exports = function (webserver, endpoint) {
 
 				// if thumbnail caching is enabled, save it
 				if (req.query.type === 'thumbnail' && c.thumbnails.image.cache === true) {
-					cacheHelper.saveStream(cacheHelper.TYPE.IMAGE, res.locals.path, imageStream.png());
+					// Intentionally missing await - no need to wait for full write
+					cacheHelper.saveStream(cacheHelper.TYPE.IMAGE, res.locals.path, imageStream);
 				}
 			}
+
 			if (res.finished === false) { // in case of timeout, response was already finished
 				res.setHeader('Content-Type', res.locals.mediaType);
 				if (req.query.type === 'thumbnail') {
 					setCacheControlHeader();
-					res.setHeader('Content-Disposition', 'inline; filename="thumbnail ' + encodeURI(res.locals.fullPathFile.split('/').pop()) + '"');
+					res.setHeader('Content-Disposition', 'inline; filename="' + getResponseThumbnailFilename(fileItem) + '"');
 				} else {
-					res.setHeader('Content-Disposition', 'inline; filename="' + encodeURI(res.locals.fullPathFile.split('/').pop()) + '"');
+					res.setHeader('Content-Disposition', 'inline; filename="' + encodeURI(fileItem.basename) + '"');
 				}
 				imageStream.pipe(res);
 			}
@@ -77,7 +80,7 @@ module.exports = function (webserver, endpoint) {
 					width: width,
 					height: height,
 					channels: 4,
-					background: {r: 220, g: 53, b: 69,}
+					background: {r: 220, g: 53, b: 69}
 				}
 			}).composite([{input: textBuffer}]).png().pipe(res);
 		}
@@ -89,6 +92,16 @@ module.exports = function (webserver, endpoint) {
 		}
 	});
 };
+
+/**
+ * Generate thumbnail name that can be send in Content-Disposition
+ *
+ * @param {FileItem} fileItem
+ * @return {string}
+ */
+function getResponseThumbnailFilename(fileItem) {
+	return encodeURI(fileItem.basenameNoExt + '.thumbnail.' + c.thumbnails.extension);
+}
 
 function getResizeParams(req) {
 	let compressData = Object.assign({}, c.compress);
