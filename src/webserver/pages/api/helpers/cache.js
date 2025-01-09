@@ -54,8 +54,14 @@ module.exports.getStream = function(type, identificator) {
  * @param identificator
  * @param {ReadStream} imageStream
  */
-module.exports.saveStream = function (type, identificator, imageStream) {
-	const path = this.getPath(type, identificator);
-	imageStream.pipe(FS.createWriteStream(path));
+module.exports.saveStream = async function (type, identificator, imageStream) {
+	const fullPath = this.getPath(type, identificator);
+	return await new Promise(function (resolve, reject) {
+		const writeStream = FS.createWriteStream(fullPath);
+		writeStream.on('finish', function () {
+			resolve();
+		});
+		writeStream.on('error', reject);
+		imageStream.pipe(writeStream);
+	});
 };
-
