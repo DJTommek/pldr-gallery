@@ -75,6 +75,7 @@ module.exports.saveStream = async function (type, identificator, imageStream) {
 			resolve();
 		});
 		writeStream.on('error', reject);
+		imageStream.on('error', reject);
 		imageStream.pipe(writeStream);
 	});
 };
