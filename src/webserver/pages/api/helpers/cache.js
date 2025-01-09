@@ -56,6 +56,7 @@ module.exports.getStream = function(type, identificator) {
  */
 module.exports.saveStream = async function (type, identificator, imageStream) {
 	const fullPath = this.getPath(type, identificator);
+	FS.mkdirSync(path.dirname(fullPath), {recursive: true});
 	return await new Promise(function (resolve, reject) {
 		const writeStream = FS.createWriteStream(fullPath);
 		writeStream.on('finish', function () {
