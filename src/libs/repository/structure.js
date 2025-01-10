@@ -65,6 +65,7 @@ module.exports.loadByPath = loadByPath;
  */
 async function randomFiles(folderPath, options = {}) {
 	options.limit = (typeof options.limit === 'number') ? options.limit : 2000;
+	options.onlyImages = (typeof options.onlyImages === 'boolean') ? options.onlyImages : false;
 
 	const hrstart = process.hrtime();
 	const result = [];
@@ -78,6 +79,14 @@ async function randomFiles(folderPath, options = {}) {
 		.andWhere('path', 'LIKE', folderPath + '%')
 		.orderByRaw('RAND()')
 		.limit(options.limit);
+
+	if (options.onlyImages) {
+		query.andWhere(function () {
+			this.orWhereRaw('LOWER(path) LIKE ?', '%.jpg')
+			this.orWhereRaw('LOWER(path) LIKE ?', '%.jpeg')
+			this.orWhereRaw('LOWER(path) LIKE ?', '%.png')
+		});
+	}
 
 	LOG.debug('(Knex) Running SQL: ' + query.toString());
 	try {
