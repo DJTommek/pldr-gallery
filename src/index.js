@@ -7,6 +7,7 @@ const CONFIG = require('./libs/config.js');
 const CronJob = require('cron').CronJob;
 const chokidar = require('chokidar');
 const structureRepository = require('./libs/repository/structure.js');
+const thumbnailGenerator = require('./libs/thumbnailGenerator.js');
 const fileGenerators = require('./webserver/fileGenerators.js');
 const cacheHelper = require("./webserver/pages/api/helpers/cache");
 const sharp = require("sharp");
@@ -115,54 +116,6 @@ const sharp = require("sharp");
 	let thumbnailsImageCronRunning = false;
 	let generatedThumbnailCounter = 0;
 
-	async function generateThumbnail(pathItem) {
-		if (pathItem.isImage === false) {
-			return;
-		}
-
-		const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.IMAGE, pathItem.path, true);
-		if (cacheFilePath !== null) {
-			return; // Thumbnail already exists
-		}
-
-		LOG.debug('[Image thumbnail generator] Generating thumbnail for "' + pathItem.path + '"...');
-		const fileAbsolutePath = pathCustom.relativeToAbsolute(pathItem.path, CONFIG.path);
-		let compressData = Object.assign({}, CONFIG.compress);
-		compressData.width = CONFIG.thumbnails.width;
-		compressData.height = CONFIG.thumbnails.height;
-		compressData.fit = CONFIG.thumbnails.image.fit;
-		const imageStreamSharp = await sharp(fileAbsolutePath).withMetadata().resize(compressData);
-		await cacheHelper.saveStream(cacheHelper.TYPE.IMAGE, pathItem.path, imageStreamSharp);
-		LOG.debug('[Image thumbnail generator] Generated thumbnail for "' + pathItem.path + '".');
-		generatedThumbnailCounter++;
-	}
-
-	async function generateThumbnails() {
-		if (thumbnailsImageCronRunning === true) {
-			LOG.info('[Image thumbnail generator] Already running...');
-			return;
-		}
-		thumbnailsImageCronRunning = true;
-		LOG.info('[Image thumbnail generator] Starting generating thumbnails...');
-		const generatingStart = process.hrtime();
-
-		try {
-			const rowsStream = await structureRepository.all();
-			for await (const row of rowsStream) {
-				const pathItem = structureRepository.rowToItem(row);
-				try {
-					await generateThumbnail(pathItem)
-				} catch (error) {
-					LOG.info('[Image thumbnail generator] Unable to generate thumbnail for "' + pathItem.path + '", error: "' + error.message + '"');
-				}
-			}
-		} finally {
-			let generatingDoneTime = msToHuman(hrtime(process.hrtime(generatingStart)));
-			LOG.info('[Image thumbnail generator] Generated ' + generatedThumbnailCounter + ' thumbnails in ' + generatingDoneTime + '.');
-			thumbnailsImageCronRunning = false;
-		}
-	}
-
 	// Pre-generate thumbnails for all image files
 	if (
 		CONFIG.thumbnails.image.enabled === true
@@ -171,14 +124,14 @@ const sharp = require("sharp");
 		if (CONFIG.thumbnails.image.pregenerate.cron !== null) {
 			new CronJob(CONFIG.thumbnails.image.pregenerate.cron, async function () {
 				LOG.debug('[CRON] Image thumbnail generator: job tick');
-				await generateThumbnails()
+				await thumbnailGenerator.generateThumbnails();
 				LOG.debug('[CRON] Image thumbnail generator: done');
 			}).start();
 			LOG.debug('Setup cron "' + CONFIG.thumbnails.image.pregenerate.cron + '" to pregenerate image thumbnails completed.');
 		}
 		if (CONFIG.thumbnails.image.pregenerate.onStart) {
 			LOG.info('Pregenerating image thumbnails on server start...')
-			generateThumbnails().then(function () {
+			thumbnailGenerator.generateThumbnails().then(function () {
 				LOG.info('Pregenerating image thumbnails on server start was completed.')
 			});
 		}
