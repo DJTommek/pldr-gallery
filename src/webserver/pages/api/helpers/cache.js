@@ -11,6 +11,22 @@ module.exports.TYPE = {
 };
 
 /**
+ * @param {FolderItem|FileItem} pathItem
+ * @return {number|null}
+ */
+module.exports.getTypeFromItem = function (pathItem) {
+	if (pathItem.isImage) {
+		return module.exports.TYPE.IMAGE
+	} else if (pathItem.isVideo) {
+		return module.exports.TYPE.VIDEO
+	} else if (pathItem.isFolder) {
+		return module.exports.TYPE.FOLDER
+	} else {
+		return null;
+	}
+}
+
+/**
  * Get path of thumbnail based on type and filename
  *
  * @param {number} type this.TYPE.IMAGE or this.TYPE.FOLDER
