@@ -11,6 +11,7 @@ const thumbnailGenerator = require('./libs/thumbnailGenerator.js');
 const fileGenerators = require('./webserver/fileGenerators.js');
 const cacheHelper = require("./webserver/pages/api/helpers/cache");
 const sharp = require("sharp");
+const LOG = require("./libs/log");
 
 (async function () {
 	const LOG = require('./libs/log.js');
@@ -121,8 +122,12 @@ const sharp = require("sharp");
 		if (CONFIG.thumbnails.pregenerate.cron !== null) {
 			new CronJob(CONFIG.thumbnails.pregenerate.cron, async function () {
 				LOG.debug('[CRON] Thumbnail generator: job tick');
-				await thumbnailGenerator.generateThumbnails();
-				LOG.debug('[CRON] Thumbnail generator: done');
+				try {
+					await thumbnailGenerator.generateThumbnails();
+					LOG.debug('[CRON] Thumbnail generator: done');
+				} catch (error) {
+					LOG.error('[CRON] Thumbnail generator: error: "' + error.message + '"');
+				}
 			}).start();
 			LOG.debug('Setup cron "' + CONFIG.thumbnails.pregenerate.cron + '" to pregenerate thumbnails completed.');
 		}
@@ -130,6 +135,8 @@ const sharp = require("sharp");
 			LOG.info('Pregenerating image thumbnails on server start...')
 			thumbnailGenerator.generateThumbnails().then(function () {
 				LOG.info('Pregenerating image thumbnails on server start was completed.')
+			}).catch(function (error) {
+				LOG.error('Pregenerating image thumbnails on server start throwed error: "' + error.message + '"')
 			});
 		}
 	}
