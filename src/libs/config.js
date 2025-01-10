@@ -47,6 +47,10 @@ let CONFIG = {
 		image: {
 			enabled: true,
 			cache: false,
+			pregenerate: {
+				onStart: false,
+				cron: null,
+			},
 			httpHeaders: [
 				{name: 'Cache-Control', value: 'public, max-age=31536000'}, // keep generated thumbnail image in user's browser cache
 			],
