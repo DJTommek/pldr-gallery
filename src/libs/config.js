@@ -40,6 +40,10 @@ let CONFIG = {
 	thumbnails: {
 		width: 200,
 		height: 200,
+		pregenerate: {
+			onStart: false,
+			cron: null,
+		},
 		extension: 'jpg', // Used also for mime type, "image/<extension>"
 		/**
 		 * Resize image and generate thumbnail
@@ -47,10 +51,6 @@ let CONFIG = {
 		image: {
 			enabled: true,
 			cache: false,
-			pregenerate: {
-				onStart: false,
-				cron: null,
-			},
 			httpHeaders: [
 				{name: 'Cache-Control', value: 'public, max-age=31536000'}, // keep generated thumbnail image in user's browser cache
 			],

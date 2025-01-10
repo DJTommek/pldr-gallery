@@ -113,23 +113,20 @@ const sharp = require("sharp");
 		}
 	}
 
-	let thumbnailsImageCronRunning = false;
-	let generatedThumbnailCounter = 0;
-
-	// Pre-generate thumbnails for all image files
+	// Pre-generate thumbnails for all files
 	if (
 		CONFIG.thumbnails.image.enabled === true
 		&& CONFIG.thumbnails.image.cache === true
 	) {
-		if (CONFIG.thumbnails.image.pregenerate.cron !== null) {
-			new CronJob(CONFIG.thumbnails.image.pregenerate.cron, async function () {
-				LOG.debug('[CRON] Image thumbnail generator: job tick');
+		if (CONFIG.thumbnails.pregenerate.cron !== null) {
+			new CronJob(CONFIG.thumbnails.pregenerate.cron, async function () {
+				LOG.debug('[CRON] Thumbnail generator: job tick');
 				await thumbnailGenerator.generateThumbnails();
-				LOG.debug('[CRON] Image thumbnail generator: done');
+				LOG.debug('[CRON] Thumbnail generator: done');
 			}).start();
-			LOG.debug('Setup cron "' + CONFIG.thumbnails.image.pregenerate.cron + '" to pregenerate image thumbnails completed.');
+			LOG.debug('Setup cron "' + CONFIG.thumbnails.pregenerate.cron + '" to pregenerate thumbnails completed.');
 		}
-		if (CONFIG.thumbnails.image.pregenerate.onStart) {
+		if (CONFIG.thumbnails.pregenerate.onStart) {
 			LOG.info('Pregenerating image thumbnails on server start...')
 			thumbnailGenerator.generateThumbnails().then(function () {
 				LOG.info('Pregenerating image thumbnails on server start was completed.')
