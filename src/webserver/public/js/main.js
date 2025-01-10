@@ -1274,7 +1274,7 @@ function parseStructure(items) {
 		contentTiles += '<span class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
 		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
 		if (!item.noFilter && CONFIG.thumbnails.folder.enabled === true) {
-			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="/api/thumbnail-folder?path=' + item.getEncodedPath() + '">';
+			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="' + item.getThumbnailUrl() + '">';
 		} else {
 			contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		}

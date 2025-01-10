@@ -1,6 +1,5 @@
 const c = require(BASE_DIR_GET('/src/libs/config.js'));
 const FS = require('fs');
-const pathCustom = require(BASE_DIR_GET('/src/libs/path.js'));
 const sharp = require('sharp');
 const cacheHelper = require('./helpers/cache');
 
@@ -28,39 +27,17 @@ module.exports = function (webserver, endpoint) {
 			/** @var {FileItem} */
 			const fileItem = res.locals.pathItem;
 
-			// Use cached file if exists
-			const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.IMAGE, res.locals.path, true);
-			if (req.query.type === 'thumbnail' && c.thumbnails.image.cache === true && cacheFilePath) {
-				setCacheControlHeader();
-				res.setHeader('Content-Disposition', 'inline; filename="' + getResponseThumbnailFilename(fileItem) + '"');
-				res.setHeader('Content-Type', 'image/' + c.thumbnails.extension);
-				res.sendFile(cacheFilePath);
-				return;
-			}
-
 			let imageStream = FS.createReadStream(res.locals.fullPathFile);
-
 			const compressData = getResizeParams(req);
 
 			// if compression is enabled, compress first
 			if (compressData !== false) {
 				imageStream = imageStream.pipe(sharp().withMetadata().resize(compressData));
-
-				// if thumbnail caching is enabled, save it
-				if (req.query.type === 'thumbnail' && c.thumbnails.image.cache === true) {
-					// Intentionally missing await - no need to wait for full write
-					cacheHelper.saveStream(cacheHelper.TYPE.IMAGE, res.locals.path, imageStream);
-				}
 			}
 
 			if (res.finished === false) { // in case of timeout, response was already finished
 				res.setHeader('Content-Type', res.locals.mediaType);
-				if (req.query.type === 'thumbnail') {
-					setCacheControlHeader();
-					res.setHeader('Content-Disposition', 'inline; filename="' + getResponseThumbnailFilename(fileItem) + '"');
-				} else {
-					res.setHeader('Content-Disposition', 'inline; filename="' + encodeURI(fileItem.basename) + '"');
-				}
+				res.setHeader('Content-Disposition', 'inline; filename="' + encodeURI(fileItem.basename) + '"');
 				imageStream.pipe(res);
 			}
 		} catch (error) {
@@ -83,12 +60,6 @@ module.exports = function (webserver, endpoint) {
 					background: {r: 220, g: 53, b: 69}
 				}
 			}).composite([{input: textBuffer}]).png().pipe(res);
-		}
-
-		function setCacheControlHeader() {
-			c.thumbnails.image.httpHeaders.forEach(function (header) {
-				res.setHeader(header.name, header.value);
-			})
 		}
 	});
 };

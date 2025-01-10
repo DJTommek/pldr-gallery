@@ -55,6 +55,15 @@ class Item {
 	}
 
 	/**
+	 * @return {null|string}
+	 */
+	getThumbnailUrl() {
+		return (this.isImage || this.isVideo || this.isFolder)
+			? '/api/thumbnail?path=' + this.getEncodedPath()
+			: null;
+	}
+
+	/**
 	 * @return {String}
 	 */
 	get basename() {
@@ -189,19 +198,6 @@ class FileItem extends Item {
 				urlPath += '&compress=' + compress;
 			}
 			return urlPath;
-		}
-		return null;
-	}
-
-	/**
-	 * @return {null|string}
-	 */
-	getThumbnailUrl() {
-		if (this.isImage) {
-			return '/api/image?path=' + this.getEncodedPath() + '&type=thumbnail';
-		}
-		if (this.isVideo) {
-			return '/api/thumbnail-video?path=' + this.getEncodedPath();
 		}
 		return null;
 	}
