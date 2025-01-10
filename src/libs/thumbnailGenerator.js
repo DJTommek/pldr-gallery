@@ -28,7 +28,7 @@ async function generateAllThumbnails() {
 					counter++;
 				}
 			} catch (error) {
-				LOG.info('[Image thumbnail generator] Unable to generate thumbnail for "' + pathItem.path + '", error: "' + error.message + '"');
+				LOG.error('[Thumbnail generator] Unable to generate thumbnail for "' + pathItem.path + '", error: "' + error.message + '"');
 			}
 		}
 	} finally {
