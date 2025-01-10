@@ -52,6 +52,8 @@ async function generateThumbnail(pathItem) {
 		return await generateImageThumbnail(pathItem);
 	} else if (pathItem.isVideo) {
 		return await generateVideoThumbnail(pathItem);
+	} else if (pathItem.isFolder) {
+		return await generateDirectoryThumbnail(pathItem);
 	}
 
 	return null;
@@ -142,3 +144,54 @@ async function generateVideoThumbnail(fileItem) {
 	return ffmpegResult;
 }
 
+/**
+ * @param {FolderItem} directoryItem
+ * @return {Promise<boolean>}
+ */
+async function generateDirectoryThumbnail(directoryItem) {
+	const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.FOLDER, directoryItem.path, true);
+	if (cacheFilePath !== null) {
+		return null; // Thumbnail already exists
+	}
+
+	LOG.debug('[Thumbnail generator] Generating thumbnail for directory "' + directoryItem.path + '"...');
+	const generatingStart = process.hrtime();
+
+	// get random X images and generate promises for final composing
+	const requiredFilesCount = CONFIG.thumbnails.folder.positions.length;
+	const randomFiles = await structureRepository.randomFiles2(directoryItem.path, {count: requiredFilesCount, onlyImages: true});
+	if (randomFiles.length !== requiredFilesCount) {
+		return null; // Not enough images
+	}
+
+	let resizePromises = [];
+	randomFiles.forEach(function (fileItem, index) {
+		const fileAbsolutePath = pathCustom.relativeToAbsolute(fileItem.path, CONFIG.path);
+		const sharpPromise = sharp(fileAbsolutePath).resize({
+			width: CONFIG.thumbnails.folder.positions[index].width,
+			height: CONFIG.thumbnails.folder.positions[index].height,
+		}).toBuffer();
+		resizePromises.push(sharpPromise);
+	});
+
+	// resize all loaded images and use them to build final thumbnail
+	const result = await Promise.all(resizePromises).then(async function (resizedImages) {
+		let toComposite = [];
+		resizedImages.forEach(function (resizedImage, index) {
+			toComposite.push({input: resizedImages[index], gravity: CONFIG.thumbnails.folder.positions[index].gravity})
+		});
+		const thumbnailImageStream = sharp(CONFIG.thumbnails.folder.inputOptions)
+			.toFormat(CONFIG.thumbnails.extension)
+			.composite(toComposite);
+
+		await cacheHelper.saveStream(cacheHelper.TYPE.FOLDER, directoryItem.path, thumbnailImageStream);
+		return true;
+	}).catch(function (error) {
+		LOG.error('[Thumbnail generator] Error while generating thumbnail image for directory "' + directoryItem.path + '": ' + error.message);
+		throw error;
+	});
+
+	let generatingDoneTime = msToHuman(hrtime(process.hrtime(generatingStart)));
+	LOG.debug('[Thumbnail generator] Generated thumbnail for directory "' + directoryItem.path + '" in ' + generatingDoneTime + '.');
+	return result;
+}
