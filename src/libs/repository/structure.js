@@ -101,6 +101,67 @@ async function randomFiles(folderPath, options = {}) {
 module.exports.randomFiles = randomFiles;
 
 /**
+ * Get random files from specified directory or any below.
+ *
+ * Works by downloading all IDs from database that matches criteria, pick random x IDs and run new query, that will
+ * select only specific IDs. Order by RAND() would more friendly to local memory and bandwidth, but it is much slower.
+ *
+ * @param {string} folderPath
+ * @param options
+ * @returns {Promise<array[FileItem]>}
+ */
+async function randomFiles2(folderPath, options = {}) {
+	options.onlyImages = (typeof options.onlyImages === 'boolean') ? options.onlyImages : false;
+	options.count = (typeof options.count === 'number') ? options.count : 20;
+
+	const hrstart = process.hrtime();
+
+	const folderItem = new FolderItem(null, {path: folderPath});
+	const searchingLevel = folderItem.paths.length + 1;
+	const query = knex.select('id')
+			.from(CONFIG.db.table.structure)
+			.andWhere('type', TYPE_FILE)
+			.andWhere('level', '>=', searchingLevel)
+			.andWhere('path', 'LIKE', folderPath + '%');
+	// Limit is intentionally missing because it is slowing query down, search for "row lookups"
+	// @link https://stackoverflow.com/a/40927536/3334403
+
+	if (options.onlyImages) {
+		query.andWhere(function () {
+			this.orWhereRaw('LOWER(path) LIKE ?', '%.jpg')
+			this.orWhereRaw('LOWER(path) LIKE ?', '%.jpeg')
+			this.orWhereRaw('LOWER(path) LIKE ?', '%.png')
+		});
+	}
+
+	LOG.debug('(Knex) Running SQL: ' + query.toString());
+	const rowsIds = await query;
+	LOG.debug('(Knex) Loading random IDs took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
+
+	const randomIds = [];
+	while(rowsIds.length > 0) {
+		const randomIdRow = rowsIds.splice(Math.floor(Math.random() * rowsIds.length), 1);
+		randomIds.push(randomIdRow[0].id);
+		if (randomIds.length === options.count) {
+			break;
+		}
+	}
+
+	if (randomIds.length !== options.count) {
+		return [];
+	}
+
+	const rows2 = await knex
+		.select('*')
+		.from(CONFIG.db.table.structure)
+		.whereIn('id', randomIds);
+
+	return rows2.map(row => rowToItem(row));
+}
+
+module.exports.randomFiles2 = randomFiles2;
+
+/**
  *
  * @param {string} folderPath
  * @param options
