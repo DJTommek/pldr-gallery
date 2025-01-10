@@ -66,6 +66,12 @@ module.exports.generateThumbnail = generateThumbnail;
  * @return {Promise<boolean>}
  */
 async function generateImageThumbnail(fileItem) {
+	for(const ignorePath of CONFIG.thumbnails.image.ignore) {
+		if (fileItem.path.startsWith(ignorePath)) {
+			return null
+		}
+	}
+
 	const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.IMAGE, fileItem.path, true);
 	if (cacheFilePath !== null) {
 		return null; // Thumbnail already exists
@@ -90,6 +96,12 @@ async function generateImageThumbnail(fileItem) {
  * @return {Promise<boolean>}
  */
 async function generateVideoThumbnail(fileItem) {
+	for(const ignorePath of CONFIG.thumbnails.video.ignore) {
+		if (fileItem.path.startsWith(ignorePath)) {
+			return null
+		}
+	}
+
 	const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.VIDEO, fileItem.path, false);
 	if (FS.existsSync(cacheFilePath) === true) {
 		return null; // Thumbnail already exists
@@ -149,6 +161,12 @@ async function generateVideoThumbnail(fileItem) {
  * @return {Promise<boolean>}
  */
 async function generateDirectoryThumbnail(directoryItem) {
+	for(const ignorePath of CONFIG.thumbnails.folder.ignore) {
+		if (directoryItem.path.startsWith(ignorePath)) {
+			return null
+		}
+	}
+
 	const cacheFilePath = cacheHelper.getPath(cacheHelper.TYPE.FOLDER, directoryItem.path, true);
 	if (cacheFilePath !== null) {
 		return null; // Thumbnail already exists

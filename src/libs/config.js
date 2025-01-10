@@ -51,6 +51,9 @@ let CONFIG = {
 		image: {
 			enabled: true,
 			cache: false,
+			// If image path begins with string inside this list, thumbnail will not be generated. Can be full image
+			// path or even some directory. Works recursively
+			ignore: [],
 			httpHeaders: [
 				{name: 'Cache-Control', value: 'public, max-age=31536000'}, // keep generated thumbnail image in user's browser cache
 			],
@@ -62,6 +65,8 @@ let CONFIG = {
 		folder: {
 			enabled: true,
 			cache: false,
+			// If directory path begins with string inside this list, thumbnail will not be generated. Works recursively.
+			ignore: [],
 			httpHeaders: [
 				{name: 'Cache-Control', value: 'public, max-age=31536000'}, // keep generated thumbnail image in user's browser cache
 			],
@@ -95,6 +100,9 @@ let CONFIG = {
 		 */
 		video: {
 			enabled: true,
+			// If image path begins with string inside this list, thumbnail will not be generated. Can be full image
+			// path or even some directory. Works recursively
+			ignore: [],
 			httpHeaders: [
 				{name: 'Cache-Control', value: 'public, max-age=31536000'}, // keep generated thumbnail image in user's browser cache
 			],
