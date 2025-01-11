@@ -64,6 +64,18 @@ module.exports.getPath = function (type, identificator, check = false) {
 };
 
 /**
+ * Check if thumbnail exists
+ *
+ * @param {number} type this.TYPE.IMAGE or this.TYPE.FOLDER
+ * @param {string} identificator Some identificator of that cache (for example path to file)
+ * @returns {boolean}
+ */
+module.exports.exists = function (type, identificator) {
+	const fullPath = module.exports.getPath(type, identificator, false);
+	return FS.existsSync(fullPath);
+};
+
+/**
  * Load thumbnail and return it's stream
  *
  * @param type
