@@ -46,16 +46,35 @@ module.exports = function (webserver, endpoint) {
 			const requestedOffset = req.query.offset !== undefined ? utils.clamp(parseInt(req.query.offset)) : 0;
 			let processedOffset = 0;
 
-			const rowsStream = structureRepository.search(res.locals.path, searchOptions)
-				.stream();
+			const searchQuery = structureRepository.search(res.locals.path, searchOptions);
+			searchQuery.andWhere(function () {
+				for (const permission of res.locals.user.getPermissions()) {
+					// 'orWhereLike()' cannot be used due to bug of forcing COLLATE, which slows down the query
+					// @link https://github.com/knex/knex/issues/5143 whereLike does not work with the MySQL utf8mb4 character set
+					this.orWhere('path', 'LIKE', permission + '%');
+				}
+			});
 
-  			req.on('close', rowsStream.end.bind(rowsStream));
+			const rowsStream = searchQuery.stream();
+			req.on('close', rowsStream.end.bind(rowsStream));
 
 			for await (const row of rowsStream) {
+				// Extra one is to not count 'go back' directory
+				const alreadyCollectedItemsCount = finds.folders.length - 1 + finds.files.length;
+				if (alreadyCollectedItemsCount >= requestedLimit) {
+					// @TODO `break` should be used here but in that case query is not released for some reason so
+					//       so unfortunately whole stream must be consumed instead.
+					continue;
+				}
+
 				const item = structureRepository.rowToItem(row);
+
+				// @TODO this check should not be necessary, SQL query should already filter out
 				if (res.locals.user.testPathPermission(item.path) === false) {
+					LOG.warning('Search query is not working correctly: SQL matched "' + item.path + '" which is not valid according backend server check.');
 					continue; // filter out items, that user don't have permission on
 				}
+
 				if (processedOffset < requestedOffset) {
 					processedOffset++; // still not within range (between offset and offset + limit)
 					continue;
@@ -67,15 +86,10 @@ module.exports = function (webserver, endpoint) {
 				} else if (item.isFile) {
 					finds.files.push(item.serialize());
 				}
-
-				// Extra one is to not count 'go back' directory
-				const alreadyCollectedItemsCount = finds.folders.length - 1 + finds.files.length;
-				if (alreadyCollectedItemsCount >= requestedLimit) {
-					break; // already collected enough of items
-				}
 			}
+
 			if (req.closed) {
-				return;
+				return; // HTTP was already answered, do nothing here
 			}
 
 			res.endTime('apisearching');
