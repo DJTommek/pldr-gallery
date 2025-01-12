@@ -127,9 +127,27 @@ module.exports = function (webserver, baseEndpoint) {
 				// Error handling must be done on APIs endpoints because everyone returning different format of data (JSON, image stream, video stream, audio stream...)
 				// if res.locals.path exists, everything is ok
 				LOG.debug('(Web) Requested invalid path "' + req.query.path + '", error: ' + result.error + '.', {console: true});
-				res.locals.pathItem = null;
+				res.locals.pathItemSimple = null;
+				res.locals.getPathItemDb = async function () {
+					return null;
+				};
 			} else {
-				res.locals.pathItem = await structureRepository.getByPath(result.path);
+				res.locals.pathItemSimple = (result.fullPathFolder)
+					? new FolderItem(null, {path: result.path})
+					: new FileItem(null, {path: result.path});
+
+				let pathItem = null;
+				/**
+				 * Get cached and lazy-loaded path item with properties populated from database. If extra properties are
+				 * not required, use pathItemSimple instead.
+				 * @return {Promise<FileItem|FolderItem|null>}
+				 */
+				res.locals.getPathItemDb = async function () {
+					if (pathItem === null) {
+						pathItem = await structureRepository.getByPath(result.path);
+					}
+					return pathItem;
+				}
 			}
 		}
 		next();

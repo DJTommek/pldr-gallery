@@ -10,27 +10,24 @@ module.exports = async function (webserver, endpoint) {
 	webserver.get(endpoint, async function (req, res) {
 		res.statusCode = 200;
 		try {
-			if (!res.locals.pathItem) {
+			/** @var {FolderItem|FileItem|null} */
+			const pathItemSimple = res.locals.pathItemSimple;
+			if (pathItemSimple === null) {
 				// return res.result.setError('Invalid path or you dont have a permission.').end(403);
 				return sendTransparentPixel();
 			}
 
-			/**
-			 * @var {FolderItem|FileItem}
-			 */
-			const pathItem = res.locals.pathItem;
-
 			if (
-				(pathItem.isFolder && c.thumbnails.folder.enabled === false)
-				|| (pathItem.isImage && c.thumbnails.image.enabled === false)
-				|| (pathItem.isVideo && c.thumbnails.video.enabled === false)
+				(pathItemSimple.isFolder && c.thumbnails.folder.enabled === false)
+				|| (pathItemSimple.isImage && c.thumbnails.image.enabled === false)
+				|| (pathItemSimple.isVideo && c.thumbnails.video.enabled === false)
 			) {
 				return sendTransparentPixel();
 			}
 
 			// Check if there is prepared thumbnail right in directory and if so, serve that instead of cached
 			// pre-generated thumbnail.
-			if (pathItem.isFolder) {
+			if (pathItemSimple.isFolder) {
 				const files = ['thumbnail.png', 'thumbnail.jpg'];
 				for (const filename of files) {
 					let customThumbnailFullPath = pathCustom.join(res.locals.fullPathFolder, filename);
@@ -47,13 +44,13 @@ module.exports = async function (webserver, endpoint) {
 			// generated from images, that are not allowed. Possible bad use case:
 			// User1 with full access generate thumbnail from images 1, 2, 3, 4 and save it to cache
 			// User2 with access to images 1, 2 is able to see thumbnail generated from images 1, 2, 3, 4 because it was cached before
-			const canUseCache = perms.test(res.locals.user.getPermissions(), pathItem.path, true);
+			const canUseCache = perms.test(res.locals.user.getPermissions(), pathItemSimple.path, true);
 
 			if (canUseCache === false) {
 				return sendTransparentPixel();
 			}
 
-			const cacheItemType = cacheHelper.getTypeFromItem(pathItem);
+			const cacheItemType = cacheHelper.getTypeFromItem(pathItemSimple);
 			if (cacheItemType === null) {
 				return sendTransparentPixel()
 			}
@@ -64,7 +61,7 @@ module.exports = async function (webserver, endpoint) {
 			}
 
 			const dispositionHeader = 'inline; filename="' + encodeURI(
-				pathItem.basename + '.thumbnail.' + c.thumbnails.extension
+				pathItemSimple.basename + '.thumbnail.' + c.thumbnails.extension
 			) + '"';
 
 			setHttpHeadersFromConfig();

@@ -17,15 +17,15 @@ module.exports = function (webserver, endpoint) {
 		res.statusCode = 200;
 
 		try {
-			if (!res.locals.pathItem) {
+			/** @var {FileItem|null} */
+			const fileItem = res.locals.pathItemSimple;
+
+			if (fileItem === null) {
 				throw new Error('Invalid path or you dont have a permission.');
 			}
-			if (res.locals.pathItem.isImage === false) {
+			if (fileItem.isImage === false) {
 				throw new Error('Requested path is not an image.');
 			}
-
-			/** @var {FileItem} */
-			const fileItem = res.locals.pathItem;
 
 			let imageStream = FS.createReadStream(res.locals.fullPathFile);
 			const compressData = getResizeParams(req);
@@ -63,16 +63,6 @@ module.exports = function (webserver, endpoint) {
 		}
 	});
 };
-
-/**
- * Generate thumbnail name that can be send in Content-Disposition
- *
- * @param {FileItem} fileItem
- * @return {string}
- */
-function getResponseThumbnailFilename(fileItem) {
-	return encodeURI(fileItem.basenameNoExt + '.thumbnail.' + c.thumbnails.extension);
-}
 
 function getResizeParams(req) {
 	let compressData = Object.assign({}, c.compress);
