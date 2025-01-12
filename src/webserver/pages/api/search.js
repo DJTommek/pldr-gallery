@@ -49,6 +49,8 @@ module.exports = function (webserver, endpoint) {
 			const rowsStream = structureRepository.search(res.locals.path, searchOptions)
 				.stream();
 
+  			req.on('close', rowsStream.end.bind(rowsStream));
+
 			for await (const row of rowsStream) {
 				const item = structureRepository.rowToItem(row);
 				if (res.locals.user.testPathPermission(item.path) === false) {
@@ -72,6 +74,10 @@ module.exports = function (webserver, endpoint) {
 					break; // already collected enough of items
 				}
 			}
+			if (req.closed) {
+				return;
+			}
+
 			res.endTime('apisearching');
 			let humanTime = msToHuman(hrtime(process.hrtime(searchingStart)));
 			LOG.info(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
