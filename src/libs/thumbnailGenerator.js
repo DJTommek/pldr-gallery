@@ -26,6 +26,9 @@ async function generateAllThumbnails() {
 		for await (const row of rowsStream) {
 			const pathItem = structureRepository.rowToItem(row);
 			try {
+				if (CONFIG.structure.scan.itemCooldown) { // Wait before processing each item
+					await new Promise(resolve => setTimeout(resolve, CONFIG.structure.scan.itemCooldown));
+				}
 				const result = await generateThumbnail(pathItem)
 				if (result === true) {
 					counter++;
