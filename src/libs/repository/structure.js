@@ -327,10 +327,9 @@ module.exports.getByPath = getByPath;
  *
  * @TODO improve to return stream of FileItem and FolderItem objects instead of raw rows.
  */
-async function all() {
+function all() {
 	return knex.select('*')
-		.from(CONFIG.db.table.structure)
-		.stream({highWaterMark: 5});
+		.from(CONFIG.db.table.structure);
 }
 
 module.exports.all = all;

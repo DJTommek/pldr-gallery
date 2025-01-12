@@ -22,7 +22,7 @@ async function generateAllThumbnails() {
 	const generatingStart = process.hrtime();
 
 	try {
-		const rowsStream = await structureRepository.all();
+		const rowsStream = structureRepository.all().stream();
 		for await (const row of rowsStream) {
 			const pathItem = structureRepository.rowToItem(row);
 			try {
