@@ -162,12 +162,11 @@ async function randomFiles2(folderPath, options = {}) {
 module.exports.randomFiles2 = randomFiles2;
 
 /**
- *
  * @param {string} folderPath
- * @param options
- * @returns {Promise<array[FileItem|FolderItem]>}
+ * @param {object} options
+ * @return {Knex.QueryBuilder<TRecord, TResult>}
  */
-async function search(folderPath, options = {}) {
+function search(folderPath, options = {}) {
 	const hrstart = process.hrtime();
 	const result = [];
 
@@ -233,14 +232,7 @@ async function search(folderPath, options = {}) {
 	query.select(columnsToSelect);
 	query.orderBy(columnsToOrder);
 
-	try {
-		(await query).forEach(function (row) {
-			result.push(rowToItem(row));
-		});
-	} catch (error) {
-		LOG.error('[Knex] Error while searching and processing in "' + folderPath + '": ' + error.message);
-	}
-	return result;
+	return query;
 }
 
 module.exports.search = search;

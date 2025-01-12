@@ -46,16 +46,11 @@ module.exports = function (webserver, endpoint) {
 			const requestedOffset = req.query.offset !== undefined ? utils.clamp(parseInt(req.query.offset)) : 0;
 			let processedOffset = 0;
 
-			res.startTime('apisearching-db', 'Searching (database query)');
-			const queryResult = await structureRepository.search(res.locals.path, searchOptions);
-			res.endTime('apisearching-db');
+			const rowsStream = structureRepository.search(res.locals.path, searchOptions)
+				.stream();
 
-			for (const item of queryResult) {
-				// do not count 'go back' directory
-				const alreadyCollectedItemsCount = finds.folders.length - 1 + finds.files.length;
-				if (alreadyCollectedItemsCount >= requestedLimit) {
-					break; // already collected enough of items
-				}
+			for await (const row of rowsStream) {
+				const item = structureRepository.rowToItem(row);
 				if (res.locals.user.testPathPermission(item.path) === false) {
 					continue; // filter out items, that user don't have permission on
 				}
@@ -69,6 +64,12 @@ module.exports = function (webserver, endpoint) {
 					finds.folders.push(item.serialize());
 				} else if (item.isFile) {
 					finds.files.push(item.serialize());
+				}
+
+				// Extra one is to not count 'go back' directory
+				const alreadyCollectedItemsCount = finds.folders.length - 1 + finds.files.length;
+				if (alreadyCollectedItemsCount >= requestedLimit) {
+					break; // already collected enough of items
 				}
 			}
 			res.endTime('apisearching');
