@@ -132,12 +132,16 @@ const LOG = require("./libs/log");
 			LOG.debug('Setup cron "' + CONFIG.thumbnails.pregenerate.cron + '" to pregenerate thumbnails completed.');
 		}
 		if (CONFIG.thumbnails.pregenerate.onStart) {
-			LOG.info('Pregenerating image thumbnails on server start...')
-			thumbnailGenerator.generateThumbnails().then(function () {
-				LOG.info('Pregenerating image thumbnails on server start was completed.')
-			}).catch(function (error) {
-				LOG.error('Pregenerating image thumbnails on server start throwed error: "' + error.message + '"')
-			});
+			setTimeout(function () {
+				// There are more services that should be completed before processing thumbnails, so wait a while.
+				// @TODO Refactor server start so it can be defined startup order of these services
+				LOG.info('Pregenerating image thumbnails on server start...')
+				thumbnailGenerator.generateThumbnails().then(function () {
+					LOG.info('Pregenerating image thumbnails on server start was completed.')
+				}).catch(function (error) {
+					LOG.error('Pregenerating image thumbnails on server start throwed error: "' + error.message + '"')
+				});
+			}, 30_000);
 		}
 	}
 
