@@ -143,6 +143,7 @@ async function createTables() {
 				table
 					.string('path', 500)
 					.unique('path')
+					.index()
 					.notNullable();
 				table
 					.integer('type', 1)
