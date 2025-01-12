@@ -11,7 +11,8 @@ const FS = require("fs");
 let generatorRunning = false;
 
 async function generateAllThumbnails() {
-	let counter = 0;
+	let counterGeneratedThumbnails = 0;
+	let counterRows = 0;
 
 	if (generatorRunning === true) {
 		LOG.info('[Thumbnail generator] Already running...');
@@ -24,6 +25,7 @@ async function generateAllThumbnails() {
 	try {
 		const rowsStream = structureRepository.all().stream();
 		for await (const row of rowsStream) {
+			counterRows++;
 			const pathItem = structureRepository.rowToItem(row);
 			try {
 				if (CONFIG.structure.scan.itemCooldown) { // Wait before processing each item
@@ -31,15 +33,20 @@ async function generateAllThumbnails() {
 				}
 				const result = await generateThumbnail(pathItem)
 				if (result === true) {
-					counter++;
+					counterGeneratedThumbnails++;
 				}
 			} catch (error) {
 				LOG.error('[Thumbnail generator] Unable to generate thumbnail for "' + pathItem.path + '", error: "' + error.message + '"');
+			} finally {
+				if (counterRows > 0 && counterRows % 2000 === 0) {
+					let humanTime = msToHuman(hrtime(process.hrtime(generatingStart)));
+					LOG.debug('[Thumbnail generator] So far processed ' + counterRows + ' path items and generated ' + counterGeneratedThumbnails + ' thumbnails in ' + humanTime + '...');
+				}
 			}
 		}
 	} finally {
 		let generatingDoneTime = msToHuman(hrtime(process.hrtime(generatingStart)));
-		LOG.info('[Thumbnail generator] Generated ' + counter + ' thumbnails in ' + generatingDoneTime + '.');
+		LOG.info('[Thumbnail generator] Generated ' + counterGeneratedThumbnails + ' thumbnails out of eligible ' + counterRows + ' rows in ' + generatingDoneTime + '.');
 		generatorRunning = false;
 	}
 }
