@@ -17,7 +17,7 @@ knex.on('query', function (query) {
 		sqlText = sqlText.substring(0, 500) + '...';
 	}
 
-	let logText = '(Knex) Query "' + sqlText + '"';
+	let logText = '(Knex) Query UID ' + uid + ' "' + sqlText + '"';
 	if (query.bindings) {
 		let bindingsText;
 		if (query.bindings.length > 10) {
@@ -32,6 +32,9 @@ knex.on('query', function (query) {
 		logText += ' and returned ' + response.length + ' rows.';
 	}
 	LOG.debug(logText, {console: true});
+	if (elapsedMs > 1_000) {
+		LOG.warning('Query UID ' + uid +' took too long: ' + msToHuman(elapsedMs) + '');
+	}
 	delete queries[uid];
 });
 
