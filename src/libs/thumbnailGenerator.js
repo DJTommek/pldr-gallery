@@ -39,14 +39,14 @@ async function generateAllThumbnails() {
 				LOG.error('[Thumbnail generator] Unable to generate thumbnail for "' + pathItem.path + '", error: "' + error.message + '"');
 			} finally {
 				if (counterRows > 0 && counterRows % 2000 === 0) {
-					let humanTime = msToHuman(hrtime(process.hrtime(generatingStart)));
-					LOG.debug('[Thumbnail generator] So far processed ' + counterRows + ' path items and generated ' + counterGeneratedThumbnails + ' thumbnails in ' + humanTime + '...');
+					let generatingProgressTime = msToHuman(hrtime(process.hrtime(generatingStart)));
+					LOG.debug('[Thumbnail generator] So far processed ' + counterRows + ' path items and generated ' + counterGeneratedThumbnails + ' thumbnails in ' + generatingProgressTime + '...');
 				}
 			}
 		}
 	} finally {
 		let generatingDoneTime = msToHuman(hrtime(process.hrtime(generatingStart)));
-		LOG.info('[Thumbnail generator] Generated ' + counterGeneratedThumbnails + ' thumbnails out of eligible ' + counterRows + ' rows in ' + generatingDoneTime + '.');
+		LOG.info('[Thumbnail generator] Processed ' + counterRows + ' path items and generated ' + counterGeneratedThumbnails + ' thumbnails in ' + generatingDoneTime + '.');
 		generatorRunning = false;
 	}
 }
