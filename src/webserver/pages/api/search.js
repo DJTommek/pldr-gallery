@@ -55,16 +55,17 @@ module.exports = function (webserver, endpoint) {
 				}
 			});
 
-			const rowsStream = searchQuery.stream();
-			req.on('close', rowsStream.end.bind(rowsStream));
-
-			for await (const row of rowsStream) {
+			for (const row of await searchQuery) {
 				// Extra one is to not count 'go back' directory
 				const alreadyCollectedItemsCount = finds.folders.length - 1 + finds.files.length;
 				if (alreadyCollectedItemsCount >= requestedLimit) {
 					// @TODO `break` should be used here but in that case query is not released for some reason so
 					//       so unfortunately whole stream must be consumed instead.
 					continue;
+				}
+
+				if (req.closed) {
+					return; // HTTP was already answered, do nothing here (SQL query probably took too long)
 				}
 
 				const item = structureRepository.rowToItem(row);
@@ -86,10 +87,6 @@ module.exports = function (webserver, endpoint) {
 				} else if (item.isFile) {
 					finds.files.push(item.serialize());
 				}
-			}
-
-			if (req.closed) {
-				return; // HTTP was already answered, do nothing here
 			}
 
 			res.endTime('apisearching');
