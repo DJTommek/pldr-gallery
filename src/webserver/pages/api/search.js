@@ -44,7 +44,6 @@ module.exports = function (webserver, endpoint) {
 
 			const requestedLimit = req.query.limit !== undefined ? utils.clamp(parseInt(req.query.limit), 1, 2000) : 2000;
 			const requestedOffset = req.query.offset !== undefined ? utils.clamp(parseInt(req.query.offset)) : 0;
-			let processedOffset = 0;
 
 			const searchQuery = structureRepository.search(res.locals.path, searchOptions);
 			searchQuery.andWhere(function () {
@@ -55,15 +54,10 @@ module.exports = function (webserver, endpoint) {
 				}
 			});
 
-			for (const row of await searchQuery) {
-				// Extra one is to not count 'go back' directory
-				const alreadyCollectedItemsCount = finds.folders.length - 1 + finds.files.length;
-				if (alreadyCollectedItemsCount >= requestedLimit) {
-					// @TODO `break` should be used here but in that case query is not released for some reason so
-					//       so unfortunately whole stream must be consumed instead.
-					continue;
-				}
+			searchQuery.limit(requestedLimit);
+			searchQuery.offset(requestedOffset);
 
+			for (const row of await searchQuery) {
 				if (req.closed) {
 					return; // HTTP was already answered, do nothing here (SQL query probably took too long)
 				}
@@ -74,11 +68,6 @@ module.exports = function (webserver, endpoint) {
 				if (res.locals.user.testPathPermission(item.path) === false) {
 					LOG.warning('Search query is not working correctly: SQL matched "' + item.path + '" which is not valid according backend server check.');
 					continue; // filter out items, that user don't have permission on
-				}
-
-				if (processedOffset < requestedOffset) {
-					processedOffset++; // still not within range (between offset and offset + limit)
-					continue;
 				}
 
 				item.text = item.path;
