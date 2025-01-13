@@ -23,7 +23,8 @@ module.exports = function (webserver, endpoint) {
 					text: 'Zavřít vyhledávání',
 					icon: Icon.CLOSE_SEARCHING,
 				}],
-				files: []
+				files: [],
+				total: null,
 			};
 			if (!res.locals.fullPathFolder) {
 				throw new Error('no path');
@@ -42,8 +43,8 @@ module.exports = function (webserver, endpoint) {
 			res.startTime('apisearching', 'Searching');
 			let searchingStart = process.hrtime();
 
-			const requestedLimit = req.query.limit !== undefined ? utils.clamp(parseInt(req.query.limit), 1, 2000) : 2000;
-			const requestedOffset = req.query.offset !== undefined ? utils.clamp(parseInt(req.query.offset)) : 0;
+			const limit = req.query.limit !== undefined ? utils.clamp(parseInt(req.query.limit), 1, 2000) : 2000;
+			const offset = req.query.offset !== undefined ? utils.clamp(parseInt(req.query.offset)) : 0;
 
 			const searchQuery = structureRepository.search(res.locals.path, searchOptions);
 			searchQuery.andWhere(function () {
@@ -54,10 +55,20 @@ module.exports = function (webserver, endpoint) {
 				}
 			});
 
-			searchQuery.limit(requestedLimit);
-			searchQuery.offset(requestedOffset);
+			const searchQueryTotal = await searchQuery
+				.clone()
+				.clearSelect()
+				.count('id as totalCount')
+				.first();
+			const rowsTotalCount = searchQueryTotal['totalCount'];
 
-			for (const row of await searchQuery) {
+			searchQuery.limit(limit);
+			searchQuery.offset(offset);
+			const searchQueryResult = await searchQuery;
+			const rowsCount = searchQueryResult.length;
+			finds.total = rowsTotalCount;
+
+			for (const row of searchQueryResult) {
 				if (req.closed) {
 					return; // HTTP was already answered, do nothing here (SQL query probably took too long)
 				}
@@ -81,10 +92,10 @@ module.exports = function (webserver, endpoint) {
 			res.endTime('apisearching');
 			let humanTime = msToHuman(hrtime(process.hrtime(searchingStart)));
 			LOG.info(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
-			res.result.setResult(finds, 'Done in ' + humanTime).end();
+			res.result.setResult(finds, 'Loaded ' + rowsCount + ' item(s) out of ' + rowsTotalCount + ' available.').end();
 		} catch (error) {
 			LOG.error('Error while searching: ' + error.message);
-			res.result.setError('Error while searching: ' + error.message).end();
+			res.result.setError('Error while searching, try again later.').end();
 		}
 	});
 };
