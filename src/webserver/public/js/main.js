@@ -139,6 +139,14 @@ window.onerror = function (msg, url, line, col, error) {
 	const text = "Error: " + msg + "\nurl: " + url + "\nline: " + line + extra;
 	// Report and save error on server
 	$.post('/api/report', {type: 'javascript', 'raw': text});
+
+	// Error is caused by some external script, there is nothing that can be reported to the user
+	// @HACK As of 2025-01-13 this error is occuring ALWAYS when page is loaded using Telegram Webview
+	// @link https://github.com/DJTommek/pldr-gallery/issues/127
+	if (msg === 'Script error.') {
+		return true;
+	}
+
 	alert('Nastala neočekávaná chyba. Pokud se opakuje, udělej screenshot obrazovky a kontaktuj správce.\n' + text);
 	// If you return true, then error alerts (like in older versions of Internet Explorer) will be suppressed.
 	// return true;
