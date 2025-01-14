@@ -250,6 +250,11 @@
 					<i class="fa fa-fw fa-th-large"></i>
 					<span class="d-none d-sm-inline">Big tiles</span>
 				</button>
+				<button type="button" class="btn btn-sm btn-outline-secondary" id="structure-display-type-map">
+					<input type="radio" name="structure-display-type" value="map">
+					<i class="fa fa-fw fa-map-o"></i>
+					<span class="d-none d-sm-inline">Map</span>
+				</button>
 			</div>
 		</form>
 		<div>
@@ -324,6 +329,8 @@
 	</form>
 
 	<div id="structure-tiles"></div>
+	<div id="structure-browser-map" style="display: none;" class="map-file-items"></div>
+
 	<div id="structure-scan" style="display: none;">
 		Last scan of this directory: <span class="date"></span>
 		<a id="structure-scan-run" href="#" title="Rescan this folder and it's subfolders">

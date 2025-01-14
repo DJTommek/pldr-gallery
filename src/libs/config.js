@@ -197,6 +197,7 @@ let CONFIG = {
 			'/src/webserver/private/js/class/AbstractStructureMap.js',
 			'/src/webserver/private/js/class/StructureMap.js',
 			'/src/webserver/private/js/class/AdvancedSearchMap.js',
+			'/src/webserver/private/js/class/BrowserMap.js',
 			'/src/webserver/private/js/class/VibrateApi.js',
 			// modules
 			'/src/webserver/private/js/modules/cookie.js',

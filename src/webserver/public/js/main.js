@@ -15,6 +15,8 @@ const transparentPixelBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA
 
 const structureMap = new StructureMap('map').init();
 const advancedSearchMap = new AdvancedSearchMap('advanced-search-map').init();
+const structureBrowserMap = new BrowserMap('structure-browser-map').init();
+
 advancedSearchMap.map.on('click', function (event) {
 	vibrateApi.vibrate(Settings.load('vibrationOk'));
 	advancedSearchMap.setMarker(event.latlng);
@@ -1503,6 +1505,20 @@ function structureViewChange(value) {
 	$('#structure-display-type-' + value).removeClass('btn-outline-secondary').addClass('btn-secondary');
 	// check radiobox
 	$('#structure-display-type-' + value + ' input').attr('checked', true);
+
+	if (value === 'map') {
+		$('#structure-tiles').hide();
+		$('#structure-search').hide();
+		$('#structure-download-archive').hide();
+		$('#structure-scan').hide();
+		structureBrowserMap.mapShow();
+	} else {
+		$('#structure-tiles').show();
+		$('#structure-search').show();
+		$('#structure-download-archive').show();
+		$('#structure-scan').show();
+		structureBrowserMap.mapHide();
+	}
 
 	// start loading thumbnails
 	loadThumbnail();
