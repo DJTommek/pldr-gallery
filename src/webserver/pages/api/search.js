@@ -58,6 +58,7 @@ module.exports = function (webserver, endpoint) {
 			const searchQueryTotal = await searchQuery
 				.clone()
 				.clearSelect()
+				.clearOrder()
 				.count('id as totalCount')
 				.first();
 			const rowsTotalCount = searchQueryTotal['totalCount'];
