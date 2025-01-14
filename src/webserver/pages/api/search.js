@@ -37,6 +37,7 @@ module.exports = function (webserver, endpoint) {
 				sizeMin: req.query.sizeMin !== undefined ? utils.clamp(parseInt(req.query.sizeMin)) : null,
 				sizeMax: req.query.sizeMax !== undefined ? utils.clamp(parseInt(req.query.sizeMax)) : null,
 				sort: parseSortString(req.query.sort || null),
+				boundingBox: parseBoundingBox(req.query.boundingBox) || null,
 			}
 
 			let logPrefix = '(Web) Searching in path "' + res.locals.path + '"';
@@ -125,4 +126,34 @@ function parseSortString(input) {
 	}
 
 	return null;
+}
+
+/**
+ * Convert bounding box into set of two coordinates placed in the two opposite corners.
+ * Expected format of bounding box is to send 4 numbers with `,` (comma) as delimiter in this order:
+ * - west-most longitude
+ * - south-most latitude
+ * - east-most longitude
+ * - north-most latitude
+ *
+ * @param {string} input
+ * @return {array<Coordinates>|null} Array of two coordinates if bounding box input is valid, null otherwise.
+ */
+function parseBoundingBox(input) {
+	if (input === null) {
+		return null;
+	}
+
+	const bordersRaw = input.split(',');
+	if (bordersRaw.length !== 4) {
+		return null;
+	}
+
+	try {
+		const southWest = new Coordinates(bordersRaw[1], bordersRaw[0]);
+		const northHeast = new Coordinates(bordersRaw[3], bordersRaw[2]);
+		return [southWest, northHeast];
+	} catch (error) {
+		return null; // Invalid coordinates
+	}
 }

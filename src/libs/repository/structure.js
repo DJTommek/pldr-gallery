@@ -204,6 +204,19 @@ function search(folderPath, options = {}) {
 				break;
 		}
 
+		if (options.boundingBox) {
+			query.whereNotNull('coordinates');
+			query.whereRaw(
+				'MBRContains(GeomFromText(\'LINESTRING(? ?,? ?)\'), coordinates)',
+				[
+					options.boundingBox[0].lon,
+					options.boundingBox[0].lat,
+					options.boundingBox[1].lon,
+					options.boundingBox[1].lat,
+				]
+			);
+		}
+
 		if (options.searchString !== undefined) {
 			if (typeof options.searchString !== 'string' || options.searchString === '') {
 				throw new Error('Option "searchString" must be non-empty string');
