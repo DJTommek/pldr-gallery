@@ -194,6 +194,7 @@ let CONFIG = {
 			'/src/webserver/private/js/class/Presentation.js',
 			'/src/webserver/private/js/class/Structure.js',
 			'/src/webserver/private/js/class/AbstractMap.js',
+			'/src/webserver/private/js/class/AbstractStructureMap.js',
 			'/src/webserver/private/js/class/StructureMap.js',
 			'/src/webserver/private/js/class/AdvancedSearchMap.js',
 			'/src/webserver/private/js/class/VibrateApi.js',

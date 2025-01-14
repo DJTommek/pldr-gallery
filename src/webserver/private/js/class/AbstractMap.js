@@ -42,6 +42,31 @@ class AbstractMap {
 		L.control.layers(this.tileLayers, this.overlays).addTo(this.map);
 		this.tileLayers['OSM default'].addTo(this.map); // Default layer to be displayed on page load
 		this.overlays['Clustered'].addTo(this.map);
+
+		const locateControl = L.control.locate({
+			setView: false,
+			strings: {
+				popup: function (params) {
+					const marker = locateControl._marker;
+					if (!marker) {
+						return;
+					}
+					const markerLatLng = marker.getLatLng();
+					const latLon = markerLatLng.lat.toFixed(6) + ',' + markerLatLng.lng.toFixed(6);
+					return '<p>Location: <b><a href="https://better-location.palider.cz/' + latLon + '" target="_blank">' + latLon + '</a></b> (accuracy <b>' + formatDistance(parseInt(params.distance)) + '</b>)</p>';
+				}
+			}
+		}).addTo(this.map);
+
+		// If access to browser location is granted, show it in the map automatically but without pan and zoom
+		navigator.permissions.query({
+			name: 'geolocation',
+		}).then(function (result) {
+			if (result.state === 'granted') {
+				locateControl.start();
+			}
+		});
+
 		return this;
 	}
 
