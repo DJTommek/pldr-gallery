@@ -46,6 +46,7 @@ webserver.all('*', function (req, res, next) {
 	let weblog = {
 		ip: req.ip,
 		method: req.method,
+		headers: req.headers,
 		protocol: req.protocol,
 		path: req.path,
 		get: req.query,
