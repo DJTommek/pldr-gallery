@@ -20,13 +20,6 @@ class AbstractMap {
 				maxZoom: 19,
 				attribution: 'copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 			}),
-			'Mapy.cz hiking': L.tileLayer('https://mapserver.mapy.cz/turist-m/{z}-{x}-{y}', {
-				minZoom: 2,
-				maxZoom: 18,
-				attribution: '<a href="https://o.seznam.cz" target="_blank" rel="noopener">Seznam.cz, a.s.</a>',
-				tileSize: 256,
-				zoomOffset: 0,
-			}),
 		};
 		this.overlays = {
 			'Default': L.layerGroup([]),
