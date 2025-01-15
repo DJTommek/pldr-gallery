@@ -2,6 +2,16 @@
  * Abstract map class with predefined features to easily implement and use FileItem.
  */
 class AbstractStructureMap extends AbstractMap {
+	/**
+	 * @param {string} elementId
+	 * @param {Structure} structure
+	 */
+	constructor(elementId, structure) {
+		super(elementId);
+
+		this.structure = structure;
+	}
+
 	init() {
 		super.init();
 
@@ -103,11 +113,11 @@ class AbstractStructureMap extends AbstractMap {
 			'  <h6>' + fileItem.text + '</h6>';
 		if (withButtons) {
 			html += '  <div class="btn-group" role="group">' +
-			'   <button class="btn btn-outline-primary btn-sm open-media-popup text-truncate" title="Open media in popup">Open</button>' +
-			'   <button class="btn btn-outline-primary btn-sm open-media-info text-truncate" title="Show detailed file info">Details</button>' +
-			'  </div>';
+				'   <button class="btn btn-outline-primary btn-sm open-media-popup text-truncate" title="Open media in popup">Open</button>' +
+				'   <button class="btn btn-outline-primary btn-sm open-media-info text-truncate" title="Show detailed file info">Details</button>' +
+				'  </div>';
 		}
-			html += ' </div>' +
+		html += ' </div>' +
 			'</div>';
 		return html;
 	}

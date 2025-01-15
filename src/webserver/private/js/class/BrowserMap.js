@@ -9,13 +9,13 @@ class BrowserMap extends AbstractStructureMap {
 		super.init();
 
 		this.map.on('load moveend', async function () {
-			if (structure.currentFolderItem === null) {
+			if (self.structure.currentFolderItem === null) {
 				return;
 			}
-			await self.loadData(structure.currentFolderItem);
+			await self.loadData(self.structure.currentFolderItem);
 		});
 
-		structure.addEventListener('directorychange', async function (event) {
+		this.structure.addEventListener('directorychange', async function (event) {
 			await self.loadData(event.detail.newPath);
 		})
 

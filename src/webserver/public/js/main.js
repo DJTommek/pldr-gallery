@@ -17,9 +17,9 @@ const structure = new Structure();
 const presentation = new Presentation();
 const vibrateApi = new VibrateApi();
 
-const structureMap = new StructureMap('map').init();
+const structureMap = new StructureMap('map', structure).init();
 const advancedSearchMap = new AdvancedSearchMap('advanced-search-map').init();
-const structureBrowserMap = new BrowserMap('structure-browser-map').init();
+const structureBrowserMap = new BrowserMap('structure-browser-map', structure).init();
 
 advancedSearchMap.map.on('click', function (event) {
 	vibrateApi.vibrate(Settings.load('vibrationOk'));
