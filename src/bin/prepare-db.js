@@ -183,11 +183,15 @@ async function createTables() {
 			try {
 				console.log('(Knex) Altering table "' + CONFIG.db.table.structure + '": adding column "coordinates"...');
 				// Add column "coordinates", which is generated - not supported in Knex library, so we have to update table manually
-				const query = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN coordinates POINT GENERATED ALWAYS AS (POINT(coordinate_lon, coordinate_lat)) STORED;'
-				await knex.schema.raw(query);
-				console.log('(Knex) Added generated column "coordinates" to table "' + CONFIG.db.table.structure + '".');
+				const queryCreateCol = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN coordinates POINT GENERATED ALWAYS AS (POINT(coordinate_lon, coordinate_lat)) STORED;'
+				await knex.schema.raw(queryCreateCol);
+				console.log('(Knex) Added generated column "coordinates" to table "' + CONFIG.db.table.structure + '", generating index...');
+				const queryCreateIndex = 'CREATE INDEX ' + CONFIG.db.table.structure + '_coordinates_index ON ' + CONFIG.db.table.structure + ' (coordinates);'
+				// create index pldr_gallery_structure_coordinates_index on pldr_gallery_structure (coordinates);
+				await knex.schema.raw(queryCreateIndex);
+				console.log('(Knex) Added index to the column "coordinates" in table "' + CONFIG.db.table.structure + '".');
 			} catch (error) {
-				console.error('(Knex) Error while adding column "coordinates" to table "' + CONFIG.db.table.structure + '": ' + error);
+				console.error('(Knex) Error while adding and indexing column "coordinates" to table "' + CONFIG.db.table.structure + '": ' + error);
 			}
 		} else {
 			console.log('(Knex) Table "' + CONFIG.db.table.structure + '" already exists, skipping...');
