@@ -13,6 +13,10 @@ const loadedStructure = {
 };
 const transparentPixelBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII';
 
+const structure = new Structure();
+const presentation = new Presentation();
+const vibrateApi = new VibrateApi();
+
 const structureMap = new StructureMap('map').init();
 const advancedSearchMap = new AdvancedSearchMap('advanced-search-map').init();
 const structureBrowserMap = new BrowserMap('structure-browser-map').init();
@@ -27,10 +31,6 @@ advancedSearchMap.map.on('click', function (event) {
 		.data({lat: coords.lat, lon: coords.lon})
 		.show();
 });
-
-const structure = new Structure();
-const presentation = new Presentation();
-const vibrateApi = new VibrateApi();
 
 function loadingDone(element) {
 	if (element) {
