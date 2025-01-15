@@ -2,12 +2,13 @@
  * Structure
  * Manage loaded items, currently selected item
  */
-class Structure {
+class Structure extends EventTarget {
 
 	static ACTION_INDEX_SEARCH_SUBDIRECTORY = 0;
 	static ACTION_INDEX_SEARCH_ROOT = 1;
 
 	constructor() {
+		super();
 		/**
 		 * @type {number} Currently selected item index
 		 */
@@ -68,11 +69,21 @@ class Structure {
 			this.currentFileItem = this.getByName(path);
 			this.selectedIndex = (this.currentFileItem ? this.currentFileItem.index : 0);
 		}
+		const previousFolderItem = this.currentFolderItem;
 
 		let currentFolder = ('/' + currentFolders.join('/') + '/').replace('\/\/', '/');
 		this.currentFolderItem = new FolderItem(null, {
 			path: currentFolder
 		});
+
+		if (previousFolderItem?.path !== this.currentFolderItem.path) {
+			this.dispatchEvent(new CustomEvent('directorychange', {
+				detail: {
+					previousPath: previousFolderItem,
+					newPath: this.currentFolderItem,
+				},
+			}));
+		}
 
 		Settings.save('hashBeforeUnload', path)
 	}
@@ -97,7 +108,7 @@ class Structure {
 
 		this.actions.push(new ActionItem(Structure.ACTION_INDEX_SEARCH_ROOT, {
 			text: 'Vyhledat ve <b>všech</b> složkách',
-			action: async function() { await loadSearch('/'); },
+			action: async function () { await loadSearch('/'); },
 			icon: Icon.SEARCH,
 			hide: true,
 		}));
