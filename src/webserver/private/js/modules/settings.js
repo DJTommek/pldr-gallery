@@ -24,6 +24,7 @@
 		presentationEnabled: false,
 		compress: true,
 		structureDisplayType: 'rows',
+		mapPathItemDisplayType: 'clustered',
 	};
 	const Settings = {
 		/**

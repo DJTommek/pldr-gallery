@@ -28,13 +28,20 @@ class AbstractMap {
 	}
 
 	init() {
+		const self = this;
+
 		this.element = document.getElementById(this.elementId);
 		this.map = L.map(this.element, {
 			fullscreenControl: true,
 		}).setView(this.defaultCoords, this.defaultZoom);
 		L.control.layers(this.tileLayers, this.overlays).addTo(this.map);
 		this.tileLayers['OSM default'].addTo(this.map); // Default layer to be displayed on page load
-		this.overlays['Clustered'].addTo(this.map);
+
+		if (Settings.load('mapPathItemDisplayType') === 'default') {
+			this.overlays['Default'].addTo(this.map);
+		} else {
+			this.overlays['Clustered'].addTo(this.map);
+		}
 
 		const locateControl = L.control.locate({
 			setView: false,
@@ -57,6 +64,14 @@ class AbstractMap {
 		}).then(function (result) {
 			if (result.state === 'granted') {
 				locateControl.start();
+			}
+		});
+
+		this.map.on('layeradd', function (event) {
+			if (event.layer === self.overlays['Default']) {
+				Settings.save('mapPathItemDisplayType', 'default');
+			} else if (event.layer === self.overlays['Clustered']) {
+				Settings.save('mapPathItemDisplayType', 'clustered');
 			}
 		});
 
