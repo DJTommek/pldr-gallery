@@ -56,19 +56,19 @@ module.exports = function (webserver, endpoint) {
 				}
 			});
 
-			const searchQueryTotal = await searchQuery
+			const searchQueryTotal = searchQuery
 				.clone()
 				.clearSelect()
 				.clearOrder()
 				.count('id as totalCount')
 				.first();
-			const rowsTotalCount = searchQueryTotal['totalCount'];
 
-			searchQuery.limit(limit);
-			searchQuery.offset(offset);
-			const searchQueryResult = await searchQuery;
-			const rowsCount = searchQueryResult.length;
-			finds.total = rowsTotalCount;
+			searchQuery
+				.limit(limit)
+				.offset(offset);
+
+			const [searchQueryResult, searchQueryTotalResult] = await Promise.all([searchQuery, searchQueryTotal]);
+			finds.total = searchQueryTotalResult['totalCount'];
 
 			for (const row of searchQueryResult) {
 				if (req.closed) {
@@ -94,7 +94,7 @@ module.exports = function (webserver, endpoint) {
 			res.endTime('apisearching');
 			let humanTime = msToHuman(hrtime(process.hrtime(searchingStart)));
 			LOG.info(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
-			res.result.setResult(finds, 'Loaded ' + rowsCount + ' item(s) out of ' + rowsTotalCount + ' available.').end();
+			res.result.setResult(finds, 'Loaded ' + searchQueryResult.length + ' item(s) out of ' + finds.total + ' available.').end();
 		} catch (error) {
 			LOG.error('Error while searching: ' + error.message);
 			res.result.setError('Error while searching, try again later.').end();
