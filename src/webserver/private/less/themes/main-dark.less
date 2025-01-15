@@ -7,3 +7,14 @@
 @theme-highlight-color: red;
 
 @import '../main.less';
+
+/**
+ * Toggle map control into dark mode
+ * @author https://dev.to/deepakdevanand/leaflet-map-dark-theme-5ej0
+ */
+.leaflet-control-attribution,
+.leaflet-control,
+.leaflet-layer,
+.leaflet-popup {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}

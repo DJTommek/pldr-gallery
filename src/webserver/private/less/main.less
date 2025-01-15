@@ -113,9 +113,9 @@ hr {
 	min-height: 30em;
 }
 
-.browser-map-loading-info {
-	color: @theme-color-text;
-	background-color: @theme-background-color;
+.leaflet-container .browser-map-loading-info {
+	// Intentionally not respecting theme colors because all colors in Leafler container are inverted using CSS filters.
+	background-color: white;
 	padding: 0.2em 0.5em;
 }
 
