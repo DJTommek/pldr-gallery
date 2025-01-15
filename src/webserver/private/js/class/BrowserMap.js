@@ -63,7 +63,7 @@ class BrowserMap extends AbstractStructureMap {
 				continue;
 			}
 
-			this.addMarker(markerId, fileItem, this.fileItemPopupContent(fileItem))
+			this.addMarker(markerId, fileItem, this.fileItemPopupContent(fileItem, false))
 		}
 
 		for (const markerIdToRemove of markerIdsToRemove) {

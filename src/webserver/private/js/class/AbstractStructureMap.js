@@ -91,8 +91,8 @@ class AbstractStructureMap extends AbstractMap {
 		});
 	}
 
-	fileItemPopupContent(fileItem) {
-		return '<div id="map-info-window" data-item-index="' + fileItem.index + '" class="row">' +
+	fileItemPopupContent(fileItem, withButtons = true) {
+		let html = '<div id="map-info-window" data-item-index="' + fileItem.index + '" class="row">' +
 			' <div class="image col-md">' +
 			'  <a href="' + fileItem.getFileUrl() + '" target="_blank" title="Open in new window">' +
 			'   <i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin"></i>' +
@@ -100,12 +100,15 @@ class AbstractStructureMap extends AbstractMap {
 			'  </a>' +
 			' </div>' +
 			' <div class="content col-md">' +
-			'  <h6>' + fileItem.text + '</h6>' +
-			'  <div class="btn-group" role="group">' +
+			'  <h6>' + fileItem.text + '</h6>';
+		if (withButtons) {
+			html += '  <div class="btn-group" role="group">' +
 			'   <button class="btn btn-outline-primary btn-sm open-media-popup text-truncate" title="Open media in popup">Open</button>' +
 			'   <button class="btn btn-outline-primary btn-sm open-media-info text-truncate" title="Show detailed file info">Details</button>' +
-			'  </div>' +
-			' </div>' +
+			'  </div>';
+		}
+			html += ' </div>' +
 			'</div>';
+		return html;
 	}
 }
