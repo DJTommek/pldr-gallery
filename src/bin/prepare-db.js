@@ -187,7 +187,6 @@ async function createTables() {
 				await knex.schema.raw(queryCreateCol);
 				console.log('(Knex) Added generated column "coordinates" to table "' + CONFIG.db.table.structure + '", generating index...');
 				const queryCreateIndex = 'CREATE INDEX ' + CONFIG.db.table.structure + '_coordinates_index ON ' + CONFIG.db.table.structure + ' (coordinates);'
-				// create index pldr_gallery_structure_coordinates_index on pldr_gallery_structure (coordinates);
 				await knex.schema.raw(queryCreateIndex);
 				console.log('(Knex) Added index to the column "coordinates" in table "' + CONFIG.db.table.structure + '".');
 			} catch (error) {
