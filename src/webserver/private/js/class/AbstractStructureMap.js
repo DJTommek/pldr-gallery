@@ -6,7 +6,7 @@ class AbstractStructureMap extends AbstractMap {
 		super.init();
 
 		this.map.on('overlayadd', loadThumbnail);
-		this.overlays['Clustered'].on('clusterclick', loadThumbnail);
+		this.overlays['Clustered'].on('animationend', loadThumbnail);
 
 		return this;
 	}
