@@ -4,9 +4,21 @@
 class BrowserMap extends AbstractStructureMap {
 
 	init() {
+		const self = this;
+
 		super.init();
 
-		this.map.on('load moveend', this.loadData.bind(this));
+		this.map.on('load moveend', async function () {
+			if (structure.currentFolderItem === null) {
+				return;
+			}
+			await self.loadData(structure.currentFolderItem);
+		});
+
+		structure.addEventListener('directorychange', async function (event) {
+			await self.loadData(event.detail.newPath);
+		})
+
 		this._initLoadingDataInfo();
 
 		this.loadingInfoLoading = document.querySelector('.browser-map-loading-info .loading');
@@ -15,11 +27,14 @@ class BrowserMap extends AbstractStructureMap {
 		return this;
 	}
 
-	async loadData() {
+	/**
+	 * @param {FolderItem} directoryItem
+	 */
+	async loadData(directoryItem) {
 		try {
 			this.loadingInfoLoading.style.display = 'block';
 			this.loadingInfoText.style.display = 'none';
-			await this.loadDataInner();
+			await this._loadDataInner(directoryItem);
 		} catch (error) {
 			const errorMsg = (error.message || 'Unknown error, try again later.');
 			flashMessage('Error while loading map data: ' + errorMsg, 'danger');
@@ -30,12 +45,15 @@ class BrowserMap extends AbstractStructureMap {
 		}
 	}
 
-	async loadDataInner() {
+	/**
+	 * @param {FolderItem} directoryItem
+	 */
+	async _loadDataInner(directoryItem) {
 		const mapBounds = this.map.getBounds();
 		const mapBoundsCenter = mapBounds.getCenter();
 
 		const params = new URLSearchParams();
-		params.set('path', btoa(encodeURIComponent(structure.getCurrentFolder().path)));
+		params.set('path', directoryItem.getEncodedPath());
 		params.set('lat', mapBoundsCenter.lat);
 		params.set('lon', mapBoundsCenter.lng);
 		params.set('limit', '500');
