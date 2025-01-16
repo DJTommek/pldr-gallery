@@ -186,16 +186,15 @@
 				</ul>
 			</li>
 
-
 			<!-- Login and logout -->
 			<li class="nav-item" id="user-logged-out" style="display: none">
-				<a class="btn btn-outline-secondary" id="button-login" href="/login" title="Login">
+				<a class="btn btn-outline-secondary" href="/login" title="Sign in">
 					<i class="fa fa-sign-in fa-fw"></i>
-					<span class="d-md-none d-lg-none">Login</span>
+					<span class="d-sm-none d-lg-inline">Sign in</span>
 				</a>
 			</li>
 			<li class="nav-item dropdown" id="user-logged-in">
-				<span class="btn btn-outline-secondary nav-link" data-bs-toggle="dropdown">
+				<a class="btn btn-outline-secondary" id="button-logout" href="/logout" title="Sign out">
 					<i id="user-picture-icon" class="fa fa-circle-o-notch fa-spin user-picture"></i>
 					<img
 							src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=robohash"
@@ -203,20 +202,8 @@
 							class="rounded-circle user-picture"
 							style="display: none"
 					>
-					<span class="d-md-none d-lg-none">User</span>
-				</span>
-				<ul class="dropdown-menu dropdown-menu-end">
-					<li><span class="dropdown-item disabled user-email">Loading...</span></li>
-					<li>
-						<hr class="dropdown-divider">
-					</li>
-					<li>
-						<a href="/logout" class="dropdown-item" id="user-button-logout">
-							<i class="fa fa-sign-out fa-fw"></i>
-							Logout
-						</a>
-					</li>
-				</ul>
+					<span class="d-sm-none d-lg-inline">Sign out</span>
+				</a>
 			</li>
 		</ul>
 	</div>

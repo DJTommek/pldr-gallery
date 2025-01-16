@@ -439,7 +439,7 @@ $(function () {
 		window.dispatchEvent(new HashChangeEvent("hashchange"));
 	}
 	// S.setCurrent(pathFromUrl(window.location.hash));
-	$('#user-button-logout').on('click', function (event) {
+	$('#button-logout').on('click', function (event) {
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		event.preventDefault();
 		if (confirm('Opravdu se chceš odhlásit?')) {
