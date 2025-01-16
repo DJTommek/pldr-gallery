@@ -1123,19 +1123,24 @@ async function loadSearch(path = null) {
 }
 
 /**
- * Load multiple thumbnail images at once, specified by internal priority
- * After first thumbnail is loaded (or error while loading) it will call itself again and load next thumbnail image
+ * Trigger loading thumbnails based on priority.
+ *
+ * This function should be called every time there are at least one new thumbnail image, that should be loaded. Should
+ * be called only once, function will automatically handle loading even multiple of thumbnails at once.
+ *
+ * Native `loading=lazy` is not used, because it is missing loading images based on priority. Also native lazyload
+ * works differently by not loading thumbnails, that are not in viewport.
  */
 function loadThumbnail() {
-	const maxThumbnailsLoadingCount = 5;
+	const thumbnailsLoadingCountMax = 25;
+	const thumbnailsLoadingCountCurrent = $('.thumbnail-loading-icon').length;
 
-	if ($('.thumbnail-loading-icon').length > maxThumbnailsLoadingCount) {
-		console.log('Thumbnail is already loading, canceling new request.');
+	if (thumbnailsLoadingCountCurrent > thumbnailsLoadingCountMax) {
 		return;
 	}
+
 	const thumbnailsNotLoaded = $('.thumbnail-not-loaded:not(.thumbnail-loading)');
 	if (thumbnailsNotLoaded.length === 0) {
-		console.log('All thumbnails are already loaded, canceling new request.');
 		return;
 	}
 
