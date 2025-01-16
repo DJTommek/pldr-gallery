@@ -45,7 +45,7 @@
 }
 
 @item-margin-size: 0.5em;
-@item-border-size: 0.1em;
+@item-border-size: 0.2em;
 
 #structure-tiles {
 	margin: 0 auto;
@@ -92,6 +92,7 @@
 			position: relative;
 			margin: @item-margin-size;
 			border-radius: 1em;
+			border: @item-border-size solid rgba(0, 0, 0, 0);
 
 			.thumbnail-loading-icon {
 				font-size: 0.75em;
@@ -140,12 +141,10 @@
 				top: 0;
 				height: 100%;
 				border-radius: 1em;
-				padding: @item-border-size;
 			}
 
 			&:hover,
 			&.structure-selected {
-				margin: @item-margin-size - @item-border-size;
 				border: @item-border-size solid @theme-color-primary;
 				color: @theme-color-primary;
 			}
@@ -157,7 +156,7 @@
 			}
 
 			&:hover:not(.structure-selected) {
-				border: @item-border-size solid rgba(@theme-color-primary, 0.5);
+				border: @item-border-size solid rgba(@theme-color-primary, 0.75);
 			}
 		}
 	}
