@@ -13,8 +13,11 @@ module.exports = function (webserver, endpoint) {
 	 * @param path - where to search
 	 */
 	webserver.get(endpoint, async function (req, res) {
+		if (!res.locals.fullPathFolder) {
+			return res.result.setError('Invalid or missing path.').end(400);
+		}
+
 		try {
-			res.statusCode = 200;
 			res.setHeader("Content-Type", "application/json");
 			let finds = {
 				folders: [{ // always show "close searching" button
@@ -26,9 +29,6 @@ module.exports = function (webserver, endpoint) {
 				files: [],
 				total: null,
 			};
-			if (!res.locals.fullPathFolder) {
-				throw new Error('no path');
-			}
 
 			const searchOptions = {
 				searchString: req.query.query,
@@ -94,10 +94,10 @@ module.exports = function (webserver, endpoint) {
 			res.endTime('apisearching');
 			let humanTime = msToHuman(hrtime(process.hrtime(searchingStart)));
 			LOG.info(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
-			res.result.setResult(finds, 'Loaded ' + searchQueryResult.length + ' item(s) out of ' + finds.total + ' available.').end();
+			res.result.setResult(finds, 'Loaded ' + searchQueryResult.length + ' item(s) out of ' + finds.total + ' available.').end(200);
 		} catch (error) {
 			LOG.error('Error while searching: ' + error.message);
-			res.result.setError('Error while searching, try again later.').end();
+			res.result.setError('Error while searching, try again later.').end(500);
 		}
 	});
 };
