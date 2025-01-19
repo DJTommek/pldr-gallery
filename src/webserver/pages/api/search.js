@@ -37,7 +37,7 @@ module.exports = function (webserver, endpoint) {
 				sizeMin: req.query.sizeMin !== undefined ? utils.clamp(parseInt(req.query.sizeMin)) : null,
 				sizeMax: req.query.sizeMax !== undefined ? utils.clamp(parseInt(req.query.sizeMax)) : null,
 				sort: parseSortString(req.query.sort || null),
-				boundingBox: parseBoundingBox(req.query.boundingBox) || null,
+				boundingBox: parseBoundingBox(req.query.boundingBox || null),
 			}
 
 			let logPrefix = '(Web) Searching in path "' + res.locals.path + '"';
@@ -136,7 +136,7 @@ function parseSortString(input) {
  * - east-most longitude
  * - north-most latitude
  *
- * @param {string} input
+ * @param {?string} input
  * @return {array<Coordinates>|null} Array of two coordinates if bounding box input is valid, null otherwise.
  */
 function parseBoundingBox(input) {
