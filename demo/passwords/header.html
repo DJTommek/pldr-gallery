@@ -45,17 +45,6 @@
 		Saved passwords and their permissions can be seen in the bottom section of settings (or see JSON formatted <a href="/api/password" target="_blank">here</a>).
 	</p>
 	<p>
-		To clear saved passwords, just clear your cookies (specifically <b>pmg-passwords</b>).<br>
-		I know that you are probably lazy almost as much as I am, so I prepared a button for this.. :)<br>
-		<button class="btn btn-outline-danger btn-sm" id="perm-test-clear">Clear passwords</button>
+		To clear saved passwords, just clear your cookies (specifically <b>pmg-passwords</b>).
 	</p>
 </div>
-<script>
-	$(function () {
-		$('#perm-test-clear').on('click', function () {
-			Cookies.remove('pmg-passwords');
-			loadStructure(true);
-			flashMessage('Paswords were cleared and structure was reloaded.');
-		});
-	});
-</script>

@@ -1,0 +1,178 @@
+.media-popup {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1030; /* has to be bigger than #navbar */
+	background: rgba(0, 0, 0, 0.9);
+	transition: background-color 3s ease-in-out;
+	text-align: center;
+	opacity: 1;
+
+	.media-popup-presentation-progress {
+		background-color: @theme-color-primary;
+		width: 100%;
+		height: 1px;
+		bottom: 0;
+		position: absolute;
+	}
+
+	.media-popup-content {
+		width: 100%;
+		height: 100%;
+
+		&.wiggle {
+			animation: wiggle 0.5s;
+		}
+	}
+
+	.media-popup-image,
+	.media-popup-video,
+	.media-popup-audio,
+	.media-popup-pdf,
+	.media-popup-icon,
+	.media-popup-loading {
+		max-height: 100%;
+		max-width: 100%;
+		/**
+		 * Vertical and horizontal center image
+		 * This solution respect parent size with gap for footer
+		 * @Author https://stackoverflow.com/a/46276156
+		 */
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+	.media-popup-image {
+		cursor: pointer;
+	}
+
+	.media-popup-pdf {
+		height: 100%;
+		width: 100%;
+	}
+
+	.media-popup-pdf-text {
+		position: absolute;
+		margin: 0 auto;
+		top: 50%;
+		width: 100%;
+		text-align: center;
+	}
+
+	.media-popup-audio {
+		width: 75%;
+		z-index: 2; /* has to be above .media-popup-prev and .media-popup-next */
+	}
+
+	/**
+	 * prev/next buttons from lightbox tutorial
+	 * @Author https://www.w3schools.com/howto/howto_js_lightbox.asp
+	 */
+
+	.media-popup-prev,
+	.media-popup-next {
+		z-index: 1; /* show above video but has to be under audio */
+		cursor: pointer;
+		position: absolute;
+		top: 40%;
+		width: 4em;
+		padding: 3em 1em;
+		margin-top: -50px;
+		font-weight: bold;
+		font-size: 20px;
+		transition: 0.6s ease;
+		border-radius: 0 3px 3px 0;
+		user-select: none;
+		-webkit-user-select: none;
+		background-color: rgba(@theme-color-text, 0.25);
+		color: @theme-color-primary;
+
+		&:hover {
+			text-decoration: none;
+			background-color: rgba(@theme-color-text, 0.5);
+		}
+	}
+
+	.media-popup-next {
+		right: 0;
+		border-radius: 0.5em 0 0 0.5em;
+	}
+
+	.media-popup-prev {
+		left: 0;
+		border-radius: 0 0.5em 0.5em 0;
+	}
+
+	.media-popup-top-left,
+	.media-popup-top-right {
+		z-index: 1; /* show above video but has to be under audio */
+		cursor: pointer;
+		position: absolute;
+		top: 0.5em;
+		height: 2em;
+		width: 2em;
+		padding-top: 0.5em;
+		background-color: rgba(@theme-color-text, 0.25);
+		color: @theme-color-primary;
+		font-size: 1.5em;
+		border-radius: 50%;
+
+		&:hover {
+			text-decoration: none;
+			background-color: rgba(@theme-color-text, 0.5);
+		}
+	}
+
+	.media-popup-top-left {
+		left: 1em;
+	}
+
+	.media-popup-top-right {
+		right: 1em;
+	}
+
+	.media-popup-media-details {
+		background-color: @theme-background-color;
+		color: @theme-color-text;
+
+		.offcanvas-header {
+			justify-content: space-between;
+
+			.buttons {
+				text-align: right;
+				margin-right: 1em;
+
+				a {
+					display: inline-block;
+					padding: 0.5em;
+					border-radius: 50%;
+					background-color: rgba(@theme-color-text, 0.25);
+					color: @theme-color-primary;
+
+					&:hover {
+						text-decoration: none;
+						background-color: rgba(@theme-color-text, 0.5);
+					}
+				}
+			}
+		}
+
+		.data table {
+
+			.media-info-group-name {
+				padding-top: 1em;
+				font-size: 1.5em;
+			}
+
+			td {
+				color: @theme-color-text; /* override Bootstrap's coloring */
+				background-color: @theme-background-color; /* override Bootstrap's coloring */
+				vertical-align: middle;
+			}
+		}
+	}
+}

@@ -17,10 +17,7 @@
 		 * @link https://developer.mozilla.org/en-US/docs/Web/API/Navigator/vibrate
 		 */
 		vibrationError: [100, 200, 100, 200, 100],
-		structureItemLimit: 2000,
-		favouriteFolders: [],
 		hashBeforeUnload: '/',
-		presentationSpeed: 5000,
 		presentationEnabled: false,
 		compress: true,
 		structureDisplayType: 'rows',

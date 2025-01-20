@@ -167,8 +167,8 @@ class FileItem extends Item {
 			this.coords = Coordinates.safe(item.coordLat, item.coordLon);
 		}
 
-		this.coordLat = item.coordLat; // backward compatibility
-		this.coordLon = item.coordLon; // backward compatibility
+		this.coordLat = item.coordLat; // backward compatibility, use this.coords.lat instead
+		this.coordLon = item.coordLon; // backward compatibility, use this.coords.lon instead
 
 		this.width = item.width;
 		this.height = item.height;
