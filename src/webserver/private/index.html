@@ -132,29 +132,6 @@
 				</a>
 			</li>
 
-			<!-- Favourites -->
-			<li class="nav-item dropdown" title="Favourites">
-				<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" id="navbar-favourites-button" data-bs-toggle="dropdown">
-					<i class="fa fa-star-o"></i>
-					<span class="d-md-none">Favourites</span>
-				</button>
-
-				<div class="dropdown-menu dropdown-menu-end" id="navbar-dropdown-content">
-					<a class="dropdown-item" href="#" id="navbar-favourites-add">Add to favourites</a>
-					<a class="dropdown-item" href="#" id="navbar-favourites-remove" style="display: none;">Remove from favourites</a>
-					<div class="dropdown-divider"></div>
-					<div class="dropdown-item dropdown-item-favourites disabled">No saved items</div>
-				</div>
-			</li>
-
-			<!-- Settings -->
-			<li class="nav-item" title="Settings">
-				<button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modal-settings">
-					<i class="fa fa-wrench fa-fw"></i>
-					<span class="d-md-none">Settings</span>
-				</button>
-			</li>
-
 			<li class="nav-item dropdown" id="theme-selector" title="Toggle theme">
 				<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown">
 					<i class="fa fa-lightbulb-o fa-fw"></i>
@@ -299,15 +276,6 @@
 					<td><input type="radio" name="sort" value="created desc" class="form-check-input"></td>
 					<td>vytvoření</td>
 				</tr>
-				<tr>
-					<td><input type="radio" name="sort" value="distance asc" class="form-check-input advanced-search-sort-distance"></td>
-					<td><input type="radio" name="sort" value="distance desc" class="form-check-input advanced-search-sort-distance"></td>
-					<td>
-						vzdálenosti
-						<a href="#" id="advanced-search-coords" target="_blank" title="Open in BetterLocation" style="display: none"></a>
-						(zobrazí se pouze soubory obsahující lokaci)
-					</td>
-				</tr>
 				</tbody>
 			</table>
 		</div>
@@ -317,13 +285,6 @@
 
 	<div id="structure-tiles"></div>
 	<div id="structure-browser-map" style="display: none;" class="map-file-items"></div>
-
-	<div id="structure-scan" style="display: none;">
-		Last scan of this directory: <span class="date"></span>
-		<a id="structure-scan-run" href="#" title="Rescan this folder and it's subfolders">
-			<i class="fa fa-refresh"></i> Rescan
-		</a>
-	</div>
 </div>
 <div id="structure-footer"></div>
 <div id="map" style="display: none;" class="map-file-items"></div>
@@ -333,44 +294,44 @@
 	<p id="status-text"></p>
 </div>
 
-<div id="popup" style="display: none;">
-	<div id="popup-content" title="Close popup (Esc)">
+<div id="media-popup" style="display: none;" class="media-popup">
+	<div class="media-popup-content" title="Close popup (Esc)">
 
-		<a href="#" id="popup-open-media-url" target="_blank">
-			<img id="popup-image" style="display:none;" alt="@TODO" src="" title="Open image in fullscreen (Enter)">
+		<a href="#" class="media-popup-open-media-url" target="_blank">
+			<img class="media-popup-image" style="display:none;" alt="@TODO" src="" title="Open image in fullscreen (Enter)">
 		</a>
 
 		<!-- class is dynamic -->
-		<i id="popup-icon" aria-hidden="true" style="display:none;"></i>
+		<i class="media-popup-icon" aria-hidden="true" style="display:none;"></i>
 
-		<video id="popup-video" controls style="display:none;" title="Play/pause video (Space)">
+		<video class="media-popup-video" controls style="display:none;" title="Play/pause video (Space)">
 			<source type="video/mp4" src="">
 		</video>
 
-		<audio id="popup-audio" controls style="display:none;" title="Play/pause audio (Space)">
+		<audio class="media-popup-audio" controls style="display:none;" title="Play/pause audio (Space)">
 			<source type="audio/mpeg" src="">
 		</audio>
 
-		<object id="popup-pdf" data="" type="application/pdf" style="display:none;">
-			<div id="popup-pdf-text" class="alert alert-danger">
+		<object class="media-popup-pdf" data="" type="application/pdf" style="display:none;">
+			<div class="media-popup-pdf-text" class="alert alert-danger">
 				Online PDF viewer is not available.<br>
 				Download file locally.
 			</div>
 		</object>
 
-		<a id="popup-prev" href="#" title="Previous item (arrow left)"><i class="fa fa-angle-left fa-lg"></i></a>
-		<a id="popup-next" href="#" title="Next item (arrow right)"><i class="fa fa-angle-right fa-lg"></i></a>
+		<a class="media-popup-prev" href="#" title="Previous item (arrow left)"><i class="fa fa-angle-left fa-lg"></i></a>
+		<a class="media-popup-next" href="#" title="Next item (arrow right)"><i class="fa fa-angle-right fa-lg"></i></a>
 	</div>
 
-	<div id="popup-top-left">
+	<div class="media-popup-top-left media-popup-close">
 		<i class="fa fa-times"></i>
 	</div>
 
-	<div id="popup-top-right" data-bs-toggle="offcanvas" data-bs-target="#popup-media-details" aria-controls="popup-media-details">
+	<div class="media-popup-top-right" data-bs-toggle="offcanvas" data-bs-target="#popup-media-details" aria-controls="popup-media-details">
 		<i class="fa fa-ellipsis-v"></i>
 	</div>
 
-	<div id="popup-presentation-progress" style="display: none;"></div>
+	<div class="media-popup-presentation-progress" style="display: none;"></div>
 </div>
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="popup-media-details" data-bs-keyboard="false" aria-labelledby="popup-media-details-name">
@@ -394,60 +355,6 @@
 	<div class="offcanvas-body">
 		<div class="data">
 			<!-- Will be filled when media is opened -->
-		</div>
-	</div>
-</div>
-
-<div id="modal-settings" class="modal fade" tabindex="-1" role="dialog">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title"><i class="fa fa-wrench"></i> Nastavení</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<form id="form-settings">
-
-					<div class="mb-3" id="settings-compress">
-						<div class="form-check">
-							<input class="form-check-input" type="checkbox" name="compress" id="settings-compress-checkbox">
-							<label class="form-check-label" for="settings-compress-checkbox">Šetřit data</label>
-						</div>
-						<small class="form-text text-muted">Obrázky budou zmenšeny na velikost max 1024 x 1024 pixelů při zachování poměru stran. V plné velikosti je možné je otevřít skrze ikonu
-							<i class="fa fa-download" aria-hidden="true"></i> vlevo dole.</small>
-					</div>
-
-					<div class="mb-3">
-						<label for="settings-structureItemLimit" class="form-label">Maximální počet zobrazovaných položek ve složce:</label>
-						<input type="number" required name="structureItemLimit" id="settings-structureItemLimit" class="form-control" min="0">
-						<small class="form-text text-muted">
-							0 = všechny, 2000 = výchozí hodnota<br>
-							<i class="fa fa-warning"></i> Pokud má složka příliš velké množství položek a tato hodnota bude taktéž vysoká, může načítání chvíli trvat popř může zpomalit či úplně zablokovat prohlížeč.
-						</small>
-					</div>
-
-					<div class="mb-3">
-						<label for="settings-presentationSpeed" class="form-label">Rychlost přehrávání prezentace (v milisekundách):</label>
-						<input type="number" required name="presentationSpeed" id="settings-presentationSpeed" class="form-control" min="0">
-						<small class="form-text text-muted">
-							0 = okamžitě po načtení, 5000 = výchozí hodnota<br>
-						</small>
-					</div>
-
-					<button type="submit" id="settings-save" class="btn btn-primary">Uložit</button>
-				</form>
-			</div>
-			<div class="modal-header">
-				<h5 class="modal-title"><i class="fa fa-key"></i> Uložená hesla</h5>
-			</div>
-			<div class="modal-body">
-				<p>
-					Zde se zobrazí hesla a k nim příslušné adresáře, které odemykají.
-				</p>
-				<button type="button" id="settings-passwords-load" class="btn btn-primary">Načíst</button>
-				<p id="settings-passwords-nothing" style="display: none;">Na tomto zařízení nejsou uložená žádná hesla.</p>
-				<div id="settings-passwords-list"></div>
-			</div>
 		</div>
 	</div>
 </div>

@@ -1,130 +1,110 @@
-/* global Settings */
 const loadedStructure = {
-	loadedFolder: '', // default is loaded nothing
-	popup: false, // Is popup visible?
-	settings: false, // is settings modal visible?
 	mediaInfoCanvas: null, // MediaDetailsCanvas instance
-	advancedSearchModal: false, // is advanced search modal visible?
 	filtering: false,
 	flashIndex: 0, // incremental index used for flashMessage()
-	request: null, // AJAX request structure object
 	hoveredStructureItemElement: null,
 	user: null,
 };
 const transparentPixelBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII';
 
-const structure = new Structure();
-const presentation = new Presentation();
 const vibrateApi = new VibrateApi();
+const structure = new Structure();
+const mediaPopup = new MediaPopup('media-popup', structure, loadedStructure).init();
+const presentation = new Presentation(mediaPopup).init();
+const keyboardMapper = new KeyboardMapper(structure, mediaPopup, presentation).init();
+const serverApi = new ServerApi()
 
-const structureMap = new StructureMap('map', structure).init();
-const advancedSearchMap = new AdvancedSearchMap('advanced-search-map').init();
-const structureBrowserMap = new BrowserMap('structure-browser-map', structure).init();
-
-advancedSearchMap.map.on('click', function (event) {
-	vibrateApi.vibrate(Settings.load('vibrationOk'));
-	advancedSearchMap.setMarker(event.latlng);
-	const coords = new Coordinates(event.latlng.lat.toFixed(6), event.latlng.lng.toFixed(6));
-	$('#advanced-search-coords')
-		.text(coords.toString())
-		.attr('href', 'https://better-location.palider.cz/' + coords.toString())
-		.data({lat: coords.lat, lon: coords.lon})
-		.show();
+mediaPopup.addEventListener('beforeshowitem', function (event) {
+	const fileItem = event.detail.fileItem;
+	setStatus(fileItem.getStatusLoadingText(Settings.load('compress')));
+	structure.historyAdd(fileItem);
+	structure.selectorMove(fileItem.index);
+	$('html head title').text(fileItem.path + ' ☁ ' + $('html head title').data('original-title'));
+	loadedStructure.mediaInfoCanvas.setItem(fileItem);
+});
+mediaPopup.addEventListener('itemloaddone', function (event) {
+	setStatus(false);
+});
+mediaPopup.addEventListener('itemloaderror', function (event) {
+	flashMessage('Chyba během načítání. Zkontroluj připojení k internetu a případně, kontaktuj autora.', 'danger', false);
+	setStatus(false);
 });
 
-function loadingDone(element) {
-	if (element) {
-		$(element).fadeIn(Settings.load('animationSpeed'), function () {
-			setStatus(false);
-		});
-		if ($(element).is('video')) {
-			if (presentation.running) { // presentation is enabled
-				videoPlay();
-			}
-		} else if ($(element).is('audio')) {
-			if (presentation.running) { // presentation is enabled
-				audioPlay();
-			}
-		} else if ($(element).is('img')) {
-			if (presentation.running) { // presentation is enabled
-				const duration = Settings.load('presentationSpeed');
-				$('#popup-presentation-progress').css('transition', 'width ' + duration + 'ms linear');
-				$('#popup-presentation-progress').css('width', '0%');
-				// Load next item after presentation timeout.
-				presentation.intervalId = setTimeout(function () {
-					presentation.next();
-				}, duration);
+mediaPopup.addEventListener('afterhideitem', function (event) {
+	console.warn('afterhideitem', event);
+	structure.historyAdd(structure.currentFolderItem);
+	window.location.hash = pathToUrl(structure.currentFolderItem.path);
+
+});
+
+function onMoveToNextOrPrevious(event, direction) {
+	console.warn('handling event in onMoveToNextOrPrevious()', event);
+	const movementResult = structure.selectorMove(direction);
+	if (movementResult && mediaPopup.isActive()) {
+		structure.selectorSelect();
+	}
+}
+
+mediaPopup.addEventListener('clickprevious', (event) => this.onMoveToNextOrPrevious(event, 'up'));
+mediaPopup.addEventListener('clicknext', (event) => this.onMoveToNextOrPrevious(event, 'down'));
+keyboardMapper.addEventListener('previous', (event) => this.onMoveToNextOrPrevious(event, 'up'));
+keyboardMapper.addEventListener('next', (event) => this.onMoveToNextOrPrevious(event, 'down'));
+
+const structureMap = new StructureMap('map', structure).init();
+const structureBrowserMap = new BrowserMap('structure-browser-map', structure, serverApi).init();
+
+structure.addEventListener('beforeselectormove', async function (event) {
+	console.warn('beforeselectormove', event);
+	const newItem = event.detail.newItem;
+	if (
+		mediaPopup.isActive()
+		&& (newItem?.isFile !== true)
+	) {
+		event.preventDefault();
+		mediaPopup.wiggle();
+		vibrateApi.vibrate(Settings.load('vibrationError'));
+	}
+});
+structure.addEventListener('selectorselected', async function (event) {
+	console.warn('selectorselected event', event);
+	/** @type {Item|null} */
+	const pathItem = event.detail.pathItem;
+
+	if (pathItem.action) {
+		await pathItem.run();
+		return;
+	}
+
+	window.location.hash = pathToUrl(pathItem.path);
+	vibrateApi.vibrate(Settings.load('vibrationOk'));
+	structure.historyAdd(pathItem);
+	structure.setCurrent(pathItem.path);
+	if (pathItem.isFolder) {
+		await loadStructure2(pathItem);
+
+		// Detect which file should be pre-selected
+		let selectIndex = 0;
+		const previousItem = structure.historyGet().last(2);
+		if (previousItem instanceof FolderItem) {
+			// Changing directory up (closer to the root) should match directory, that was selected previously
+			// changing folder (item should always be something)
+			// deeper - this will find "go back" folder
+			// closer to root - this will find previously opened folder
+			const item = structure.getByName(previousItem.path);
+			if (item) {
+				structure.selectorMove(item.index);
+			} else {
+				structure.selectorMove(selectIndex);
 			}
 		}
 	} else {
-		setStatus(false);
+		mediaPopup.showFileItem(
+			pathItem,
+			structure.getPrevious(pathItem.index),
+			structure.getNext(pathItem.index),
+		);
 	}
-}
-
-/**
- * Shortcuts to proper handling moving between items if popup is opened (respect presentation mode)
- */
-function itemPrev10(stopPresentation) {
-	for (let i = 0; i < 9; i++) { // only 9 times. 10th time is in itemPrev()
-		structure.selectorMove('up');
-	}
-	itemPrev(stopPresentation);
-}
-
-function itemPrev(stopPresentation) {
-	if (stopPresentation === true) {
-		presentation.stop();
-	}
-	presentation.clearTimeout(); // to prevent running multiple presentation timeouts at the same time
-	videoPause();
-	audioPause();
-	const currentFileIndex = structure.selectedIndex;
-	structure.selectorMove('up');
-	// if new selected item is not file, select first file and show it
-	if (structure.getItem(structure.selectedIndex).isFile === false) {
-		structure.selectorMove(structure.getFirstFile().index);
-	}
-	structure.selectorSelect();
-	// do wiggle animation if there is no item to move to
-	if (currentFileIndex === structure.selectedIndex) {
-		vibrateApi.vibrate(Settings.load('vibrationError'));
-		$('#popup-content').addClass('wiggle');
-		setTimeout(function () {
-			$('#popup-content').removeClass('wiggle');
-		}, 500);
-	} else {
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-	}
-}
-
-function itemNext(stopPresentation) {
-	if (stopPresentation === true) {
-		presentation.stop();
-	}
-	presentation.clearTimeout(); // to prevent running multiple presentation timeouts at the same time
-	videoPause();
-	audioPause();
-	const currentFileIndex = structure.selectedIndex;
-	structure.selectorMove('down');
-	structure.selectorSelect();
-	// do wiggle animation if there is no item to move to
-	if (currentFileIndex === structure.selectedIndex) {
-		vibrateApi.vibrate(Settings.load('vibrationError'));
-		$('#popup-content').addClass('wiggle');
-		setTimeout(function () {
-			$('#popup-content').removeClass('wiggle');
-		}, 1000);
-	} else {
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-	}
-}
-
-function itemNext10(stopPresentation) {
-	for (let i = 0; i < 9; i++) { // only 9 times. 10th time is in itemNext()
-		structure.selectorMove('down');
-	}
-	itemNext(stopPresentation);
-}
+});
 
 /**
  * Global error handler
@@ -267,158 +247,13 @@ class MediaDetailsCanvas {
 
 // If hash is changed, something is being loaded (image of folder)
 $(window).on('hashchange', function (event) {
-
-	if (loadedStructure.mediaInfoCanvas.isShown()) {
-		// Close currently opened media info
-		// @HACK This supposed to be on "back" button (web browser or Android back) but no native event is available
-		loadedStructure.mediaInfoCanvas.hide();
-		event.preventDefault();
-	}
-
-	// save currently loaded folder but can't save FileItem, because we dont know structure yet.
-	structure.setCurrent(pathFromUrl(window.location.hash));
-
-	// Update browser title as browsing folders or files
-	$('html head title').text(structure.getCurrentFolder().path + ' ☁ ' + $('html head title').data('original-title'));
-
-	// load folder structure
-	loadStructure(false, function () {
-
-		// save currently loaded folder AND currently selected file (if any) because structure is already loaded
-		structure.setCurrent(pathFromUrl(window.location.hash)); // save file if is opened in popup
-
-		/*
-		 * Open popup to show file
-		 */
-		const currentFile = structure.getCurrentFile();
-		if (currentFile) { // loaded item is file
-			setStatus(currentFile.getStatusLoadingText(Settings.load('compress')));
-			structure.historyAdd(currentFile);
-			if (
-				presentation.running === true
-				&& currentFile.isImage === false
-				&& currentFile.isAudio === false
-				&& currentFile.isVideo === false
-				&& currentFile.isPdf === false
-			) {
-				// file is not viewable (zip...) so skip in presentation
-				// @TODO causing bug, that file-icon is being visible under next viewable item (eg. audio)
-				presentation.next();
-			}
-
-			$('html head title').text(currentFile.path + ' ☁ ' + $('html head title').data('original-title'));
-
-			Promise.all([
-				// Before continuing loading next item first has to hide previous,
-				// otherwise while fading out it will flash new item
-				$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise(),
-				$('#popup-audio').fadeOut(Settings.load('animationSpeed')).promise(),
-				$('#popup-image').fadeOut(Settings.load('animationSpeed')).promise(),
-				$('#popup-pdf').fadeOut(Settings.load('animationSpeed')).promise(),
-				$('#popup-icon').fadeOut(Settings.load('animationSpeed')).promise(),
-			]).then(function () {
-				structure.selectorMove(currentFile.index); // highlight loaded image
-				if (currentFile.coords) {
-					$('#popup-location').attr('href', 'https://better-location.palider.cz/' + currentFile.coords).show();
-				} else {
-					$('#popup-location').hide();
-				}
-
-				let openUrl = currentFile.getFileUrl(false);
-				let openUrlFull = currentFile.getFileUrl(false, false);
-				const downloadUrl = currentFile.getFileUrl(true);
-				const shareUrl = window.location.origin + '/#' + structure.getCurrentFile().url;
-
-				if (openUrl === null) { // If item has no view url, use icon to indicate it is file that has to be downloaded
-					openUrl = downloadUrl;
-					openUrlFull = downloadUrl;
-					$('#popup-icon').removeClass().addClass('fa fa-5x fa-' + currentFile.icon).fadeIn(Settings.load('animationSpeed'), function () {
-						setStatus(false);
-					});
-				}
-				$('#popup-open-media-url').attr('href', openUrlFull);
-				$('#popup-media-details-download').attr('href', downloadUrl);
-				$('#popup-media-details-open-full').attr('href', openUrlFull);
-				$('#popup-media-details-share').attr('href', shareUrl);
-
-				loadedStructure.mediaInfoCanvas.setItem(currentFile);
-
-				popupOpen();
-
-				function setMediaSrc(type, src) {
-					$('#popup-' + type + ' source').attr('src', src);
-					$('#popup-' + type + '')[0].load();
-				}
-
-				setMediaSrc('audio', '');
-				setMediaSrc('video', '');
-
-				if (currentFile.isImage) {
-					$('#popup-image').attr('src', openUrl);
-				} else if (currentFile.isPdf) {
-					$('#popup-pdf').attr('data', downloadUrl).show();
-				} else if (currentFile.isVideo) {
-					setMediaSrc('video', openUrl);
-				} else if (currentFile.isAudio) {
-					setMediaSrc('audio', openUrl);
-				} else {
-					loadingDone();
-				}
-
-				// If currently opened Item in popup has marker, open map-popup too
-				const currentFileMarker = structureMap.getMarkerFromStructureItem(currentFile);
-				if (currentFileMarker) {
-					structureMap.map.closePopup(); // Close all previously opened map-popups
-					currentFileMarker.openPopup();
-				}
-
-				// @TODO upgrade counter to respect filter
-				$('#popup-counter').text((currentFile.index + 1 - structure.getFolders().length) + '/' + structure.getFiles().length);
-
-				// generate URL for previous file buttons
-				const prevFile = structure.getPrevious(currentFile.index);
-				let prevFileUrl = currentFile.url; // default is current file (do nothing)
-				if (prevFile && prevFile.isFile) { // if there is some previous file
-					prevFileUrl = prevFile.url;
-				}
-				$('#popup-prev').attr('href', '#' + prevFileUrl);
-
-				// generate URL for next file buttons
-				const nextFile = structure.getNext(currentFile.index);
-				let nextFileUrl = currentFile.url; // default is current file (do nothing)
-				if (nextFile && nextFile.isFile) { // if there is some next file
-					nextFileUrl = nextFile.url;
-				}
-				$('#popup-next').attr('href', '#' + nextFileUrl);
-			})
-		} else { // If selected item is folder, load structure of that folder
-			popupClose();
-			structure.historyAdd(structure.getCurrentFolder());
-
-			// Detect which file should be loaded
-			let selectIndex = 0;
-			const previousItem = structure.historyGet().last(2);
-			if (previousItem instanceof FolderItem) {
-				// changing folder (item should always be something)
-				// deeper - this will find "go back" folder
-				// closer to root - this will find previously opened folder
-				const item = structure.getByName(previousItem.path);
-				if (item) {
-					selectIndex = item.index;
-				}
-			} else if (previousItem instanceof FileItem) {
-				// Popup was just closed, dont change selected index
-				selectIndex = structure.selectedIndex;
-			}
-			structure.selectorMove(selectIndex);
-		}
-	});
+	console.warn('hashchange', event);
 });
 
 /**
  * Webpage loading is done
  */
-$(function () {
+$(async function () {
 	updateLoginButtons();
 
 	// Save original title into data property
@@ -432,26 +267,18 @@ $(function () {
 
 	loadedStructure.mediaInfoCanvas = new MediaDetailsCanvas();
 
+	let currentDirPath = Settings.load('hashBeforeUnload');
 	// If not set hash, load url from last time
-	if (!window.location.hash && Settings.load('hashBeforeUnload')) {
-		window.location.hash = pathToUrl(Settings.load('hashBeforeUnload'));
-	} else {
-		window.dispatchEvent(new HashChangeEvent("hashchange"));
+	if (window.location.hash) {
+		currentDirPath = window.location.hash;
 	}
-	// S.setCurrent(pathFromUrl(window.location.hash));
+
+	structure.setCurrent(pathFromUrl(currentDirPath));
+
 	$('#button-logout').on('click', function (event) {
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		event.preventDefault();
-		if (confirm('Opravdu se chceš odhlásit?')) {
-			// remove cookie on the server (without refreshing browser)
-			$.get("/logout", function () {
-				// remove cookie from the browser (just in case of error)
-				// Cookies.remove('google-login');
-				updateLoginButtons();
-				loadStructure(true);
-				loadUserData();
-				flashMessage('Odhlášení bylo úspěšné.');
-			});
+		if (confirm('Opravdu se chceš odhlásit?') === false) {
+			event.preventDefault();
 		}
 	});
 
@@ -473,61 +300,19 @@ $(function () {
 		$('#structure-download-archive').remove();
 	}
 
-
 	loadUserData();
-
-	$('#popup-close, #popup-top-left').on('click', function () {
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		popupClose();
-	});
-	$('#popup-content').on('click', function (event) {
-		if (event.target === this) {
-			// Close popup if clicked on background area around
-			// media but not if clicked on any other element on page
-			vibrateApi.vibrate(Settings.load('vibrationOk'));
-			popupClose();
-		}
-	});
 
 	// Event - swipe in popup
 	// @TODO not detecting if swipe starts in different DOM than defined (eg. #status)
-	$('#popup-content').swipeDetector()
-		.on('swipeLeft.sd', () => itemNext(false))
-		.on('swipeRight.sd', () => itemPrev(true))
-		.on('swipeDown.sd', () => popupClose())
-		.on('swipeUp.sd', () => loadedStructure.mediaInfoCanvas.show());
+	// $('#popup-content').swipeDetector()
+	// 	.on('swipeLeft.sd', () => mediaPopup.elementNext.click())
+	// 	.on('swipeRight.sd', () => mediaPopup.elementPrev.click())
+	// 	.on('swipeDown.sd', () => mediaPopup.hide())
+	// 	.on('swipeUp.sd', () => loadedStructure.mediaInfoCanvas.show());
 
 	// Event - swipe in popup media details
-	$('#popup-media-details').swipeDetector()
-		.on('swipeRight.sd', () => loadedStructure.mediaInfoCanvas.hide())
-
-	// Event - click on image to open in new tab
-	$("#popup-image").on('click', function () {
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		$('#popup-open-media-url')[0].click();
-	});
-
-	// Event - click on video to pause/play
-	$("#popup-video").on('click', function () {
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		videoToggle();
-	});
-
-	// Event - click on video to pause/play
-	$("#popup-audio").on('click', function () {
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		audioToggle();
-	});
-
-	// Event - show/hide map in advanced search and try to silently load user's location
-	$('#advanced-search-sort input[name=sort]').on('change', function () {
-		const value = $(this).val().toLowerCase();
-		if (value === 'distance asc' || value === 'distance desc') {
-			advancedSearchMap.mapShow();
-		} else {
-			advancedSearchMap.mapHide();
-		}
-	});
+	// $('#popup-media-details').swipeDetector()
+	// 	.on('swipeRight.sd', () => loadedStructure.mediaInfoCanvas.hide())
 
 	/**
 	 * Advanced search file size slider
@@ -585,61 +370,6 @@ $(function () {
 		}
 	})();
 
-	/**
-	 * Fill form settings with values from Settings class
-	 * @TODO upgrade to works with all types of inputs (text, number, radio, checkbox...)
-	 */
-	$('#form-settings input[type=number]').each(function () { // type=number
-		$(this).val(Settings.load($(this).attr('name')));
-	});
-	$('#form-settings input[type=radio]').each(function () { // type=radio
-		if ($(this).val() === Settings.load($(this).attr('name'))) {
-			$(this).prop("checked", true);
-		}
-	});
-	$('#form-settings input[type=checkbox]').each(function () { // type=radio
-		if (Settings.load($(this).attr('name'))) {
-			$(this).prop("checked", true);
-		}
-	});
-
-	/**
-	 * Save form values to Settings class
-	 */
-	$('#form-settings').on('change submit', function (event) {
-		event.preventDefault();
-		// save all inputs from form into Settings
-		$(this).serializeArray().forEach(function (input) {
-			Settings.save(input.name, input.value)
-		});
-		// un-checked checkbox inputs are not in serializedArray, needs to be handled separately
-		$('#form-settings input[type="checkbox"]').each(function () {
-			Settings.save($(this).attr('name'), $(this).is(':checked'))
-		});
-		// set compress variable into cookie on save
-		if (Settings.load('compress') === true) {
-			Cookies.set('pmg-compress', true);
-		} else {
-			Cookies.remove('pmg-compress');
-		}
-		// set item limit variable into cookie on save
-		Cookies.set('pmg-item-limit', Settings.load('structureItemLimit'));
-
-		// show info about save to user
-		$('#settings-save')
-			.html('Uloženo <i class="fa fa-check"></i>')
-			.addClass('btn-success')
-			.removeClass('btn-primary')
-			.prop('disabled', true);
-		setTimeout(function () {
-			$('#settings-save')
-				.html('Uložit')
-				.removeClass('btn-success')
-				.addClass('btn-primary')
-				.prop('disabled', false);
-		}, 2000);
-	});
-
 	// Load and set type of view from Settings
 	structureViewChange(Settings.load('structureDisplayType'));
 
@@ -657,50 +387,17 @@ $(function () {
 		}
 	});
 
-	// Event - clicked on rescan folder
-	$('#structure-scan-run').on('click', function (event) {
-		event.preventDefault();
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		const $btn = $(this);
-		const $btnIcon = $btn.children('i.fa');
-		loadedStructure.request = $.ajax({
-			url: '/api/scan',
-			method: 'GET',
-			data: {
-				path: btoa(encodeURIComponent(structure.getCurrentFolder().path)),
-			},
-			success: function (result) {
-				const flashType = result.error === true ? 'danger' : 'info';
-				flashMessage(result.message, flashType);
-				if (result.result.scanning === false) {
-					loadStructure(true);
-				}
-			},
-			error: function (result, errorTextStatus) {
-				flashMessage(result.responseJSON ? result.responseJSON.message : 'Chyba během zahájení scanování. Kontaktuj autora.', 'danger', false);
-			},
-			beforeSend: function () {
-				$btn.addClass('disabled');
-				$btnIcon.addClass('fa-circle-o-notch fa-spin').removeClass('fa-refresh');
-			},
-			complete: function () {
-				$btn.removeClass('disabled');
-				$btnIcon.addClass('fa-refresh').removeClass('fa-circle-o-notch fa-spin');
-			},
-		});
-	});
-
 	// Event - selected item in structure
 	$('#structure').on('click', '.structure-item', function (event) {
-		if ($(event.target).closest('.location').length === 0) { // do not select in structure, just open link
-			event.preventDefault();
-			const itemIndex = $(this).data('index');
-			if (itemIndex !== undefined) {
-				vibrateApi.vibrate(Settings.load('vibrationOk'));
-				structure.selectorMove(itemIndex);
-				structure.selectorSelect();
-			}
+		console.warn('#structure .structure-item on click event', event);
+		if ($(event.target).closest('.location').length !== 0) {
+			// do not select in structure, just open link
+			console.debug('cancelled, opening link instead');
+			return;
 		}
+		const itemIndex = $(this).data('index');
+		structure.selectorMove(itemIndex);
+		structure.selectorSelect();
 	});
 
 	/**
@@ -711,118 +408,18 @@ $(function () {
 	} else {
 		Cookies.remove('pmg-compress');
 	}
-	/**
-	 * Set item limit variable into cookie on page load
-	 */
-	Cookies.set('pmg-item-limit', Settings.load('structureItemLimit'));
-
-	/**
-	 * Showing saved passwords in settings
-	 */
-	$('#settings-passwords-load').on('click', function () {
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		const button = this;
-		$(button).html('Načítám <i class="fa fa-circle-o-notch fa-spin"></i>').prop('disabled', true);
-
-		$('#settings-passwords-nothing').hide();
-		$('#settings-passwords-list').empty();
-
-		$.getJSON("/api/password", function (response) {
-			if (response.result.length === 0) {
-				$('#settings-passwords-nothing').show();
-				return;
-			}
-			response.result.forEach(function (pass) {
-				let html = '<h5>' + pass.password + ':</h5>';
-				let htmlPasswords = [];
-				pass.permissions.forEach(function (perm) {
-					htmlPasswords.push('<a href="#' + pathToUrl(perm) + '">' + perm + '</a>');
-				});
-				html += '<p>' + htmlPasswords.join('<br>') + '</p>';
-				$('#settings-passwords-list').append(html);
-			});
-		}).fail(function (response) {
-			flashMessage('Error <b>' + response.status + '</b> while loading passwords: <b>' + response.statusText + '</b>', 'danger', false);
-		}).always(function () {
-			setTimeout(function () {
-				$(button).html('Načíst hesla').prop('disabled', false);
-			}, 500);
-		});
-	});
-
-	$('#popup-pdf').on('load', function () {
-		loadingDone(this);
-	});
-
-	$('#popup-video').on('loadeddata', function () {
-		loadingDone(this);
-	}).on('ended', function () {
-		if (presentation.running) {
-			presentation.next();
-		}
-	});
-
-	$('#popup-audio').on('loadeddata', function () {
-		loadingDone(this);
-	}).on('ended', function () {
-		if (presentation.running) {
-			presentation.next();
-		}
-	});
-
-	// loading is done when img is loaded
-	$('#popup-image').on('load', function () {
-		loadingDone(this);
-	}).on('error', function () {
-		flashMessage('Chyba během načítání obrázku. Kontaktuj autora.', 'danger', false);
-		setStatus(false);
-	})
 
 	$('#navbar').on('click', '#navbar-share', async function (event) { // Event - share URL
 		event.preventDefault();
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		await shareItem(structure.getCurrentFolder());
-	}).on('click', '#navbar-favourites-add', function (event) { // Event - add to favourites
-		event.preventDefault();
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		favouritesAdd(structure.getCurrentFolder().path);
-	}).on('click', '#navbar-favourites-remove', function (event) { // Event - remove from favourites
-		event.preventDefault();
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		favouritesRemove(structure.getCurrentFolder().path);
-	});
-
-	// Event - load next item if possible
-	$('#popup-next').on('click', function () {
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		itemNext(false); // dont stop presentation mode
-	});
-	// Event - load previous item if possible
-	$('#popup-prev').on('click', function () {
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-		itemPrev(true);
 	});
 
 	// Event - share file url from popup
-	$('#popup-media-details-share').on('click', async function () {
+	$('#popup-media-details-share').on('click', async function (event) {
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		await shareItem(structure.getCurrentFile());
-	});
-
-	$('#modal-settings').on('show.bs.modal', function () {
-		loadedStructure.settings = true;
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-	}).on('hidden.bs.modal', function () {
-		loadedStructure.settings = false;
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-	});
-
-	$('#modal-search').on('show.bs.modal', function () {
-		loadedStructure.advancedSearchModal = true;
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
-	}).on('hidden.bs.modal', function () {
-		loadedStructure.advancedSearchModal = false;
-		vibrateApi.vibrate(Settings.load('vibrationOk'));
+		event.preventDefault();
 	});
 
 	$(document).on('click', '.copy-to-clipboard', function () {
@@ -843,7 +440,14 @@ $(function () {
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		const itemIndex = $('#map-info-window').data('item-index');
 		await shareItem(structure.getFile(itemIndex));
-	}).on('click', '#navbar .breadcrumb-item', function (event) {
+	}).on('click', '#navbar .breadcrumb-item', async function (event) {
+		console.warn('#navbar .breadcrumb-item', event);
+		event.preventDefault();
+		const path = $(this)[0].dataset.path;
+		const folderItem = new FolderItem(null, {path: path});
+		structure.historyAdd(folderItem);
+		structure.setCurrent(folderItem.path);
+		await loadStructure2(folderItem);
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 	}).on('click', '#user-logged-in', function (event) {
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
@@ -866,6 +470,17 @@ $(function () {
 	}).on('mouseleave', '.structure-item', function () {
 		loadedStructure.hoveredStructureItemElement = null;
 	});
+
+	structure.historyAdd(structure.currentFolderItem);
+	await loadStructure2(structure.currentFolderItem);
+	structure.setCurrent(pathFromUrl(currentDirPath));
+
+	if (structure.currentFileItem) {
+		structure.selectorMove(structure.currentFileItem.index);
+		structure.selectorSelect();
+	} else {
+		window.location.hash = pathToUrl(structure.currentFolderItem.path);
+	}
 });
 
 function mapInfoWindowImageLoaded() {
@@ -876,137 +491,6 @@ function mapInfoWindowImageLoaded() {
 function mapInfoWindowImageError() {
 	$('#map-info-window .thumbnail-loading-icon').removeClass('fa-circle-o-notch fa-spin').addClass('fa-' + Icon.IMAGE);
 }
-
-function popupOpen() {
-	loadedStructure.popup = true;
-	$("#structure-search input").trigger('blur');
-	$('#popup').fadeIn(Settings.load('animationSpeed'));
-	document.body.style.overflow = 'hidden';
-}
-
-function popupClose() {
-	$('#popup').fadeOut(Settings.load('animationSpeed'));
-	// This will prevent waiting (promise) on re-opening popup window:
-	// animation in promise will skip if elements are already faded out
-	$('#popup-video').fadeOut(Settings.load('animationSpeed')).promise();
-	$('#popup-audio').fadeOut(Settings.load('animationSpeed')).promise();
-	$('#popup-pdf').fadeOut(Settings.load('animationSpeed')).promise();
-	// update image src to cancel loading
-	// @author https://stackoverflow.com/a/5278475/3334403
-	$('#popup-image').attr('src', transparentPixelBase64).fadeOut(Settings.load('animationSpeed')).promise();
-	loadedStructure.popup = false;
-	window.location.hash = structure.getCurrentFolder().url;
-	videoPause();
-	audioPause();
-	presentation.stop();
-	setStatus(false);
-	document.body.style.overflow = null;
-}
-
-function favouritesAdd(path) {
-	let saved = Settings.load('favouriteFolders');
-	saved.pushUnique(path);
-	flashMessage('Folder has been added to favourites.');
-	Settings.save('favouriteFolders', saved);
-	favouritesGenerateMenu();
-}
-
-function favouritesRemove(path) {
-	let saved = Settings.load('favouriteFolders');
-	saved.removeByValue(path);
-	flashMessage('Folder has been removed from favourites.');
-	Settings.save('favouriteFolders', saved);
-	favouritesGenerateMenu();
-}
-
-function favouritesIs(path) {
-	return (Settings.load('favouriteFolders').indexOf(path) >= 0)
-}
-
-/**
- * Remove all generated items in navbar favourites dropdown content and generate new data
- * Also update navbar favourites button to reflect if currently opened path is saved or not
- */
-function favouritesGenerateMenu() {
-	// Update navbar dropdown content
-	$('#navbar-dropdown-content .dropdown-item-favourites').remove();
-	const saved = Settings.load('favouriteFolders');
-	if (saved.length === 0) { // nothing is saved
-		$('#navbar-dropdown-content').append('<div class="dropdown-item dropdown-item-favourites disabled">No saved items</div>');
-	}
-	saved.forEach(function (savedFolder) {
-		$('#navbar-dropdown-content').append('<a class="dropdown-item dropdown-item-favourites" href="#' + pathToUrl(savedFolder) + '">' + savedFolder + ' <i class="fa fa-fw fa-star"></i></a>');
-	});
-
-	// Update navbar favourites button and toggle showing add to and remove from favourites
-	const currentFolderPath = structure.getCurrentFolder().path;
-	if (favouritesIs(currentFolderPath)) { // show button only to remove from favourites
-		$('#navbar-favourites-button i.fa').addClass('fa-star').removeClass('fa-star-o');
-		$('#navbar-favourites-add').hide();
-		$('#navbar-favourites-remove').show();
-	} else { // show button only to add to favourites
-		$('#navbar-favourites-button i.fa').addClass('fa-star-o').removeClass('fa-star');
-		$('#navbar-favourites-add').show();
-		$('#navbar-favourites-remove').hide();
-	}
-}
-
-function videoToggle() {
-	try {
-		if ($('#popup-video')[0].paused) {
-			videoPlay();
-		} else {
-			videoPause();
-		}
-	} catch (exception) {
-		// In case of invalid src (for example)
-	}
-}
-
-function videoPause() {
-	try {
-		$('#popup-video')[0].pause();
-	} catch (exception) {
-		// In case of invalid src (for example)
-	}
-}
-
-function videoPlay() {
-	try {
-		$('#popup-video')[0].play();
-	} catch (exception) {
-		// In case of invalid src (for example)
-	}
-}
-
-function audioToggle() {
-	try {
-		if ($('#popup-audio')[0].paused) {
-			audioPlay();
-		} else {
-			audioPause();
-		}
-	} catch (exception) {
-		// In case of invalid src (for example)
-	}
-}
-
-function audioPause() {
-	try {
-		$('#popup-audio')[0].pause();
-	} catch (exception) {
-		// In case of invalid src (for example)
-	}
-}
-
-function audioPlay() {
-	try {
-		$('#popup-audio')[0].play();
-	} catch (exception) {
-		// In case of invalid src (for example)
-	}
-}
-
 
 function updateLoginButtons() {
 	if (Cookies.get('google-login')) { // logged in
@@ -1029,10 +513,6 @@ function loadUserData() {
 			if (result.error === false) {
 				const user = result.result;
 				loadedStructure.user = user;
-				if (user && user.email) {
-					$('#user-logged-in .user-email').text(user.email);
-				}
-
 				const $userPicture = $('#user-picture');
 				if (user && user.picture) {
 					$userPicture.attr('src', user.picture);
@@ -1044,82 +524,49 @@ function loadUserData() {
 	});
 }
 
-async function loadSearch(path = null) {
-	const requestData = {
-		path: btoa(path !== null ? path : encodeURIComponent(structure.getCurrentFolder().path)),
-		sort: $('#advanced-search-sort input[name=sort]:checked').val(),
-	}
-
-	let searchValidatorError = null;
+/**
+ *
+ * @param {FolderItem} pathItem
+ * @return {Promise<void>}
+ */
+async function loadSearch(pathItem = null) {
+	const params = new URLSearchParams();
+	params.set('path', pathItem.getEncodedPath());
+	params.set('sort', $('#advanced-search-sort input[name=sort]:checked').val());
 
 	let query = $('#structure-search-input').val().trim();
 	if (query) {
-		requestData.query = query;
-		searchValidatorError = null;
-	}
-	if ($('input.advanced-search-sort-distance:checked').length > 0) {
-		const $selectedCoords = $('#advanced-search-coords');
-		requestData.lat = $selectedCoords.data('lat');
-		requestData.lon = $selectedCoords.data('lon');
-		if (Coordinates.isLat(requestData.lat) && Coordinates.isLon(requestData.lon)) {
-			searchValidatorError = null;
-		} else {
-			searchValidatorError = 'Pokud chceš seřadit od nejbližších, musíš mít vybraný bod v mapě.';
-		}
+		params.set('query', query);
 	}
 
 	const slider = document.getElementById('advanced-search-size');
 	if (slider.noUiSlider) { // slider might not be available (eg. no scanned files with size)
 		const [sizeMin, sizeMax] = slider.noUiSlider.get(true);
 		if (sizeMin !== 0) { // Send sizeMin only if higher than zero
-			requestData.sizeMin = Math.floor(sizeMin);
+			params.set('sizeMin', Math.floor(sizeMin));
 		}
 		if (sizeMax !== FILE_SIZE_PERCENTILES[FILE_SIZE_PERCENTILES.length - 1].fileSize) {
 			// Send sizeMax only if not equals to biggest file available
-			requestData.sizeMax = Math.ceil(sizeMax);
+			params.set('sizeMax', Math.ceil(sizeMax));
 		}
 	}
 
-	if (searchValidatorError) {
-		flashMessage(searchValidatorError, 'danger');
-		return;
+	// params.set('path', directoryItem.getEncodedPath());
+	loadingStructure(pathItem);
+	$('#structure-search .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
+	try {
+		const result = await serverApi.search(params);
+		parseStructure(result.result);
+		structure.selectorMove('first');
+		structureMap.markersFromStructureFiles(structure.getFiles());
+		structure.filter();
+		loadThumbnail();
+	} catch (error) {
+		flashMessage('Error while searching: ' + error.message, 'danger', false);
+	} finally {
+		loadingStructure(false);
+		$('#structure-search .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
 	}
-
-	if (loadedStructure.request) {
-		console.log("Aborting previous request for creating new");
-		loadedStructure.request.abort();
-	}
-	loadedStructure.request = $.ajax({
-		url: '/api/search',
-		method: 'GET',
-		data: requestData,
-		success: function (result) {
-			if (result.error === true || !result.result) {
-				flashMessage(result.message || 'Chyba během hledání. Kontaktuj autora.', 'danger', false);
-			} else {
-				parseStructure(result.result);
-				structure.selectorMove('first');
-				structureMap.markersFromStructureFiles(structure.getFiles());
-				structure.filter();
-				loadThumbnail();
-			}
-		},
-		error: function (result, errorTextStatus) {
-			if (errorTextStatus === 'abort') {
-				console.log("Request aborted");
-			} else {
-				flashMessage(result.responseJSON ? result.responseJSON.message : 'Chyba během hledání. Kontaktuj autora.', 'danger', false);
-			}
-		},
-		beforeSend: function () {
-			loadingStructure(true);
-			$('#structure-search .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
-		},
-		complete: function () {
-			loadingStructure(false);
-			$('#structure-search .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
-		}
-	});
 }
 
 /**
@@ -1189,62 +636,43 @@ function loadThumbnail() {
 	loadThumbnail();
 }
 
-function loadStructure(force, callback) {
-	// in case of triggering loading the same structure again (already loaded), skip it
-	if (force !== true && loadedStructure.loadedFolder === structure.getCurrentFolder().path) {
-		console.log("Structure is already loaded, skip");
-		return (typeof callback === 'function' && callback());
-	}
-	if (loadedStructure.request) {
-		console.log("Aborting previous request for creating new");
-		loadedStructure.request.abort();
-	}
-	loadedStructure.request = $.ajax({
-		url: '/api/structure',
-		method: 'GET',
-		data: {
-			path: btoa(encodeURIComponent(structure.getCurrentFolder().path))
-		},
-		success: function (result) {
-			if (result.error === true || !result.result) {
-				flashMessage((
-						(result.message || 'Chyba během načítání dat. Kontaktuj autora.') +
-						'<br>Zkus se <a href="/login" class="alert-link">přihlásit</a> nebo jít <a href="#" class="alert-link">domů</a>.'
-					), 'danger', false
-				);
-			} else {
-				$('#structure-header').html(result.result.header || '');
-				$('#structure-footer').html(result.result.footer || '');
-				parseStructure(result.result);
-				structureMap.markersFromStructureFiles(structure.getFiles());
-				$('#structure-search input').val('');
-				loadThumbnail();
-				structure.filter();
-			}
-		},
-		error: function (result, errorTextStatus) {
-			if (errorTextStatus === 'abort') {
-				console.log("Request aborted");
-			} else {
-				flashMessage(result.responseJSON ? result.responseJSON.message : 'Chyba během načítání dat. Kontaktuj autora.', 'danger', false);
-			}
-		},
-		beforeSend: function () {
-			loadingStructure(true);
-		},
-		complete: function () {
-			loadedStructure.request = null;
-			loadingStructure(false);
-			(typeof callback === 'function' && callback());
+/**
+ *
+ * @param {FolderItem} directoryItem
+ * @return {Promise<void>}
+ */
+async function loadStructure2(directoryItem) {
+	try {
+		loadingStructure(directoryItem);
+		const params = new URLSearchParams();
+		params.set('path', directoryItem.getEncodedPath());
+		const url = '/api/structure?' + params.toString();
+		const response = await fetch(url);
+		const result = await response.json();
+		if (result.error === true) {
+			flashMessage((
+					(result.message || 'Chyba během načítání dat. Kontaktuj autora.') +
+					'<br>Zkus se <a href="/login" class="alert-link">přihlásit</a> nebo jít <a href="#" class="alert-link">domů</a>.'
+				), 'danger', false
+			);
+			return;
 		}
-	});
+		$('#structure-header').html(result.result.header || '');
+		$('#structure-footer').html(result.result.footer || '');
+		parseStructure(result.result);
+		structureMap.markersFromStructureFiles(structure.getFiles());
+		$('#structure-search input').val('');
+		loadThumbnail();
+		structure.filter();
+	} finally {
+		loadingStructure(false);
+	}
 }
 
 function parseStructure(items) {
 	// in case of triggering loading the same structure again (already loaded), skip it
 	updateLoginButtons(); // might be logged out
 
-	loadedStructure.loadedFolder = structure.getCurrentFolder().path;
 	structure.setAll(items);
 	const currentFolder = structure.getCurrentFolder();
 
@@ -1254,14 +682,13 @@ function parseStructure(items) {
 	let maxVisible = structure.getItems().length;
 	let breadcrumbHtml = '';
 	// noinspection HtmlUnknownAnchorTarget
-	breadcrumbHtml += '<li class="breadcrumb-item"><a href="#/" title="Go to root folder"><i class="fa fa-home"></i></a></li>';
+	breadcrumbHtml += '<li class="breadcrumb-item" data-path="/"><a href="#/" title="Go to root folder"><i class="fa fa-home"></i></a></li>';
 	let breadcrumbPath = '/';
 	currentFolder.paths.forEach(function (folderName, index) {
-		breadcrumbHtml += '<li class="breadcrumb-item"><a href="#' + (breadcrumbPath += currentFolder.urls[index] + '/') + '">' + folderName + '</a></li>';
+		breadcrumbPath += currentFolder.urls[index] + '/';
+		breadcrumbHtml += '<li class="breadcrumb-item" data-path="' + breadcrumbPath + '"><a href="#' + breadcrumbPath + '">' + folderName + '</a></li>';
 	});
 	$('#currentPath').html(breadcrumbHtml);
-
-	favouritesGenerateMenu();
 
 	$('#structure-download-archive').attr('href', structure.getCurrentFolder().getArchiveUrl());
 
@@ -1361,46 +788,36 @@ function parseStructure(items) {
 		contentTiles += ' <span class="name">Celkem je zde ' + (items.filesTotal) + ' souborů ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.</span>';
 		contentTiles += '</span>';
 	}
-	if (items.lastScan) {
-		const lastScan = new Date(items.lastScan);
-		const lastScanHuman = lastScan.human(true);
-		let dateHtml = '';
-		if ((new Date()).human(true).date !== lastScanHuman.date) { // show also date if scan was not performed today
-			dateHtml += lastScanHuman.date + ' ';
-		}
-		dateHtml += lastScanHuman.time;
-		dateHtml += ' (' + lastScan.agoHuman(true) + ' ago)';
-		$('#structure-scan .date').html(dateHtml);
-		$('#structure-scan').show();
-	} else {
-		$('#structure-scan').hide();
-	}
 	$('#structure-tiles').html(contentTiles);
 	$('#structure-search .total').text(maxVisible);
 	$('#structure-search .filtered').text(maxVisible);
 }
 
-function loadingStructure(loading) {
-	if (loading === true) {
+/**
+ *
+ * @param {FolderItem|false} directoryItem
+ */
+function loadingStructure(directoryItem) {
+	if (directoryItem) {
 		// add loading icon to specific item in structure
 		$('#structure-search .filtered').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
 		$('#structure-search .total').html('<i class="fa fa-circle-o-notch fa-spin"></i>');
 		$('#structure-search input').prop('disabled', true);
 		$('#structure-search .search').prop('disabled', true);
 		// @TODO set different message if searching
-		setStatus('Loading folder "<span title="' + structure.getCurrentFolder().path + '">' + structure.getCurrentFolder().text + '</span>"');
+		setStatus('Loading folder "<span title="' + directoryItem.text + '">' + directoryItem.text + '</span>"');
+		return;
 	}
-	if (loading === false) {
-		setStatus(false);
-		$('#structure-search input').prop('disabled', false);
-		$('#structure-search .search').prop('disabled', false);
 
-		// Event - thumbnail can't be loaded, destroy that element
-		// @FIXME this handler should be created only once (on page load) instead on every structure load but for some reason it don't work
-		$('#structure .structure-item img.thumbnail').on('error', function () {
-			this.remove();
-		});
-	}
+	setStatus(false);
+	$('#structure-search input').prop('disabled', false);
+	$('#structure-search .search').prop('disabled', false);
+
+	// Event - thumbnail can't be loaded, destroy that element
+	// @FIXME this handler should be created only once (on page load) instead on every structure load but for some reason it don't work
+	$('#structure .structure-item img.thumbnail').on('error', function () {
+		this.remove();
+	});
 }
 
 /**
@@ -1472,6 +889,7 @@ async function shareItem(item) {
 		}
 	}
 
+	// Fallback to "Copy to clipboard"
 	// @TODO probably is not working in Chrome DevTools mobile device emulator
 	if (copyToClipboard(niceUrl)) {
 		flashMessage('URL was copied to clipboard.')
@@ -1492,8 +910,7 @@ function structureViewChange(value) {
 		allowedValues.push($(this).val());
 	})
 
-	// Force set to default view if invalid type detected. Mainly for backward compatibility,
-	// if name of some view name change, eg "rows" -> "rows-small"
+	// Force set to default view if invalid type detected
 	if (allowedValues.includes(value) === false) {
 		value = allowedValues[0];
 		console.warn(`Value "${value}" is not valid structure view, changed to "${allowedValues[0]}".`);
@@ -1515,13 +932,11 @@ function structureViewChange(value) {
 		$('#structure-tiles').hide();
 		$('#structure-search').hide();
 		$('#structure-download-archive').hide();
-		$('#structure-scan').hide();
 		structureBrowserMap.mapShow();
 	} else {
 		$('#structure-tiles').show();
 		$('#structure-search').show();
 		$('#structure-download-archive').show();
-		$('#structure-scan').show();
 		structureBrowserMap.mapHide();
 	}
 
@@ -1558,4 +973,8 @@ function getTilesCount(last = false) {
 		return tilesInLastRow;
 	}
 	return tilesInRow;
+}
+
+function isTilesView() {
+	return (Settings.load('structureDisplayType').includes('tiles'));
 }

@@ -99,16 +99,17 @@ class Structure extends EventTarget {
 		this.files = [];
 		this.folders = [];
 
+		const currentFolder = this.currentFolderItem;
 		this.actions.push(new ActionItem(Structure.ACTION_INDEX_SEARCH_SUBDIRECTORY, {
 			text: 'Vyhledat v podsložce <b>' + this.getCurrentFolder().toString().escapeHtml() + '</b>',
-			action: loadSearch,
+			action: async function () { await loadSearch(currentFolder); },
 			icon: Icon.SEARCH,
 			hide: true
 		}));
 
 		this.actions.push(new ActionItem(Structure.ACTION_INDEX_SEARCH_ROOT, {
 			text: 'Vyhledat ve <b>všech</b> složkách',
-			action: async function () { await loadSearch('/'); },
+			action: async function () { await loadSearch(new FolderItem(null, {path: '/'})); },
 			icon: Icon.SEARCH,
 			hide: true,
 		}));
@@ -133,32 +134,56 @@ class Structure extends EventTarget {
 	/**
 	 * Manage moving selected item in structure
 	 *
-	 * @param direction
+	 * @param {string|int} directionOrIndex or index
+	 * @return {boolean} True if moving selector is valid. False if movement is not valid or it was prevented.
 	 */
-	selectorMove(direction) {
-		let item = null;
-		switch (direction) {
+	selectorMove(directionOrIndex) {
+		let oldItem = this.getItem(this.selectedIndex);
+		let newItem = null;
+		console.log('old item:', oldItem);
+
+		switch (directionOrIndex) {
 			default: // Move to specific item defined by index number
-				if (Number.isInteger(direction) && direction >= 0 && direction < this.items.length) {
-					this.selectedIndex = direction;
+				if (Number.isInteger(directionOrIndex) && directionOrIndex >= 0 && directionOrIndex < this.items.length) {
+					newItem = this.getItem(directionOrIndex)
 				}
 				break;
 			case 'first': // Move into first item
-				item = this.getFirst();
+				newItem = this.getFirst();
 				break;
 			case 'up': // Move to previous item than currently selected
-				item = this.getPrevious(this.selectedIndex);
+				newItem = this.getPrevious(this.selectedIndex);
 				break;
 			case 'down': // Move to next item than currently selected
-				item = this.getNext(this.selectedIndex);
+				newItem = this.getNext(this.selectedIndex);
+				console.error('newItem selected', newItem);
 				break;
 			case 'last': //  // Move to last item
-				item = this.getLast();
+				newItem = this.getLast();
 				break;
 		}
-		if (item) {
-			this.selectedIndex = item.index;
+
+		const canContinue = this.dispatchEvent(new CustomEvent('beforeselectormove', {
+			cancelable: true,
+			detail: {
+				oldItem: oldItem,
+				newItem: newItem,
+			},
+		}));
+		if (canContinue === false) {
+			console.debug('[Structure] beforeselectormove was canceled');
+			return false;
+		} else {
+			console.debug('[Structure] beforeselectormove can continue');
 		}
+
+		if (newItem === null) {
+			console.debug('[Structure] selectorMove cancelled because of non-existing newItem from direction "' + directionOrIndex + '"');
+			return false;
+		}
+
+		this.selectedIndex = newItem.index;
+
 		// Mark selected item into HTML
 		$('.structure-selected').removeClass('structure-selected');
 		$('.item-index-' + this.selectedIndex + '').addClass('structure-selected');
@@ -171,6 +196,7 @@ class Structure extends EventTarget {
 		} catch (e) {
 			// Be quiet! (probably just not supported)
 		}
+		return true;
 	}
 
 	/**
@@ -179,19 +205,15 @@ class Structure extends EventTarget {
 	 */
 	selectorSelect() {
 		let item = this.getItem(this.selectedIndex);
-		let self = this;
-		if (item) {
-			if (item instanceof ActionItem) {
-				item.run();
-			} else if (item.icon === Icon.CLOSE_SEARCHING) {
-				// Override default action with force refresh - cancel searching
-				loadStructure(true, function () {
-					self.selectorMove();
-				});
-			} else {
-				window.location.hash = item.url;
-			}
+		if (!item) {
+			return;
 		}
+
+		this.dispatchEvent(new CustomEvent('selectorselected', {
+			detail: {
+				pathItem: item,
+			},
+		}));
 	}
 
 	/**
@@ -258,7 +280,7 @@ class Structure extends EventTarget {
 	 * Get item by index
 	 *
 	 * @param index
-	 * @returns {FileItem|FolderItem|null}
+	 * @returns {Item|null}
 	 */
 	getItem(index) {
 		return this.items[index] || null;

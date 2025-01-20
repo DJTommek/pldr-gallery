@@ -3,6 +3,18 @@
  */
 class BrowserMap extends AbstractStructureMap {
 
+	/**
+	 * @param {string} elementId
+	 * @param {Structure} structure
+	 * @param {ServerApi} serverApi
+	 */
+	constructor(elementId, structure, serverApi) {
+		super(elementId, structure);
+
+		this.structure = structure;
+		this.serverApi = serverApi;
+	}
+
 	init() {
 		const self = this;
 
@@ -60,14 +72,7 @@ class BrowserMap extends AbstractStructureMap {
 		params.set('sort', 'distance');
 		params.set('boundingBox', [mapBounds.getWest(), mapBounds.getSouth(), mapBounds.getEast(), mapBounds.getNorth()].join(','));
 
-		const url = '/api/search?' + params.toString();
-
-		const response = await fetch(url);
-		const result = await response.json();
-
-		if (result.error === true) {
-			throw new Error(result.message);
-		}
+		const result = await this.serverApi.search(params);
 
 		// Previously loaded markers
 		let markerIdsToRemove = Object.keys(this.markers);

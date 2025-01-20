@@ -188,23 +188,23 @@ let CONFIG = {
 			'/src/webserver/private/js/functions.js',
 			// classes
 			'/src/webserver/private/js/class/Coordinates.js',
+			'/src/webserver/private/js/class/MediaPopup.js',
+			'/src/webserver/private/js/class/KeyboardMapper.js',
 			'/src/webserver/private/js/class/Icon.js',
 			'/src/webserver/private/js/class/FileExtensionMapper.js',
 			'/src/webserver/private/js/class/Item.js',
 			'/src/webserver/private/js/class/Presentation.js',
+			'/src/webserver/private/js/class/ServerApi.js',
 			'/src/webserver/private/js/class/Structure.js',
 			'/src/webserver/private/js/class/AbstractMap.js',
 			'/src/webserver/private/js/class/AbstractStructureMap.js',
 			'/src/webserver/private/js/class/StructureMap.js',
-			'/src/webserver/private/js/class/AdvancedSearchMap.js',
 			'/src/webserver/private/js/class/BrowserMap.js',
 			'/src/webserver/private/js/class/VibrateApi.js',
 			// modules
 			'/src/webserver/private/js/modules/cookie.js',
 			'/src/webserver/private/js/modules/settings.js',
 			'/src/webserver/private/js/modules/swipe.js',
-			// other
-			'/src/webserver/private/js/keyboard.js',
 		],
 		destinationPath: BASE_DIR_GET('/temp/webserver/public/js/modules.min.js'),
 		// This object is passed directly to terser.minify
