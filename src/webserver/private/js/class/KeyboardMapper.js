@@ -140,10 +140,9 @@ class KeyboardMapper extends EventTarget {
 					break;
 				case ' ':
 					if (self.mediaPopup.isActive() === false) {
+						self.filterEl.focus();
 						return;
-					}
-
-					if (self.mediaPopup.itemCurrent.isImage) {
+					} else if (self.mediaPopup.itemCurrent.isImage) {
 						self.mediaPopup.elementMediaOpenUrl.click();
 					} else if (self.mediaPopup.itemCurrent.isVideo) {
 						if (document.activeElement === self.mediaPopup.elementMediaVideo) {
@@ -162,20 +161,33 @@ class KeyboardMapper extends EventTarget {
 					}
 					break;
 				case 's':
-					if (self.mediaPopup.isActive() === false) {
+					if (self.mediaPopup.isActive()) {
+						if (event.ctrlKey === true) {
+							$('#popup-media-details-download')[0].click();
+						} else {
+							return;
+						}
+					} else {
+						self.filterEl.focus();
 						return;
 					}
-					if (event.ctrlKey === false) {
-						return;
-					}
-					$('#popup-media-details-download')[0].click();
 					break;
 				default:
+					if (self.mediaPopup.isActive()) {
+						return;
+					}
+
+					// Prevent focusing into filter when native shortcut is used. For example 'Select all' (CTRL+A),
+					// Save current page into bookmark (CTRL+D), Save page (CTRL+S) and other.
 					if (event.altKey === true || event.ctrlKey === true || event.metaKey === true) {
 						return;
 					}
-					$('#structure-search input').focus();
-					return; // Not handling this key press
+					// If event.key has length just one it probably means, that event.key is character that it produces,
+					// for example 'e', '1', ' ', 'Ž' and so on. Otherwise it is probably some special key.
+					if (event.key.length === 1 ) {
+						self.filterEl.focus();
+					}
+					return; // Do not prevent propagation
 			}
 			console.debug('KeyboardMapper stopped immediate propagation');
 			event.preventDefault();
@@ -199,6 +211,9 @@ class KeyboardMapper extends EventTarget {
 		return document.activeElement === this.filterEl;
 	}
 
+	/**
+	 * @param {KeyboardEvent|Event} event
+	 */
 	_onFilterInputChange(event) {
 		console.warn('_onFilterInputChange event', event);
 		if (event.altKey === true || event.ctrlKey === true || event.metaKey === true) {
@@ -211,5 +226,4 @@ class KeyboardMapper extends EventTarget {
 			self.structure.filter();
 		}, 300); // @TODO this cooldown should be bigger when there is too many items to filter
 	}
-
 }
