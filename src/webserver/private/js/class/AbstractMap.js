@@ -90,4 +90,8 @@ class AbstractMap {
 	mapHide() {
 		this.element.style.display = 'none';
 	}
+
+	isHidden() {
+		return this.element.style.display === 'none';
+	}
 }
