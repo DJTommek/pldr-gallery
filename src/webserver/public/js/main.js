@@ -467,6 +467,7 @@ $(async function () {
 		const folderItem = new FolderItem(null, {path: path});
 		structure.historyAdd(folderItem);
 		structure.setCurrent(folderItem.path);
+		window.location.hash = pathToUrl(structure.currentFolderItem.path);
 		await loadStructure2(folderItem);
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 	}).on('click', '#user-logged-in', function (event) {
