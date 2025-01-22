@@ -13,6 +13,8 @@ class BrowserMap extends AbstractStructureMap {
 
 		this.structure = structure;
 		this.serverApi = serverApi;
+
+		this._previousRequestParams = null;
 	}
 
 	init() {
@@ -58,7 +60,10 @@ class BrowserMap extends AbstractStructureMap {
 	}
 
 	/**
+	 * Load data for map from API and parse it into the map.
+	 *
 	 * @param {FolderItem} directoryItem
+	 * @return {Promise<void>}
 	 */
 	async _loadDataInner(directoryItem) {
 		const mapBounds = this.map.getBounds();
@@ -71,6 +76,13 @@ class BrowserMap extends AbstractStructureMap {
 		params.set('limit', '500');
 		params.set('sort', 'distance');
 		params.set('boundingBox', [mapBounds.getWest(), mapBounds.getSouth(), mapBounds.getEast(), mapBounds.getNorth()].join(','));
+
+		const paramsString = params.toString();
+		if (this._previousRequestParams === paramsString) {
+			console.log('[BrowserMap] Exactly same search request was already executed last time, cancelling.');
+			return;
+		}
+		this._previousRequestParams = paramsString;
 
 		const result = await this.serverApi.search(params);
 
