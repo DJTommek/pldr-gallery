@@ -22,17 +22,6 @@ class BrowserMap extends AbstractStructureMap {
 
 		super.init();
 
-		this.map.on('load moveend', async function () {
-			if (self.structure.currentFolderItem === null) {
-				return;
-			}
-			await self.loadData(self.structure.currentFolderItem);
-		});
-
-		this.structure.addEventListener('directorychange', async function (event) {
-			await self.loadData(event.detail.newPath);
-		})
-
 		this._initLoadingDataInfo();
 
 		this.loadingInfoLoading = document.querySelector('.browser-map-loading-info .loading');

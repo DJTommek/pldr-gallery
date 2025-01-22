@@ -106,6 +106,25 @@ structure.addEventListener('selectorselected', async function (event) {
 	}
 });
 
+structure.addEventListener('directorychange', async function (event) {
+	console.warn('structureBrowserMap load moveend', event)
+	if (structureBrowserMap.isHidden()) {
+		return;
+	}
+	await structureBrowserMap.loadData(event.detail.newPath);
+})
+
+structureBrowserMap.map.on('load moveend', async function (event) {
+	console.warn('structureBrowserMap load moveend', event)
+	if (structure.currentFolderItem === null) {
+		return;
+	}
+	if (structureBrowserMap.isHidden()) {
+		return;
+	}
+	await structureBrowserMap.loadData(structure.currentFolderItem);
+});
+
 /**
  * Global error handler
  * @author https://stackoverflow.com/a/10556743/3334403
