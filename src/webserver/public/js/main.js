@@ -952,6 +952,7 @@ function structureViewChange(value) {
 		$('#structure-search').hide();
 		$('#structure-download-archive').hide();
 		structureBrowserMap.mapShow();
+		structureBrowserMap.loadData(structure.currentFolderItem);
 	} else {
 		$('#structure-tiles').show();
 		$('#structure-search').show();
