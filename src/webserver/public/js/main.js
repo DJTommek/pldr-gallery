@@ -16,6 +16,7 @@ const serverApi = new ServerApi()
 
 mediaPopup.addEventListener('beforeshowitem', function (event) {
 	const fileItem = event.detail.fileItem;
+	document.activeElement.blur();
 	setStatus(fileItem.getStatusLoadingText(Settings.load('compress')));
 	structure.historyAdd(fileItem);
 	structure.selectorMove(fileItem.index);
