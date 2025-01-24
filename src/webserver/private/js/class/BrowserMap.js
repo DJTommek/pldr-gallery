@@ -73,7 +73,13 @@ class BrowserMap extends AbstractStructureMap {
 		}
 		this._previousRequestParams = paramsString;
 
-		const result = await this.serverApi.search(params);
+		let result;
+		try {
+			result = await this.serverApi.search(params);
+		} catch (error) {
+			flashMessage(`Searching in <b>${directoryItem.path.escapeHtml()}</b> failed:<br>${error.message.escapeHtml()}`, 'danger', false);
+			return;
+		}
 
 		// Previously loaded markers
 		let markerIdsToRemove = Object.keys(this.markers);
