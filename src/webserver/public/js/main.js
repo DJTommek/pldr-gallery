@@ -32,14 +32,12 @@ mediaPopup.addEventListener('itemloaderror', function (event) {
 });
 
 mediaPopup.addEventListener('afterhideitem', function (event) {
-	console.warn('afterhideitem', event);
 	structure.historyAdd(structure.currentFolderItem);
 	window.location.hash = pathToUrl(structure.currentFolderItem.path);
 
 });
 
 function onMoveToNextOrPrevious(event, direction) {
-	console.warn('handling event in onMoveToNextOrPrevious()', event);
 	const movementResult = structure.selectorMove(direction);
 	if (movementResult && mediaPopup.isActive()) {
 		structure.selectorSelect();
@@ -55,7 +53,6 @@ const structureMap = new StructureMap('map', structure).init();
 const structureBrowserMap = new BrowserMap('structure-browser-map', structure, serverApi).init();
 
 structure.addEventListener('beforeselectormove', async function (event) {
-	console.warn('beforeselectormove', event);
 	const newItem = event.detail.newItem;
 	if (
 		mediaPopup.isActive()
@@ -67,7 +64,6 @@ structure.addEventListener('beforeselectormove', async function (event) {
 	}
 });
 structure.addEventListener('selectorselected', async function (event) {
-	console.warn('selectorselected event', event);
 	/** @type {Item|null} */
 	const pathItem = event.detail.pathItem;
 
@@ -108,7 +104,6 @@ structure.addEventListener('selectorselected', async function (event) {
 });
 
 structure.addEventListener('directorychange', async function (event) {
-	console.warn('structureBrowserMap load moveend', event)
 	if (structureBrowserMap.isHidden()) {
 		return;
 	}
@@ -116,7 +111,6 @@ structure.addEventListener('directorychange', async function (event) {
 })
 
 structureBrowserMap.map.on('load moveend', async function (event) {
-	console.warn('structureBrowserMap load moveend', event)
 	if (structure.currentFolderItem === null) {
 		return;
 	}
@@ -265,11 +259,6 @@ class MediaDetailsCanvas {
 	}
 }
 
-// If hash is changed, something is being loaded (image of folder)
-$(window).on('hashchange', function (event) {
-	console.warn('hashchange', event);
-});
-
 /**
  * Webpage loading is done
  */
@@ -409,11 +398,8 @@ $(async function () {
 
 	// Event - selected item in structure
 	$('#structure').on('click', '.structure-item', function (event) {
-		console.warn('#structure .structure-item on click event', event);
 		if ($(event.target).closest('.location').length !== 0) {
-			// do not select in structure, just open link
-			console.debug('cancelled, opening link instead');
-			return;
+			return; // do not select in structure, just open link
 		}
 		const itemIndex = $(this).data('index');
 		structure.selectorMove(itemIndex);
@@ -461,7 +447,6 @@ $(async function () {
 		const itemIndex = $('#map-info-window').data('item-index');
 		await shareItem(structure.getFile(itemIndex));
 	}).on('click', '#navbar .breadcrumb-item', async function (event) {
-		console.warn('#navbar .breadcrumb-item', event);
 		event.preventDefault();
 		const path = $(this)[0].dataset.path;
 		const folderItem = new FolderItem(null, {path: path});
@@ -604,12 +589,12 @@ function loadThumbnail() {
 	const thumbnailsLoadingCountCurrent = $('.thumbnail-loading-icon').length;
 
 	if (thumbnailsLoadingCountCurrent > thumbnailsLoadingCountMax) {
-		return;
+		return; // Already loading too many thumbnails.
 	}
 
 	const thumbnailsNotLoaded = $('.thumbnail-not-loaded:not(.thumbnail-loading)');
 	if (thumbnailsNotLoaded.length === 0) {
-		return;
+		return; // All thumbnails are already loaded.
 	}
 
 	let thumbnailToLoad = null;
@@ -934,7 +919,6 @@ function structureViewChange(value) {
 	// Force set to default view if invalid type detected
 	if (allowedValues.includes(value) === false) {
 		value = allowedValues[0];
-		console.warn(`Value "${value}" is not valid structure view, changed to "${allowedValues[0]}".`);
 	}
 
 	Settings.save('structureDisplayType', value);

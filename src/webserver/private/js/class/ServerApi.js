@@ -9,16 +9,16 @@ class ServerApi {
 	 * @private
 	 */
 	async _runApiRequest(path, queryParams) {
-		console.debug('Calling server API "' + path + '"...');
+		console.debug('[ServerApi] Calling server API "' + path + '"...');
 		const url = path + '?' + queryParams.toString();
 		const response = await fetch(url);
 		const result = await response.json();
 		if (result.error === true) {
-			console.debug('Server API responsed with error "' + result.message + '".');
+			console.debug('[ServerApi] Server API responsed with error "' + result.message + '".');
 			throw new Error('API ' + path + ' returned an error: "' + result.message + '"');
 		}
 
-		console.debug('Server API responsed with message "' + result.message + '".');
+		console.debug('[ServerApi] Server API responsed with message "' + result.message + '".');
 		return result;
 	}
 

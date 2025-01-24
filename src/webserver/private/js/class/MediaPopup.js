@@ -47,7 +47,6 @@ class MediaPopup extends EventTarget {
 			}
 			vibrateApi.vibrate(Settings.load('vibrationOk'));
 			self.hide();
-			console.log(event);
 		});
 
 		this.elementPrev.addEventListener('click', function (event) {
@@ -131,9 +130,6 @@ class MediaPopup extends EventTarget {
 		const shareUrl = window.location.origin + '/#' + fileItem.url;
 
 		// Canvas data
-		console.log(fileItem);
-		console.log(openUrl);
-		console.log(this.elementPopupIcon);
 		if (openUrl === null) { // If item has no view url, use icon to indicate it is file that has to be downloaded
 			openUrl = downloadUrl;
 			openUrlFull = downloadUrl;
