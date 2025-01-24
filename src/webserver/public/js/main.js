@@ -951,19 +951,24 @@ function structureViewChange(value) {
 }
 
 /**
- * Calculate how many tiles are on one row
+ * Calculate how many tiles are on one row.
  *
  * @author https://stackoverflow.com/a/11539490/3334403
- * @param {boolean} last get number of tiles on last row
  */
-function getTilesCount(last = false) {
+function getTilesCount() {
 	let tilesInRow = 0;
 	let selector = '#structure-tiles .structure-item';
 	$(selector).each(function () {
-		if ($(this).prev().length > 0) {
+		const $this = $(this);
+		const $thisPrev = $this.prev();
+		if ($thisPrev.length > 0) {
+			if ($this.is(':hidden') || $thisPrev.is(':hidden')) {
+				return;
+			}
+
 			// Position top is not calculating with eventual border (if item is selected or hover over). In that case position
 			// of element is a little bit lower than others even on same line (according tests it should be less than pixel)
-			if (Math.ceil($(this).position().top) !== Math.ceil($(this).prev().position().top)) {
+			if (Math.ceil($this.position().top) !== Math.ceil($thisPrev.position().top)) {
 				return false;
 			}
 			tilesInRow++;
@@ -971,13 +976,6 @@ function getTilesCount(last = false) {
 			tilesInRow++;
 		}
 	});
-	if (last === true) {
-		let tilesInLastRow = $(selector).length % tilesInRow;
-		if (tilesInLastRow === 0) {
-			tilesInLastRow = tilesInRow;
-		}
-		return tilesInLastRow;
-	}
 	return tilesInRow;
 }
 
