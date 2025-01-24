@@ -636,7 +636,7 @@ function loadThumbnail() {
 	// @Author https://stackoverflow.com/a/7439093/3334403 (http://jsfiddle.net/jfriend00/hmP5M/)
 	thumbnailToLoad.one('load error', function () {
 		firstThumbnailParent.find('i.thumbnail-loading-icon').remove();
-		thumbnailToLoad.removeClass('thumbnail-not-loaded');
+		thumbnailToLoad.removeClass('thumbnail-not-loaded').removeClass('thumbnail-loading');
 		loadThumbnail();
 	}).attr('src', thumbnailToLoad.data('src'));
 	loadThumbnail();
