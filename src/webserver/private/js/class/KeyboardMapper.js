@@ -139,7 +139,10 @@ class KeyboardMapper extends EventTarget {
 					}
 					break;
 				case ' ':
-					if (self.mediaPopup.isActive() === false) {
+					if (event.ctrlKey === true && self.mediaPopup.isActive()) {
+						self.presentation.toggle();
+						flashMessage('Presentation mode ' + (self.presentation.running ? 'started' : 'stopped') + '.');
+					} else if (self.mediaPopup.isActive() === false) {
 						self.filterEl.focus();
 						return;
 					} else if (self.mediaPopup.itemCurrent.isImage) {
