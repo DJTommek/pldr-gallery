@@ -26,7 +26,7 @@ class KeyboardMapper extends EventTarget {
 		this.filterEl.addEventListener('paste', this._onFilterInputChange.bind(this));
 
 		document.addEventListener('keydown', function (event) {
-			console.warn('KeyboardMapper keydown event (' + event.key + ')', event);
+			console.debug('[KeyboardMapper] Keydown event (' + event.key + ')', event);
 			switch (event.key) {
 				case 'ArrowUp':
 					if (self._isFilterFocused()) {
@@ -192,7 +192,8 @@ class KeyboardMapper extends EventTarget {
 					}
 					return; // Do not prevent propagation
 			}
-			console.debug('KeyboardMapper stopped immediate propagation');
+
+			console.debug('[KeyboardMapper] Stopped immediate propagation');
 			event.preventDefault();
 			event.stopImmediatePropagation();
 		});
@@ -218,7 +219,7 @@ class KeyboardMapper extends EventTarget {
 	 * @param {KeyboardEvent|Event} event
 	 */
 	_onFilterInputChange(event) {
-		console.warn('_onFilterInputChange event', event);
+		console.debug('[KeyboardMapper] _onFilterInputChange()', event);
 		if (event.altKey === true || event.ctrlKey === true || event.metaKey === true) {
 			return;
 		}

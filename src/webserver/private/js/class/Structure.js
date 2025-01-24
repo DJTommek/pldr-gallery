@@ -140,7 +140,6 @@ class Structure extends EventTarget {
 	selectorMove(directionOrIndex) {
 		let oldItem = this.getItem(this.selectedIndex);
 		let newItem = null;
-		console.log('old item:', oldItem);
 
 		switch (directionOrIndex) {
 			default: // Move to specific item defined by index number
@@ -156,7 +155,6 @@ class Structure extends EventTarget {
 				break;
 			case 'down': // Move to next item than currently selected
 				newItem = this.getNext(this.selectedIndex);
-				console.error('newItem selected', newItem);
 				break;
 			case 'last': //  // Move to last item
 				newItem = this.getLast();
@@ -171,10 +169,8 @@ class Structure extends EventTarget {
 			},
 		}));
 		if (canContinue === false) {
-			console.debug('[Structure] beforeselectormove was canceled');
+			console.debug('[Structure] selectorMove cancelled because in "beforeselectormove" event listener.');
 			return false;
-		} else {
-			console.debug('[Structure] beforeselectormove can continue');
 		}
 
 		if (newItem === null) {
@@ -435,12 +431,8 @@ class Structure extends EventTarget {
 	filter() {
 		const self = this;
 		//Important note: Filter can change only if modal is closed.
-		if (loadedStructure.modal) {
-			console.warn('Filtering is not possible, modal window is active');
-			return;
-		}
 		if (loadedStructure.filtering) {
-			console.log('Filtering is already running, new filtering cancelled');
+			console.debug('Filtering is already running, new filtering cancelled');
 			return;
 		}
 		try {
