@@ -667,17 +667,11 @@ function loadThumbnail() {
 async function loadStructure2(directoryItem) {
 	try {
 		loadingStructure(directoryItem);
-		const params = new URLSearchParams();
-		params.set('path', directoryItem.getEncodedPath());
-		const url = '/api/structure?' + params.toString();
-		const response = await fetch(url);
-		const result = await response.json();
-		if (result.error === true) {
-			flashMessage((
-					(result.message || 'Chyba během načítání dat. Kontaktuj autora.') +
-					'<br>Zkus se <a href="/login" class="alert-link">přihlásit</a> nebo jít <a href="#" class="alert-link">domů</a>.'
-				), 'danger', false
-			);
+		let result;
+		try {
+			result = await serverApi.structure(directoryItem);
+		} catch (error) {
+			flashMessage(`Loading structure <b>${directoryItem.path.escapeHtml()}</b> failed:<br>${error.message.escapeHtml()}`, 'danger', false);
 			return;
 		}
 		$('#structure-header').html(result.result.header || '');
