@@ -174,7 +174,10 @@ class MediaPopup extends EventTarget {
 		if (fileItem.isImage) {
 			this.elementMediaImg.setAttribute('src', openUrl);
 			this.elementMediaImg.style.display = '';
-		} else if (fileItem.isPdf) {
+		} else if (fileItem.isPdf && navigator.userAgent.includes('Firefox')) {
+			// 2025-01-24 Firefox is only tested browser, that is consistent with loading PDF in <object> and triggering
+			// 'load' and 'error' events. For example Chrome and Edge does not load and display PDF and also not trigger
+			// any event. Instead it will trigger file downloading, which is not desirable in this case.
 			this.elementMediaPdf.setAttribute('data', downloadUrl);
 			this.elementMediaPdf.style = '';
 		} else if (fileItem.isVideo) {
