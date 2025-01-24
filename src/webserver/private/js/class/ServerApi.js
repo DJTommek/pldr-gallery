@@ -28,4 +28,13 @@ class ServerApi {
 	async search(queryParams) {
 		return await this._runApiRequest('/api/search', queryParams);
 	}
+
+	/**
+	 * @param {FolderItem} directoryItem
+	 */
+	async structure(directoryItem) {
+		const queryParams = new URLSearchParams();
+		queryParams.set('path', directoryItem.getEncodedPath());
+		return await this._runApiRequest('/api/structure', queryParams);
+	}
 }
