@@ -18,17 +18,6 @@ class Presentation {
 	init() {
 		const self = this;
 
-		document.addEventListener('keydown', function (event) {
-			if (self.mediaPopup.isActive() === false) {
-				console.debug('[Presentation] Ignoring keydown event, popup is not active');
-			}
-			if (event.ctrlKey === true && event.key === ' ') {
-				flashMessage('presentation mode toggle');
-				self.toggle();
-				event.stopImmediatePropagation();
-			}
-		});
-
 		this.mediaPopup.addEventListener('beforeshowitem', function (event) {
 			self.clearTimeout();
 		});
