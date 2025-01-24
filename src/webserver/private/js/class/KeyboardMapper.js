@@ -35,6 +35,7 @@ class KeyboardMapper extends EventTarget {
 					self.dispatchEvent(new CustomEvent('previous', {
 						detail: {
 							index: structure.getPrevious(self.structure.selectedIndex)?.index,
+							key: event.key,
 						},
 					}));
 					break;
@@ -42,6 +43,7 @@ class KeyboardMapper extends EventTarget {
 					self.dispatchEvent(new CustomEvent('previous', {
 						detail: {
 							index: structure.getPrevious(self.structure.selectedIndex)?.index,
+							key: event.key,
 						},
 					}));
 					break;
@@ -50,6 +52,7 @@ class KeyboardMapper extends EventTarget {
 					self.dispatchEvent(new CustomEvent('next', {
 						detail: {
 							index: structure.getNext(self.structure.selectedIndex)?.index,
+							key: event.key,
 						},
 					}));
 					break;
@@ -60,6 +63,7 @@ class KeyboardMapper extends EventTarget {
 					self.dispatchEvent(new CustomEvent('next', {
 						detail: {
 							index: structure.getNext(self.structure.selectedIndex)?.index,
+							key: event.key,
 						},
 					}));
 					break;

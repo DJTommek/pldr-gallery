@@ -44,10 +44,28 @@ function onMoveToNextOrPrevious(event, direction) {
 	}
 }
 
+function onMoveToNextOrPreviousKeyboard(event, direction) {
+	const key = event.detail.key;
+	const moveBy = (key === 'ArrowUp' || key === 'ArrowDown') ? getTilesCount() : 1;
+
+	let selectorMoved = false;
+	for (let i = 0; i < moveBy; i++) {
+		if (structure.selectorMove(direction) === false) {
+			break;
+		}
+		selectorMoved = true;
+	}
+
+	if (selectorMoved && mediaPopup.isActive()) {
+		structure.selectorSelect();
+	}
+}
+
 mediaPopup.addEventListener('clickprevious', (event) => this.onMoveToNextOrPrevious(event, 'up'));
 mediaPopup.addEventListener('clicknext', (event) => this.onMoveToNextOrPrevious(event, 'down'));
-keyboardMapper.addEventListener('previous', (event) => this.onMoveToNextOrPrevious(event, 'up'));
-keyboardMapper.addEventListener('next', (event) => this.onMoveToNextOrPrevious(event, 'down'));
+
+keyboardMapper.addEventListener('previous', (event) => this.onMoveToNextOrPreviousKeyboard(event, 'up'));
+keyboardMapper.addEventListener('next', (event) => this.onMoveToNextOrPreviousKeyboard(event, 'down'));
 
 const structureMap = new StructureMap('map', structure).init();
 const structureBrowserMap = new BrowserMap('structure-browser-map', structure, serverApi).init();
