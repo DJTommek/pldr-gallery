@@ -550,12 +550,12 @@ function loadUserData() {
 
 /**
  *
- * @param {FolderItem} pathItem
+ * @param {FolderItem} directoryItem
  * @return {Promise<void>}
  */
-async function loadSearch(pathItem = null) {
+async function loadSearch(directoryItem = null) {
 	const params = new URLSearchParams();
-	params.set('path', pathItem.getEncodedPath());
+	params.set('path', directoryItem.getEncodedPath());
 	params.set('sort', $('#advanced-search-sort input[name=sort]:checked').val());
 
 	let query = $('#structure-search-input').val().trim();
@@ -575,8 +575,7 @@ async function loadSearch(pathItem = null) {
 		}
 	}
 
-	// params.set('path', directoryItem.getEncodedPath());
-	loadingStructure(pathItem);
+	loadingStructure(directoryItem);
 	$('#structure-search .search i.fa').addClass('fa-circle-o-notch fa-spin').removeClass('fa-search');
 	try {
 		const result = await serverApi.search(params);
@@ -586,7 +585,7 @@ async function loadSearch(pathItem = null) {
 		structure.filter();
 		loadThumbnail();
 	} catch (error) {
-		flashMessage('Error while searching: ' + error.message, 'danger', false);
+		flashMessage(`Searching in <b>${directoryItem.path.escapeHtml()}</b> failed:<br>${error.message.escapeHtml()}`, 'danger', false);
 	} finally {
 		loadingStructure(false);
 		$('#structure-search .search i.fa').removeClass('fa-circle-o-notch fa-spin').addClass('fa-search');
