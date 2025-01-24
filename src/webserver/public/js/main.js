@@ -677,7 +677,6 @@ async function loadStructure2(directoryItem) {
 		$('#structure-header').html(result.result.header || '');
 		$('#structure-footer').html(result.result.footer || '');
 		parseStructure(result.result);
-		structureMap.markersFromStructureFiles(structure.getFiles());
 		$('#structure-search input').val('');
 		loadThumbnail();
 		structure.filter();
