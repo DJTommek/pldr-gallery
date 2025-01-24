@@ -15,7 +15,7 @@ class ServerApi {
 		const result = await response.json();
 		if (result.error === true) {
 			console.debug('[ServerApi] Server API responsed with error "' + result.message + '".');
-			throw new Error('API ' + path + ' returned an error: "' + result.message + '"');
+			throw new Error(result.message);
 		}
 
 		console.debug('[ServerApi] Server API responsed with message "' + result.message + '".');
