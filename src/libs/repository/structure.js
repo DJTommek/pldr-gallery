@@ -319,7 +319,7 @@ module.exports.sizePercentiles = sizePercentiles;
 async function getByPath(relativePath) {
 	const query = knex.select('*')
 		.from(CONFIG.db.table.structure)
-		.where('path', 'LIKE', relativePath)
+		.where('path', relativePath)
 		.limit(1);
 	const rows = await query;
 	if (rows.length === 0) {
