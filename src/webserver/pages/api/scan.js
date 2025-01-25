@@ -9,16 +9,15 @@ module.exports = function (webserver, endpoint) {
 	 * @returns JSON
 	 */
 	webserver.get(endpoint, async function (req, res) {
-		res.statusCode = 200;
 		res.setHeader("Content-Type", "application/json");
 		if (!CONFIG.structure.scan.enable) {
-			res.result.setError('Scanning is disabled.').end();
-			return;
+			return res.result.setError('Scanning is disabled.').end(403);
 		}
 
-		if (!res.locals.fullPathFolder) {
-			res.result.setError('Zadaná cesta "<b>' + res.locals.queryPath + '</b>" není platná nebo na ni nemáš právo.').end();
-			return;
+		/** @var {FolderItem|null} */
+		const folderItem = res.locals.pathItem;
+		if (folderItem?.isFolder !== true) {
+			return res.result.setError('Invalid path or you dont have a permission.').end(403);
 		}
 
 		if (scanStructure.scanning) {
@@ -26,7 +25,8 @@ module.exports = function (webserver, endpoint) {
 			return;
 		}
 
-		if (res.locals.user.testPathPermission(res.locals.pathItemSimple, true) === false) {
+		// To run scan user must have full access to the directory
+		if (res.locals.user.testPathPermission(folderItem.path, true) === false) {
 			return res.result.setError('You dont have enough permissions.').end(403);
 		}
 
@@ -39,10 +39,10 @@ module.exports = function (webserver, endpoint) {
 		}
 
 		// noinspection ES6MissingAwait (intentionally missing await to send response to user within few seconds)
-		scanStructure.scan(res.locals.fullPathFolder, scanOptions);
+		scanStructure.scan(res.locals.pathAbsolute, scanOptions);
 
 		// Wait a while until scan is finished. If is taking too long, response with default message.
-		const responseTextDefault = '<b>' + scanType + '</b> scan of directory "<b>' + res.locals.queryPath + '</b>" ';
+		const responseTextDefault = scanType + ' scan of directory "' + folderItem.path + '"';
 		let responseText = responseTextDefault + ' has started.';
 		let i = 0;
 		const scanCheckInterval = setInterval(function () {
@@ -51,7 +51,7 @@ module.exports = function (webserver, endpoint) {
 			}
 			if (i++ > 5 || scanStructure.scanning === false) {
 				clearInterval(scanCheckInterval);
-				res.result.setResult({scanning: scanStructure.scanning}, responseText).end();
+				res.result.setResult({scanning: scanStructure.scanning}, responseText).end(200);
 			}
 		}, 500);
 	});
