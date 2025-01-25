@@ -183,9 +183,14 @@ function search(folderPath, options = {}) {
 	if (options) {
 		switch (options?.sort?.column) {
 			case 'distance':
-				const coords = new Coordinates(options.lat, options.lon);
+				if (options.coordinates === null) {
+					break;
+				}
 				// Measure distance to given lat/lon
-				columnsToSelect.push(knex.raw('st_distance_sphere(POINT(?, ?), coordinates) AS distance', [coords.lon, coords.lat]));
+				columnsToSelect.push(knex.raw(
+					'st_distance_sphere(POINT(?, ?), coordinates) AS distance',
+					[options.coordinates.lon, options.coordinates.lat]
+				));
 				query.whereNotNull('coordinates');
 				columnsToOrder.unshift(options.sort);
 				break;

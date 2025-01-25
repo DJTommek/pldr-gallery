@@ -13,15 +13,16 @@ module.exports = function (webserver, endpoint) {
 	 * @param path - where to search
 	 */
 	webserver.get(endpoint, async function (req, res) {
-		if (!res.locals.fullPathFolder) {
-			return res.result.setError('Invalid or missing path.').end(400);
+		/** @var {FolderItem|null} */
+		const folderItem = res.locals.pathItem;
+		if (folderItem?.isFolder !== true) {
+			return res.result.setError('Invalid path or you dont have a permission.').end(403);
 		}
 
 		try {
-			res.setHeader("Content-Type", "application/json");
 			let finds = {
 				folders: [{ // always show "close searching" button
-					path: res.locals.path,
+					path: folderItem.path,
 					noFilter: true,
 					text: 'Zavřít vyhledávání',
 					icon: Icon.CLOSE_SEARCHING,
@@ -32,22 +33,20 @@ module.exports = function (webserver, endpoint) {
 
 			const searchOptions = {
 				searchString: req.query.query,
-				lat: req.query.lat !== undefined ? req.query.lat : null,
-				lon: req.query.lon !== undefined ? req.query.lon : null,
+				coordinates: Coordinates.safe(req.query.lat, req.query.lon),
 				sizeMin: req.query.sizeMin !== undefined ? utils.clamp(parseInt(req.query.sizeMin)) : null,
 				sizeMax: req.query.sizeMax !== undefined ? utils.clamp(parseInt(req.query.sizeMax)) : null,
 				sort: parseSortString(req.query.sort || null),
 				boundingBox: parseBoundingBox(req.query.boundingBox || null),
 			}
 
-			let logPrefix = '(Web) Searching in path "' + res.locals.path + '"';
 			res.startTime('apisearching', 'Searching');
 			let searchingStart = process.hrtime();
 
 			const limit = req.query.limit !== undefined ? utils.clamp(parseInt(req.query.limit), 1, 2000) : 2000;
 			const offset = req.query.offset !== undefined ? utils.clamp(parseInt(req.query.offset)) : 0;
 
-			const searchQuery = structureRepository.search(res.locals.path, searchOptions);
+			const searchQuery = structureRepository.search(folderItem.path, searchOptions);
 			searchQuery.andWhere(function () {
 				for (const permission of res.locals.user.getPermissions()) {
 					// 'orWhereLike()' cannot be used due to bug of forcing COLLATE, which slows down the query
@@ -93,11 +92,11 @@ module.exports = function (webserver, endpoint) {
 
 			res.endTime('apisearching');
 			let humanTime = msToHuman(hrtime(process.hrtime(searchingStart)));
-			LOG.info(logPrefix + ' is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
+			LOG.info('(Web) Searching in path "' + folderItem + '" is done in ' + humanTime + ', founded ' + finds.folders.length + ' folders and ' + finds.files.length + ' files.');
 			res.result.setResult(finds, 'Loaded ' + searchQueryResult.length + ' item(s) out of ' + finds.total + ' available.').end(200);
 		} catch (error) {
-			LOG.error('Error while searching: ' + error.message);
-			res.result.setError('Error while searching, try again later.').end(500);
+			LOG.error('Error while searching directory "' + folderItem + '": "' + error.message + '"');
+			res.result.setError('Error while searching directory "' + folderItem.path + '", try again later.').end(500);
 		}
 	});
 };
