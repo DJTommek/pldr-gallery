@@ -101,53 +101,78 @@ module.exports = function (webserver, baseEndpoint) {
 	});
 
 	/**
-	 * API middleware
-	 * Validate GET parameter path
+	 * API middleware handling requested path.
 	 *
-	 * @returns next()
+	 * Validate GET parameter path. If it is provided, then it must be valid, file or directory must exists and user
+	 * must have permission (either go thru to deeper directory or file or full access). If you want to check if full
+	 * access is available, use `res.locals.user.testPathPermission(folderItem.path, true)`.
+	 *
+	 * If path is valid, fills some `res.locals.*` values and continue with request processing. Never use
+	 * `req.query.path` directly.
+	 * If path is not valid, ends request with 4xx.
 	 */
 	webserver.get(endpoint, async function (req, res, next) {
-		if (req.query.path) {
-			const userPerms = res.locals.user.getPermissions();
+		/** @deprecated use `res.locals.pathAbsolute` instead */
+		res.locals.fullPathFolder = null;
+		/** @deprecated use `res.locals.pathAbsolute` instead */
+		res.locals.fullPathFile = null;
+		/** @deprecated use `res.locals.pathItem.path` instead */
+		res.locals.path = null;
+		/** @deprecated use `res.locals.pathItem` instead */
+		res.locals.pathItemSimple = null;
+		/** @deprecated use `res.locals.pathItem` instead */
+		res.locals.getPathItemDb = async function () {
+			return null;
+		};
 
-			// if there is param password, use it if has permission for that file/folder
-			if (req.query.password) {
-				const password = perms.getPassword(req.query.password);
-				if (password) {
-					for (const passPerm of password.permissions) {
-						userPerms.push(passPerm);
-					}
+		/** @type {string|null} Decoded requested path without validation. */
+		res.locals.queryPath = null;
+		/** @type {FileItem|FolderItem|null} Path item, that is valid and requested user has permission. */
+		res.locals.pathItem = null;
+		/** @type {string|null} Absolute path to the path item, that is valid and requested user has permission. */
+		res.locals.pathAbsolute = null;
+
+		if (typeof req.query.path === 'string') {
+			try {
+				let path;
+				try {
+					path = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
+				} catch (error) {
+					return res.result.setError('Path has invalid format.').end(400);
 				}
-			}
 
-			const result = HFS.pathMasterCheck(c.path, req.query.path, userPerms, perms.test);
-			Object.assign(res.locals, result);
-			if (result.error) {
-				// log to debug because anyone can generate invalid paths
-				// Error handling must be done on APIs endpoints because everyone returning different format of data (JSON, image stream, video stream, audio stream...)
-				// if res.locals.path exists, everything is ok
-				LOG.debug('(Web) Requested invalid path "' + req.query.path + '", error: ' + result.error + '.', {console: true});
-				res.locals.pathItemSimple = null;
-				res.locals.getPathItemDb = async function () {
-					return null;
-				};
-			} else {
-				res.locals.pathItemSimple = (result.fullPathFolder)
-					? new FolderItem(null, {path: result.path})
-					: new FileItem(null, {path: result.path});
+				if (path.startsWith('/') === false) {
+					return res.result.setError('Path is not valid.').end(400);
+				}
+				res.locals.queryPath = path;
 
-				let pathItem = null;
-				/**
-				 * Get cached and lazy-loaded path item with properties populated from database. If extra properties are
-				 * not required, use pathItemSimple instead.
-				 * @return {Promise<FileItem|FolderItem|null>}
-				 */
+				const pathItem = await structureRepository.getByPath(path);
+				if (pathItem === null) {
+					return res.result.setError('Path does not exists or you are missing permissions.').end(403);
+				}
+
+				if (res.locals.user.testPathPermission(pathItem.path) === false) {
+					return res.result.setError('Path does not exists or you are missing permissions.').end(403);
+				}
+
+				res.locals.pathItem = pathItem;
+				res.locals.pathAbsolute = pathCustom.relativeToAbsolute(pathItem.path, c.path);
+
+				if (pathItem.isFolder) {
+					res.locals.fullPathFolder = res.locals.pathAbsolute; // Backward compatibility
+				}
+				if (pathItem.isFile) {
+					res.locals.fullPathFile = res.locals.pathAbsolute; // Backward compatibility
+				}
+				if (pathItem) {
+					res.locals.path = pathItem.path; // Backward compatibility
+				}
+				res.locals.pathItemSimple = pathItem; // Backward compatibility
 				res.locals.getPathItemDb = async function () {
-					if (pathItem === null) {
-						pathItem = await structureRepository.getByPath(result.path);
-					}
 					return pathItem;
 				}
+			} catch (error) {
+				LOG.error('(Web) Error validating query path: "' + error.message + '"');
 			}
 		}
 		next();
