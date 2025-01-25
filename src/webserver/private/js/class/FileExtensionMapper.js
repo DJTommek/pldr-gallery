@@ -18,9 +18,8 @@ class FileExtensionMapper {
 		return (this.audios.hasOwnProperty(ext) ? this.audios[ext] : null);
 	}
 
-	// loading into <img> tag
 	constructor() {
-		this.images = {
+		this.images = { // loading into <img> tag
 			apng: {
 				'mediaType': 'image/apng',
 				'icon': Icon.IMAGE,
@@ -80,8 +79,7 @@ class FileExtensionMapper {
 				'icon': Icon.IMAGE,
 			},
 		};
-		// loading into <video> tag
-		this.videos = {
+		this.videos = { // loading into <video> tag
 			mp4: {
 				'mediaType': 'video/mp4',
 				'icon': Icon.VIDEO,
@@ -100,8 +98,7 @@ class FileExtensionMapper {
 				'icon': Icon.VIDEO,
 			},
 		};
-		// loading into <audio> tag
-		this.audios = {
+		this.audios = { // loading into <audio> tag
 			mp3: {
 				'mediaType': 'audio/mpeg',
 				'icon': Icon.AUDIO,
@@ -115,8 +112,7 @@ class FileExtensionMapper {
 				'icon': Icon.AUDIO,
 			},
 		};
-		// allowing to download
-		this.downloads = {
+		this.downloads = { // allowing to download
 			zip: {
 				icon: Icon.ARCHIVE,
 			},

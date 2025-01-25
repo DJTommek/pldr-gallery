@@ -247,6 +247,17 @@ class FileItem extends Item {
 	}
 
 	/**
+	 * Returns MIME type in format 'type/subtype', for example 'image/jpeg'.
+	 *
+	 * @return {string|null}
+	 * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types
+	 */
+	get mimeType() {
+		const extData = FileExtensionMapperInstance.get(this.ext);
+		return (extData && extData.mediaType) ? extData.mediaType : null;
+	}
+
+	/**
 	 * Prepare data to send in AJAX
 	 * - send only non-default data to save traffic
 	 *
