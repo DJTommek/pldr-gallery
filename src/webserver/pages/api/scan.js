@@ -28,7 +28,7 @@ module.exports = function (webserver, endpoint) {
 
 		const scanOptions = {stat: false, exif: false};
 		let scanType = 'Fast';
-		if (req.query.deep !== undefined) {
+		if (req.query.deep === '1') {
 			scanType = 'Deep';
 			scanOptions.stat = true;
 			scanOptions.exif = true;
