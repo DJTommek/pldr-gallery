@@ -25,6 +25,7 @@ webserver.use(express.static(c.http.publicPath));
 webserver.use(express.static(c.http.publicPathGenerated));
 webserver.use(compression());
 webserver.use(serverTiming());
+webserver.disable('x-powered-by');
 
 module.exports.httpServer = null;
 module.exports.httpsServer = null;
