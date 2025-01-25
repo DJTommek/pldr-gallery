@@ -26,6 +26,10 @@ module.exports = function (webserver, endpoint) {
 			return;
 		}
 
+		if (res.locals.user.testPathPermission(res.locals.pathItemSimple, true) === false) {
+			return res.result.setError('You dont have enough permissions.').end(403);
+		}
+
 		const scanOptions = {stat: false, exif: false};
 		let scanType = 'Fast';
 		if (req.query.deep === '1') {
