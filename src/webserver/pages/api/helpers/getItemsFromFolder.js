@@ -2,7 +2,7 @@ const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
 const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 const structureRepository = require('../../../../libs/repository/structure');
 
-module.exports.itemsDb = function (requestedPath, fullPath, permissions, options = {}) {
+module.exports.itemsDb = function (requestedPath, permissions, options = {}) {
 	const hrstart = process.hrtime();
 	if (typeof options.limit === 'undefined') {
 		options.limit = null;
@@ -70,7 +70,7 @@ module.exports.itemsDb = function (requestedPath, fullPath, permissions, options
 				}
 			}
 		}).catch(function (error) {
-			LOG.error('[Knex] Error while loading and processing in "' + fullPath + '": ' + error.message);
+			LOG.error('[Knex] Error while loading and processing in "' + requestedPath + '": ' + error.message);
 		}).finally(function () {
 			LOG.debug('(Knex) Loading items took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
 			resolve(result);

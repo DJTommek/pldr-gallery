@@ -63,7 +63,7 @@ module.exports = function (webserver, endpoint) {
 
 		res.startTime('apistructure', 'Loading and processing data');
 		Promise.all([
-			getItemsHelper.itemsDb(res.locals.path, res.locals.fullPathFolder, res.locals.user.getPermissions(), options),
+			getItemsHelper.itemsDb(res.locals.path, res.locals.user.getPermissions(), options),
 			lastScanPromise,
 			generateSpecificFilePromise('header.html'),
 			generateSpecificFilePromise('footer.html'),
