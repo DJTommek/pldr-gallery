@@ -217,6 +217,10 @@ function search(folderPath, options = {}) {
 			);
 		}
 
+		if (options.type) {
+			query.where('type', options.type);
+		}
+
 		if (options.searchString !== undefined) {
 			if (typeof options.searchString !== 'string' || options.searchString === '') {
 				throw new Error('Option "searchString" must be non-empty string');
