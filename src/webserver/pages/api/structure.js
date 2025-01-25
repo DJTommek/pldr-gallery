@@ -1,6 +1,5 @@
 const FS = require('fs');
 const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
-const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 const structureRepository = require('../../../libs/repository/structure');
 
 const getItemsHelper = require(__dirname + '/helpers/getItemsFromFolder.js');
@@ -18,27 +17,22 @@ module.exports = function (webserver, endpoint) {
 	 * @returns JSON
 	 */
 	webserver.get(endpoint, function (req, res) {
-		res.statusCode = 200;
-		res.setHeader("Content-Type", "application/json");
-		if (!res.locals.fullPathFolder) {
-			res.result.setError('Zadaná cesta "<b>' + res.locals.queryPath + '</b>" není platná nebo na ni nemáš právo.').end();
-			return;
-		}
-
-		let itemLimit = parseInt(req.cookies['pmg-item-limit']);
-		if (itemLimit <= 0) {
-			itemLimit = 2000;
+		/** @var {FolderItem|null} */
+		const folderItem = res.locals.pathItem;
+		if (folderItem?.isFolder !== true) {
+			return res.result.setError('Invalid path or you dont have a permission.').end(403);
 		}
 
 		function generateSpecificFilePromise(filename) {
 			return new Promise(function (resolve) {
-				if (res.locals.user.testPathPermission(res.locals.path + filename) === false) { // user dont have permission to this file
+				if (res.locals.user.testPathPermission(folderItem.path + filename) === false) { // user dont have permission to this file
 					return resolve(null);
 				}
-				FS.readFile(res.locals.fullPathFolder + filename, function (error, data) {
+				const fileAPathbsolute = res.locals.pathAbsolute + filename;
+				FS.readFile(fileAPathbsolute, function (error, data) {
 					if (error) {
 						if (error.code !== 'ENOENT') { // some other error than just missing file
-							LOG.error('Error while loading "' + res.locals.path + filename + '": ' + error)
+							LOG.error('Error while loading prepared thumbnail "' + fileAPathbsolute + '": ' + error)
 						}
 						return resolve(null)
 					}
@@ -48,10 +42,10 @@ module.exports = function (webserver, endpoint) {
 		}
 
 		const lastScanPromise = new Promise(function (resolve, reject) {
-			structureRepository.getByPath(res.locals.path).then(function (pathItem) {
+			structureRepository.getByPath(folderItem.path).then(function (pathItem) {
 				resolve(pathItem ? pathItem.scanned : null);
 			}).catch(function (error) {
-				LOG.error('[Knex] Error while loading last scan for "' + res.locals.path + '": ' + error.message);
+				LOG.error('[Knex] Error while loading last scan for "' + folderItem + '": ' + error.message);
 				reject(error);
 			});
 		});
@@ -63,7 +57,7 @@ module.exports = function (webserver, endpoint) {
 
 		res.startTime('apistructure', 'Loading and processing data');
 		Promise.all([
-			getItemsHelper.itemsDb(res.locals.path, res.locals.user.getPermissions(), options),
+			getItemsHelper.itemsDb(folderItem.path, res.locals.user.getPermissions(), options),
 			lastScanPromise,
 			generateSpecificFilePromise('header.html'),
 			generateSpecificFilePromise('footer.html'),
@@ -81,9 +75,10 @@ module.exports = function (webserver, endpoint) {
 				lastScan: data[1],
 				header: data[2],
 				footer: data[3]
-			}).end();
+			}).end(200);
 		}).catch(function (error) {
-			res.result.setError('Error while loading "<b>' + res.locals.queryPath + '</b>". Try again later or contact administrator.').end();
+			LOG.error('Error while loading structure for "' + folderItem + '": "' + error.message + '"');
+			res.result.setError('Error while loading structure for "' + folderItem + '", try again later.').end(500);
 		});
 	});
 };
