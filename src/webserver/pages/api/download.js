@@ -11,22 +11,26 @@ module.exports = function (webserver, endpoint) {
 	 */
 	webserver.get(endpoint, function (req, res) {
 		res.statusCode = 200;
-		try {
-			if (!res.locals.fullPathFile) {
-				throw new Error('invalid or missing path');
-			}
 
-			const mimeType = HFS.detectMimeType(res.locals.fullPathFile);
+		/** @var {FileItem|null} */
+		const fileItem = res.locals.pathItem;
+		if (fileItem?.isFile !== true) {
+			return res.result.setError('Invalid path or you dont have a permission.').end(403);
+		}
+
+		try {
+			throw new Error('feee');
+			const mimeType = fileItem.mimeType;
 			if (mimeType) {
 				res.setHeader('Content-Type', mimeType);
 			}
 
-			res.setHeader('Content-Disposition', 'attachment; filename="' + encodeURI(res.locals.fullPathFile.split('/').pop()) + '"');
+			res.setHeader('Content-Disposition', 'attachment; filename="' + encodeURI(fileItem.basename) + '"');
 			LOG.info('(Web) Streaming file to download: ' + res.locals.fullPathFile);
 			return FS.createReadStream(res.locals.fullPathFile).pipe(res);
 		} catch (error) {
-			res.statusCode = 404;
-			res.result.setError('Error while loading file: ' + error.message).end();
+			LOG.error('Error while downloading file: "' + error.message + '"');
+			res.result.setError('Error while downloading file "' + fileItem.path + '", try again later.').end(500);
 		}
 	});
 };
