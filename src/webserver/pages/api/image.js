@@ -4,9 +4,6 @@ const sharp = require('sharp');
 const cacheHelper = require('./helpers/cache');
 
 module.exports = function (webserver, endpoint) {
-
-	require(__dirname + '/helpers/getMediaType.js')(webserver, endpoint);
-
 	/**
 	 * Stream image.
 	 * Image can be compressed via cookie. This can be overriden via GET compress=true or false
@@ -18,25 +15,26 @@ module.exports = function (webserver, endpoint) {
 
 		try {
 			/** @var {FileItem|null} */
-			const fileItem = res.locals.pathItemSimple;
-
-			if (fileItem === null) {
-				throw new Error('Invalid path or you dont have a permission.');
-			}
-			if (fileItem.isImage === false) {
-				throw new Error('Requested path is not an image.');
+			const fileItem = res.locals.pathItem;
+			if (fileItem?.isImage !== true) {
+				return res.result.setError('Invalid path or you dont have a permission.').end(403);
 			}
 
 			let imageStream = FS.createReadStream(res.locals.fullPathFile);
 			const compressData = getResizeParams(req);
 
 			// if compression is enabled, compress first
-			if (compressData !== false) {
+			if (compressData === false) {
+				const mimeType = fileItem.mimeType;
+				if (mimeType) {
+					res.setHeader('Content-Type', mimeType);
+				}
+			} else {
+				// @TODO detect MIME type of compressed image and set it as HTTP header 'Content-Type'.
 				imageStream = imageStream.pipe(sharp().withMetadata().resize(compressData));
 			}
 
 			if (res.finished === false) { // in case of timeout, response was already finished
-				res.setHeader('Content-Type', res.locals.mediaType);
 				res.setHeader('Content-Disposition', 'inline; filename="' + encodeURI(fileItem.basename) + '"');
 				imageStream.pipe(res);
 			}
