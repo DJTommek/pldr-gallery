@@ -64,10 +64,10 @@ class Item {
 	}
 
 	/**
-	 * @return {String}
+	 * @return {string|null} Returns null if path is a root directory itself, otherwise name of file or directory.
 	 */
 	get basename() {
-		return this.paths.last();
+		return this.paths.last() ?? null;
 	}
 }
 
