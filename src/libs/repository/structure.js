@@ -3,6 +3,7 @@ const LOG = require('../log.js');
 const knex = require('../database.js');
 const pathCustom = require("../path.js");
 require(BASE_DIR_GET('/src/webserver/private/js/class/Coordinates.js'));
+const sqlUtils = require('./sqlUtils');
 
 const TYPE_FILE = 1;
 const TYPE_FOLDER = 0;
@@ -76,7 +77,7 @@ async function randomFiles(folderPath, options = {}) {
 		.from(CONFIG.db.table.structure)
 		.andWhere('type', TYPE_FILE)
 		.andWhere('level', '>=', searchingLevel)
-		.andWhere('path', 'LIKE', folderPath + '%')
+		.andWhere('path', 'LIKE', sqlUtils.escapeLikeCharacters(folderPath) + '%')
 		.orderByRaw('RAND()')
 		.limit(options.limit);
 
@@ -119,10 +120,10 @@ async function randomFiles2(folderPath, options = {}) {
 	const folderItem = new FolderItem(null, {path: folderPath});
 	const searchingLevel = folderItem.paths.length + 1;
 	const query = knex.select('id')
-			.from(CONFIG.db.table.structure)
-			.andWhere('type', TYPE_FILE)
-			.andWhere('level', '>=', searchingLevel)
-			.andWhere('path', 'LIKE', folderPath + '%');
+		.from(CONFIG.db.table.structure)
+		.andWhere('type', TYPE_FILE)
+		.andWhere('level', '>=', searchingLevel)
+		.andWhere('path', 'LIKE', sqlUtils.escapeLikeCharacters(folderPath) + '%');
 	// Limit is intentionally missing because it is slowing query down, search for "row lookups"
 	// @link https://stackoverflow.com/a/40927536/3334403
 
@@ -139,7 +140,7 @@ async function randomFiles2(folderPath, options = {}) {
 	LOG.debug('(Knex) Loading random IDs took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
 
 	const randomIds = [];
-	while(rowsIds.length > 0) {
+	while (rowsIds.length > 0) {
 		const randomIdRow = rowsIds.splice(Math.floor(Math.random() * rowsIds.length), 1);
 		randomIds.push(randomIdRow[0].id);
 		if (randomIds.length === options.count) {
@@ -179,7 +180,7 @@ function search(folderPath, options = {}) {
 	const query = knex
 		.from(CONFIG.db.table.structure)
 		.where('level', '>=', searchingLevel)
-		.where('path', 'LIKE', folderPath + '%')
+		.where('path', 'LIKE', sqlUtils.escapeLikeCharacters(folderPath) + '%')
 	if (options) {
 		switch (options?.sort?.column) {
 			case 'distance':
@@ -230,14 +231,7 @@ function search(folderPath, options = {}) {
 			if (typeof options.searchString !== 'string' || options.searchString === '') {
 				throw new Error('Option "searchString" must be non-empty string');
 			}
-			// The \% and \_ sequences are used to search for literal instances of % and _ in pattern-matching contexts
-			// where they would otherwise be interpreted as wildcard characters.
-			// @see https://dev.mysql.com/doc/refman/8.0/en/string-literals.html
-			// In Javascript it needs to be double backslash, because one escapes the another
-			const searchStringEscaped = options.searchString.replaceAll('%', '\\%').replaceAll('_', '\\_');
-			query.where('path', 'LIKE', '%' + searchStringEscaped + '%')
-			// @TODO search only in basename?
-			// query.andWhere('basename', 'LIKE', '%' + searchStringEscaped + '%')
+			query.where('path', 'LIKE', '%' + sqlUtils.escapeLikeCharacters(options.searchString) + '%')
 		}
 
 		if (options.sizeMin > 0 && options.sizeMax) {
@@ -399,7 +393,7 @@ async function updateData(absoluteFolderPath, newData, scanStart) {
 				.delete()
 				.where('scanned', '<', scanStart.getTime())
 				.andWhere('level', '>=', searchingLevel)
-				.andWhere('path', 'LIKE', relativePath + '%')
+				.andWhere('path', 'LIKE', sqlUtils.escapeLikeCharacters(relativePath) + '%')
 
 			LOG.info('(ScanStructure) Scanned structure in database was updated (' + deleted + ' deleted).');
 		});

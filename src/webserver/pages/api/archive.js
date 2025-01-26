@@ -2,6 +2,7 @@ const CONFIG = require(BASE_DIR_GET('/src/libs/config.js'));
 const Archiver = require('archiver');
 const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
 const structureRepository = require('../../../libs/repository/structure');
+const sqlUtils = require('../../../libs/repository/sqlUtils.js');
 
 module.exports = function (webserver, endpoint) {
 	/**
@@ -31,7 +32,7 @@ module.exports = function (webserver, endpoint) {
 				for (const permission of res.locals.user.getPermissions()) {
 					// 'orWhereLike()' cannot be used due to bug of forcing COLLATE, which slows down the query
 					// @link https://github.com/knex/knex/issues/5143 whereLike does not work with the MySQL utf8mb4 character set
-					this.orWhere('path', 'LIKE', permission + '%');
+					this.orWhere('path', 'LIKE', sqlUtils.escapeLikeCharacters(permission) + '%');
 				}
 			});
 
