@@ -13,8 +13,6 @@ module.exports = function (webserver, endpoint) {
 	 * @returns redirect otherwise
 	 */
 	webserver.get(endpoint, function (req, res) {
-		res.setHeader("Content-Type", "application/json");
-		res.statusCode = 200;
 		try {
 			if (!res.locals.user.email) { // is logged (it means cookie is valid)
 				throw new Error('Not logged in.');
@@ -33,6 +31,6 @@ module.exports = function (webserver, endpoint) {
 		}
 		// Even if some error occured, cookie will be deleted (send request to browser to remove cookie)
 		res.clearCookie(c.http.login.name);
-		res.result.end();
+		res.result.end(200);
 	});
 };

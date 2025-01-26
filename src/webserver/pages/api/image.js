@@ -1,7 +1,6 @@
 const c = require(BASE_DIR_GET('/src/libs/config.js'));
 const FS = require('fs');
 const sharp = require('sharp');
-const cacheHelper = require('./helpers/cache');
 
 module.exports = function (webserver, endpoint) {
 	/**

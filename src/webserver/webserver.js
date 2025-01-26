@@ -100,6 +100,7 @@ webserver.all('*', function (req, res, next) {
 			}
 			return duration;
 		}, end: function (httpResponseCode) {
+			res.setHeader('Content-Type', 'application/json');
 			this.duration = this.getDuration(true);
 			if (httpResponseCode) {
 				res.status(httpResponseCode);

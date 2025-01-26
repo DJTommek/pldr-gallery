@@ -13,8 +13,6 @@ module.exports = function (webserver, endpoint) {
 	 * @returns JSON list of permissions
 	 */
 	webserver.get(endpoint, function (req, res) {
-		res.setHeader("Content-Type", "application/json");
-		res.statusCode = 200;
 		let cookiePasswords = req.cookies['pmg-passwords'];
 		try {
 			// If no password parameter is set, return list of all passwords
@@ -33,12 +31,12 @@ module.exports = function (webserver, endpoint) {
 						}
 					});
 				}
-				return res.result.setResult(passwordPerms, 'List of saved passwords.').end();
+				return res.result.setResult(passwordPerms, 'List of saved passwords.').end(200);
 			}
 		} catch (error) {
 			let errorMsg = 'Error while loading list of saved passwords: ' + error.message;
 			LOG.error(errorMsg);
-			return res.result.setError(errorMsg).end();
+			return res.result.setError(errorMsg).end(500);
 		}
 
 		try {
@@ -62,7 +60,7 @@ module.exports = function (webserver, endpoint) {
 				res.result.setResult({
 					password: req.query.password,
 					permissions: passwordObject
-				}, 'Password "' + req.query.password + '" is valid.').end();
+				}, 'Password "' + req.query.password + '" is valid.').end(200);
 				return;
 			}
 			// automatic redirect to the folder
@@ -74,7 +72,7 @@ module.exports = function (webserver, endpoint) {
 			res.cookie('pmg-redirect', redirectFolder, {expires: new Date(253402300000000)});
 			res.redirect('/');
 		} catch (error) {
-			res.result.setError('Error while checking password: ' + error.message).end();
+			res.result.setError('Error while checking password: ' + error.message).end(500);
 		}
 	});
 };

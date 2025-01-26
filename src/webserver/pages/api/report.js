@@ -8,8 +8,6 @@ module.exports = function (webserver, endpoint) {
 	 * @returns JSON
 	 */
 	webserver.post(endpoint, function (req, res) {
-		res.setHeader("Content-Type", "application/json");
-		res.statusCode = 200;
 		let msg = '(Report) User "' + (res.locals.user ? res.locals.user.id : 'x') + '" is reporting ';
 		if (req.body.type && req.body.type.match(/^[a-zA-Z0-9_\-.]{1,20}$/) && req.body.raw) {
 			switch (req.body.type) {
@@ -20,9 +18,9 @@ module.exports = function (webserver, endpoint) {
 					LOG.debug(msg += 'type="' + req.body.type + '":\n"' + req.body.raw + '".');
 					break;
 			}
-			res.result.setResult(null, 'Report saved').end();
+			res.result.setResult(null, 'Report saved').end(200);
 		} else {
-			res.result.setError('Invalid "type" or "raw" POST data').end();
+			res.result.setError('Invalid "type" or "raw" POST data').end(400);
 		}
 	});
 };

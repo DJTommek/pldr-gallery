@@ -9,7 +9,6 @@ module.exports = function (webserver, endpoint) {
 	 * @returns JSON
 	 */
 	webserver.get(endpoint, async function (req, res) {
-		res.setHeader("Content-Type", "application/json");
 		if (!CONFIG.structure.scan.enable) {
 			return res.result.setError('Scanning is disabled.').end(403);
 		}

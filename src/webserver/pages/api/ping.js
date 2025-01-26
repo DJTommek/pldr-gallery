@@ -8,8 +8,6 @@ module.exports = function (webserver, endpoint) {
 	 * @returns JSON
 	 */
 	webserver.get(endpoint, function (req, res) {
-		res.setHeader("Content-Type", "application/json");
-		res.statusCode = 200;
 		const diff = (new Date() - c.start);
 		const result = {
 			start: c.start.human(),
@@ -18,6 +16,6 @@ module.exports = function (webserver, endpoint) {
 				human: msToHuman(diff)
 			}
 		};
-		res.result.setResult(result).end();
+		res.result.setResult(result).end(200);
 	});
 };
