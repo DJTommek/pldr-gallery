@@ -2,12 +2,11 @@ const FS = require('fs');
 const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
 const structureRepository = require('../../../libs/repository/structure');
 
-const getItemsHelper = require(__dirname + '/helpers/getItemsFromFolder.js');
-
 require(BASE_DIR_GET('/src/webserver/private/js/class/FileExtensionMapper.js'));
 require(BASE_DIR_GET('/src/webserver/private/js/class/Icon.js'));
 require(BASE_DIR_GET('/src/webserver/private/js/class/Item.js'));
 const utils = require('../../../libs/utils/utils');
+const sqlUtils = require("../../../libs/repository/sqlUtils.js");
 
 module.exports = function (webserver, endpoint) {
 
@@ -57,7 +56,7 @@ module.exports = function (webserver, endpoint) {
 
 		res.startTime('apistructure', 'Loading and processing data');
 		Promise.all([
-			getItemsHelper.itemsDb(folderItem.path, res.locals.user.getPermissions(), options),
+			loadStructure(folderItem, res.locals.user.getPermissions(), options),
 			lastScanPromise,
 			generateSpecificFilePromise('header.html'),
 			generateSpecificFilePromise('footer.html'),
@@ -82,3 +81,81 @@ module.exports = function (webserver, endpoint) {
 		});
 	});
 };
+
+/**
+ * @param {FolderItem} directoryItem
+ * @param {array<string>} permissionsPaths
+ * @param {object} options
+ * @return {Promise<unknown>}
+ */
+function loadStructure(directoryItem, permissionsPaths, options = {}) {
+	const result = {
+		files: [],
+		folders: [],
+		limit: options.limit,
+		offset: options.offset,
+	};
+
+	const requestedLimit = options.limit || 2000;
+	const requestedOffset = options.offset || 0;
+
+	if (directoryItem.path !== '/') { // if requested folder is not root, add one FolderItem to go back
+		result.folders.push(generateGoBackFolderItem(directoryItem));
+	}
+
+	return new Promise(async function (resolve) {
+		const query = structureRepository.structure(directoryItem)
+			.limit(requestedLimit)
+			.offset(requestedOffset)
+			.orderBy(['type', 'path']);
+
+		// Build list of permissions path, that are valid for requested directory level
+		// @TODO Optimize by removing permissions, that starts differently than requested directory
+		const permissionsQueriedPaths = [];
+		const searchingLevel = directoryItem.paths.length + 2;
+		for (const permissionPath of permissionsPaths) {
+			const pathParts = permissionPath.split('/');
+			const queriedPath = pathParts.slice(0, searchingLevel).join('/');
+			if (permissionsQueriedPaths.includes(queriedPath)) {
+				continue;
+			}
+			permissionsQueriedPaths.push(queriedPath);
+		}
+
+		query.andWhere(function () {
+			for (const permissionQueryPath of permissionsQueriedPaths) {
+				// 'orWhereLike()' cannot be used due to bug of forcing COLLATE, which slows down the query
+				// @link https://github.com/knex/knex/issues/5143 whereLike does not work with the MySQL utf8mb4 character set
+				this.orWhere('path', 'LIKE', sqlUtils.escapeLikeCharacters(permissionQueryPath) + '%');
+			}
+		});
+
+		try {
+			for (const row of await query) {
+				const item = structureRepository.rowToItem(row);
+				if (item.isFolder) {
+					result.folders.push(item);
+				} else if (item.isFile) {
+					result.files.push(item);
+				}
+			}
+		} catch (error) {
+			LOG.error('[Knex] Error while loading and processing structure in "' + directoryItem + '": ' + error.message);
+		} finally {
+			resolve(result);
+		}
+	});
+}
+
+/**
+ * @param {FolderItem} directoryItem
+ * @returns
+ */
+function generateGoBackFolderItem(directoryItem) {
+	return new FolderItem(null, {
+		path: generateGoBackPath(directoryItem.path),
+		text: '..',
+		noFilter: true,
+		icon: Icon.FOLDER_GO_BACK,
+	});
+}

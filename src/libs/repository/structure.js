@@ -12,51 +12,17 @@ module.exports.TYPE_FILE = TYPE_FILE;
 module.exports.TYPE_FOLDER = TYPE_FOLDER;
 
 /**
+ * Get items in given directory without going deeper in subdirectories.
  *
- * @param folderPath
- * @param options
- * @returns {Promise<array[FileItem|FolderItem]>}
+ * @param {FolderItem} directoryItem
  */
-async function loadByPath(folderPath, options = {}) {
-	const hrstart = process.hrtime();
-	if (typeof options.limit === 'undefined') {
-		options.limit = null;
-	} else if (options.limit !== null && typeof options.limit < 1) {
-		throw new Error('Parameter "options.limit" must be positive number or false');
-	}
-
-	if (typeof options.recursive === 'undefined') {
-		options.recursive = false;
-	} else if (typeof options.recursive !== 'boolean') {
-		throw new Error('Parameter "options.recursive" must be boolean');
-	}
-
-	const result = [];
-
-	const folderItem = new FolderItem(null, {path: folderPath});
-	const searchingLevel = folderItem.paths.length + 1;
-	const query = knex.select('*')
+module.exports.structure = function (directoryItem) {
+	const searchingLevel = directoryItem.paths.length + 1;
+	return knex.select('*')
 		.from(CONFIG.db.table.structure)
-	if (options.recursive) {
-		query.andWhere('level', '>=', searchingLevel)
-	} else {
-		query.andWhere('level', searchingLevel)
-	}
-	query.andWhere('path', 'LIKE', folderPath + '%')
-	query.orderBy(['level', 'path']);
-	LOG.debug('(Knex) Running SQL: ' + query.toString());
-	try {
-		(await query).forEach(function (row) {
-			result.push(rowToItem(row));
-		});
-	} catch (error) {
-		LOG.error('[Knex] Error while loading and processing in "' + folderPath + '": ' + error.message);
-	}
-	LOG.debug('(Knex) Loading structure took ' + msToHuman(hrtime(process.hrtime(hrstart))) + '.', {console: true})
-	return result;
-}
-
-module.exports.loadByPath = loadByPath;
+		.andWhere('level', searchingLevel)
+		.andWhere('path', 'LIKE', sqlUtils.escapeLikeCharacters(directoryItem.path) + '%');
+};
 
 /**
  * Get random files from specified directory or any below

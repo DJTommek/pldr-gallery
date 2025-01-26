@@ -7,6 +7,7 @@ const HFS = require('./helperFileSystem');
 require(BASE_DIR_GET('/src/webserver/private/js/class/Icon.js'));
 require(BASE_DIR_GET('/src/webserver/private/js/class/FileExtensionMapper.js'));
 const utils = require("./utils/utils");
+const FS = require('fs');
 
 module.exports.GROUPS = {
 	ALL: 1,
@@ -29,15 +30,17 @@ module.exports.getAllGroups = function () {
 }
 
 /**
- * Check if permission is valid and file or folder exists
+ * Check if permission is valid and file or folder exists.
+ *
  * @param {string} permission
- * @return {*}
  */
-function isPermisionValid(permission) {
-	// is folder or is file
-	let permissionToCheck = permission;
+function validatePermission(permission) {
+	if (permission.startsWith('/') === false) {
+		throw new Error('Permission path must start with foward slash.');
+	}
+
 	if (permission.endsWith('/')) {
-		// folder
+		// directory
 	} else if (permission.match(FileExtensionMapperInstance.regexAll)) {
 		// file
 	} else if (PATH.basename(permission) === 'header.html') {
@@ -45,10 +48,22 @@ function isPermisionValid(permission) {
 	} else if (PATH.basename(permission) === 'footer.html') {
 		// footer
 	} else {
-		// Unknown file, probably prefix? Get dirname
-		permissionToCheck = pathCustom.dirname(permission);
+		throw new Error('Invalid permission format or unsupported file extension.');
 	}
-	return HFS.checkFileFolderAccess(CONFIG.path, permissionToCheck, permissionCheck);
+
+	const fullPath = pathCustom.relativeToAbsolute(permission, CONFIG.path);
+	const fileStats = FS.lstatSync(fullPath); // throws exception if not exists or not accessible
+
+	if (fullPath.endsWith('/')) { // It should be directory
+		if (fileStats.isDirectory()) {
+			return;
+		}
+		throw new Error('Not directory.');
+	}
+
+	if (fileStats.isFile() === false) {
+		throw new Error('Not file.');
+	}
 }
 
 async function loadGroupsDb() {
@@ -65,9 +80,11 @@ async function loadGroupsDb() {
 	).forEach(function (data) {
 		// if null, group exists but don't have any permissions assigned
 		if (data.permission !== null) {
-			const checkError = isPermisionValid(data.permission);
-			if (checkError) {
-				LOG.warning('Group ID ' + data['id'] + ' has invalid permission "' + data.permission + '": ' + checkError);
+			try {
+				validatePermission(data.permission);
+			} catch (error) {
+				LOG.warning('Group ID ' + data['id'] + ' has invalid permission "' + data.permission + '": "' + error.message + '"');
+				return;
 			}
 		}
 		if (GROUPS[data['id']] === undefined) {
@@ -117,9 +134,11 @@ async function loadPasswordsDb() {
 		if (data.permission === null) {
 			LOG.warning('Password ID ' + data['id'] + ' don\'t have any permissions.');
 		} else {
-			const checkError = isPermisionValid(data.permission);
-			if (checkError) {
-				LOG.warning('Password ID ' + data['id'] + ' has invalid permission "' + data.permission + '": ' + checkError);
+			try {
+				validatePermission(data.permission);
+			} catch (error) {
+				LOG.warning('Password ID ' + data['id'] + ' has invalid permission "' + data.permission + '": "' + error.message + '"');
+				return;
 			}
 		}
 		if (PASSWORDS[data['id']] === undefined) {
@@ -145,9 +164,11 @@ async function loadUsersDb() {
 	).forEach(function (data) {
 		// if null, group exists but don't have any permissions assigned
 		if (data.permission !== null) {
-			const checkError = isPermisionValid(data.permission);
-			if (checkError) {
-				LOG.warning('User ID ' + data['id'] + ' has invalid permission "' + data.permission + '": ' + checkError);
+			try {
+				validatePermission(data.permission);
+			} catch (error) {
+				LOG.warning('User ID ' + data['id'] + ' has invalid permission "' + data.permission + '": "' + error.message + '"');
+				return;
 			}
 		}
 		if (USERS[data['id']] === undefined) {
@@ -325,7 +346,7 @@ class User {
 	/**
 	 * Get all permissions merged from user, groups and passwords
 	 *
-	 * @returns {string[]}
+	 * @returns {array<string>}
 	 */
 	getPermissions() {
 		let permissions = [...this.permissions];
