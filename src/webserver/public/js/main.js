@@ -68,7 +68,7 @@ keyboardMapper.addEventListener('previous', (event) => this.onMoveToNextOrPrevio
 keyboardMapper.addEventListener('next', (event) => this.onMoveToNextOrPreviousKeyboard(event, 'down'));
 
 const structureMap = new StructureMap('map', structure).init();
-const structureBrowserMap = new BrowserMap('structure-browser-map', structure, serverApi).init();
+const browserMap = new BrowserMap('structure-browser-map', structure, serverApi).init();
 
 structure.addEventListener('beforeselectormove', async function (event) {
 	const newItem = event.detail.newItem;
@@ -122,20 +122,20 @@ structure.addEventListener('selectorselected', async function (event) {
 });
 
 structure.addEventListener('directorychange', async function (event) {
-	if (structureBrowserMap.isHidden()) {
+	if (browserMap.isHidden()) {
 		return;
 	}
-	await structureBrowserMap.loadData(event.detail.newPath);
+	await browserMap.loadData(event.detail.newPath);
 })
 
-structureBrowserMap.map.on('load moveend', async function (event) {
+browserMap.map.on('load moveend', async function (event) {
 	if (structure.currentFolderItem === null) {
 		return;
 	}
-	if (structureBrowserMap.isHidden()) {
+	if (browserMap.isHidden()) {
 		return;
 	}
-	await structureBrowserMap.loadData(structure.currentFolderItem);
+	await browserMap.loadData(structure.currentFolderItem);
 });
 
 /**
@@ -947,13 +947,13 @@ function structureViewChange(value) {
 		$('#structure-tiles').hide();
 		$('#structure-search').hide();
 		$('#structure-download-archive').hide();
-		structureBrowserMap.mapShow();
-		structureBrowserMap.loadData(structure.currentFolderItem);
+		browserMap.mapShow();
+		browserMap.loadData(structure.currentFolderItem);
 	} else {
 		$('#structure-tiles').show();
 		$('#structure-search').show();
 		$('#structure-download-archive').show();
-		structureBrowserMap.mapHide();
+		browserMap.mapHide();
 	}
 
 	// start loading thumbnails
