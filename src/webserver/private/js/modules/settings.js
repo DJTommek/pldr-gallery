@@ -17,7 +17,6 @@
 		 * @link https://developer.mozilla.org/en-US/docs/Web/API/Navigator/vibrate
 		 */
 		vibrationError: [100, 200, 100, 200, 100],
-		hashBeforeUnload: '/',
 		presentationEnabled: false,
 		compress: true,
 		structureDisplayType: 'rows',

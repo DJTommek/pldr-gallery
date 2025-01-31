@@ -84,8 +84,6 @@ class Structure extends EventTarget {
 				},
 			}));
 		}
-
-		Settings.save('hashBeforeUnload', path)
 	}
 
 	/**
@@ -394,7 +392,21 @@ class Structure extends EventTarget {
 			}
 		}, this);
 		return result;
+	}
 
+	/**
+	 * Get item by path
+	 *
+	 * @param {string} path
+	 * @returns {Item|null}
+	 */
+	getByPath(path) {
+		for (const item of this.items) {
+			if (path === item.path) {
+				return item;
+			}
+		}
+		return null;
 	}
 
 	showSearchActions(showRoot, showSubdirectory) {
