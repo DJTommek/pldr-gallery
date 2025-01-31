@@ -156,7 +156,7 @@ structure.addEventListener('selectorselected', async function (event) {
 			// changing folder (item should always be something)
 			// deeper - this will find "go back" folder
 			// closer to root - this will find previously opened folder
-			const item = structure.getByName(previousItem.path);
+			const item = structure.getByPath(previousItem.path);
 			if (item) {
 				structure.selectorMove(item.index);
 			} else {

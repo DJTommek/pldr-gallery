@@ -22,10 +22,16 @@ class Structure extends EventTarget {
 		 */
 		this.currentFileItem = null;
 
+		/** @type {array<Item>} */
 		this.items = [];
+		/** @type {array<FileItem>} */
 		this.files = [];
+		/** @type {array<FolderItem>} */
 		this.folders = [];
+		/** @type {array<ActionItem>} */
+		this.actions = [];
 
+		/** @type {array<FileItem|FolderItem>} */
 		this.history = [];
 	}
 
@@ -45,7 +51,7 @@ class Structure extends EventTarget {
 	/**
 	 * Return list of visited items
 	 *
-	 * @returns {[FileItem|FolderItem]}
+	 * @returns {array<FileItem|FolderItem>}
 	 */
 	historyGet() {
 		return this.history;
@@ -54,7 +60,7 @@ class Structure extends EventTarget {
 	/**
 	 * Set currently loaded path
 	 *
-	 * @param path
+	 * @param {string} path
 	 */
 	setCurrent(path) {
 		path = decodeURI(path).replace(/^#/, '');
@@ -66,7 +72,7 @@ class Structure extends EventTarget {
 		// FileItem is requested, try find it in structure
 		if (paths.last()) {
 			// on first structure load is always null but after each file item load is FileItem
-			this.currentFileItem = this.getByName(path);
+			this.currentFileItem = this.getByPath(path);
 			this.selectedIndex = (this.currentFileItem ? this.currentFileItem.index : 0);
 		}
 		const previousFolderItem = this.currentFolderItem;
@@ -88,7 +94,8 @@ class Structure extends EventTarget {
 
 	/**
 	 * Import all data into structure and generate all necessary data
-	 * @param items
+	 *
+	 * @param {object} items Structured data from API
 	 */
 	setAll(items) {
 		// clear all previous data
@@ -132,7 +139,7 @@ class Structure extends EventTarget {
 	/**
 	 * Manage moving selected item in structure
 	 *
-	 * @param {string|int} directionOrIndex or index
+	 * @param {string|int} directionOrIndex
 	 * @return {boolean} True if moving selector is valid. False if movement is not valid or it was prevented.
 	 */
 	selectorMove(directionOrIndex) {
@@ -213,21 +220,22 @@ class Structure extends EventTarget {
 	/**
 	 * Get all folders loaded into structure
 	 *
-	 * @returns []
+	 * @returns {array<FolderItem>}
 	 */
 	getFolders() {
 		return this.folders;
 	}
 
 	/**
-	 * @returns []
+	 * @return {Array<ActionItem>}
 	 */
 	getActions() {
 		return this.actions;
 	}
 
 	/**
-	 * @returns {?ActionItem}
+	 * @param {number} index
+	 * @returns {ActionItem|null}
 	 */
 	getAction(index) {
 		return this.actions[index] ?? null;
@@ -236,7 +244,7 @@ class Structure extends EventTarget {
 	/**
 	 * Get all files loaded into structure
 	 *
-	 * @returns FileItem[]
+	 * @returns {array<FileItem>}
 	 */
 	getFiles() {
 		return this.files;
@@ -245,7 +253,7 @@ class Structure extends EventTarget {
 	/**
 	 * Get all items (both files and folders) loaded into structure
 	 *
-	 * @returns []
+	 * @returns {array<Item>}
 	 */
 	getItems() {
 		return this.items;
@@ -273,7 +281,7 @@ class Structure extends EventTarget {
 	/**
 	 * Get item by index
 	 *
-	 * @param index
+	 * @param {number} index
 	 * @returns {Item|null}
 	 */
 	getItem(index) {
@@ -307,7 +315,10 @@ class Structure extends EventTarget {
 		return null;
 	}
 
-	// get last visible item
+	/**
+	 * Get last visible item
+	 * @return {Item|null}
+	 */
 	getLast() {
 		// initial index has to be greater than index of last item
 		return this.getPrevious(this.items.length);
@@ -317,7 +328,7 @@ class Structure extends EventTarget {
 	 * Get next visible item based by index
 	 *
 	 * @param index
-	 * @returns {FileItem|FolderItem|null}
+	 * @returns {Item|null}
 	 */
 	getNext(index) {
 		index++;
@@ -334,7 +345,7 @@ class Structure extends EventTarget {
 	/**
 	 * Get next visible file
 	 *
-	 * @param index
+	 * @param {number} index
 	 * @returns {FileItem|null}
 	 */
 	getNextFile(index) {
@@ -352,8 +363,8 @@ class Structure extends EventTarget {
 	/**
 	 * Get previous visible item based by index
 	 *
-	 * @param index
-	 * @returns {FileItem|FolderItem|null}
+	 * @param {number} index
+	 * @returns {Item|null}
 	 */
 	getPrevious(index) {
 		index--;
@@ -370,7 +381,7 @@ class Structure extends EventTarget {
 	/**
 	 * Get file by index
 	 *
-	 * @param index
+	 * @param {number} index
 	 * @returns {FileItem|null}
 	 */
 	getFile(index) {
@@ -379,23 +390,7 @@ class Structure extends EventTarget {
 	}
 
 	/**
-	 * Get item by name
-	 *
-	 * @param name
-	 * @returns {null}
-	 */
-	getByName(name) {
-		let result = null;
-		this.items.forEach(function (item) {
-			if (item.path === name) {
-				result = item;
-			}
-		}, this);
-		return result;
-	}
-
-	/**
-	 * Get item by path
+	 * Get item by path.
 	 *
 	 * @param {string} path
 	 * @returns {Item|null}
@@ -409,6 +404,10 @@ class Structure extends EventTarget {
 		return null;
 	}
 
+	/**
+	 * @param {boolean} showRoot
+	 * @param {boolean} showSubdirectory
+	 */
 	showSearchActions(showRoot, showSubdirectory) {
 		this.getAction(Structure.ACTION_INDEX_SEARCH_ROOT).hide = !showRoot;
 		$('#structure .structure-item.item-index-' + Structure.ACTION_INDEX_SEARCH_ROOT + '').toggle(showRoot);
@@ -417,6 +416,13 @@ class Structure extends EventTarget {
 		$('#structure .structure-item.item-index-' + Structure.ACTION_INDEX_SEARCH_SUBDIRECTORY + '').toggle(showSubdirectory);
 	}
 
+	/**
+	 * @TODO Extract from this structure, for example into Utils..
+	 *
+	 * @param {RegExp} regex
+	 * @param {string} text
+	 * @return {array<object>}
+	 */
 	runFilterRegex(regex, text) {
 		// searching = searching.slice(1, -1); // remove delimiters, new RegExp will add automatically
 		// const re = RegExp(searching, 'gi');
@@ -437,7 +443,8 @@ class Structure extends EventTarget {
 	}
 
 	/**
-	 * Hide items which dont match to the filter text
+	 * Hide structure items which do not match filter text.
+	 *
 	 * @TODO refactor, split if possible and move back into main.js
 	 */
 	filter() {
