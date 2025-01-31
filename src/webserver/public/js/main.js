@@ -7,15 +7,68 @@ const loadedStructure = {
 };
 const transparentPixelBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII';
 
+const urlManager = new UrlManager();
 const vibrateApi = new VibrateApi();
 const structure = new Structure();
 const mediaPopup = new MediaPopup('media-popup', structure, loadedStructure).init();
 const presentation = new Presentation(mediaPopup).init();
 const keyboardMapper = new KeyboardMapper(structure, mediaPopup, presentation).init();
-const serverApi = new ServerApi()
+const serverApi = new ServerApi();
+
+let windowPopStateRunning = false;
+
+/**
+ * Forget current application state and fully load new state from provided URL query parameters.
+ *
+ * @param {string} urlQueryParamsRaw
+ * @return {Promise<void>}
+ */
+async function restoreFromUrl(urlQueryParamsRaw) {
+	urlManager.setRawQuery(urlQueryParamsRaw);
+	structure.setCurrent(urlManager.path);
+	structure.historyAdd(structure.currentFolderItem);
+	await loadStructure2(structure.currentFolderItem);
+
+	if (urlManager.file) {
+		const item = structure.getByPath(urlManager.file);
+		if (item instanceof FileItem) {
+			structure.selectorMove(item.index);
+			structure.selectorSelect();
+		}
+	} else {
+		mediaPopup.hide();
+	}
+}
+
+/**
+ * Url was changed by the user, for example by going back or forward. Back or forward button in browser, back button or
+ * gesture on mobile device. In desktop browser it is even possible to jump multiple pages back at once.
+ */
+window.addEventListener('popstate', async function (event) {
+	console.warn('popstate event', event);
+	const queryParamsRaw = event.state.url.substring(1); // URL is in format `/?some=param` but we want only query parameters
+	windowPopStateRunning = true; // Prevent pushing into history when browser is directing going back or forward.
+	try {
+		await restoreFromUrl(queryParamsRaw);
+	} finally {
+		windowPopStateRunning = false;
+	}
+});
+
+urlManager.addEventListener('statechange', function (event) {
+	console.warn('statechange event', event, event.detail.url);
+	if (windowPopStateRunning === true) {
+		console.debug('[UrlManager] statechange event: windowPopStateRunning is true, not pushing new history state.', event);
+		return;
+	}
+	const url = event.detail.url;
+	history.pushState({url: url}, '', url)
+});
 
 mediaPopup.addEventListener('beforeshowitem', function (event) {
+	/** @var {FileItem} */
 	const fileItem = event.detail.fileItem;
+	urlManager.setFile(fileItem.path);
 	document.activeElement.blur();
 	setStatus(fileItem.getStatusLoadingText(Settings.load('compress')));
 	structure.historyAdd(fileItem);
@@ -33,8 +86,7 @@ mediaPopup.addEventListener('itemloaderror', function (event) {
 
 mediaPopup.addEventListener('afterhideitem', function (event) {
 	structure.historyAdd(structure.currentFolderItem);
-	window.location.hash = pathToUrl(structure.currentFolderItem.path);
-
+	urlManager.setFile(null);
 });
 
 function onMoveToNextOrPrevious(event, direction) {
@@ -90,7 +142,6 @@ structure.addEventListener('selectorselected', async function (event) {
 		return;
 	}
 
-	window.location.hash = pathToUrl(pathItem.path);
 	vibrateApi.vibrate(Settings.load('vibrationOk'));
 	structure.historyAdd(pathItem);
 	structure.setCurrent(pathItem.path);
@@ -122,10 +173,13 @@ structure.addEventListener('selectorselected', async function (event) {
 });
 
 structure.addEventListener('directorychange', async function (event) {
+	const newPath = event.detail.newPath;
+	urlManager.setPath(newPath);
+
 	if (browserMap.isHidden()) {
 		return;
 	}
-	await browserMap.loadData(event.detail.newPath);
+	await browserMap.loadData(newPath);
 })
 
 browserMap.map.on('load moveend', async function (event) {
@@ -286,21 +340,7 @@ $(async function () {
 	// Save original title into data property
 	$('html head title').data('original-title', $('html head title').text());
 
-	// If is set redirect, load this
-	if (Cookies.get('pmg-redirect')) {
-		window.location.hash = pathToUrl(Cookies.get('pmg-redirect'));
-		Cookies.remove('pmg-redirect');
-	}
-
 	loadedStructure.mediaInfoCanvas = new MediaDetailsCanvas();
-
-	let currentDirPath = Settings.load('hashBeforeUnload');
-	// If not set hash, load url from last time
-	if (window.location.hash) {
-		currentDirPath = window.location.hash;
-	}
-
-	structure.setCurrent(pathFromUrl(currentDirPath));
 
 	$('#button-logout').on('click', function (event) {
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
@@ -470,7 +510,7 @@ $(async function () {
 		const folderItem = new FolderItem(null, {path: path});
 		structure.historyAdd(folderItem);
 		structure.setCurrent(folderItem.path);
-		window.location.hash = pathToUrl(structure.currentFolderItem.path);
+
 		await loadStructure2(folderItem);
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 	}).on('click', '#user-logged-in', function (event) {
@@ -495,16 +535,19 @@ $(async function () {
 		loadedStructure.hoveredStructureItemElement = null;
 	});
 
-	structure.historyAdd(structure.currentFolderItem);
-	await loadStructure2(structure.currentFolderItem);
-	structure.setCurrent(pathFromUrl(currentDirPath));
-
-	if (structure.currentFileItem) {
-		structure.selectorMove(structure.currentFileItem.index);
-		structure.selectorSelect();
-	} else {
-		window.location.hash = pathToUrl(structure.currentFolderItem.path);
+	// Backward compatibility: convert old hash format into new query parameter format
+	let restoreParams = window.location.search;
+	if (restoreParams === '' && window.location.hash !== '') {
+		const path = window.location.hash.substring(1);
+		if (path.endsWith('/')) {
+			restoreParams = '?path=' + path;
+		} else {
+			restoreParams = '?file=' + path;
+		}
+		console.log('Old URL in hash format detected, converted "' + path + '" into "' + restoreParams + '"');
 	}
+
+	await restoreFromUrl(restoreParams);
 });
 
 function mapInfoWindowImageLoaded() {
@@ -692,20 +735,18 @@ function parseStructure(items) {
 	structure.setAll(items);
 	const currentFolder = structure.getCurrentFolder();
 
-	/**
-	 * Generate breadcrumb urls in menu
-	 */
-	let maxVisible = structure.getItems().length;
+	/** Generate breadcrumb urls in menu */
 	let breadcrumbHtml = '';
-	// noinspection HtmlUnknownAnchorTarget
-	breadcrumbHtml += '<li class="breadcrumb-item" data-path="/"><a href="#/" title="Go to root folder"><i class="fa fa-home"></i></a></li>';
-	let breadcrumbPath = '/';
-	currentFolder.paths.forEach(function (folderName, index) {
-		breadcrumbPath += currentFolder.urls[index] + '/';
-		breadcrumbHtml += '<li class="breadcrumb-item" data-path="' + breadcrumbPath + '"><a href="#' + breadcrumbPath + '">' + folderName + '</a></li>';
-	});
+	breadcrumbHtml += '<li class="breadcrumb-item" data-path="/"><a href="' + urlManager.withPath('/') + '" title="Go to root folder"><i class="fa fa-home"></i></a></li>';
+	for (let i = 1; i <= currentFolder.paths.length; i++) {
+		const pathChunks = currentFolder.paths.slice(0, i);
+		const directoryName = pathChunks.last();
+		const breadcrumbPath = '/' + pathChunks.join('/') + '/';
+		breadcrumbHtml += '<li class="breadcrumb-item" data-path="' + breadcrumbPath + '"><a href="' + urlManager.withPath(breadcrumbPath) + '">' + directoryName + '</a></li>';
+	}
 	$('#currentPath').html(breadcrumbHtml);
 
+	let maxVisible = structure.getItems().length;
 	$('#structure-download-archive').attr('href', structure.getCurrentFolder().getArchiveUrl());
 
 	/**
@@ -725,24 +766,25 @@ function parseStructure(items) {
 		contentTiles += '</span>';
 	});
 
-	structure.getFolders().forEach(function (item) {
-		if (item.noFilter) {
+	for (const directoryItem of structure.getFolders()) {
+		if (directoryItem.noFilter) {
 			maxVisible--;
 		}
-		contentTiles += '<span class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
-		contentTiles += ' <i class="fa fa-' + item.icon + ' fa-fw icon"></i>';
-		if (!item.noFilter && CONFIG.thumbnails.folder.enabled === true) {
-			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="' + item.getThumbnailUrl() + '">';
+		contentTiles += '<span class="structure-item item-index-' + directoryItem.index + '" data-index="' + directoryItem.index + '">';
+		contentTiles += ' <i class="fa fa-' + directoryItem.icon + ' fa-fw icon"></i>';
+		if (!directoryItem.noFilter && CONFIG.thumbnails.folder.enabled === true) {
+			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="' + directoryItem.getThumbnailUrl() + '">';
 		} else {
 			contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		}
-		contentTiles += ' <a class="name" href="#' + item.url + '">' + item.text + '</a>';
-		if (item.created) {
-			const created = item.created.human(true);
-			contentTiles += ' <span class="created" title="' + created + ' (' + msToHuman(Math.max(new Date().getTime() - item.created, 0)) + ' ago)">' + created.date + ' <span>' + created.time + '</span></span>';
+		contentTiles += ' <a class="name" href="' + urlManager.withPath(directoryItem.path) + '">' + directoryItem.text + '</a>';
+		if (directoryItem.created) {
+			const created = directoryItem.created.human(true);
+			contentTiles += ' <span class="created" title="' + created + ' (' + msToHuman(Math.max(new Date().getTime() - directoryItem.created, 0)) + ' ago)">' + created.date + ' <span>' + created.time + '</span></span>';
 		}
 		contentTiles += '</span>';
-	});
+	}
+
 	if (items.foldersTotal > items.folders.length) {
 		const text = 'Celkem je zde ' + (items.foldersTotal) + ' složek ale z důvodu rychlosti jsou některé skryty. Limit můžeš ovlivnit v nastavení.';
 		contentTiles += '<span class="structure-item">';
@@ -752,14 +794,14 @@ function parseStructure(items) {
 		contentTiles += '</span>';
 	}
 
-	structure.getFiles().forEach(function (item) {
-		contentTiles += '<span class="structure-item item-index-' + item.index + '" data-index="' + item.index + '">';
-		contentTiles += ' <i class="icon fa fa-' + item.icon + ' fa-fw"></i>';
+	for (const fileItem of structure.getFiles()) {
+		contentTiles += '<span class="structure-item item-index-' + fileItem.index + '" data-index="' + fileItem.index + '">';
+		contentTiles += ' <i class="icon fa fa-' + fileItem.icon + ' fa-fw"></i>';
 
-		const thumbnailUrl = item.getThumbnailUrl();
+		const thumbnailUrl = fileItem.getThumbnailUrl();
 		const thumbnailEnabled = (
-			(item.isImage && CONFIG.thumbnails.image.enabled)
-			|| (item.isVideo && CONFIG.thumbnails.video.enabled)
+			(fileItem.isImage && CONFIG.thumbnails.image.enabled)
+			|| (fileItem.isVideo && CONFIG.thumbnails.video.enabled)
 		)
 		if (thumbnailEnabled && thumbnailUrl) {
 			contentTiles += ' <img class="thumbnail thumbnail-not-loaded" src="' + transparentPixelBase64 + '" data-src="' + thumbnailUrl + '">';
@@ -767,23 +809,24 @@ function parseStructure(items) {
 			contentTiles += ' <img class="thumbnail" src="' + transparentPixelBase64 + '">'; // fake thumbnail for proper display
 		}
 
-		contentTiles += ' <a href="#' + item.url + '" class="name">' + item.text + '</a>';
+		contentTiles += ' <a href="' + urlManager.withFile(fileItem.path) + '" class="name">' + fileItem.text + '</a>';
 
-		if (item.distance) {
-			contentTiles += ' <span class="distance">' + formatDistance(item.distance) + '</span>';
+		if (fileItem.distance) {
+			contentTiles += ' <span class="distance">' + formatDistance(fileItem.distance) + '</span>';
 		}
-		if (item.coords) {
-			contentTiles += ' <a href="https://better-location.palider.cz/' + item.coords + '" class="location" target="_blank" title="Open coordinates ' + item.coords + ' in Better Location"><i class="fa fa-map-marker"></i></a>';
+		if (fileItem.coords) {
+			contentTiles += ' <a href="https://better-location.palider.cz/' + fileItem.coords + '" class="location" target="_blank" title="Open coordinates ' + fileItem.coords + ' in Better Location"><i class="fa fa-map-marker"></i></a>';
 		}
-		if (item.size !== null) {
-			contentTiles += ' <span class="size">' + formatBytes(item.size, 2) + '</span>';
+		if (fileItem.size !== null) {
+			contentTiles += ' <span class="size">' + formatBytes(fileItem.size, 2) + '</span>';
 		}
-		if (item.created) {
-			const created = item.created.human(true);
-			contentTiles += ' <span class="created" title="' + created + ' (' + msToHuman(Math.max(new Date().getTime() - item.created, 0)) + ' ago)">' + created.date + ' <span>' + created.time + '</span></span>';
+		if (fileItem.created) {
+			const created = fileItem.created.human(true);
+			contentTiles += ' <span class="created" title="' + created + ' (' + msToHuman(Math.max(new Date().getTime() - fileItem.created, 0)) + ' ago)">' + created.date + ' <span>' + created.time + '</span></span>';
 		}
 		contentTiles += '</span>';
-	});
+	}
+
 	if (maxVisible === 0) {
 		contentTiles += '<span class="structure-item">';
 		contentTiles += ' <i class="icon fa fa-info fa-fw"></i>';
@@ -884,10 +927,17 @@ function flashMessage(text, type = 'info', fade = 4000, target = '#flash-message
 /**
  * Prompt share on user's device. Try to copy to clipboard if native browser sharing is not possible
  *
- * @param {Item} item
+ * @param {FolderItem|FileItem} item
  */
 async function shareItem(item) {
-	const niceUrl = window.location.origin + '/#' + item.url
+	let niceUrl = window.location.origin;
+	if (item.isFolder) {
+		niceUrl += urlManager.withPath(item.path);
+	} else if (item.isFile) {
+		niceUrl += urlManager.withFile(item.path);
+	} else {
+		throw new Error('Item type is not supported.');
+	}
 
 	if (navigator.canShare !== undefined) {
 		const shareData = {

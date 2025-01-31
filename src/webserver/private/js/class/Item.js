@@ -19,7 +19,6 @@ class Item {
 		Object.assign(this, item);
 		this.index = index;
 
-		this.url = pathToUrl(this.path);
 		this.paths = this.path.split('/').filter(n => n); // split path to folders and remove empty elements (if path start or end with /)
 		this.created = this.created ? new Date(this.created) : null;
 
@@ -30,7 +29,6 @@ class Item {
 		folders.pop();
 		this.folder = folders.join('/') + '/';
 
-		this.urls = this.paths.map(pathToUrl); // split path to folders and remove empty elements (if path start or end with /)
 		if (!this.text) { // do not override if set by server
 			if (this.isRoot()) {
 				this.text = this.path;

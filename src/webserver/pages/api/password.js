@@ -1,6 +1,7 @@
 const pathCustom = require(BASE_DIR_GET('/src/libs/path.js'));
 const LOG = require(BASE_DIR_GET('/src/libs/log.js'));
 const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
+const UrlManager = require("../../private/js/class/UrlManager");
 
 module.exports = function (webserver, endpoint) {
 
@@ -63,14 +64,14 @@ module.exports = function (webserver, endpoint) {
 				}, 'Password "' + req.query.password + '" is valid.').end(200);
 				return;
 			}
-			// automatic redirect to the folder
-			let redirectFolder = passwordObject.getPermissions()[0];
-			if (redirectFolder.slice(-1) !== '/') {
+
+			let redirectTarget = passwordObject.getPermissions()[0];
+			if (redirectTarget.endsWith('/')) {
 				// this is not folder, redirect to dirname of this path
-				redirectFolder = pathCustom.dirname(redirectFolder);
+				res.redirect((new UrlManager().setPath(redirectTarget)));
+			} else {
+				res.redirect((new UrlManager().setFile(redirectTarget)));
 			}
-			res.cookie('pmg-redirect', redirectFolder, {expires: new Date(253402300000000)});
-			res.redirect('/');
 		} catch (error) {
 			res.result.setError('Error while checking password: ' + error.message).end(500);
 		}

@@ -439,36 +439,6 @@ function numberRound(number, points) {
 global.numberRound = numberRound;
 
 /**
- * Generate nice URL without URL decoding
- *
- * /demo/folder with+spaces and+plus signs/
- * ->
- * /demo/folder+with\+spaces+and\+plus+signs/
- */
-function pathToUrl(path) {
-	path = path.replace(/\+/g, '\\+');
-	return path.replaceAll(' ', '+');
-}
-
-global.pathToUrl = pathToUrl;
-
-/**
- * Get path from nice URL
- *
- * /demo/folder+with\+spaces+and\+plus+signs/
- * ->
- * /demo/folder with+spaces and+plus signs/
- */
-function pathFromUrl(path) {
-	// replace spaces (need to check, if + is not escaped)
-	path = path.replace(/([^\\])\+/g, '$1 ');
-	// remove escaping \\+ to get +
-	return path.replaceAll('\\+', '+');
-}
-
-global.pathFromUrl = pathFromUrl;
-
-/**
  * Copy text into clipboard.
  *
  * @author https://www.w3schools.com/howto/howto_js_copy_clipboard.asp

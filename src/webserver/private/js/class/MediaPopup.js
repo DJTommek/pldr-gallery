@@ -127,7 +127,6 @@ class MediaPopup extends EventTarget {
 		let openUrl = fileItem.getFileUrl(false);
 		let openUrlFull = fileItem.getFileUrl(false, false);
 		const downloadUrl = fileItem.getFileUrl(true);
-		const shareUrl = window.location.origin + '/#' + fileItem.url;
 
 		// Canvas data
 		if (openUrl === null) { // If item has no view url, use icon to indicate it is file that has to be downloaded
@@ -144,7 +143,7 @@ class MediaPopup extends EventTarget {
 		// @TODO fill and open media canvas (which is not in popup itself)
 		$('#popup-media-details-download').attr('href', downloadUrl);
 		$('#popup-media-details-open-full').attr('href', openUrlFull);
-		$('#popup-media-details-share').attr('href', shareUrl);
+		$('#popup-media-details-share').attr('href', urlManager.withFile(fileItem.path));
 
 		function setMediaSrc(type, src) {
 			const element = (type === 'audio')
@@ -189,24 +188,24 @@ class MediaPopup extends EventTarget {
 		}
 
 		// generate URL for previous file buttons
-		let prevFileUrl = fileItem.url; // default is current file (do nothing)
+		const previousItemUrlManager = urlManager.withFile(fileItem.path); // default is current file (do nothing)
 		if (previousFileItem && previousFileItem.isFile) { // if there is some previous file
-			prevFileUrl = previousFileItem.url;
+			previousItemUrlManager.setFile(previousFileItem.path);
 			this.elementPrev.dataset.index = previousFileItem.index;
 		} else {
 			this.elementPrev.dataset.index = '';
 		}
-		this.elementPrev.setAttribute('href', '#' + prevFileUrl);
+		this.elementPrev.setAttribute('href', previousItemUrlManager.getUrl());
 
 		// generate URL for next file buttons
-		let nextFileUrl = fileItem.url; // default is current file (do nothing)
+		const nextItemUrlManager = urlManager.withFile(fileItem.path); // default is current file (do nothing)
 		if (nextFileItem && nextFileItem.isFile) { // if there is some next file
-			nextFileUrl = nextFileItem.url;
+			nextItemUrlManager.setFile(nextFileItem.path);
 			this.elementNext.dataset.index = nextFileItem.index;
 		} else {
 			this.elementNext.dataset.index = ''
 		}
-		this.elementNext.setAttribute('href', '#' + nextFileUrl);
+		this.elementNext.setAttribute('href', nextItemUrlManager.getUrl());
 
 		this.element.style.display = 'block';
 	}
