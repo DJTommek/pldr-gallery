@@ -459,6 +459,7 @@ $(async function () {
 		if ($(event.target).closest('.location').length !== 0) {
 			return; // do not select in structure, just open link
 		}
+		event.preventDefault();
 		const itemIndex = $(this).data('index');
 		structure.selectorMove(itemIndex);
 		structure.selectorSelect();
@@ -481,9 +482,9 @@ $(async function () {
 
 	// Event - share file url from popup
 	$('#popup-media-details-share').on('click', async function (event) {
+		event.preventDefault();
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		await shareItem(structure.getCurrentFile());
-		event.preventDefault();
 	});
 
 	$(document).on('click', '.copy-to-clipboard', function () {
