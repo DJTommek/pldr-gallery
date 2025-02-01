@@ -127,14 +127,16 @@ let CONFIG = {
 			itemCooldown: 1, // in milliseconds
 			fast: { // Fast scan updates only file and folder structure, without loading any metadata
 				onStart: true,
-				// Interval should be higher, than how long it takes to run quick scan
-				cron: '10 */5 * * * *', // every 5 minutes.
+				// Interval should be higher, than how long it takes to run quick scan. Example example:
+				// cron: '0 0 * * * *', // every hour
+				cron: null,
 			},
 			deep: { // Deep scan updates file and folder structure including file metadata and EXIF, which is significantly slower
 				onStart: false, // if fast.onStart is enabled, deepscan will run once fastscan is completed
 				// Interval should be higher, than how long it takes to run quick scan.
 				// Should be planned to start, when fastscan is not running.
-				cron: '0 0 4 * * *', // every day at 04:00:00
+				// cron: '0 0 4 * * *', // every day at 04:00:00
+				cron: null,
 			},
 			ignoreDirectories: [] // List of directories, that will be ignored from scanning, example:
 			// ignoreDir: ['/foo/bar/private/', '/.stversion/'],

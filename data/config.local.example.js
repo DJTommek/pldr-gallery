@@ -24,7 +24,13 @@ module.exports = {
 
 	structure: {
 		scan: {
-			ignoreDirectories: [] // List of directories, that will be ignored from scanning, example:
+			fast: { // Fast scan updates only file and folder structure, without loading any metadata
+				onStart: true,
+			},
+			deep: { // Deep scan updates file and folder structure including file metadata and EXIF, which is significantly slower
+				onStart: false, // if fast.onStart is enabled, deepscan will run once fastscan is completed
+			},
+			ignoreDirectories: [], // List of directories, that will be ignored from scanning, example:
 			// ignoreDir: ['/foo/bar/private/', '/.stversion/'],
 		},
 	},
