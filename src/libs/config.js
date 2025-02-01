@@ -35,14 +35,20 @@ let CONFIG = {
 	},
 
 	/**
-	 * Thumbnails generated in structure view (tiles)
+	 * Thumbnails are very small compressed images of real files or directories, that are visible in structure (some
+	 * types of view), in map as markers, etc.
+	 * Thumbnails must be pre-generated. If user tries to load some thumbnail, that is not yet pre-generated or
+	 * thumbnails for this type of file or directory is disabled, it will not be shown.
+	 * Thumbnail pre-generator will automatically skip files and folders, if thubmnail already exists.
 	 */
 	thumbnails: {
 		width: 200,
 		height: 200,
+		// When thumbnail pregenerator should start. At least one of file types or directory must be enabled too.
 		pregenerate: {
-			onStart: false,
-			cron: null,
+			onStart: false, // Start generating thumbnails on server start.
+			cron: null, // Setup CRON to automatically generate thumbnail for new files and directories, see example:
+			// cron: '0 0 4 * * *', // at 04:00:00 AM
 		},
 		extension: 'jpg', // Used also for mime type, "image/<extension>"
 		/**
@@ -50,7 +56,6 @@ let CONFIG = {
 		 */
 		image: {
 			enabled: true,
-			cache: false,
 			// If image path begins with string inside this list, thumbnail will not be generated. Can be full image
 			// path or even some directory. Works recursively
 			ignore: [],
@@ -64,7 +69,6 @@ let CONFIG = {
 		 */
 		folder: {
 			enabled: true,
-			cache: false,
 			// If directory path begins with string inside this list, thumbnail will not be generated. Works recursively.
 			ignore: [],
 			httpHeaders: [

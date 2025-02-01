@@ -193,7 +193,7 @@ if (c.http.ssl.enable === true) {
 /**
  * Create cache folders if caching is enabled
  */
-if (c.thumbnails.image.enabled === true && c.thumbnails.image.cache === true) {
+if (c.thumbnails.image.enabled === true) {
 	const path = pathCustom.join(c.cache.path, '/thumbnails/image/');
 	FS.mkdir(path, {recursive: true}, function (error) {
 		if (error) {
@@ -201,7 +201,7 @@ if (c.thumbnails.image.enabled === true && c.thumbnails.image.cache === true) {
 		}
 	});
 }
-if (c.thumbnails.folder.enabled === true && c.thumbnails.folder.cache === true) {
+if (c.thumbnails.folder.enabled === true) {
 	const path = pathCustom.join(c.cache.path, '/thumbnails/folder/');
 	FS.mkdir(path, {recursive: true}, function (error) {
 		if (error) {
@@ -210,9 +210,6 @@ if (c.thumbnails.folder.enabled === true && c.thumbnails.folder.cache === true) 
 	});
 }
 
-/**
- * Create cache directory for video if thumbnails are enabled (caching is always enabled)
- */
 if (c.thumbnails.video.enabled === true) {
 	const path = pathCustom.join(c.cache.path, '/thumbnails/video/');
 	FS.mkdir(path, {recursive: true}, function (error) {

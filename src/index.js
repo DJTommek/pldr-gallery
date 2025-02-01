@@ -117,7 +117,8 @@ const LOG = require("./libs/log");
 	// Pre-generate thumbnails for all files
 	if (
 		CONFIG.thumbnails.image.enabled === true
-		&& CONFIG.thumbnails.image.cache === true
+		|| CONFIG.thumbnails.folder.enabled === true
+		|| CONFIG.thumbnails.video.enabled === true
 	) {
 		if (CONFIG.thumbnails.pregenerate.cron !== null) {
 			new CronJob(CONFIG.thumbnails.pregenerate.cron, async function () {

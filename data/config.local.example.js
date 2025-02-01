@@ -10,16 +10,6 @@ module.exports = {
 	// path: /some/absolute/path/
 	path: __dirname + '/../demo/',
 
-	thumbnails: {
-		image: {
-			// false: generate thumbnails on every request (save space on drive)
-			// true: generate thumbnail on first request and save it. On every other request it will be loaded from cache (faster and saving server performance)
-			cache: false,
-		},
-		folder: {
-			cache: false, // the same as thumbnails.image.cache
-		}
-	},
 	db: {
 		// Database for saving permissions, file and folder structure and more
 		knex: {
@@ -29,6 +19,41 @@ module.exports = {
 				password: '',
 				database: 'pldrgallery',
 			},
+		},
+	},
+
+	/**
+	 * Thumbnails are very small compressed images of real files or directories, that are visible in structure (some
+	 * types of view), in map as markers, etc.
+	 * Thumbnails must be pre-generated. If user tries to load some thumbnail, that is not yet pre-generated or
+	 * thumbnails for this type of file or directory is disabled, it will not be shown.
+	 * Thumbnail pre-generator will automatically skip files and folders, if thubmnail already exists.
+	 */
+	thumbnails: {
+		// When thumbnail pregenerator should start. At least one of file types or directory must be enabled too.
+		pregenerate: {
+			onStart: false, // Start generating thumbnails on server start.
+			cron: null, // Setup CRON to automatically generate thumbnail for new files and directories, see example:
+			// cron: '0 0 4 * * *', // at 04:00:00 AM
+		},
+		/**
+		 * Resize image and generate thumbnail.
+		 */
+		image: {
+			enabled: false,
+		},
+		/**
+		 * Get few random images from folder, merge them together and generate one image as thumbnail
+		 */
+		folder: {
+			enabled: false,
+		},
+		/**
+		 * Generate thumbnail image from video
+		 * All generated thumbnail are saved into server cache - currently there is no way how to disable it via config.
+		 */
+		video: {
+			enabled: false,
 		},
 	},
 
