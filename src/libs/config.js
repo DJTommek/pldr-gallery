@@ -136,11 +136,13 @@ let CONFIG = {
 				// Should be planned to start, when fastscan is not running.
 				cron: '0 0 4 * * *', // every day at 04:00:00
 			},
+			ignoreDirectories: [] // List of directories, that will be ignored from scanning, example:
+			// ignoreDir: ['/foo/bar/private/', '/.stversion/'],
 		},
 		// Watch files and folders and update structure in database automatically as soon as something change.
 		// No need to wait for full structure scan. Not available for all servers or some servers might have too low
 		// limit for number of watched files (fs.inotify.max_user_watches).
-		// Check https://github.com/paulmillr/chokidar for more info
+		// Check https://github.com/paulmillr/chokidar for more info.
 		watch: {
 			enable: false,
 		}

@@ -23,22 +23,31 @@ async function scan(absolutePath, options = {}) {
 	let filesCount = 0;
 	let foldersCount = 0;
 
-	const entries = readdirp(absolutePath, {
+	const readdirpOptions = {
 		type: 'files_directories',
 		depth: CONFIG.structure.scan.depth,
 		alwaysStat: options.stat,
 		lstat: false,
-	});
+	};
+
+	if (CONFIG.structure.scan.ignoreDirectories.length !== 0) {
+		readdirpOptions.directoryFilter = function(directoryEntry) {
+			const path = '/' + directoryEntry.path.replaceAll('\\', '/') + '/';
+			return CONFIG.structure.scan.ignoreDirectories.includes(path) === false;
+		};
+	}
+
+	const entriesStream = readdirp(absolutePath, readdirpOptions);
 
 	// @HACK to include current directory into scan too
-	entries.push({
+	entriesStream.push({
 		path: pathCustom.absoluteToRelative(absolutePath, CONFIG.path).replace(/^\/|\/$/g, ''), // empty string if relative root
 		fullPath: absolutePath.replace(/\/$/g, ''),
 		basename: PATH.basename(absolutePath),
 		stats: FS.statSync(absolutePath),
 	});
 
-	for await (const entry of entries) {
+	for await (const entry of entriesStream) {
 		if (CONFIG.structure.scan.itemCooldown) { // Wait before processing each item
 			await new Promise(resolve => setTimeout(resolve, CONFIG.structure.scan.itemCooldown));
 		}

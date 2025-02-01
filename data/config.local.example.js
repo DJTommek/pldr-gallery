@@ -22,6 +22,13 @@ module.exports = {
 		},
 	},
 
+	structure: {
+		scan: {
+			ignoreDirectories: [] // List of directories, that will be ignored from scanning, example:
+			// ignoreDir: ['/foo/bar/private/', '/.stversion/'],
+		},
+	},
+
 	/**
 	 * Thumbnails are very small compressed images of real files or directories, that are visible in structure (some
 	 * types of view), in map as markers, etc.
