@@ -653,7 +653,7 @@ function loadThumbnail() {
 		return; // Already loading too many thumbnails.
 	}
 
-	const thumbnailsNotLoaded = $('.thumbnail-not-loaded:not(.thumbnail-loading)');
+	const thumbnailsNotLoaded = $('.thumbnail-not-loaded:not(.thumbnail-loading):visible');
 	if (thumbnailsNotLoaded.length === 0) {
 		return; // All thumbnails are already loaded.
 	}
