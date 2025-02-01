@@ -27,7 +27,7 @@ async function getDataFromExifFromFile(fullPath) {
 	let result = {}
 	if (extData.metadataBuffer === true) { // process by loading file metadata
 		// convert callback into promise
-		const parsed = await new Promise(function(resolve, reject) {
+		const parsed = await new Promise(function (resolve, reject) {
 			ffmpeg.ffprobe(fullPath, function (error, metadata) {
 				if (error) {
 					reject(error)
@@ -36,11 +36,13 @@ async function getDataFromExifFromFile(fullPath) {
 				}
 			});
 		});
-		if (parsed.format.tags.location) {
-			// @TODO currently works only for +/+ and needs to be updated for other hemispheres (+/-, -/+ and -/-)
-			const matches = parsed.format.tags.location.match(/\+([0-9]{1,2}\.[0-9]+)\+([0-9]{1,3}\.[0-9]+)/);
-			result.coords = Coordinates.safe(matches[1], matches[2]);
+
+		try {
+			result.coords = parseFFProbeCoords(parsed.format.tags);
+		} catch (error) {
+			LOG.warning('Error while extracting location from file "' + fullPath + ' using FFProbe, error: "' + error + '". Full list of tags: ' + JSON.stringify(parsed));
 		}
+
 	} else if (typeof extData.metadataBuffer === 'number') {
 		// how big in bytes should be buffer for loading EXIF from file (depends on specification)
 		// https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.eXIf
@@ -76,6 +78,20 @@ async function getDataFromExifFromFile(fullPath) {
 
 module.exports.getDataFromExifFromFile = getDataFromExifFromFile;
 
+/**
+ * @param {object} tags
+ * @return {Coordinates|null}
+ */
+function parseFFProbeCoords(tags) {
+	if (!tags.location) {
+		return null;
+	}
+	// Examples:
+	// '+53.5523+009.9939/' -> N 53.5523, E 9.9939
+	// '+52.0433-002.3759/' -> N 52.0433, W 2.3759
+	const matches = tags.location.match(/([+-][0-9]{1,2}\.[0-9]+)([+-][0-9]{1,3}\.[0-9]+)\//);
+	return new Coordinates(parseFloat(matches[1]), parseFloat(matches[2]));
+}
 
 /**
  * @param {string} absolutePath
