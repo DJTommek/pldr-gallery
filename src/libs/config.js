@@ -286,13 +286,6 @@ let CONFIG = {
 		// Note: include also :port if different than 80 on http or 443 on https
 		redirectUrl: 'http://tomas.palider.cz:3000/login',
 	},
-	security: {
-		// password for emergency killing application via /api/kill?password=someSecureKillPassword
-		// Note: if you start Node.js via https://www.npmjs.com/package/forever this will work as "restart" instead of kill (useful if debugging or updating to new version)
-		// killPassword: 'someSecureKillPassword', // enabled
-		// killPassword: null, // disabled
-		killPassword: null,
-	},
 	http: {
 		// port of non-secured webserver
 		port: 3000,
