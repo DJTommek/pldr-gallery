@@ -364,7 +364,7 @@ $(async function () {
 	});
 
 	if (CONFIG.archive.enabled === false) {
-		$('#structure-download-archive').remove();
+		$('#navbar-download-archive').remove();
 	}
 
 	loadUserData();
@@ -446,8 +446,8 @@ $(async function () {
 		structureViewChange($(this).find('input').val());
 	});
 
-	// Event - clicked on zip download
-	$('#structure-download-archive').on('click', function (event) {
+	// Event - clicked on archive download
+	$('#navbar-download-archive').on('click', function (event) {
 		vibrateApi.vibrate(Settings.load('vibrationOk'));
 		if (confirm('Opravdu chceš stáhnout obsah této složky i všech podsložek jako ZIP?') === false) {
 			event.preventDefault();
@@ -748,7 +748,7 @@ function parseStructure(items) {
 	$('#currentPath').html(breadcrumbHtml);
 
 	let maxVisible = structure.getItems().length;
-	$('#structure-download-archive').attr('href', structure.getCurrentFolder().getArchiveUrl());
+	$('#navbar-download-archive').attr('href', structure.getCurrentFolder().getArchiveUrl());
 
 	/**
 	 * Generate structure content
@@ -997,7 +997,6 @@ function structureViewChange(value) {
 	if (value === 'map') {
 		$('#structure-tiles').hide();
 		$('#structure-search').hide();
-		$('#structure-download-archive').hide();
 		browserMap.mapShow();
 		if (structure.currentFolderItem !== null) {
 			// Structure is probably still loading, brwoser map data loader will be triggered later.
@@ -1006,7 +1005,6 @@ function structureViewChange(value) {
 	} else {
 		$('#structure-tiles').show();
 		$('#structure-search').show();
-		$('#structure-download-archive').show();
 		browserMap.mapHide();
 	}
 
