@@ -85,33 +85,31 @@ const LOG = require("./libs/log");
 		});
 	});
 
-	if (CONFIG.structure.scan.enable) {
-		// run fast scan on start and then deep scan if allowed
-		if (CONFIG.structure.scan.fast.onStart) {
-			await scanStructure.scan(CONFIG.path, {stat: false, exif: false});
-			if (CONFIG.structure.scan.deep.onStart) {
-				await scanStructure.scan(CONFIG.path, {stat: true, exif: true});
-				await fileGenerators.generateIndexHtml();
-			}
-		} else if (CONFIG.structure.scan.deep.onStart) { // run deep scan only
+	// Run fast scan on start and then deep scan if allowed
+	if (CONFIG.structure.scan.fast.onStart) {
+		await scanStructure.scan(CONFIG.path, {stat: false, exif: false});
+		if (CONFIG.structure.scan.deep.onStart) {
 			await scanStructure.scan(CONFIG.path, {stat: true, exif: true});
 			await fileGenerators.generateIndexHtml();
 		}
-		// setup fast scan cron
-		if (CONFIG.structure.scan.fast.cron) {
-			new CronJob(CONFIG.structure.scan.fast.cron, async function () {
-				LOG.info('Job tick for structure fast scan.')
-				await scanStructure.scan(CONFIG.path, {stat: false, exif: false});
-			}).start();
-		}
-		// setup deep scan cron
-		if (CONFIG.structure.scan.deep.cron) {
-			new CronJob(CONFIG.structure.scan.deep.cron, async function () {
-				LOG.info('Job tick for structure deep scan.')
-				await scanStructure.scan(CONFIG.path, {stat: true, exif: true});
-				await fileGenerators.generateIndexHtml();
-			}).start();
-		}
+	} else if (CONFIG.structure.scan.deep.onStart) { // run deep scan only
+		await scanStructure.scan(CONFIG.path, {stat: true, exif: true});
+		await fileGenerators.generateIndexHtml();
+	}
+	// setup fast scan cron
+	if (CONFIG.structure.scan.fast.cron) {
+		new CronJob(CONFIG.structure.scan.fast.cron, async function () {
+			LOG.info('Job tick for structure fast scan.')
+			await scanStructure.scan(CONFIG.path, {stat: false, exif: false});
+		}).start();
+	}
+	// setup deep scan cron
+	if (CONFIG.structure.scan.deep.cron) {
+		new CronJob(CONFIG.structure.scan.deep.cron, async function () {
+			LOG.info('Job tick for structure deep scan.')
+			await scanStructure.scan(CONFIG.path, {stat: true, exif: true});
+			await fileGenerators.generateIndexHtml();
+		}).start();
 	}
 
 	// Pre-generate thumbnails for all files

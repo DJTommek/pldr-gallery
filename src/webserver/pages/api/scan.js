@@ -9,10 +9,6 @@ module.exports = function (webserver, endpoint) {
 	 * @returns JSON
 	 */
 	webserver.get(endpoint, async function (req, res) {
-		if (!CONFIG.structure.scan.enable) {
-			return res.result.setError('Scanning is disabled.').end(403);
-		}
-
 		/** @var {FolderItem|null} */
 		const folderItem = res.locals.pathItem;
 		if (folderItem?.isFolder !== true) {
