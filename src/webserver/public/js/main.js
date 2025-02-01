@@ -999,7 +999,10 @@ function structureViewChange(value) {
 		$('#structure-search').hide();
 		$('#structure-download-archive').hide();
 		browserMap.mapShow();
-		browserMap.loadData(structure.currentFolderItem);
+		if (structure.currentFolderItem !== null) {
+			// Structure is probably still loading, brwoser map data loader will be triggered later.
+			browserMap.loadData(structure.currentFolderItem);
+		}
 	} else {
 		$('#structure-tiles').show();
 		$('#structure-search').show();
