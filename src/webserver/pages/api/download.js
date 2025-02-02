@@ -19,7 +19,6 @@ module.exports = function (webserver, endpoint) {
 		}
 
 		try {
-			throw new Error('feee');
 			const mimeType = fileItem.mimeType;
 			if (mimeType) {
 				res.setHeader('Content-Type', mimeType);
