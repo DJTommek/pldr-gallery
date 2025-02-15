@@ -8,6 +8,7 @@ const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
 const pathCustom = require(BASE_DIR_GET('/src/libs/path.js'));
 const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 const structureRepository = require(BASE_DIR_GET('/src/libs/repository/structure.js'));
+const PathEncoder = require('../private/js/class/PathEncoder.js');
 
 module.exports = function (webserver, baseEndpoint) {
 
@@ -136,13 +137,9 @@ module.exports = function (webserver, baseEndpoint) {
 			try {
 				let path;
 				try {
-					path = decodeURIComponent(Buffer.from(req.query.path, 'base64').toString());
+					path = PathEncoder.decode(req.query.path);
 				} catch (error) {
 					return res.result.setError('Path has invalid format.').end(400);
-				}
-
-				if (path.startsWith('/') === false) {
-					return res.result.setError('Path is not valid.').end(400);
 				}
 				res.locals.queryPath = path;
 

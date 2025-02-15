@@ -41,6 +41,7 @@ class Item {
 	}
 
 	getEncodedPath() {
+		// @TODO Use PathEncoder.encode() instead
 		return btoa(encodeURIComponent(this.path));
 	}
 
