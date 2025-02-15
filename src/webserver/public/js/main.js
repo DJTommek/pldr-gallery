@@ -46,6 +46,9 @@ async function restoreFromUrl(urlQueryParamsRaw) {
  */
 window.addEventListener('popstate', async function (event) {
 	console.warn('popstate event', event);
+	if (event.state === null) {
+		return;
+	}
 	const queryParamsRaw = event.state.url.substring(1); // URL is in format `/?some=param` but we want only query parameters
 	windowPopStateRunning = true; // Prevent pushing into history when browser is directing going back or forward.
 	try {
