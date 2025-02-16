@@ -16,6 +16,7 @@ const compression = require('compression');
 const serverTiming = require('server-timing');
 const webserver = express();
 const fileGenerators = require('./fileGenerators');
+const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 
 webserver.use(bodyParser.json()); // support json encoded bodies
 webserver.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
@@ -132,6 +133,77 @@ webserver.get('/js/modules.min.js', function (req, res) {
 webserver.get('/', function (req, res) {
 	res.result.setError('Fatal error occured, index file is missing. Contact administrator.').end(500);
 	LOG.error('(Webserver) Index file is missing, check log if file was generated and was created in "temp/webserver/public/index.html"');
+});
+
+/**
+ * Load user permissions
+ *
+ * @returns next()
+ */
+webserver.all('*', async function (req, res, next) {
+	try {
+		let token = req.cookies[c.http.login.name];
+		// cookie dont exists or is invalid
+
+		if (!token || !token.match("^[a-f0-9]{40}$")) {
+			throw new Error('Musis se <a href="/login">prihlasit</a>.');
+		}
+		let cookieFilePath = c.http.login.tokensPath + token + '.json';
+		// check for cookie on the server filesystem
+		if (!FS.existsSync(cookieFilePath)) {
+			throw new Error('Cookie na serveru neexistuje, musis se znovu <a href="/login">prihlasit</a>.');
+		}
+		// check for cookie validity on the server
+		let fileStats = FS.statSync(cookieFilePath);
+		if ((fileStats.atime.getTime() + c.http.login.validity) - new Date().getTime() < 0) {
+			throw new Error('Platnost cookie vyprsela, musis se znovu <a href="/login">prihlasit</a>.');
+		}
+
+		// Everything is ok
+		let cookieContent = JSON.parse(FS.readFileSync(cookieFilePath).toString());
+
+		// load logged user
+		res.locals.user = perms.getUser(cookieContent.email);
+
+		// user is logged but not yet saved in database
+		if (!res.locals.user) {
+			// logged user is not known, get temporary user object
+			res.locals.user = await perms.registerNewUser(cookieContent.email);
+		}
+
+		// update cookie expiration on the server
+		FS.utimesSync(cookieFilePath, new Date(), new Date());
+	} catch (error) {
+		// user is not logged, ignore errors and continue as unlogged
+		res.clearCookie(c.http.login.name);
+		res.locals.user = perms.getNonLoggedUser();
+	}
+	next();
+});
+
+/**
+ * Load password permissions
+ *
+ * @returns next()
+ */
+webserver.all('*', async function (req, res, next) {
+	// Try load and merge perms if user has some passwords
+	res.locals.user.clearPasswords();
+	try {
+		let passwordCookie = req.cookies['pmg-passwords'];
+		if (!passwordCookie) {
+			throw new Error('No password cookie is available');
+		}
+		passwordCookie.split(',').forEach(function (password) {
+			const passwordObject = perms.getPassword(password);
+			if (passwordObject) {
+				res.locals.user.addPassword(passwordObject);
+			}
+		});
+	} catch (error) {
+		// Do nothing, probably user just dont have cookie
+	}
+	next();
 });
 
 /**
