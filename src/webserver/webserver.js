@@ -56,7 +56,6 @@ webserver.all('*', function (req, res, next) {
 		get: req.query,
 		post: req.body,
 	};
-	console.log(req.ip);
 	LOG.webserver(weblog);
 	next();
 });
