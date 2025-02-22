@@ -31,7 +31,7 @@ let CONFIG = {
 	},
 
 	cache: {
-		path: BASE_DIR_GET('/temp/'),
+		path: __dirname + '/../../temp/',
 	},
 
 	/**
@@ -203,11 +203,11 @@ let CONFIG = {
 	 */
 	less: {
 		// Folder with valid LESS files
-		sourcePath: BASE_DIR_GET('/src/webserver/private/less/themes/'),
+		sourcePath: __dirname + '/../webserver/private/less/themes/',
 		// This object is passed directly to less-middleware
 		// @see https://github.com/emberfeather/less.js-middleware#options
 		options: {
-			dest: BASE_DIR_GET('/temp/webserver/public/'),
+			dest: __dirname + '/../../temp/webserver/public/',
 			once: true,
 			debug: false,
 		},
@@ -243,7 +243,7 @@ let CONFIG = {
 			'/src/webserver/private/js/modules/settings.js',
 			'/src/webserver/private/js/modules/swipe.js',
 		],
-		destinationPath: BASE_DIR_GET('/temp/webserver/public/js/modules.min.js'),
+		destinationPath: __dirname + '/../../temp/webserver/public/js/modules.min.js',
 		// This object is passed directly to terser.minify
 		// @see https://github.com/terser/terser#api-reference
 		options: {
@@ -347,10 +347,10 @@ let CONFIG = {
 			// expiration in miliseconds of user token (after last use)
 			validity: 30 * 24 * 60 * 60 * 1000,
 			// path to save logged users tokens
-			tokensPath: BASE_DIR_GET('/data/token/'),
+			tokensPath: __dirname + '/../../data/token/',
 		},
-		publicPath: BASE_DIR_GET('/src/webserver/public/'),
-		publicPathGenerated: BASE_DIR_GET('/temp/webserver/public/'),
+		publicPath: __dirname + '/../webserver/public/',
+		publicPathGenerated: __dirname + '/../../temp/webserver/public/',
 		// Express webserver format for shortcut redirecting to /api/password
 		apiPasswordShortcut: '/s/:password',
 	},

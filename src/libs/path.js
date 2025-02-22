@@ -92,6 +92,7 @@ module.exports.defineBaseDir = function(path) {
 	 *
 	 * @param path dynamic path from dir, where main file is located (usually index.js)
 	 * @returns {string} absolute path
+	 * @deprecated use native `__dirname + '/some_path/` instaed
 	 */
 	global.BASE_DIR_GET = function(path) {
 		return module.exports.join(BASE_DIR, path);
