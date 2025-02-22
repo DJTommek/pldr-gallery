@@ -32,6 +32,18 @@ const LOG = require("./libs/log");
 		LOG.fatal('(Start) Defined base path "' + CONFIG.path + '" is invalid. Error: ' + error.message);
 	}
 
+	// Validate defined allowed extensions in upload
+	const invalidAllowedExtensions = [];
+	for (const allowedExtension of CONFIG.upload.allowedExtensions) {
+		const mediaType = FileExtensionMapperInstance.getMediaType(allowedExtension);
+		if (mediaType === null) {
+			invalidAllowedExtensions.push(allowedExtension);
+		}
+	}
+	if (invalidAllowedExtensions.length > 0) {
+		LOG.warning('[Config - upload] ' + CONFIG.upload.allowedExtensions.length + ' file extensions are allowed but ' + invalidAllowedExtensions.length + ' of them are not matched to media type. Server validation will accept these files but frontend validation will refuse them. Full list of invalid extensions: "' + invalidAllowedExtensions.join('", "') + '"');
+	}
+
 	LOG.info('***STARTING***');
 
 	try {
