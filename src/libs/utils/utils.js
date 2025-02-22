@@ -80,3 +80,27 @@ module.exports.fsLstat = async function (path) {
 		throw error;
 	}
 }
+
+/**
+ * Smarter moving file, that handles errors related to unable to rename across multiple device (partitions) by fallback
+ * to copy file to target path and delete source path.
+ *
+ * @param {string} sourcePath
+ * @param {string }targetPath
+ * @return {Promise<void>}
+ */
+module.exports.fsMove = async function (sourcePath, targetPath) {
+	try {
+		await FS.rename(sourcePath, targetPath);
+	} catch (error) {
+		if (error.code === 'EXDEV') {
+			// Example of full error message which occures in Docker
+			// "EXDEV: cross-device link not permitted, rename '/app/temp/upload/ae7b6ebf-9648-4dbe-8559-0ef00e1527b2.jpg' -> '/app/data/upload/path1/path2/some-filename.jpg'"
+			await FS.copyFile(sourcePath, targetPath);
+			await FS.unlink(sourcePath);
+			return;
+		}
+
+		throw error;
+	}
+}

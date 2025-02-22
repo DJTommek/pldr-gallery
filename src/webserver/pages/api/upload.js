@@ -122,7 +122,7 @@ module.exports = function (webserver, endpoint) {
 			} while (existingFileStats !== null);
 
 			await FSP.mkdir(PATH.dirname(filePathFinal), {recursive: true});
-			await FSP.rename(filePathTemp, filePathFinal);
+			await Utils.fsMove(filePathTemp, filePathFinal);
 
 			LOG.info('User ID ' + res.locals.user.id + ' (IP ' + req.ip + ') uploaded file "' + directoryItem.path + '/' + fileNameFinal + '" (' + formatBytes(formFileSize) + ').');
 
