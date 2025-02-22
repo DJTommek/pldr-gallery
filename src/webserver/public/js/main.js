@@ -452,7 +452,7 @@ $(async function () {
 		 *       behave weird due to race conditions.
 		 * @see https://github.com/pqina/vue-filepond/issues/41#issuecomment-840237085
 		 */
-		let serverResponseBody = null;
+		let serverErrorMessage = null;
 
 		const acceptedFileTypes = [];
 		for (const allowedExtension of CONFIG.upload.allowedExtensions) {
@@ -468,7 +468,11 @@ $(async function () {
 				url: '/api/upload',
 				process: {
 					onerror: (responseBody) => {
-						serverResponseBody = JSON.parse(responseBody);
+						try {
+							serverErrorMessage = JSON.parse(responseBody).message;
+						} catch (error) {
+							serverErrorMessage = 'try again later';
+						}
 					}
 				},
 				headers: {
@@ -498,7 +502,7 @@ $(async function () {
 			},
 
 			labelFileProcessingError: () => {
-				return '⚠️Error: ' + serverResponseBody.message;
+				return '⚠️Error: ' + serverErrorMessage;
 			},
 			oninitfile: function (event) {
 				event.setMetadata('path', structure.currentFolderItem.getEncodedPath());
