@@ -11,6 +11,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" integrity="sha256-YU3qCpj/P06tdPBJGPax0bm6Q1wltfwjsho5TR4+TYc=" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" integrity="sha256-YSWCMtmNZNwqex4CEw1nQhvFub2lmU7vcCKP+XVwwXA=" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css" integrity="sha256-nckVXP1jMdH1YpiBrAvGOSgkP6TB2DsXzkkhtSAL4K4=" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/filepond@4.32.7/dist/filepond.min.css" integrity="sha256-R/TKiFR8YXiqvCSFSm3ek/rIjgEoFS5PpaAMkv/brg4=" crossorigin="anonymous">
 	<link rel="stylesheet" id="style-theme">
 
 	<!-- Favicon settings generated with https://realfavicongenerator.net/ -->
@@ -132,6 +133,20 @@
 				</a>
 			</li>
 
+			<li
+					class="nav-item"
+					title="Upload files"
+					data-bs-toggle="modal"
+					data-bs-target="#upload-modal"
+					id="navbar-upload"
+					style="display: none"
+			>
+				<a class="btn btn-outline-secondary" href="#" id="files-upload-open">
+					<i class="fa fa-cloud-upload fa-fw"></i>
+					<span class="d-md-none d-lg-none">Upload</span>
+				</a>
+			</li>
+
 			<!-- Download directory as archive -->
 			<li class="nav-item" title="Download this directory and it's subdirectories as an archive">
 				<a class="btn btn-outline-secondary" href="#" id="navbar-download-archive">
@@ -193,6 +208,20 @@
 		</ul>
 	</div>
 </nav>
+
+<div class="modal fade" id="upload-modal" tabindex="-1">
+	<div class="modal-dialog modal-fullscreen-md-down">
+		<form class="modal-content" action="/api/upload" method="POST" id="upload-modal-form">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5">Upload files</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<input id="upload-modal-form-files" type="file" name="files" multiple required/>
+			</div>
+		</form>
+	</div>
+</div>
 
 <noscript>
 	<h2 class="text-center">V prohlížeči je nutné povolit Javascript</h2>
@@ -370,6 +399,7 @@
 <script defer type="text/javascript" src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.76.0/dist/L.Control.Locate.min.js" integrity="sha384-po5+xQ/fTQb8LPCatq85vQHCYT/GZ+pSEGju4EMU8GvmOT+rWHCZmRHGfXwbLYEE" crossorigin="anonymous"></script>
 <script defer type="text/javascript" src="https://cdn.jsdelivr.net/npm/leaflet-fullscreen@1.0.2/dist/Leaflet.fullscreen.min.js" integrity="sha256-RQN1bmEq/28pzVG8Csu34O677VNj5/1xl1wUGyDjMuo=" crossorigin="anonymous"></script>
 <script defer type="text/javascript" src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" integrity="sha256-Hk4dIpcqOSb0hZjgyvFOP+cEmDXUKKNE/tT542ZbNQg=" crossorigin="anonymous"></script>
+<script defer type="text/javascript" src="https://cdn.jsdelivr.net/npm/filepond@4.32.7/dist/filepond.min.js" integrity="sha256-BRICH2AsAT7Vx36hU5PcHTuKBbusAU4j6fge+/dHO1M=" crossorigin="anonymous"></script>
 <script defer type="text/javascript" src="js/modules.min.js?{{CACHEBUSTER_PUBLIC_JS_MODULES_MIN.JS}}"></script>
 <script defer type="text/javascript" src="js/main.js?{{CACHEBUSTER_PUBLIC_JS_MAIN.JS}}"></script>
 <!-- @formatter:off -->

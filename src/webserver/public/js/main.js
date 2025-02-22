@@ -440,6 +440,40 @@ $(async function () {
 		}
 	})();
 
+	/**
+	 * Initialize UI for upload files to the server using Filepond.
+	 */
+	(function () {
+		const pond = FilePond.create(document.getElementById('upload-modal-form-files'));
+		/**
+		 * @HACK how to access responses from server API in label to render proper error message. Probably it might
+		 *       behave weird due to race conditions.
+		 * @see https://github.com/pqina/vue-filepond/issues/41#issuecomment-840237085
+		 */
+		let serverResponseBody = null;
+
+		pond.setOptions({
+			server: {
+				url: '/api/upload',
+				process: {
+					onerror: (responseBody) => {
+						serverResponseBody = JSON.parse(responseBody);
+					}
+				},
+				headers: {
+					'Accept': 'application/json',
+				}
+			},
+			labelFileProcessingError: () => {
+				return '⚠️Error: ' + serverResponseBody.message;
+			},
+			allowRevert: false, // @TODO disabled because server is currently not supporting
+			oninitfile: function (event) {
+				event.setMetadata('path', structure.currentFolderItem.getEncodedPath());
+			},
+		});
+	})();
+
 	// Load and set type of view from Settings
 	structureViewChange(Settings.load('structureDisplayType'));
 
@@ -727,6 +761,7 @@ async function loadStructure2(directoryItem) {
 		$('#structure-search input').val('');
 		loadThumbnail();
 		structure.filter();
+		$('#navbar-upload').toggle(result.result.canWrite);
 	} finally {
 		loadingStructure(false);
 	}

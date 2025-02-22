@@ -35,6 +35,35 @@ let CONFIG = {
 	},
 
 	/**
+	 * Allow users to upload files directly using PldrGallery website.
+	 */
+	upload: {
+		enabled: false,
+		/**
+		 * Path, where all files will be temporary uploaded until:
+		 * - moved into `pathFinal`
+		 * - deleted if something is wrong
+		 *
+		 * PldrGallery must be able to write into this directory.
+		 * This path should not be accessible for the public.
+		 */
+		pathTemp: __dirname + '/../../temp/upload/',
+		/**
+		 * Path, where all uploaded files will be moved after all validations and checks are successfull. If user
+		 * uploaded file to some directory, for example `/demo/files`, then in pathFinal will be created these
+		 * directories and file will be put there.
+		 *
+		 * It is possible to set the same path as main PldrGallery path, so files then can be viewed directly in
+		 * PldrGallery instead of manually moving them there. This is recommended only if you trust users/passwords with
+		 * write permission.
+		 */
+		pathFinal: __dirname + '/../../data/upload/',
+		allowedExtensions: ['png', 'jpg', 'jpeg', 'heic', 'mp4'], // Must be lowercased
+		fileMaxSize: 50 * 1024 * 1024, // Size in bytes, default 50 MB
+		fileNameMaxLength: 100, // count of characters (multi-byte character might be counted as more than one character)
+	},
+
+	/**
 	 * Thumbnails are very small compressed images of real files or directories, that are visible in structure (some
 	 * types of view), in map as markers, etc.
 	 * Thumbnails must be pre-generated. If user tries to load some thumbnail, that is not yet pre-generated or

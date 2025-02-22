@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const FS = require('fs/promises');
 
 /**
  * Check, if any arguments is requesting showing help via typical attribute names
@@ -59,6 +60,23 @@ module.exports.clamp = function (input, min = 0, max = null) {
  * @param {string} input
  * @returns {string}
  */
-module.exports.md5 = function(input) {
+module.exports.md5 = function (input) {
 	return crypto.createHash('md5').update(input).digest('hex');
+}
+
+/**
+ * Exactly as native filesystem.lstat but returns null if path does not exists instead of throwing exception.
+ *
+ * @param path
+ * @return {Promise<Stats|null>}
+ */
+module.exports.fsLstat = async function (path) {
+	try {
+		return await FS.lstat(path);
+	} catch (error) {
+		if (error.code === 'ENOENT') {
+			return null;
+		}
+		throw error;
+	}
 }
