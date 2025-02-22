@@ -203,6 +203,12 @@ browserMap.map.on('load moveend', async function (event) {
 	await browserMap.loadData(structure.currentFolderItem);
 });
 
+window.addEventListener('beforeunload', function (event) {
+	if (uploadPopup.isUploading) {
+		event.preventDefault();
+	}
+});
+
 /**
  * Global error handler
  * @author https://stackoverflow.com/a/10556743/3334403
