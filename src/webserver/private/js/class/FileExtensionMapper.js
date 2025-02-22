@@ -18,6 +18,18 @@ class FileExtensionMapper {
 		return (this.audios.hasOwnProperty(ext) ? this.audios[ext] : null);
 	}
 
+	/**
+	 * Convert extension into media type string
+	 * @example 'jpg' -> 'image/jpeg'
+	 *
+	 * @param {string} extension
+	 * @return {string|null} Returns null if unable to map.
+	 */
+	getMediaType(extension) {
+		const extData = this.get(extension);
+		return extData?.mediaType ?? null;
+	}
+
 	constructor() {
 		this.images = { // loading into <img> tag
 			apng: {
