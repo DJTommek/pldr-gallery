@@ -69,6 +69,7 @@ module.exports.generateIndexHtml = function() {
 				},
 				upload: {
 					fileMaxSize: CONFIG.upload.fileMaxSize,
+					allowedExtensions: CONFIG.upload.allowedExtensions,
 				},
 			}));
 			// build final index file

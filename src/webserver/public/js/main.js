@@ -445,6 +445,7 @@ $(async function () {
 	 */
 	(function () {
 		FilePond.registerPlugin(FilePondPluginFileValidateSize);
+		FilePond.registerPlugin(FilePondPluginFileValidateType);
 		const pond = FilePond.create(document.getElementById('upload-modal-form-files'));
 		/**
 		 * @HACK how to access responses from server API in label to render proper error message. Probably it might
@@ -452,6 +453,15 @@ $(async function () {
 		 * @see https://github.com/pqina/vue-filepond/issues/41#issuecomment-840237085
 		 */
 		let serverResponseBody = null;
+
+		const acceptedFileTypes = [];
+		for (const allowedExtension of CONFIG.upload.allowedExtensions) {
+			const mediaType = FileExtensionMapperInstance.getMediaType(allowedExtension);
+			if (mediaType === null) {
+				continue;
+			}
+			acceptedFileTypes.push(mediaType);
+		}
 
 		pond.setOptions({
 			server: {
@@ -471,6 +481,21 @@ $(async function () {
 			allowFileSizeValidation: true,
 			minFileSize: 1,
 			maxFileSize: CONFIG.upload.fileMaxSize,
+
+			// Config related to file type validation
+			allowFileTypeValidation: true,
+			acceptedFileTypes: acceptedFileTypes,
+			fileValidateTypeDetectType: function (file, mimeType) {
+				return new Promise((resolve, reject) => {
+					if (mimeType !== '') {
+						return resolve(mimeType);
+					}
+
+					const fileExt = file.name.split('.').pop().toLowerCase();
+					const extData = FileExtensionMapperInstance.getMediaType(fileExt);
+					extData === null ? reject() : resolve(extData);
+				});
+			},
 
 			labelFileProcessingError: () => {
 				return '⚠️Error: ' + serverResponseBody.message;
