@@ -39,7 +39,7 @@
 		"terser": "^5.16"
 	},
 	"devDependencies": {
-		"mocha": "^10.2"
+		"mocha": "^10.8"
 	},
 	"nodemonConfig": {
 		"ignore": [
