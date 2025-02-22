@@ -8,7 +8,7 @@ require(BASE_DIR_GET('/src/webserver/private/js/class/Icon.js'));
 require(BASE_DIR_GET('/src/webserver/private/js/class/FileExtensionMapper.js'));
 const utils = require("./utils/utils");
 const FS = require('fs');
-const Permission = require('./permission.js');
+const Permission = require('./Permission.js');
 
 module.exports.GROUPS = {
 	ALL: 1,
