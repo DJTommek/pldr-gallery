@@ -367,7 +367,7 @@ $(async function () {
 	});
 
 	if (CONFIG.archive.enabled === false) {
-		$('#navbar-download-archive').remove();
+		$('#navbar-download-archive').parent().remove();
 	}
 
 	loadUserData();
