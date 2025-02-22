@@ -330,6 +330,15 @@ let CONFIG = {
 			certPath: '/etc/letsencrypt/live/your-domain.name/cert.pem',
 			port: 3001,
 		},
+		/**
+		 * Define list of trusted proxies. If request is coming from one of defined IP addresses, then IP passed from
+		 * the proxy will be used instead of IP of that proxy. IP address is used for example in logging.
+		 * This is directly passed to ExpressJS.
+		 * Keep this array empty, if port is directly publicly accessible without any proxy.
+		 * @see https://expressjs.com/en/guide/behind-proxies.html
+		 * @example trustProxy: ['192.168.0.3']
+		 */
+		trustProxy: [],
 		// maximum time reserverd for one request (in miliseconds)
 		timeout: 30 * 1000,
 		login: {

@@ -28,6 +28,7 @@ webserver.use(express.static(c.http.publicPathGenerated));
 webserver.use(compression());
 webserver.use(serverTiming());
 webserver.disable('x-powered-by');
+webserver.set('trust proxy', c.http.trustProxy);
 
 module.exports.httpServer = null;
 module.exports.httpsServer = null;
@@ -54,17 +55,8 @@ webserver.all('*', function (req, res, next) {
 		path: req.path,
 		get: req.query,
 		post: req.body,
-		forwarded: {},
 	};
-	// Log proxy headers to catch real IP address
-	// @TODO There might be more headers which should be supported as "X-ProxyUser-Ip" and "Forwarded"
-	// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
-	// @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Forwarded
-	['x-forwarded-host', 'x-forwarded-for'].forEach(function (headerName) {
-		if (req.headers[headerName]) {
-			weblog.forwarded[headerName] = req.headers[headerName];
-		}
-	});
+	console.log(req.ip);
 	LOG.webserver(weblog);
 	next();
 });
