@@ -67,6 +67,9 @@ module.exports.generateIndexHtml = function() {
 				archive: {
 					enabled: CONFIG.archive.enabled,
 				},
+				upload: {
+					fileMaxSize: CONFIG.upload.fileMaxSize,
+				},
 			}));
 			// build final index file
 			FS.writeFile(BASE_DIR_GET('/temp/webserver/public/index.html'), fileContent, function (error) {

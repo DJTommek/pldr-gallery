@@ -444,6 +444,7 @@ $(async function () {
 	 * Initialize UI for upload files to the server using Filepond.
 	 */
 	(function () {
+		FilePond.registerPlugin(FilePondPluginFileValidateSize);
 		const pond = FilePond.create(document.getElementById('upload-modal-form-files'));
 		/**
 		 * @HACK how to access responses from server API in label to render proper error message. Probably it might
@@ -464,10 +465,16 @@ $(async function () {
 					'Accept': 'application/json',
 				}
 			},
+			allowRevert: false, // @TODO disabled because server is currently not supporting
+
+			// Config related to file size validation
+			allowFileSizeValidation: true,
+			minFileSize: 1,
+			maxFileSize: CONFIG.upload.fileMaxSize,
+
 			labelFileProcessingError: () => {
 				return '⚠️Error: ' + serverResponseBody.message;
 			},
-			allowRevert: false, // @TODO disabled because server is currently not supporting
 			oninitfile: function (event) {
 				event.setMetadata('path', structure.currentFolderItem.getEncodedPath());
 			},
