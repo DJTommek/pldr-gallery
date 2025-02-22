@@ -125,7 +125,10 @@ async function createTables() {
 					.unsigned()
 					.references(CONFIG.db.table.password + '.id');
 				table
-					.string('permission')
+					.string('permission');
+				table
+					.boolean('can_write')
+					.defaultTo(false);
 			})
 			console.log('(Knex) Created table "' + CONFIG.db.table.permission + '".');
 		} else {

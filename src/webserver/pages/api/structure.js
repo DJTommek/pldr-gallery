@@ -73,7 +73,8 @@ module.exports = function (webserver, endpoint) {
 				filesOffset: data[0].offset,
 				lastScan: data[1],
 				header: data[2],
-				footer: data[3]
+				footer: data[3],
+				canWrite: res.locals.user.testPathPermission(folderItem.path, true, true),
 			}).end(200);
 		}).catch(function (error) {
 			LOG.error('Error while loading structure for "' + folderItem + '": "' + error.message + '"');
@@ -84,11 +85,11 @@ module.exports = function (webserver, endpoint) {
 
 /**
  * @param {FolderItem} directoryItem
- * @param {array<string>} permissionsPaths
+ * @param {array<Permission>} permissions
  * @param {object} options
  * @return {Promise<unknown>}
  */
-function loadStructure(directoryItem, permissionsPaths, options = {}) {
+function loadStructure(directoryItem, permissions, options = {}) {
 	const result = {
 		files: [],
 		folders: [],
@@ -113,8 +114,8 @@ function loadStructure(directoryItem, permissionsPaths, options = {}) {
 		// @TODO Optimize by removing permissions, that starts differently than requested directory
 		const permissionsQueriedPaths = [];
 		const searchingLevel = directoryItem.paths.length + 2;
-		for (const permissionPath of permissionsPaths) {
-			const pathParts = permissionPath.split('/');
+		for (const permission of permissions) {
+			const pathParts = permission.path.split('/');
 			const queriedPath = pathParts.slice(0, searchingLevel).join('/');
 			if (permissionsQueriedPaths.includes(queriedPath)) {
 				continue;

@@ -8,6 +8,7 @@ require(BASE_DIR_GET('/src/webserver/private/js/class/Icon.js'));
 require(BASE_DIR_GET('/src/webserver/private/js/class/FileExtensionMapper.js'));
 const utils = require("./utils/utils");
 const FS = require('fs');
+const Permission = require('./permission.js');
 
 module.exports.GROUPS = {
 	ALL: 1,
@@ -72,26 +73,29 @@ async function loadGroupsDb() {
 				CONFIG.db.table.group + '.id',
 				CONFIG.db.table.group + '.name',
 				CONFIG.db.table.permission + '.permission',
+				CONFIG.db.table.permission + '.can_write',
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.group_id', CONFIG.db.table.group + '.id')
 			.groupBy(CONFIG.db.table.group + '.id')
 			.groupBy(CONFIG.db.table.permission + '.permission')
 			.orderBy(CONFIG.db.table.group + '.id')
 	).forEach(function (data) {
+		if (GROUPS[data.id] === undefined) {
+			GROUPS[data.id] = new Group(data.id, data['name']);
+		}
+
 		// if null, group exists but don't have any permissions assigned
 		if (data.permission !== null) {
 			try {
 				validatePermission(data.permission);
 			} catch (error) {
-				LOG.warning('Group ID ' + data['id'] + ' has invalid permission "' + data.permission + '": "' + error.message + '"');
+				LOG.warning('Group ID ' + data.id + ' has invalid permission "' + data.permission + '": "' + error.message + '"');
 				return;
 			}
 		}
-		if (GROUPS[data['id']] === undefined) {
-			GROUPS[data['id']] = new Group(data['id'], data['name']);
-		}
 		if (data.permission !== null) {
-			GROUPS[data['id']].addPermission(data.permission);
+			const permission = new Permission(data.permission, dbValueToBoolean(data.can_write));
+			GROUPS[data.id].addPermission(permission);
 		}
 	});
 
@@ -124,28 +128,31 @@ async function loadPasswordsDb() {
 				CONFIG.db.table.password + '.id',
 				CONFIG.db.table.password + '.password',
 				CONFIG.db.table.permission + '.permission',
+				CONFIG.db.table.permission + '.can_write',
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.password_id', CONFIG.db.table.password + '.id')
 			.groupBy(CONFIG.db.table.password + '.id')
 			.groupBy(CONFIG.db.table.permission + '.permission')
 			.orderBy(CONFIG.db.table.password + '.id')
 	).forEach(function (data) {
+		if (PASSWORDS[data.id] === undefined) {
+			PASSWORDS[data.id] = new Password(data.id, data.password);
+		}
+
 		// if null, password exists but don't have any permissions assigned
 		if (data.permission === null) {
-			LOG.warning('Password ID ' + data['id'] + ' don\'t have any permissions.');
+			LOG.warning('Password ID ' + data.id + ' don\'t have any permissions.');
 		} else {
 			try {
 				validatePermission(data.permission);
 			} catch (error) {
-				LOG.warning('Password ID ' + data['id'] + ' has invalid permission "' + data.permission + '": "' + error.message + '"');
+				LOG.warning('Password ID ' + data.id + ' has invalid permission "' + data.permission + '": "' + error.message + '"');
 				return;
 			}
 		}
-		if (PASSWORDS[data['id']] === undefined) {
-			PASSWORDS[data['id']] = new Password(data['id'], data['password']);
-		}
 		if (data.permission !== null) {
-			PASSWORDS[data['id']].addPermission(data.permission);
+			const permission = new Permission(data.permission, dbValueToBoolean(data.can_write));
+			PASSWORDS[data.id].addPermission(permission);
 		}
 	});
 }
@@ -156,30 +163,34 @@ async function loadUsersDb() {
 				CONFIG.db.table.user + '.id',
 				CONFIG.db.table.user + '.email',
 				CONFIG.db.table.permission + '.permission',
+				CONFIG.db.table.permission + '.can_write',
 			)
 			.leftJoin(CONFIG.db.table.permission, CONFIG.db.table.permission + '.user_id', CONFIG.db.table.user + '.id')
 			.groupBy(CONFIG.db.table.user + '.id')
 			.groupBy(CONFIG.db.table.permission + '.permission')
 			.orderBy(CONFIG.db.table.user + '.id')
 	).forEach(function (data) {
+		if (USERS[data.id] === undefined) {
+			const user = new User(data.id, data['email']);
+			// assign all users to generic groups
+			user.addGroup(GROUPS[module.exports.GROUPS.ALL])
+			user.addGroup(GROUPS[module.exports.GROUPS.LOGGED])
+			USERS[data.id] = user;
+		}
+
 		// if null, group exists but don't have any permissions assigned
 		if (data.permission !== null) {
 			try {
 				validatePermission(data.permission);
 			} catch (error) {
-				LOG.warning('User ID ' + data['id'] + ' has invalid permission "' + data.permission + '": "' + error.message + '"');
+				LOG.warning('User ID ' + data.id + ' has invalid permission "' + data.permission + '": "' + error.message + '"');
 				return;
 			}
 		}
-		if (USERS[data['id']] === undefined) {
-			const user = new User(data['id'], data['email']);
-			// assign all users to generic groups
-			user.addGroup(GROUPS[module.exports.GROUPS.ALL])
-			user.addGroup(GROUPS[module.exports.GROUPS.LOGGED])
-			USERS[data['id']] = user;
-		}
+
 		if (data.permission !== null) {
-			USERS[data['id']].addPermission(data.permission);
+			const permission = new Permission(data.permission, dbValueToBoolean(data.can_write));
+			USERS[data.id].addPermission(permission);
 		}
 	});
 }
@@ -199,21 +210,21 @@ exports.test = permissionCheck;
 /**
  * Check if given path is approvedd according given permissions
  *
- * @param {[string]} permissions
+ * @param {array<Permission>} permissions
  * @param {string} path
  * @param {boolean} fullAccess set true to check, if user has to have full permission to given folder (not only some files/folders inside that path)
+ * @param {boolean} requireWrite Returns true, only if matched permission has also canWrite
  * @returns {boolean}
  */
-function permissionCheck(permissions, path, fullAccess = false) {
+function permissionCheck(permissions, path, fullAccess = false, requireWrite = false) {
 	const pathAsDir = pathCustom.join(path + '/');
 	return permissions.some(function (permission) {
-		if (path.startsWith(permission)) {
-			// requested path is fully in perms
-			return true;
+		if (path.startsWith(permission.path)) { // requested path is fully in perms
+			return requireWrite === false || permission.canWrite;
 		}
-		if (fullAccess === false && permission.startsWith(pathAsDir)) {
-			// show folder, which lead to files saved deeper
-			return true;
+
+		if (fullAccess === false && permission.path.startsWith(pathAsDir)) { // show folder, which lead to files saved deeper
+			return requireWrite === false || permission.canWrite;
 		}
 	});
 }
@@ -300,6 +311,7 @@ class User {
 	constructor(id, email) {
 		this.id = id;
 		this.email = email;
+		/** @type {array<Permission>} */
 		this.permissions = [];
 		this.groups = [];
 		this.passwords = [];
@@ -333,12 +345,16 @@ class User {
 	 *
 	 * @param {string} path
 	 * @param {boolean} fullAccess @see permissionCheck()
+	 * @param {boolean} requireWrite @see permissionCheck()
 	 * @return {boolean}
 	 */
-	testPathPermission(path, fullAccess = false) {
-		return permissionCheck(this.getPermissions(), path, fullAccess);
+	testPathPermission(path, fullAccess = false, requireWrite = false) {
+		return permissionCheck(this.getPermissions(), path, fullAccess, requireWrite);
 	}
 
+	/**
+	 * @param {Permission} permission
+	 */
 	addPermission(permission) {
 		this.permissions.push(permission);
 	}
@@ -346,7 +362,7 @@ class User {
 	/**
 	 * Get all permissions merged from user, groups and passwords
 	 *
-	 * @returns {array<string>}
+	 * @returns {array<Permission>}
 	 */
 	getPermissions() {
 		let permissions = [...this.permissions];
@@ -375,6 +391,7 @@ class Group {
 	constructor(id, name) {
 		this.id = id;
 		this.name = name;
+		/** @type {array<Permission>} */
 		this.permissions = [];
 		this.users = [];
 	}
@@ -387,10 +404,16 @@ class Group {
 		}
 	}
 
+	/**
+	 * @param {Permission} permission
+	 */
 	addPermission(permission) {
 		this.permissions.push(permission);
 	}
 
+	/**
+	 * @return {array<Permission>}
+	 */
 	getPermissions() {
 		return [...this.permissions];
 	}
@@ -400,14 +423,42 @@ class Password {
 	constructor(id, password) {
 		this.id = id;
 		this.password = password;
+		/** @type {array<Permission>} */
 		this.permissions = [];
 	}
 
+	/**
+	 * @param {Permission} permission
+	 */
 	addPermission(permission) {
 		this.permissions.push(permission);
 	}
 
+	/**
+	 * @return {array<Permission>}
+	 */
 	getPermissions() {
 		return [...this.permissions];
 	}
+}
+
+/**
+ * Different database systems can return different values, so convert usual boolean-like types into actual boolean.
+ *
+ * @param {boolean|number|string|null|undefined} input
+ * @return {boolean}
+ */
+function dbValueToBoolean(input) {
+	if (typeof input === 'boolean') {
+		return input;
+	}
+	if (typeof input === 'number') {
+		return input !== 0; // 0 = false, other values are true
+	}
+
+	if (input === undefined || input === null || input === '' || input === '0') {
+		return false;
+	}
+
+	return true;
 }

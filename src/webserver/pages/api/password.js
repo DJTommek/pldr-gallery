@@ -65,7 +65,7 @@ module.exports = function (webserver, endpoint) {
 				return;
 			}
 
-			let redirectTarget = passwordObject.getPermissions()[0];
+			let redirectTarget = passwordObject.getPermissions()[0].path;
 			if (redirectTarget.endsWith('/')) {
 				// this is not folder, redirect to dirname of this path
 				res.redirect((new UrlManager().setPath(redirectTarget)));
