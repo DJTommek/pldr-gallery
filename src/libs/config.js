@@ -225,6 +225,7 @@ let CONFIG = {
 			// classes
 			'/src/webserver/private/js/class/Coordinates.js',
 			'/src/webserver/private/js/class/MediaPopup.js',
+			'/src/webserver/private/js/class/UploadPopup.js',
 			'/src/webserver/private/js/class/KeyboardMapper.js',
 			'/src/webserver/private/js/class/Icon.js',
 			'/src/webserver/private/js/class/FileExtensionMapper.js',

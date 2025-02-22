@@ -11,6 +11,7 @@ const urlManager = new UrlManager();
 const vibrateApi = new VibrateApi();
 const structure = new Structure();
 const mediaPopup = new MediaPopup('media-popup', structure, loadedStructure).init();
+const uploadPopup = new UploadPopup();
 const presentation = new Presentation(mediaPopup).init();
 const keyboardMapper = new KeyboardMapper(structure, mediaPopup, presentation).init();
 const serverApi = new ServerApi();
@@ -66,6 +67,13 @@ urlManager.addEventListener('statechange', function (event) {
 	}
 	const url = event.detail.url;
 	history.pushState({url: url}, '', url)
+});
+
+uploadPopup.addEventListener('uploadStart', function (event) {
+	document.getElementById('navbar-upload-icon-progress').style.display = '';
+});
+uploadPopup.addEventListener('uploadDone', function (event) {
+	document.getElementById('navbar-upload-icon-progress').style.display = 'none';
 });
 
 mediaPopup.addEventListener('beforeshowitem', function (event) {
@@ -446,7 +454,8 @@ $(async function () {
 	(function () {
 		FilePond.registerPlugin(FilePondPluginFileValidateSize);
 		FilePond.registerPlugin(FilePondPluginFileValidateType);
-		const pond = FilePond.create(document.getElementById('upload-modal-form-files'));
+		const filePond = FilePond.create(document.getElementById('upload-modal-form-files'));
+		uploadPopup.init(filePond);
 		/**
 		 * @HACK how to access responses from server API in label to render proper error message. Probably it might
 		 *       behave weird due to race conditions.
@@ -463,7 +472,7 @@ $(async function () {
 			acceptedFileTypes.push(mediaType);
 		}
 
-		pond.setOptions({
+		uploadPopup.filePond.setOptions({
 			server: {
 				url: '/api/upload',
 				process: {
