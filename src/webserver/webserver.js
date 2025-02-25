@@ -59,7 +59,6 @@ webserver.all('*', function (req, res, next) {
 		protocol: req.protocol,
 		path: req.path,
 		get: req.query,
-		post: req.body,
 	};
 	LOG.webserver(weblog);
 	next();
