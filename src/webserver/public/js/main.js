@@ -464,10 +464,12 @@ $(async function () {
 		uploadPopup.init(filePond);
 		/**
 		 * @HACK how to access responses from server API in label to render proper error message. Probably it might
-		 *       behave weird due to race conditions.
+		 *       behave weird due to race conditions. Also in some cases FilePond library does not reads response body
+		 *       so we must show default error instead.
 		 * @see https://github.com/pqina/vue-filepond/issues/41#issuecomment-840237085
 		 */
-		let serverErrorMessage = null;
+		const serverErrorMessageDefault = 'try again later'
+		let serverErrorMessage = serverErrorMessageDefault;
 
 		const acceptedFileTypes = [];
 		for (const allowedExtension of CONFIG.upload.allowedExtensions) {
@@ -486,7 +488,7 @@ $(async function () {
 						try {
 							serverErrorMessage = JSON.parse(responseBody).message;
 						} catch (error) {
-							serverErrorMessage = 'try again later';
+							serverErrorMessage = serverErrorMessageDefault;
 						}
 					}
 				},
@@ -517,7 +519,10 @@ $(async function () {
 			},
 
 			labelFileProcessingError: () => {
-				return '⚠️Error: ' + serverErrorMessage;
+				const result = '⚠️Error: ' + serverErrorMessage;
+				serverErrorMessage = serverErrorMessageDefault;
+				return result;
+
 			},
 			oninitfile: function (event) {
 				event.setMetadata('path', structure.currentFolderItem.getEncodedPath());
