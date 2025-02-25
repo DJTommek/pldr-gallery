@@ -60,6 +60,7 @@ let CONFIG = {
 		pathFinal: __dirname + '/../../data/upload/',
 		allowedExtensions: ['png', 'jpg', 'jpeg', 'heic', 'mp4'], // Must be lowercased
 		fileMaxSize: 50 * 1024 * 1024, // Size in bytes, default 50 MB
+		uploadChunkSize: 10 * 1024 * 1024, // Size in bytes, default 10 MB.
 		fileNameMaxLength: 100, // count of characters (multi-byte character might be counted as more than one character)
 	},
 

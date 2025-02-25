@@ -20,7 +20,12 @@ const perms = require(BASE_DIR_GET('/src/libs/permissions.js'));
 
 webserver.use(bodyParser.json()); // support json encoded bodies
 webserver.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
-webserver.use(bodyParser.raw()); // support raw body
+webserver.use(bodyParser.raw({
+	type: [
+		'application/offset+octet-stream',
+	],
+	limit: c.upload.uploadChunkSize,
+})); // support raw body
 webserver.use(cookieParser()); // support cookies
 webserver.use(lessMiddleware(c.less.sourcePath, c.less.options));
 webserver.use(express.static(c.http.publicPath));
