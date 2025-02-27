@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const FS = require('fs/promises');
+const PATH = require('path');
 
 /**
  * Check, if any arguments is requesting showing help via typical attribute names
@@ -103,4 +104,16 @@ module.exports.fsMove = async function (sourcePath, targetPath) {
 
 		throw error;
 	}
+}
+
+/**
+ * Check if one path is in other path.
+ *
+ * @param {string} fromPath
+ * @param {string} toPath
+ * @return {boolean}
+ */
+module.exports.pathInPath = function (fromPath, toPath) {
+	const relativePath = PATH.relative(fromPath, toPath);
+	return relativePath && !relativePath.startsWith('..') && !PATH.isAbsolute(relativePath);
 }
