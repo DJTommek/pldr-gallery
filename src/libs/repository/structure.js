@@ -309,11 +309,11 @@ function all() {
 module.exports.all = all;
 
 /**
- * @param {string} absoluteFolderPath Path, that was scanned
+ * @param {string} scannedPath
  * @param {array<FileItem|FolderItem>} newData
  * @param {Date} scanStart Older items than this time will be deleted
  */
-async function updateData(absoluteFolderPath, newData, scanStart) {
+async function updateData(scannedPath, newData, scanStart) {
 	const rows = newData.map(itemToRow);
 
 	try {
@@ -335,14 +335,13 @@ async function updateData(absoluteFolderPath, newData, scanStart) {
 				await transaction(CONFIG.db.table.structure).insert(chunk).onConflict('path').merge();
 			}
 
-			const relativePath = pathCustom.absoluteToRelative(absoluteFolderPath, CONFIG.path);
-			const folderItem = new FolderItem(null, {path: relativePath});
+			const folderItem = new FolderItem(null, {path: scannedPath});
 			const searchingLevel = folderItem.paths.length + 1;
 			const deleted = await transaction(CONFIG.db.table.structure)
 				.delete()
 				.where('scanned', '<', scanStart.getTime())
 				.andWhere('level', '>=', searchingLevel)
-				.andWhere('path', 'LIKE', sqlUtils.escapeLikeCharacters(relativePath) + '%')
+				.andWhere('path', 'LIKE', sqlUtils.escapeLikeCharacters(scannedPath) + '%')
 
 			LOG.info('(ScanStructure) Scanned structure in database was updated (' + deleted + ' deleted).');
 		});
