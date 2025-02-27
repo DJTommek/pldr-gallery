@@ -314,24 +314,7 @@ module.exports.all = all;
  * @param {Date} scanStart Older items than this time will be deleted
  */
 async function updateData(absoluteFolderPath, newData, scanStart) {
-	const rows = newData.map(function (item) {
-		const row = {
-			path: item.path,
-			type: getItemType(item),
-			scanned: item.scanned.getTime(),
-		};
-		if (item.created !== null) {
-			row.created = item.created;
-		}
-		if (item.size !== null) {
-			row.size = item.size;
-		}
-		if (item.coords) {
-			row.coordinate_lat = item.coords.lat;
-			row.coordinate_lon = item.coords.lon;
-		}
-		return row;
-	});
+	const rows = newData.map(itemToRow);
 
 	try {
 		const BATCH_SIZE = 10000;
@@ -374,21 +357,7 @@ module.exports.updateData = updateData;
  * @param {FileItem|FolderItem} item
  */
 async function add(item) {
-	const row = {
-		path: item.path,
-		type: getItemType(item),
-		scanned: item.scanned.getTime(),
-	};
-	if (item.created !== null) {
-		row.created = item.created.getTime();
-	}
-	if (item.size !== null) {
-		row.size = item.size;
-	}
-	if (item.coords) {
-		row.coordinate_lat = item.coords.lat;
-		row.coordinate_lon = item.coords.lon;
-	}
+	const row = itemToRow(item);
 
 	try {
 		await knex(CONFIG.db.table.structure).insert(row).onConflict('path').merge();
@@ -422,17 +391,6 @@ async function remove(item) {
 module.exports.remove = remove;
 
 /**
- * @param {array<FileItem|FolderItem>} item
- */
-function getItemType(item) {
-	if (item instanceof FileItem) {
-		return TYPE_FILE;
-	} else if (item instanceof FolderItem) {
-		return TYPE_FOLDER;
-	}
-}
-
-/**
  * Convert row to item depending on type.
  *
  * @param {RowDataPacket} row
@@ -462,3 +420,39 @@ function rowToItem(row) {
 }
 
 module.exports.rowToItem = rowToItem;
+
+/**
+ * Convert item into object with keys matching with database.
+ *
+ * @param {FileItem|FolderItem} item
+ * @returns {object}
+ */
+function itemToRow(item) {
+	const row = {};
+	if (item.isFolder) {
+		row.type = TYPE_FOLDER;
+	} else if (item.isFile) {
+		row.type = TYPE_FILE;
+	} else {
+		throw new Error('Item type is unknown, cannot be converted into row.');
+	}
+
+	row.path = item.path;
+	if (item.created !== null) {
+		row.created = item.created.getTime();
+	}
+	if (item.scanned !== null) {
+		row.scanned = item.scanned.getTime();
+	}
+	if (item.size !== null) {
+		row.size = item.size;
+	}
+	if (item.coords) {
+		row.coordinate_lat = item.coords.lat;
+		row.coordinate_lon = item.coords.lon;
+	}
+	return row;
+}
+
+module.exports.itemToRow = itemToRow;
+
