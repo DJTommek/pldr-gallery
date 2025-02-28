@@ -20,6 +20,7 @@ class UploadManager {
 		this.directory = null;
 		this.fileSize = null;
 		this.fileName = null;
+		this.timestamp = null;
 	}
 
 	/**
@@ -40,6 +41,7 @@ class UploadManager {
 		this.directory = directory;
 		this.fileName = fileName;
 		this.fileSize = fileSize;
+		this.timestamp = new Date();
 
 		await this.getFinalFilePath(); // Validate that file does not already exists.
 
@@ -49,6 +51,7 @@ class UploadManager {
 			directory: this.directory,
 			fileName: this.fileName,
 			fileSize: this.fileSize,
+			timestamp: this.timestamp.getTime(),
 		};
 		await FSP.writeFile(this._getMetadataFilePath(), JSON.stringify(metadata));
 	}
@@ -69,6 +72,7 @@ class UploadManager {
 		this.fileName = metadata.fileName;
 		this.directory = metadata.directory;
 		this.fileSize = metadata.fileSize;
+		this.timestamp = new Date(metadata.timestamp);
 
 		return this;
 	}
