@@ -7,6 +7,7 @@ const Utils = require('../utils/utils.js');
 const crypto = require('crypto');
 const HttpResponseError = require('../HttpResponseError.js');
 const scanStructure = require('../scanStructure.js');
+const LOG = require('../log.js');
 
 const chunkFilePrefix = 'chunk_';
 
@@ -112,6 +113,42 @@ class UploadManager {
 
 		result.sort((a, b) => this.chunkOffsetFromFilePath(a) - this.chunkOffsetFromFilePath(b));
 		return result;
+	}
+
+	/**
+	 * @param {Date} timestamp Delete all upload sessions that were created before this timestamp.
+	 * @return {Promise<void>}
+	 */
+	static async cleanupOldUploadSessions(timestamp) {
+		if (timestamp instanceof Date === false) {
+			throw new Error('Invalid parameter "timestamp", Date expected');
+		}
+
+		const dirs = await FSP.readdir(CONFIG.upload.pathTemp, {withFileTypes: true});
+		let cleanedCount = 0;
+
+		for (const dir of dirs) {
+			if (dir.isDirectory() === false) {
+				continue;
+			}
+
+			const sessionId = dir.name;
+			if (UploadManager.isUploadIdValid(sessionId) === false) {
+				continue;
+			}
+
+			try {
+				const uploadSession = await (new UploadManager(sessionId)).initExistingUpload();
+				if (uploadSession.timestamp > timestamp) {
+					continue;
+				}
+				await uploadSession.cleanup();
+				cleanedCount += 1;
+			} catch (error) {
+				LOG.warning('[Upload manager] Unable to clear upload session "' + sessionId + '": ' + error);
+			}
+		}
+		LOG.info('[Upload manager] Cleaned up ' + cleanedCount + ' unfinished upload sessions.');
 	}
 
 	/**

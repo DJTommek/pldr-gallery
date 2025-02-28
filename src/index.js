@@ -12,6 +12,7 @@ const fileGenerators = require('./webserver/fileGenerators.js');
 const cacheHelper = require("./webserver/pages/api/helpers/cache");
 const sharp = require("sharp");
 const LOG = require("./libs/log");
+const UploadManager = require('./libs/uploader/uploadManager.js');
 
 (async function () {
 	const LOG = require('./libs/log.js');
@@ -193,5 +194,17 @@ const LOG = require("./libs/log");
 		}).on('error', function (error) {
 			LOG.error('(Chokidar) Error while watching: "' + error.message + '"');
 		});
+	}
+
+	if (CONFIG.upload.enabled && CONFIG.upload.sessionCleanupCron) {
+		new CronJob(CONFIG.upload.sessionCleanupCron, async function () {
+			try {
+				const deleteOlderThan = new Date(new Date() - CONFIG.upload.sessionLength);
+				LOG.info('[CRON] Job tick for upload session cleanup. All unfinished upload session started before ' + deleteOlderThan.human() + ' (' + msToHuman(CONFIG.upload.sessionLength) + ' ago) will be deleted.');
+				await UploadManager.cleanupOldUploadSessions(deleteOlderThan);
+			} catch (error) {
+				LOG.error('[CRON] Error occured during session cleanup: "' + error.message + '"');
+			}
+		}).start();
 	}
 }());

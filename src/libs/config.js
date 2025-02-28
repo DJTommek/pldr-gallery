@@ -62,6 +62,16 @@ let CONFIG = {
 		fileMaxSize: 50 * 1024 * 1024, // Size in bytes, default 50 MB
 		uploadChunkSize: 10 * 1024 * 1024, // Size in bytes, default 10 MB.
 		fileNameMaxLength: 100, // count of characters (multi-byte character might be counted as more than one character)
+		/**
+		 * How long is chunk upload session usable to upload all chunks for single file. If all chunks are not completed
+		 * within this period, then all chunks are deleted as soon as cleanup script starts.
+		 * Value is in milliseconds, default is 24 hours
+		 */
+		sessionLength: 24 * 60 * 60 * 1000,
+		/**
+		 * Setup CRON to cleanup expired unfinished upload session, by default at 02:30:00 AM. Set to null to disable.
+		 */
+		sessionCleanupCron: '0 30 2 * * *',
 	},
 
 	/**
