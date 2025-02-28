@@ -6,6 +6,7 @@ const PATH = require('path');
 const Utils = require('../utils/utils.js');
 const crypto = require('crypto');
 const HttpResponseError = require('../HttpResponseError.js');
+const scanStructure = require('../scanStructure.js');
 
 const chunkFilePrefix = 'chunk_';
 
@@ -178,6 +179,10 @@ class UploadManager {
 		const stats = await FSP.stat(finalFilePath); // Checks that file exists and it is accessible
 		if (stats.size !== this.fileSize) {
 			throw new Error('Saved file size ' + formatBytes(stats.size) + ' does not match with expected size of ' + formatBytes(this.fileSize) + '.');
+		}
+
+		if (Utils.pathInPath(CONFIG.path, finalFilePath)) {
+			await scanStructure.scanOne(finalFilePath, stats, {exif: true, save: true});
 		}
 	}
 
