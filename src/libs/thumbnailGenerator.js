@@ -106,6 +106,8 @@ async function generateThumbnail(pathItem) {
 	return result;
 }
 
+module.exports.generateThumbnail = generateThumbnail;
+
 /**
  * @param {FileItem} fileItem
  * @return {Promise<boolean>}

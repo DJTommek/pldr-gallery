@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const HttpResponseError = require('../HttpResponseError.js');
 const scanStructure = require('../scanStructure.js');
 const LOG = require('../log.js');
+const ThumbnailGenerator = require('../thumbnailGenerator.js');
 
 const chunkFilePrefix = 'chunk_';
 
@@ -223,7 +224,8 @@ class UploadManager {
 		}
 
 		if (Utils.pathInPath(CONFIG.path, finalFilePath)) {
-			await scanStructure.scanOne(finalFilePath, stats, {exif: true, save: true});
+			const fileItem = await scanStructure.scanOne(finalFilePath, stats, {exif: true, save: true});
+			await ThumbnailGenerator.generateThumbnail(fileItem);
 		}
 	}
 
