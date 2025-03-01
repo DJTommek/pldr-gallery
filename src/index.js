@@ -12,7 +12,7 @@ const fileGenerators = require('./webserver/fileGenerators.js');
 const cacheHelper = require("./webserver/pages/api/helpers/cache");
 const sharp = require("sharp");
 const LOG = require("./libs/log");
-const UploadManager = require('./libs/uploader/uploadManager.js');
+const UploadManager = require('./libs/uploader/UploadManager.js');
 
 (async function () {
 	const LOG = require('./libs/log.js');
