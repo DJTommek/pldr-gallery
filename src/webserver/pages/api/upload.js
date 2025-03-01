@@ -137,9 +137,10 @@ module.exports = function (webserver, endpoint) {
 				await uploadManager.cleanup();
 				LOG.info('User ID ' + res.locals.user.id + ' (IP ' + req.ip + ') finished uploading all chunks of file "' + expectedFilePath + '" (' + formatBytes(uploadManager.fileSize) + ').');
 
-				return res.result.setResult(
-					{filepath: realFileAbsolutePath},
-					'All file chunks were received and new file "' + realFileAbsolutePath + '" was created.',
+				const realFileName = PATH.basename(realFileAbsolutePath);
+				res.result.setResult(
+					{filename: realFileName},
+					'All file chunks were received and new file "' + realFileName + '" was created.',
 				).end(201);
 			} else {
 				return res.result.setResult({}, 'File chunk was saved.').end(201);
