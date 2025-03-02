@@ -190,7 +190,6 @@ class UploadManager {
 		return this.chunkOffsetFromFilePath(lastChunkPath);
 	}
 
-
 	/**
 	 * @param {string} filePath
 	 * @return {number}
@@ -200,19 +199,14 @@ class UploadManager {
 	}
 
 	/**
-	 * Throws error, if sum of uploaded chunks is greater than defined in upload initialization.
+	 * @return {Promise<number>}
 	 */
-	async areAllChunksUploaded() {
+	async getSizeOfAllChunks() {
 		let allChunksSize = 0;
 		for (let chunkPath of await this.getAllChunks()) {
 			allChunksSize += (await FSP.lstat(chunkPath)).size;
 		}
-
-		if (allChunksSize > this.fileSize) {
-			throw new HttpResponseError('Total size of chunk size ' + allChunksSize + ' is greater than expected file size ' + this.fileSize + '.', 400);
-		}
-
-		return allChunksSize === this.fileSize;
+		return allChunksSize;
 	}
 
 	/**

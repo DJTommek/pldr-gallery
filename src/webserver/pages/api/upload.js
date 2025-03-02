@@ -117,6 +117,11 @@ module.exports = function (webserver, endpoint) {
 				throw new HttpResponseError('Upload session ID does not exists.', 400);
 			}
 
+			const totalSavedChunksSize = await uploadManager.getSizeOfAllChunks();
+			if (totalSavedChunksSize + chunkSize > uploadManager.fileSize) {
+				throw new HttpResponseError('Sum of chunks is too big.', 400);
+			}
+
 			await uploadManager.writeChunk(chunkOffset, req.body);
 			const expectedFilePath = uploadManager.directory + '/' + uploadManager.fileName;
 
@@ -128,7 +133,7 @@ module.exports = function (webserver, endpoint) {
 				+ ' Remaining: ' + formatBytes(uploadManager.fileSize - chunkOffset - chunkSize);
 			LOG.debug(logMessage);
 
-			if (await uploadManager.areAllChunksUploaded()) {
+			if (totalSavedChunksSize + chunkSize === uploadManager.fileSize) {
 				// @TODO completing upload might take a long time on slower drives. Maybe would be useful, to send
 				//       response before completing upload and then start completing upload.
 				const realFileAbsolutePath = await uploadManager.completeUpload();
