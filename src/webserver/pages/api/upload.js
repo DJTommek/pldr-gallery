@@ -51,7 +51,7 @@ module.exports = function (webserver, endpoint) {
 				throw new HttpResponseError('Form file fields are missing', 400);
 			}
 
-			const [structurePath, fileNameRequested] = loadDirectoryAndFileNameFromFormFields(res, formFieldsRaw);
+			const [structurePath, fileNameRequested] = loadDirectoryAndFileNameFromFormFields(formFieldsRaw);
 
 			const fileNameSanitized = await UploadManager.sanitizeFilename(fileNameRequested);
 			const formFileExt = PATH.extname(fileNameSanitized).substring(1).toLowerCase(); // '.ext' -> 'ext'
@@ -202,13 +202,15 @@ module.exports = function (webserver, endpoint) {
 	});
 }
 
-function loadDirectoryAndFileNameFromFormFields(res, formFieldsRaw) {
+function loadDirectoryAndFileNameFromFormFields(formFieldsRaw) {
 	try {
 		const formFields = JSON.parse(formFieldsRaw);
-		return [
-			PathEncoder.decode(formFields?.path),
-			formFields?.name,
-		]
+		const path = PathEncoder.decode(formFields?.path);
+		const filename = formFields?.name;
+		if (typeof path !== 'string' || typeof filename !== 'string') {
+			throw new Error();
+		}
+		return [path, filename]
 	} catch (error) {
 		throw new HttpResponseError('Form file fields are invalid', 400);
 	}
