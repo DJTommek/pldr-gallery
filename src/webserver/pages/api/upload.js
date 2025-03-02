@@ -53,12 +53,8 @@ module.exports = function (webserver, endpoint) {
 
 			const [structurePath, fileNameRequested] = loadDirectoryAndFileNameFromFormFields(res, formFieldsRaw);
 
-			const fileNameReal = await filenamify(fileNameRequested, {
-				replacement: '_',
-				maxLength: CONFIG.upload.fileNameMaxLength,
-			});
-
-			const formFileExt = PATH.extname(fileNameReal).substring(1).toLowerCase(); // '.ext' -> 'ext'
+			const fileNameSanitized = await UploadManager.sanitizeFilename(fileNameRequested);
+			const formFileExt = PATH.extname(fileNameSanitized).substring(1).toLowerCase(); // '.ext' -> 'ext'
 			if (
 				formFileExt === ''
 				|| CONFIG.upload.allowedExtensions.includes(formFileExt) === false
@@ -77,7 +73,7 @@ module.exports = function (webserver, endpoint) {
 
 			const uploadId = UploadManager.generateUploadId();
 			const uploadManager = new UploadManager(uploadId);
-			await uploadManager.initNewUpload(directoryItem.path, fileNameRequested, expectedFinalFileSize)
+			await uploadManager.initNewUpload(directoryItem.path, fileNameSanitized, expectedFinalFileSize)
 
 			LOG.info('User ID ' + res.locals.user.id + ' (IP ' + req.ip + ') started chunked uploading file "' + directoryItem.path + '" (' + formatBytes(expectedFinalFileSize) + ').');
 

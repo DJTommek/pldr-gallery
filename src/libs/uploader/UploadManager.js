@@ -9,8 +9,20 @@ const HttpResponseError = require('../HttpResponseError.js');
 const scanStructure = require('../scanStructure.js');
 const LOG = require('../log.js');
 const ThumbnailGenerator = require('../thumbnailGenerator.js');
+const filenamify = (...args) => import('filenamify').then(({default: filenamify}) => filenamify(...args));
 
 const chunkFilePrefix = 'chunk_';
+
+/**
+ * List of files, that cannot be uploaded because has special meaning. All filenames must be lowercased.
+ */
+const reservedFilenames = [
+	'header.html',
+	'footer.html',
+	'thumbnail.jpg',
+	'thumbnail.jpeg',
+	'thumbnail.png',
+];
 
 class UploadManager {
 	constructor(uploadId) {
@@ -37,6 +49,23 @@ class UploadManager {
 			return false;
 		}
 		return uploadId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/) !== null;
+	}
+
+	static async sanitizeFilename(inputFilename) {
+		let fileNameSanitized = (await filenamify(inputFilename, {
+			replacement: '_',
+			maxLength: CONFIG.upload.fileNameMaxLength,
+		})).trim();
+
+		// Reserved names cannot be uploaded, add suffix to file name while keeping extension.
+		if (reservedFilenames.includes(fileNameSanitized.toLowerCase())) {
+			const fileNameObj = PATH.parse(fileNameSanitized);
+			fileNameSanitized = PATH.format({
+				name: fileNameObj.name + '_01',
+				ext: fileNameObj.ext,
+			});
+		}
+		return fileNameSanitized;
 	}
 
 	async initNewUpload(directory, fileName, fileSize) {
