@@ -1,6 +1,8 @@
 const c = require(BASE_DIR_GET('/src/libs/config.js'));
 const FS = require('fs');
 const sharp = require('sharp');
+const {pipeline} = require("node:stream/promises");
+const LOG = require('../../../libs/log.js');
 
 module.exports = function (webserver, endpoint) {
 	/**
@@ -22,41 +24,30 @@ module.exports = function (webserver, endpoint) {
 			let imageStream = FS.createReadStream(res.locals.fullPathFile);
 			const compressData = getResizeParams(req);
 
-			// if compression is enabled, compress first
-			if (compressData === false) {
+			if (compressData === false) { // Compression is disabled, stream file directly to response
 				const mimeType = fileItem.mimeType;
 				if (mimeType) {
 					res.setHeader('Content-Type', mimeType);
 				}
-			} else {
-				// @TODO detect MIME type of compressed image and set it as HTTP header 'Content-Type'.
-				imageStream = imageStream.pipe(sharp().withMetadata().resize(compressData));
+				return await pipeline(imageStream, res);
 			}
 
-			if (res.finished === false) { // in case of timeout, response was already finished
-				res.setHeader('Content-Disposition', 'inline; filename="' + encodeURI(fileItem.basename) + '"');
-				imageStream.pipe(res);
+			const imageCompressedStream = imageStream.pipe(sharp().withMetadata().resize(compressData));
+
+			try {
+				// Check if image is valid
+				// @link https://github.com/lovell/sharp/issues/1298#issuecomment-405900215
+				await imageCompressedStream.stats();
+			} catch (error) {
+				LOG.error('Error while providing compressed image "' + res.locals.path + '", file is corrupted: ' + error.message);
+				return res.result.setError('Error while providing compressed image, file is corrupted.').end(500);
 			}
+
+			// @TODO detect MIME type of compressed image and set it as HTTP header 'Content-Type'.
+			await pipeline(imageCompressedStream, res);
 		} catch (error) {
-			res.statusCode = 404;
-			const height = c.thumbnails.height;
-			const width = c.thumbnails.width;
-
-			// @TODO resolve text overflow
-			let textBuffer = new Buffer.from(`
-<svg height="${width}" width="${height}" viewBox="0 0 ${height} ${width}">
-  <text x="50%" y="50%" text-anchor="middle" dy="0.25em" fill="#000">${error.message}</text>
-</svg>
-			`);
-
-			sharp({
-				create: {
-					width: width,
-					height: height,
-					channels: 4,
-					background: {r: 220, g: 53, b: 69}
-				}
-			}).composite([{input: textBuffer}]).png().pipe(res);
+			LOG.error('Error while providing image "' + res.locals.path + '": ' + error.message);
+			return res.result.setError('Error while providing image, try again later.').end(500);
 		}
 	});
 };
