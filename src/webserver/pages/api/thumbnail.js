@@ -29,7 +29,7 @@ module.exports = async function (webserver, endpoint) {
 			// Check if there is prepared thumbnail right in directory and if so, serve that instead of cached
 			// pre-generated thumbnail.
 			if (pathItem.isFolder) {
-				const files = ['thumbnail.png', 'thumbnail.jpg'];
+				const files = ['thumbnail.png', 'thumbnail.jpg', 'thumbnail.jpeg'];
 				for (const filename of files) {
 					let customThumbnailFullPath = pathCustom.join(res.locals.fullPathFolder, filename);
 					if (FS.existsSync(customThumbnailFullPath)) {
