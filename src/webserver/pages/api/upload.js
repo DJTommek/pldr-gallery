@@ -133,31 +133,28 @@ module.exports = function (webserver, endpoint) {
 				+ ' Remaining: ' + formatBytes(uploadManager.fileSize - chunkOffset - chunkSize);
 			LOG.debug(logMessage);
 
-			if (totalSavedChunksSize + chunkSize === uploadManager.fileSize) {
-				// @TODO completing upload might take a long time on slower drives. Maybe would be useful, to send
-				//       response before completing upload and then start completing upload.
+			if (totalSavedChunksSize + chunkSize === uploadManager.fileSize) { // Final chunk was saved, complete upload
+				// Completing upload might take a long time on slower drives, so send response right away.
+				res.result.setResult({}, 'All file chunks were received and new file was created.').end(201);
+
 				const realFileAbsolutePath = await uploadManager.completeUpload();
 				await uploadManager.validateCompletedUpload(realFileAbsolutePath);
 				await uploadManager.cleanup();
 				LOG.info('User ID ' + res.locals.user.id + ' (IP ' + req.ip + ') finished uploading all chunks of file "' + expectedFilePath + '" (' + formatBytes(uploadManager.fileSize) + ').');
-
-				const realFileName = PATH.basename(realFileAbsolutePath);
-				res.result.setResult(
-					{filename: realFileName},
-					'All file chunks were received and new file "' + realFileName + '" was created.',
-				).end(201);
 			} else {
 				return res.result.setResult({}, 'File chunk was saved.').end(201);
 			}
-
 		} catch (error) {
 			if (error instanceof HttpResponseError) {
-				return res.result.setError(error.message).end(error.httpCode);
+				if (req.closed === false) {
+					return res.result.setError(error.message).end(error.httpCode);
+				}
 			}
 
-			console.error(error);
 			LOG.error('Error while processing incoming chunk: ' + error.message);
-			return res.result.setError('Try again later').end(500);
+			if (req.closed === false) {
+				return res.result.setError('Try again later').end(500);
+			}
 		}
 	});
 
