@@ -32,7 +32,10 @@ module.exports = function (webserver, endpoint) {
 				throw new HttpResponseError('Invalid Content-Type, expected multipart/form-data', 400);
 			}
 
-			const expectedFinalFileSize = loadPositiveNumberHeader(req, 'Upload-Length');
+			const expectedFinalFileSize = loadPositiveNumberHeader(req, 'Upload-Length', 0);
+			if (expectedFinalFileSize <= 0) {
+				throw new HttpResponseError('Empty file is not allowed.', 400);
+			}
 			if (expectedFinalFileSize > CONFIG.upload.fileMaxSize) {
 				throw new HttpResponseError('File is too big, max ' + formatBytes(CONFIG.upload.fileMaxSize), 400);
 			}
