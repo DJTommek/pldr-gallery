@@ -17,10 +17,13 @@ class MediaPopup extends EventTarget {
 		this.elementMediaAudio = this.element.querySelector('.media-popup-audio');
 		this.elementMediaVideo = this.element.querySelector('.media-popup-video');
 		this.elementMediaPdf = this.element.querySelector('.media-popup-pdf');
+		this.elementMediaMap = document.getElementById('media-popup-map');
 
 		this.itemCurrent = null;
 		this.itemPrevious = null;
 		this.itemNext = null;
+
+		this.popupMap = new PopupMap('media-popup-map');
 	}
 
 	wiggle() {
@@ -163,7 +166,7 @@ class MediaPopup extends EventTarget {
 		setMediaSrc('video', '');
 		this.elementMediaPdf.style.display = 'none';
 		this.elementMediaImg.style.display = 'none';
-
+		this.elementMediaMap.style.display = 'none';
 		// ... then enable only specific type
 
 		if (fileItem.isImage) {
@@ -179,6 +182,18 @@ class MediaPopup extends EventTarget {
 			setMediaSrc('video', openUrl);
 		} else if (fileItem.isAudio) {
 			setMediaSrc('audio', openUrl);
+		} else if (fileItem.isMap) {
+			this.elementMediaMap.style = '';
+			this.popupMap.init(fileItem).then(async function (event) {
+				self._itemLoadingDone(event);
+				self.popupMap.map.invalidateSize();
+				self.popupMap.map.fitBounds(self.popupMap.bounds);
+			}).catch(async function (error) {
+				self._itemLoadingError(null, error);
+				// Re-render map even in case of error. If error occures during adding data into map, then map can
+				// be displayed, just will be empty.
+				self.popupMap.map.invalidateSize();
+			});
 		} else {
 			self.dispatchEvent(new CustomEvent('itemloaddone', {
 				detail: {

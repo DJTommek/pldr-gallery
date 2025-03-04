@@ -6,6 +6,9 @@ class AbstractMap {
 	defaultCoords = new Coordinates(49.6, 15.2); // Czechia
 	defaultZoom = 7;
 
+	/**
+	 * @TODO Rewrite to require element instance instead of element ID (to support HTML elements without IDs)
+	 */
 	constructor(elementId) {
 		if (this.constructor == AbstractMap) {
 			throw new Error('Abstract classes cannot be instantiated.');
