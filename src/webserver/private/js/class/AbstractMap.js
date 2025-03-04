@@ -35,10 +35,17 @@ class AbstractMap {
 
 		this.element = document.getElementById(this.elementId);
 		this.map = L.map(this.element, {
+			attributionControl: false,
 			fullscreenControl: true,
 		}).setView(this.defaultCoords, this.defaultZoom);
 		L.control.layers(this.tileLayers, this.overlays).addTo(this.map);
 		this.tileLayers['OSM default'].addTo(this.map); // Default layer to be displayed on page load
+
+		// Create custom attribution which is the same as original (as of 2025-03-04)
+		// but link has "target=_blank" atribute.
+		L.control.attribution({
+			prefix: '<a href="https://leafletjs.com" target="_blank" title="A JS library for interactive maps">Leaflet</a>',
+		}).addTo(this.map);
 
 		if (Settings.load('mapPathItemDisplayType') === 'default') {
 			this.overlays['Default'].addTo(this.map);
