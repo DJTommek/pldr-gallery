@@ -7,7 +7,8 @@ const LOG = require('../../..//libs/log.js');
 
 const structureRepository = require('../../../libs/repository/structure.js');
 const PathEncoder = require('../../private/js/class/PathEncoder.js');
-const HttpResponseError = require('../../../libs/HttpResponseError');
+const DomainError = require('../../../libs/DomainError.js');
+const HttpResponseError = require('../../../libs/HttpResponseError.js');
 const UploadManager = require('../../../libs/uploader/UploadManager.js');
 
 /**
@@ -80,8 +81,9 @@ module.exports = function (webserver, endpoint) {
 			// Filepond is expecting file ID in plaintext body that will be used on file cancel
 			return res.status(200).end(uploadId);
 		} catch (error) {
-			if (error instanceof HttpResponseError) {
-				return res.result.setError(error.message).end(error.httpCode);
+			if (error instanceof DomainError) {
+				const responseCode = error instanceof HttpResponseError ? error.httpCode : 500;
+				return res.result.setError(error.message).end(responseCode);
 			}
 
 			LOG.error('Error while processing initialization of chunk file upload: ' + error.message);
@@ -145,9 +147,10 @@ module.exports = function (webserver, endpoint) {
 				return res.result.setResult({}, 'File chunk was saved.').end(201);
 			}
 		} catch (error) {
-			if (error instanceof HttpResponseError) {
+			if (error instanceof DomainError) {
 				if (req.closed === false) {
-					return res.result.setError(error.message).end(error.httpCode);
+					const responseCode = error instanceof HttpResponseError ? error.httpCode : 500;
+					return res.result.setError(error.message).end(responseCode);
 				}
 			}
 
@@ -173,8 +176,9 @@ module.exports = function (webserver, endpoint) {
 			res.setHeader('Upload-Offset', lastChunkOffset);
 			return res.result.setResult({chunkBiggestOffset: lastChunkOffset}, 'Chunk with biggest offset starts at ' + formatBytes(lastChunkOffset) + '.').end(200);
 		} catch (error) {
-			if (error instanceof HttpResponseError) {
-				return res.result.setError(error.message).end(error.httpCode);
+			if (error instanceof DomainError) {
+				const responseCode = error instanceof HttpResponseError ? error.httpCode : 500;
+				return res.result.setError(error.message).end(responseCode);
 			}
 
 			LOG.error('Error while processing HEAD requets of upload endpoint: ' + error.message);
@@ -194,8 +198,9 @@ module.exports = function (webserver, endpoint) {
 			await uploadManager.cleanup();
 			return res.result.setResult(null, 'Temporary files related to upload session ID "' + uploadId + '" were deleted.').end(200);
 		} catch (error) {
-			if (error instanceof HttpResponseError) {
-				return res.result.setError(error.message).end(error.httpCode);
+			if (error instanceof DomainError) {
+				const responseCode = error instanceof HttpResponseError ? error.httpCode : 500;
+				return res.result.setError(error.message).end(responseCode);
 			}
 
 			LOG.error('Error while processing DELETE requets of upload endpoint: ' + error.message);
