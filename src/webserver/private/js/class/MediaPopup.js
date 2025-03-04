@@ -86,15 +86,15 @@ class MediaPopup extends EventTarget {
 			}));
 		}
 
-		this.elementMediaImg.addEventListener('load', itemLoadingDone);
-		this.elementMediaVideo.addEventListener('loadedmetadata', itemLoadingDone);
-		this.elementMediaAudio.addEventListener('loadedmetadata', itemLoadingDone);
-		this.elementMediaPdf.addEventListener('load', itemLoadingDone);
+		this.elementMediaImg.addEventListener('load', (event) => this._itemLoadingDone(event));
+		this.elementMediaVideo.addEventListener('loadedmetadata', (event) => this._itemLoadingDone(event));
+		this.elementMediaAudio.addEventListener('loadedmetadata', (event) => this._itemLoadingDone(event));
+		this.elementMediaPdf.addEventListener('load', (event) => this._itemLoadingDone(event));
 
-		this.elementMediaImg.addEventListener('error', itemLoadingError);
-		this.elementMediaVideo.addEventListener('error', itemLoadingError);
-		this.elementMediaAudio.addEventListener('error', itemLoadingError);
-		this.elementMediaPdf.addEventListener('error', itemLoadingError);
+		this.elementMediaImg.addEventListener('error', (event) => self._itemLoadingError(event));
+		this.elementMediaVideo.addEventListener('error', (event) => self._itemLoadingError(event));
+		this.elementMediaAudio.addEventListener('error', (event) => self._itemLoadingError(event));
+		this.elementMediaPdf.addEventListener('error', (event) => self._itemLoadingError(event));
 
 		return this;
 	}
@@ -218,6 +218,32 @@ class MediaPopup extends EventTarget {
 		this.dispatchEvent(new CustomEvent('afterhideitem', {
 			detail: {
 				fileItem: self.itemCurrent,
+			},
+		}));
+	}
+
+	_itemLoadingDone = function (event) {
+		console.warn('itemLoading done event', event);
+		this.dispatchEvent(new CustomEvent('itemloaddone', {
+			detail: {
+				fileItem: this.itemCurrent,
+			},
+		}));
+	}
+
+	/**
+	 * @param {Event} event
+	 * @param {Error|null} error
+	 * @private
+	 */
+	_itemLoadingError = function (event, error = null) {
+		if (event?.target?.getAttribute('src') === '') {
+			return; // On page load, ignore
+		}
+		this.dispatchEvent(new CustomEvent('itemloaderror', {
+			detail: {
+				fileItem: this.itemCurrent,
+				error: error,
 			},
 		}));
 	}

@@ -91,7 +91,10 @@ mediaPopup.addEventListener('itemloaddone', function (event) {
 	setStatus(false);
 });
 mediaPopup.addEventListener('itemloaderror', function (event) {
-	flashMessage('Chyba během načítání. Zkontroluj připojení k internetu a případně, kontaktuj autora.', 'danger', false);
+	const message = event.detail.error instanceof DomainError
+		? 'Chyba během načítání: ' + event.detail.error.message
+		: 'Chyba během načítání. Zkontroluj připojení k internetu a případně, kontaktuj autora.';
+	flashMessage(message, 'danger', false);
 	setStatus(false);
 });
 
