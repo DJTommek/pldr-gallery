@@ -18,6 +18,10 @@ class FileExtensionMapper {
 		return (this.audios.hasOwnProperty(ext) ? this.audios[ext] : null);
 	}
 
+	getMap(ext) {
+		return (this.map.hasOwnProperty(ext) ? this.map[ext] : null);
+	}
+
 	/**
 	 * Convert extension into media type string
 	 * @example 'jpg' -> 'image/jpeg'
@@ -124,6 +128,12 @@ class FileExtensionMapper {
 				'icon': Icon.AUDIO,
 			},
 		};
+		this.map = { // Can be rendered on map
+			geojson: {
+				'mediaType': 'application/geo+json',
+				icon: Icon.MAP,
+			},
+		}
 		this.downloads = { // allowing to download
 			zip: {
 				icon: Icon.ARCHIVE,
@@ -154,7 +164,7 @@ class FileExtensionMapper {
 				'icon': Icon.IMAGE,
 			},
 		};
-		this.all = {...this.images, ...this.videos, ...this.audios, ...this.downloads};
+		this.all = {...this.images, ...this.videos, ...this.audios, ...this.map, ...this.downloads};
 		this.regexAll = new RegExp('\\.(' + Object.keys(this.all).join('|') + ')$', 'i');
 
 		// Get extensions, that can contain metadata

@@ -503,7 +503,7 @@ $(async function () {
 
 			// Config related to chunk uploading
 			chunkUploads: true,
-			 // When chunk upload is forced, then first request is just form, without file itself. During this request
+			// When chunk upload is forced, then first request is just form, without file itself. During this request
 			// it is being checked, if user can upload this file in this directory, without wasting resources.
 			chunkForce: true,
 			chunkSize: CONFIG.upload.uploadChunkSize,

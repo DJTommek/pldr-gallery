@@ -12,6 +12,7 @@ class Item {
 		this.isImage = false;
 		this.isVideo = false;
 		this.isAudio = false;
+		this.isMap = false;
 		this.size = null;
 		this.scanned = null; // Date object for database
 		this.distance = null; // dynamically created column just in SELECTs
@@ -145,6 +146,7 @@ class FileItem extends Item {
 		this.isImage = (FileExtensionMapperInstance.getImage(this.ext) !== null);
 		this.isVideo = (FileExtensionMapperInstance.getVideo(this.ext) !== null);
 		this.isAudio = (FileExtensionMapperInstance.getAudio(this.ext) !== null);
+		this.isMap = (FileExtensionMapperInstance.getMap(this.ext) !== null);
 		this.isPdf = this.ext === 'pdf';
 		if (item.icon) {
 			this.icon = item.icon;
@@ -211,6 +213,8 @@ class FileItem extends Item {
 			return 'audio';
 		} else if (this.isVideo) {
 			return 'video';
+		} else if (this.isMap) {
+			return 'map';
 		} else {
 			return 'file';
 		}
@@ -232,6 +236,8 @@ class FileItem extends Item {
 			text += 'audio';
 		} else if (this.isVideo) {
 			text += 'video';
+		} else if (this.isMap) {
+			text += 'map';
 		} else {
 			text += ' file';
 		}

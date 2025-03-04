@@ -10,6 +10,7 @@ class Icon {
 	static VIDEO = 'file-video-o';
 	static AUDIO = 'file-audio-o';
 	static ARCHIVE = 'file-archive-o';
+	static MAP = 'map-o';
 	static PDF = 'file-pdf-o';
 
 	static COMMAND = 'bolt';
