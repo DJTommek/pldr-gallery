@@ -16,7 +16,7 @@ class AbstractMap {
 		this.elementId = elementId;
 		this.element = null; // filled upon init
 		this.map = null;
-		this.markers = {};
+		this.mapElements = {};
 
 		this.tileLayers = {
 			'OSM default': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -88,8 +88,8 @@ class AbstractMap {
 		return this;
 	}
 
-	getMarker(uniqueId) {
-		return this.markers[uniqueId];
+	getMapElement(uniqueId) {
+		return this.mapElements[uniqueId];
 	}
 
 	mapShow() {

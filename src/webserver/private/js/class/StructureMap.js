@@ -28,7 +28,7 @@ class StructureMap extends AbstractStructureMap {
 				continue;
 			}
 
-			this.addMarker(this.generateMarkerId(fileItem), fileItem, this.fileItemPopupContent(fileItem));
+			this.addMarker(this.generateMapElementId(fileItem), fileItem, this.fileItemPopupContent(fileItem));
 			mapBounds.extend(fileItem.coords);
 		}
 		if (mapBounds.isValid()) { // might be invalid if no exif data
@@ -39,9 +39,5 @@ class StructureMap extends AbstractStructureMap {
 		} else {
 			this.mapHide();
 		}
-	}
-
-	getMarkerFromStructureItem(item) {
-		return this.getMarker(this.generateMarkerId(item));
 	}
 }

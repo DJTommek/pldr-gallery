@@ -24,22 +24,22 @@ class AbstractStructureMap extends AbstractMap {
 	clearMarkers() {
 		this.overlays['Default'].clearLayers()
 		this.overlays['Clustered'].clearLayers()
-		for (const markerId in this.markers) {
-			this.markers[markerId].remove();
-			delete this.markers[markerId];
+		for (const markerId in this.mapElements) {
+			this.mapElements[markerId].remove();
+			delete this.mapElements[markerId];
 		}
 	}
 
-	removeMarker(id) {
-		const marker = this.markers[id];
-		if (!marker) {
+	removeMapElement(id) {
+		const mapElement = this.mapElements[id];
+		if (!mapElement) {
 			return;
 		}
 
-		this.overlays['Default'].removeLayer(marker);
-		this.overlays['Clustered'].removeLayer(marker);
-		marker.remove();
-		delete this.markers[id];
+		this.overlays['Default'].removeLayer(mapElement);
+		this.overlays['Clustered'].removeLayer(mapElement);
+		mapElement.remove();
+		delete this.mapElements[id];
 	}
 
 	/**
@@ -48,7 +48,7 @@ class AbstractStructureMap extends AbstractMap {
 	 * @param {string|null} popupContent
 	 */
 	addMarker(uniqueId, item, popupContent = null) {
-		if (uniqueId in this.markers) {
+		if (uniqueId in this.mapElements) {
 			throw new Error('Marker with ID already exists (coords: ' + item.coords + ')');
 		}
 
@@ -75,7 +75,7 @@ class AbstractStructureMap extends AbstractMap {
 		});
 		marker.addTo(this.overlays['Default']);
 		marker.addTo(this.overlays['Clustered']);
-		this.markers[uniqueId] = marker;
+		this.mapElements[uniqueId] = marker;
 	}
 
 	/**
@@ -83,7 +83,7 @@ class AbstractStructureMap extends AbstractMap {
 	 * @param {FileItem} fileItem
 	 * @return {string}
 	 */
-	generateMarkerId(fileItem) {
+	generateMapElementId(fileItem) {
 		let result = fileItem.getEncodedPath();
 		if (fileItem.coords) {
 			result += fileItem.coords;

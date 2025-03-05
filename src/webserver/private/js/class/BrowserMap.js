@@ -81,23 +81,23 @@ class BrowserMap extends AbstractStructureMap {
 			return;
 		}
 
-		// Previously loaded markers
-		let markerIdsToRemove = Object.keys(this.markers);
+		// Previously loaded map elements
+		let mapElementIdsToRemove = Object.keys(this.mapElements);
 
 		let index = 0;
 		for (const fileRaw of result.result.files) {
 			const fileItem = new FileItem(index++, fileRaw)
-			const markerId = this.generateMarkerId(fileItem);
-			if (markerId in this.markers) { // This item is already rendered in the map
-				markerIdsToRemove = markerIdsToRemove.filter((value) => value !== markerId)
+			const mapElementId = this.generateMapElementId(fileItem);
+			if (mapElementId in this.mapElements) { // This item is already rendered in the map
+				mapElementIdsToRemove = mapElementIdsToRemove.filter((value) => value !== mapElementId)
 				continue;
 			}
 
-			this.addMarker(markerId, fileItem, this.fileItemPopupContent(fileItem, false))
+			this.addMarker(mapElementId, fileItem, this.fileItemPopupContent(fileItem, false))
 		}
 
-		for (const markerIdToRemove of markerIdsToRemove) {
-			this.removeMarker(markerIdToRemove);
+		for (const mapElementId of mapElementIdsToRemove) {
+			this.removeMapElement(mapElementId);
 		}
 		this.loadingInfoText.innerText = result.message;
 
