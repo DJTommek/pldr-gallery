@@ -1,11 +1,13 @@
 const CONFIG = require('./config.js');
 const LOG = require('./log.js');
 const FS = require('fs');
+const FSP = require('fs/promises');
 const PATH = require('path');
 const pathCustom = require('./path.js');
 const readdirp = require('readdirp');
 const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
 const structureRepository = require('./repository/structure.js');
+const Utils = require('../libs/utils/utils.js');
 
 /**
  * Recursively scan directory and synchronize results into database.
@@ -135,6 +137,19 @@ async function scanOne(pathAbsolute, entryItem, options) {
 			const exifData = await getCoordsFromExifFromFile(pathAbsolute);
 			resultItem = Object.assign(resultItem, exifData);
 		}
+
+		if (resultItem.isMap) {
+			try {
+				if (resultItem.ext === 'geojson') {
+					const jsonString = (await FSP.readFile(pathAbsolute)).toString();
+					const json = JSON.parse(jsonString);
+					resultItem.coords = Utils.geojsonAverageCoordinate(json);
+				}
+			} catch (error) {
+				LOG.warning('Unable to read coordinates from map file item "' + resultItem.path + '" of type map: "' + error.message + '"');
+			}
+		}
+
 	} else {
 		LOG.warning('Unhandled type of file, full path: "' + pathAbsolute + '"');
 		return null;
