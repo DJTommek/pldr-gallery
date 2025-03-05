@@ -93,7 +93,21 @@ class BrowserMap extends AbstractStructureMap {
 				continue;
 			}
 
-			this.addMarker(mapElementId, fileItem, this.fileItemPopupContent(fileItem, false))
+			if (fileItem.isMap) {
+				try {
+					if (fileItem.ext === 'geojson') {
+						const response = await fetch(fileItem.getFileUrl(true));
+						const geoJsonData = await response.json();
+						const geojsonLayer = L.geoJSON(geoJsonData);
+						this.mapElements[mapElementId] = geojsonLayer;
+						geojsonLayer.addTo(this.map);
+					}
+				} catch (error) {
+					console.error('Unable to load and process geojson of "' + fileItem + '":', error);
+				}
+			} else {
+				this.addMarker(mapElementId, fileItem, this.fileItemPopupContent(fileItem, false))
+			}
 		}
 
 		for (const mapElementId of mapElementIdsToRemove) {
