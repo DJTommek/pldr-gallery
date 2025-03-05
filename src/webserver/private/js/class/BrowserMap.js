@@ -111,6 +111,15 @@ class BrowserMap extends AbstractStructureMap {
 		}
 
 		for (const mapElementId of mapElementIdsToRemove) {
+			const mapElement = this.getMapElement(mapElementId);
+
+			if (
+				typeof mapElement.getBounds === 'function'
+				&& this.map.getBounds().intersects(mapElement.getBounds())
+			) {
+				continue; // Do not remove element if element's bounds are still in bounds of map viewport.
+			}
+
 			this.removeMapElement(mapElementId);
 		}
 		this.loadingInfoText.innerText = result.message;
