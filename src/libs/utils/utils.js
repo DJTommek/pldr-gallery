@@ -2,6 +2,8 @@ const crypto = require('crypto');
 const FS = require('fs/promises');
 const PATH = require('path');
 
+require('../../../src/webserver/private/js/class/Coordinates.js');
+
 /**
  * Check, if any arguments is requesting showing help via typical attribute names
  *
@@ -116,4 +118,39 @@ module.exports.fsMove = async function (sourcePath, targetPath) {
 module.exports.pathInPath = function (fromPath, toPath) {
 	const relativePath = PATH.relative(fromPath, toPath);
 	return relativePath && !relativePath.startsWith('..') && !PATH.isAbsolute(relativePath);
+}
+
+/**
+ * Grab all available coordinates and return it's average.
+ *
+ * @param {object} geojson
+ * @return {Coordinates}
+ */
+module.exports.geojsonAverageCoordinate = function (geojson) {
+	const coordinates = [];
+	for (const feature of geojson.features) {
+		if (feature?.type !== 'Feature') {
+			continue;
+		}
+		const geometryType = feature?.geometry?.type;
+
+		if (geometryType === 'LineString') {
+			coordinates.push(...feature?.geometry?.coordinates);
+		} else if (geometryType === 'MultiPolygon') {
+			for (const coordinates1 of feature.geometry.coordinates) {
+				for (const coordinates2 of coordinates1) {
+					coordinates.push(...coordinates2);
+				}
+			}
+		}
+	}
+
+	if (coordinates.length === 0) {
+		return null;
+	}
+
+	return new Coordinates(
+		coordinates.reduce((partialSum, a) => partialSum + a[1], 0) / coordinates.length,
+		coordinates.reduce((partialSum, a) => partialSum + a[0], 0) / coordinates.length,
+	);
 }
