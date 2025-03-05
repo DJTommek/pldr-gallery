@@ -105,12 +105,26 @@ class AbstractStructureMap extends AbstractMap {
 		});
 	}
 
+	/**
+	 * @param {FileItem} fileItem
+	 * @param {boolean} withButtons
+	 * @return {string}
+	 */
 	fileItemPopupContent(fileItem, withButtons = true) {
+		const thumbnailUrl = fileItem.getThumbnailUrl();
+		const fileUrl = fileItem.getFileUrl() ?? fileItem.getFileUrl(true);
+		const thumbnailIconHtml = thumbnailUrl === null
+			? '<i class="thumbnail-loading-icon fa fa-' + fileItem.icon + '"></i>'
+			: '<i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin"></i>'
+
 		let html = '<div id="map-info-window" data-item-index="' + fileItem.index + '" class="row">' +
 			' <div class="image col-md">' +
-			'  <a href="' + fileItem.getFileUrl() + '" target="_blank" title="Open in new window">' +
-			'   <i class="thumbnail-loading-icon fa fa-circle-o-notch fa-spin"></i>' +
-			'   <img class="thumbnail-not-loaded" src="' + fileItem.getThumbnailUrl() + '" onLoad="mapInfoWindowImageLoaded();" onError="mapInfoWindowImageError();" style="display: none;">' +
+			'  <a href="' + fileUrl + '" target="_blank" title="Open in new window">' +
+			thumbnailIconHtml +
+			(thumbnailUrl === null
+					? ''
+					: '<img class="thumbnail-not-loaded" src="' + fileItem.getThumbnailUrl() + '" onLoad="mapInfoWindowImageLoaded();" onError="mapInfoWindowImageError();" style="display: none;">'
+			) +
 			'  </a>' +
 			' </div>' +
 			' <div class="content col-md">' +
