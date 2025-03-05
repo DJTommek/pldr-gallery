@@ -133,6 +133,10 @@ class FileExtensionMapper {
 				'mediaType': 'application/geo+json',
 				icon: Icon.MAP,
 			},
+			gpx: {
+				'mediaType': 'application/gpx+xml',
+				icon: Icon.MAP,
+			},
 		}
 		this.downloads = { // allowing to download
 			zip: {
