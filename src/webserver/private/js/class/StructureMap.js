@@ -3,11 +3,6 @@
  */
 class StructureMap extends AbstractStructureMap {
 	defaultZoom = 13;
-	defaultIcon = L.icon({
-		iconUrl: 'images/marker-photo.svg',
-		iconSize: [11, 11],
-		iconAnchor: [5, 5],
-	});
 
 	init() {
 		super.init();

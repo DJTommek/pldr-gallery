@@ -42,24 +42,28 @@ class AbstractStructureMap extends AbstractMap {
 		delete this.markers[id];
 	}
 
+	/**
+	 * @param {string} uniqueId
+	 * @param {FileItem} item
+	 * @param {string|null} popupContent
+	 */
 	addMarker(uniqueId, item, popupContent = null) {
 		if (uniqueId in this.markers) {
 			throw new Error('Marker with ID already exists (coords: ' + item.coords + ')');
 		}
 
-		let markerIcon = null;
+		const markerOptions = {
+			title: item.text ? item.text : ''
+		};
+
 		if (
 			(item.isImage && CONFIG.thumbnails.image.enabled)
 			|| (item.isVideo && CONFIG.thumbnails.video.enabled)
 		) {
-			markerIcon = this.generateThumbnailIcon(item);
+			markerOptions.icon = this.generateThumbnailIcon(item);
 		}
-		markerIcon = markerIcon ?? this.defaultIcon;
 
-		const marker = L.marker(item.coords, {
-			title: item.text ? item.text : '',
-			icon: markerIcon,
-		});
+		const marker = L.marker(item.coords, markerOptions);
 		if (popupContent) {
 			const popup = L.popup().setContent(popupContent);
 			marker.bindPopup(popup, {
