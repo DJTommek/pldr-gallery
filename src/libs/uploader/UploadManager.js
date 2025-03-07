@@ -186,6 +186,9 @@ class UploadManager {
 	 */
 	async getLastChunkOffset() {
 		const allChunksPaths = await this.getAllChunks();
+		if (allChunksPaths.length === 0) {
+			return 0;
+		}
 		const lastChunkPath = allChunksPaths.pop();
 		return this.chunkOffsetFromFilePath(lastChunkPath);
 	}
