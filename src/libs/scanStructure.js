@@ -68,8 +68,17 @@ async function scanRecursive(absolutePathToScan, options = {}) {
 
 
 	// Include current directory into scan too
-	const currentDirectoryScanResult = await scanOne(absolutePathToScan, FS.statSync(absolutePathToScan), scanOneOptions);
-	items.push(currentDirectoryScanResult);
+	const currentDirectoryItem = await scanOne(absolutePathToScan, FS.statSync(absolutePathToScan), scanOneOptions);
+	if (options.stat === false) {
+		// @HACK When inserting metadata into database, knex will generate batch insert query, that will contains all
+		// columns, that are applicable and has filled some data (path, created, coordinates, etc). When scanning is
+		// initiated with stat=false, then only this one item has filled `created` attribute, which in SQL query forces
+		// all other items set to null and override already stored `created` value in database.
+		// To prevent this override for all other items we remove created from this item, thus SQL insert query will not
+		// contain column `created`.
+		currentDirectoryItem.created = null;
+	}
+	items.push(currentDirectoryItem);
 
 	const entriesStream = readdirp(absolutePathToScan, readdirpOptions);
 	for await (const entry of entriesStream) {
