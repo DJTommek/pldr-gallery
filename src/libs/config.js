@@ -58,6 +58,16 @@ let CONFIG = {
 		 * write permission.
 		 */
 		pathFinal: __dirname + '/../../data/upload/',
+		/**
+		 * List of allowed file extensions, that can be uploaded.
+		 *
+		 * Be aware, that if you set only images and/or videos, it has unexpected side effects on Android devices, where
+		 * it forces 'Media picker', which will upload file with different name (1000023523.jpg, 1000023483.mp4) and
+		 * remove geolocation metadata. If you add at least one non-image format such as gpx or geojson then it opens
+		 * "Browse picker" which will upload original unchanged files.
+		 * iPhone devices will never send original files and HEIC automatically converts into jpeg with UUID in filename
+		 * (1367534A-EF05-4C71-AC2F-B14DB1050044.jpeg).
+		 */
 		allowedExtensions: ['png', 'jpg', 'jpeg', 'heic', 'mp4', 'gpx', 'geojson'], // Must be lowercased
 		fileMaxSize: 50 * 1024 * 1024, // Size in bytes, default 50 MB
 		uploadChunkSize: 10 * 1024 * 1024, // Size in bytes, default 10 MB.
