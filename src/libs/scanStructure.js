@@ -8,6 +8,7 @@ const readdirp = require('readdirp');
 const HFS = require(BASE_DIR_GET('/src/libs/helperFileSystem.js'));
 const structureRepository = require('./repository/structure.js');
 const Utils = require('../libs/utils/utils.js');
+const {XMLParser} = require('fast-xml-parser');
 
 /**
  * Recursively scan directory and synchronize results into database.
@@ -153,6 +154,11 @@ async function scanOne(pathAbsolute, entryItem, options) {
 					const jsonString = (await FSP.readFile(pathAbsolute)).toString();
 					const json = JSON.parse(jsonString);
 					resultItem.coords = Utils.geojsonAverageCoordinate(json);
+				} else if (resultItem.ext === 'gpx') {
+					const xmlParser = new XMLParser({ignoreAttributes: false});
+					const xmlString = (await FSP.readFile(pathAbsolute)).toString();
+					const xml = xmlParser.parse(xmlString);
+					resultItem.coords = Utils.gpxAverageCoordinate(xml);
 				}
 			} catch (error) {
 				LOG.warning('Unable to read coordinates from map file item "' + resultItem.path + '" of type map: "' + error.message + '"');

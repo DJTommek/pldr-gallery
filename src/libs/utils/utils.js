@@ -154,3 +154,43 @@ module.exports.geojsonAverageCoordinate = function (geojson) {
 		coordinates.reduce((partialSum, a) => partialSum + a[0], 0) / coordinates.length,
 	);
 }
+
+/**
+ * Grab all available coordinates and return it's average.
+ *
+ * @param {object} xml
+ * @return {Coordinates}
+ */
+module.exports.gpxAverageCoordinate = function (xml) {
+	const allCoordinates = [];
+	// Iterate track points
+	const tracksRaw = xml?.gpx?.trk?.trkseg;
+	if (tracksRaw !== undefined) {
+		const tracks = Array.isArray(tracksRaw) ? tracksRaw : [tracksRaw];
+		for (const track of tracks) {
+			for (const trackPoint of track.trkpt) {
+				const trackPointCoords = new Coordinates(trackPoint['@_lat'], trackPoint['@_lon']);
+				allCoordinates.push(trackPointCoords);
+			}
+		}
+	}
+
+	// Iterate waypoints
+	const waypointsRaw = xml?.gpx?.wpt
+	if (waypointsRaw !== undefined) {
+		const waypoints = Array.isArray(waypointsRaw) ? waypointsRaw : [waypointsRaw];
+		for (const waypoint of waypoints) {
+			const waypointCoords = new Coordinates(waypoint['@_lat'], waypoint['@_lon']);
+			allCoordinates.push(waypointCoords);
+		}
+	}
+
+	if (allCoordinates.length === 0) {
+		return null;
+	}
+
+	return new Coordinates(
+		allCoordinates.reduce((partialSum, a) => partialSum + a.lat, 0) / allCoordinates.length,
+		allCoordinates.reduce((partialSum, a) => partialSum + a.lon, 0) / allCoordinates.length,
+	);
+}

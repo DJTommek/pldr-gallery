@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="Wikipedia"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+ <!-- Comments look like this -->
+ <!-- Sample copied from https://en.wikipedia.org/wiki/GPS_Exchange_Format -->
+ <metadata>
+  <name>Data name</name>
+  <desc>Valid GPX example without special characters</desc>
+  <author>
+   <name>Author name</name>
+  </author>
+ </metadata>
+ <wpt lat="52.518611" lon="13.376111">
+  <ele>35.0</ele>
+  <time>2011-12-31T23:59:59Z</time>
+  <name>Reichstag (Berlin)</name>
+  <sym>City</sym>
+ </wpt>
+</gpx>
