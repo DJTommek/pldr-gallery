@@ -57,6 +57,8 @@ class BrowserMap extends AbstractStructureMap {
 	 * @return {Promise<void>}
 	 */
 	async _loadDataInner(directoryItem) {
+		const self = this;
+
 		const mapBounds = this.map.getBounds();
 		const mapBoundsCenter = mapBounds.getCenter();
 
@@ -98,14 +100,20 @@ class BrowserMap extends AbstractStructureMap {
 			if (fileItem.isMap) {
 				try {
 					if (fileItem.ext === 'geojson') {
-						const response = await fetch(fileItem.getFileUrl(true));
-						const geoJsonData = await response.json();
-						const geojsonLayer = L.geoJSON(geoJsonData);
-						this.mapElements[mapElementId] = geojsonLayer;
-						geojsonLayer
-							.bindPopup('Track <a href="' + this.urlManager.withFile(fileItem.path).setPath(null) + '" target="_blank">' + fileItem.text + '</a>')
-							.bindTooltip(fileItem.text)
-							.addTo(this.overlays['Tracks']);
+						// Pre-reserve to prevent multiple request to load data
+						self.mapElements[mapElementId] = null;
+
+						fetch(fileItem.getFileUrl(true)).then(async function (response) {
+							const geoJsonData = await response.json();
+							const geojsonLayer = L.geoJSON(geoJsonData);
+							self.mapElements[mapElementId] = geojsonLayer;
+							geojsonLayer
+								.bindPopup('Track <a href="' + self.urlManager.withFile(fileItem.path).setPath(null) + '" target="_blank">' + fileItem.text + '</a>')
+								.bindTooltip(fileItem.text)
+								.addTo(self.overlays['Tracks']);
+						}).catch(function (error) {
+							console.error('Unable to load and process geojson of "' + fileItem + '":', error);
+						});
 					} else if (fileItem.ext === 'gpx') {
 						const options = {
 							async: true,
@@ -122,7 +130,7 @@ class BrowserMap extends AbstractStructureMap {
 							.addTo(this.overlays['Tracks']);
 					}
 				} catch (error) {
-					console.error('Unable to load and process geojson of "' + fileItem + '":', error);
+					console.error('Unable to load and process map item of "' + fileItem + '":', error);
 				}
 			} else {
 				this.addMarker(mapElementId, fileItem, this.fileItemPopupContent(fileItem, false))
