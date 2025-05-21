@@ -100,7 +100,7 @@ class BrowserMap extends AbstractStructureMap {
 						const geoJsonData = await response.json();
 						const geojsonLayer = L.geoJSON(geoJsonData);
 						this.mapElements[mapElementId] = geojsonLayer;
-						geojsonLayer.addTo(this.map);
+						geojsonLayer.addTo(this.overlays['Tracks']);
 					}
 				} catch (error) {
 					console.error('Unable to load and process geojson of "' + fileItem + '":', error);

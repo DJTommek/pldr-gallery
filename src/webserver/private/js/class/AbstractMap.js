@@ -27,6 +27,7 @@ class AbstractMap {
 		this.overlays = {
 			'Default': L.layerGroup([]),
 			'Clustered': L.markerClusterGroup(),
+			'Tracks': L.layerGroup([]),
 		};
 	}
 
@@ -52,6 +53,8 @@ class AbstractMap {
 		} else {
 			this.overlays['Clustered'].addTo(this.map);
 		}
+
+		this.overlays['Tracks'].addTo(this.map);
 
 		const locateControl = L.control.locate({
 			setView: false,
