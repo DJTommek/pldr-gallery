@@ -7,12 +7,14 @@ class BrowserMap extends AbstractStructureMap {
 	 * @param {string} elementId
 	 * @param {Structure} structure
 	 * @param {ServerApi} serverApi
+	 * @param {UrlManager} urlManager
 	 */
-	constructor(elementId, structure, serverApi) {
+	constructor(elementId, structure, serverApi, urlManager) {
 		super(elementId, structure);
 
 		this.structure = structure;
 		this.serverApi = serverApi;
+		this.urlManager = urlManager;
 
 		this._previousRequestParams = null;
 	}
@@ -100,7 +102,10 @@ class BrowserMap extends AbstractStructureMap {
 						const geoJsonData = await response.json();
 						const geojsonLayer = L.geoJSON(geoJsonData);
 						this.mapElements[mapElementId] = geojsonLayer;
-						geojsonLayer.addTo(this.overlays['Tracks']);
+						geojsonLayer
+							.bindPopup('Track <a href="' + this.urlManager.withFile(fileItem.path).setPath(null) + '" target="_blank">' + fileItem.text + '</a>')
+							.bindTooltip(fileItem.text)
+							.addTo(this.overlays['Tracks']);
 					} else if (fileItem.ext === 'gpx') {
 						const options = {
 							async: true,
@@ -111,7 +116,10 @@ class BrowserMap extends AbstractStructureMap {
 						};
 						const gpx = new L.GPX(fileItem.getFileUrl(true), options);
 						this.mapElements[mapElementId] = gpx;
-						gpx.addTo(this.overlays['Tracks']);
+						gpx
+							.bindPopup('Track <a href="' + this.urlManager.withFile(fileItem.path).setPath(null) + '" target="_blank">' + fileItem.text + '</a>')
+							.bindTooltip(fileItem.text)
+							.addTo(this.overlays['Tracks']);
 					}
 				} catch (error) {
 					console.error('Unable to load and process geojson of "' + fileItem + '":', error);

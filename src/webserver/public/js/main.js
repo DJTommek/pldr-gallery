@@ -134,7 +134,7 @@ keyboardMapper.addEventListener('previous', (event) => this.onMoveToNextOrPrevio
 keyboardMapper.addEventListener('next', (event) => this.onMoveToNextOrPreviousKeyboard(event, 'down'));
 
 const structureMap = new StructureMap('map', structure).init();
-const browserMap = new BrowserMap('structure-browser-map', structure, serverApi).init();
+const browserMap = new BrowserMap('structure-browser-map', structure, serverApi, urlManager).init();
 
 structure.addEventListener('beforeselectormove', async function (event) {
 	const newItem = event.detail.newItem;
