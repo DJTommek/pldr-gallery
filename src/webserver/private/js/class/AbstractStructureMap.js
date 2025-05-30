@@ -5,11 +5,13 @@ class AbstractStructureMap extends AbstractMap {
 	/**
 	 * @param {string} elementId
 	 * @param {Structure} structure
+	 * @param {UrlManager} urlManager
 	 */
-	constructor(elementId, structure) {
+	constructor(elementId, structure, urlManager) {
 		super(elementId);
 
 		this.structure = structure;
+		this.urlManager = urlManager;
 	}
 
 	init() {
@@ -48,6 +50,8 @@ class AbstractStructureMap extends AbstractMap {
 	 * @param {string|null} popupContent
 	 */
 	addMarker(uniqueId, item, popupContent = null) {
+		const self = this;
+
 		if (uniqueId in this.mapElements) {
 			throw new Error('Marker with ID already exists (coords: ' + item.coords + ')');
 		}
@@ -63,19 +67,58 @@ class AbstractStructureMap extends AbstractMap {
 			markerOptions.icon = this.generateThumbnailIcon(item);
 		}
 
-		const marker = L.marker(item.coords, markerOptions);
-		if (popupContent) {
-			const popup = L.popup().setContent(popupContent);
-			marker.bindPopup(popup, {
-				minWidth: 200,
+		// Pre-reserve to prevent multiple request to load data
+		this.mapElements[uniqueId] = null;
+
+		if (item.isMap) {
+			try {
+				if (item.ext === 'geojson') {
+					fetch(item.getFileUrl(true)).then(async function (response) {
+						const geojsonLayer = L.geoJSON(await response.json());
+						self.mapElements[uniqueId] = geojsonLayer;
+						// @TODO should popupContent be respected?
+						geojsonLayer
+							.bindPopup('Track <a href="' + self.urlManager.withFile(item.path).setPath(null) + '" target="_blank">' + item.text + '</a>')
+							.bindTooltip(item.text)
+							.addTo(self.overlays['Tracks']);
+					}).catch(function (error) {
+						console.error('Unable to load and process geojson of "' + item + '":', error);
+					});
+				} else if (item.ext === 'gpx') {
+					const options = {
+						async: true,
+						markers: {
+							startIcon: null,
+							endIcon: null,
+						},
+					};
+					const gpx = new L.GPX(item.getFileUrl(true), options);
+					this.mapElements[uniqueId] = gpx;
+					// @TODO should popupContent be respected?
+					gpx
+						.bindPopup('Track <a href="' + this.urlManager.withFile(item.path).setPath(null) + '" target="_blank">' + item.text + '</a>')
+						.bindTooltip(item.text)
+						.addTo(this.overlays['Tracks']);
+				}
+			} catch (error) {
+				console.error('Unable to load and process map item of "' + item + '":', error);
+			}
+		} else {
+			const marker = L.marker(item.coords, markerOptions);
+			if (popupContent) {
+				const popup = L.popup().setContent(popupContent);
+				marker.bindPopup(popup, {
+					minWidth: 200,
+				});
+			}
+			marker.on('click', function (event) {
+				vibrateApi.vibrate(Settings.load('vibrationOk'));
 			});
+			marker.addTo(this.overlays['Default']);
+			marker.addTo(this.overlays['Clustered']);
+
+			this.mapElements[uniqueId] = marker;
 		}
-		marker.on('click', function (event) {
-			vibrateApi.vibrate(Settings.load('vibrationOk'));
-		});
-		marker.addTo(this.overlays['Default']);
-		marker.addTo(this.overlays['Clustered']);
-		this.mapElements[uniqueId] = marker;
 	}
 
 	/**

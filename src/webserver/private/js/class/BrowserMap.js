@@ -10,18 +10,15 @@ class BrowserMap extends AbstractStructureMap {
 	 * @param {UrlManager} urlManager
 	 */
 	constructor(elementId, structure, serverApi, urlManager) {
-		super(elementId, structure);
+		super(elementId, structure, urlManager);
 
 		this.structure = structure;
 		this.serverApi = serverApi;
-		this.urlManager = urlManager;
 
 		this._previousRequestParams = null;
 	}
 
 	init() {
-		const self = this;
-
 		super.init();
 
 		this._initLoadingDataInfo();
@@ -97,44 +94,7 @@ class BrowserMap extends AbstractStructureMap {
 				continue;
 			}
 
-			if (fileItem.isMap) {
-				try {
-					if (fileItem.ext === 'geojson') {
-						// Pre-reserve to prevent multiple request to load data
-						self.mapElements[mapElementId] = null;
-
-						fetch(fileItem.getFileUrl(true)).then(async function (response) {
-							const geoJsonData = await response.json();
-							const geojsonLayer = L.geoJSON(geoJsonData);
-							self.mapElements[mapElementId] = geojsonLayer;
-							geojsonLayer
-								.bindPopup('Track <a href="' + self.urlManager.withFile(fileItem.path).setPath(null) + '" target="_blank">' + fileItem.text + '</a>')
-								.bindTooltip(fileItem.text)
-								.addTo(self.overlays['Tracks']);
-						}).catch(function (error) {
-							console.error('Unable to load and process geojson of "' + fileItem + '":', error);
-						});
-					} else if (fileItem.ext === 'gpx') {
-						const options = {
-							async: true,
-							markers: {
-								startIcon: null,
-								endIcon: null,
-							},
-						};
-						const gpx = new L.GPX(fileItem.getFileUrl(true), options);
-						this.mapElements[mapElementId] = gpx;
-						gpx
-							.bindPopup('Track <a href="' + this.urlManager.withFile(fileItem.path).setPath(null) + '" target="_blank">' + fileItem.text + '</a>')
-							.bindTooltip(fileItem.text)
-							.addTo(this.overlays['Tracks']);
-					}
-				} catch (error) {
-					console.error('Unable to load and process map item of "' + fileItem + '":', error);
-				}
-			} else {
-				this.addMarker(mapElementId, fileItem, this.fileItemPopupContent(fileItem, false))
-			}
+			this.addMarker(mapElementId, fileItem, this.fileItemPopupContent(fileItem, false))
 		}
 
 		for (const mapElementId of mapElementIdsToRemove) {

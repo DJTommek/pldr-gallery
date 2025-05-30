@@ -133,7 +133,7 @@ mediaPopup.addEventListener('clicknext', (event) => this.onMoveToNextOrPrevious(
 keyboardMapper.addEventListener('previous', (event) => this.onMoveToNextOrPreviousKeyboard(event, 'up'));
 keyboardMapper.addEventListener('next', (event) => this.onMoveToNextOrPreviousKeyboard(event, 'down'));
 
-const structureMap = new StructureMap('map', structure).init();
+const structureMap = new StructureMap('map', structure, urlManager).init();
 const browserMap = new BrowserMap('structure-browser-map', structure, serverApi, urlManager).init();
 
 structure.addEventListener('beforeselectormove', async function (event) {
