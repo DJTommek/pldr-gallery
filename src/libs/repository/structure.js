@@ -197,7 +197,17 @@ function search(folderPath, options = {}) {
 			if (typeof options.searchString !== 'string' || options.searchString === '') {
 				throw new Error('Option "searchString" must be non-empty string');
 			}
-			query.where('path', 'LIKE', '%' + sqlUtils.escapeLikeCharacters(options.searchString) + '%')
+
+			// Smart fulltext searching using separate tokens, for example "somedir somefile" will search for path
+			// that contains both "somedir" and "somefile"
+			let actualSearchString = options.searchString
+				.trim()
+				.split(/\s+/)
+				// Double quotes character is special character in this query, must be removed. File names cannot contain it anyways.
+				.map(token => '+"' + token.replaceAll('"', '') + '"*')
+				.join(' ');
+
+			query.whereRaw('MATCH (path_search) AGAINST (? IN BOOLEAN MODE)', [actualSearchString]);
 		}
 
 		if (options.sizeMin > 0 && options.sizeMax) {
