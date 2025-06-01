@@ -204,7 +204,7 @@ function search(folderPath, options = {}) {
 				.trim()
 				.split(/\s+/)
 				// Double quotes character is special character in this query, must be removed. File names cannot contain it anyways.
-				.map(token => '+"' + token.replaceAll('"', '') + '"*')
+				.map(token => '+"' + token.replaceAll('"', '') + '"')
 				.join(' ');
 
 			query.whereRaw('MATCH (path_search) AGAINST (? IN BOOLEAN MODE)', [actualSearchString]);
