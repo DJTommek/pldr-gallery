@@ -169,6 +169,23 @@ async function createTables() {
 					.unsigned();
 				console.log('(Knex) Created table "' + CONFIG.db.table.structure + '".');
 			});
+
+			const pathSearchColumn = 'path_search';
+			try {
+				console.log('(Knex) Altering table "' + CONFIG.db.table.structure + '": adding column "' + pathSearchColumn + '"...');
+				// Add column "level", which is generated - not supported in Knex library, so we have to update table manually
+				const query1 = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD COLUMN path_search varchar(500) COLLATE utf8mb4_unicode_ci AS (LOWER(TRIM(path))) STORED'
+				await knex.schema.raw(query1);
+				console.log('(Knex) Added generated column "' + pathSearchColumn + '" to table "' + CONFIG.db.table.structure + '".');
+
+				console.log('(Knex) Altering table "' + CONFIG.db.table.structure + '": creating fulltext index for column "' + pathSearchColumn + '"...');
+				const query2 = 'ALTER TABLE ' + CONFIG.db.table.structure + ' ADD FULLTEXT INDEX ' + CONFIG.db.table.structure + '_fulltext_' + pathSearchColumn + ' (' + pathSearchColumn + ')';
+				await knex.schema.raw(query2);
+				console.log('(Knex) Created index on generated column "' + pathSearchColumn + '" to table "' + CONFIG.db.table.structure + '".');
+			} catch (error) {
+				console.error('(Knex) Error while adding column "' + pathSearchColumn + '" to table "' + CONFIG.db.table.structure + '": ' + error);
+			}
+
 			try {
 				console.log('(Knex) Altering table "' + CONFIG.db.table.structure + '": adding column "level"...');
 				// Add column "level", which is generated - not supported in Knex library, so we have to update table manually
@@ -183,6 +200,7 @@ async function createTables() {
 			} catch (error) {
 				console.error('(Knex) Error while adding column "level" to table "' + CONFIG.db.table.structure + '": ' + error);
 			}
+
 			try {
 				console.log('(Knex) Altering table "' + CONFIG.db.table.structure + '": adding column "coordinates"...');
 				// Add column "coordinates", which is generated - not supported in Knex library, so we have to update table manually
