@@ -40,6 +40,9 @@ class KeyboardMapper extends EventTarget {
 					}));
 					break;
 				case 'ArrowLeft':
+					if (self._isFilterFocused()) {
+						return;
+					}
 					self.dispatchEvent(new CustomEvent('previous', {
 						detail: {
 							index: structure.getPrevious(self.structure.selectedIndex)?.index,
