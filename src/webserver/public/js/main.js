@@ -563,9 +563,12 @@ $(async function () {
 		if ($(event.target).closest('.location').length !== 0) {
 			return; // do not select in structure, just open link
 		}
-		event.preventDefault();
 		const itemIndex = $(this).data('index');
 		structure.selectorMove(itemIndex);
+		if (event.ctrlKey === true) {
+			return;
+		}
+		event.preventDefault();
 		structure.selectorSelect();
 	});
 
@@ -610,6 +613,9 @@ $(async function () {
 		const itemIndex = $('#map-info-window').data('item-index');
 		await shareItem(structure.getFile(itemIndex));
 	}).on('click', '#navbar .breadcrumb-item', async function (event) {
+		if (event.ctrlKey === true) {
+			return;
+		}
 		event.preventDefault();
 		const path = $(this)[0].dataset.path;
 		const folderItem = new FolderItem(null, {path: path});

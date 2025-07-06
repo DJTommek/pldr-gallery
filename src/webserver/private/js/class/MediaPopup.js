@@ -45,6 +45,9 @@ class MediaPopup extends EventTarget {
 		 * Close popup if clicked on background area around media but not if clicked on any other element on page.
 		 */
 		this.elementPopupContent.addEventListener('click', function (event) {
+			if (event.ctrlKey === true) {
+				return;
+			}
 			if (event.target !== self.elementPopupContent) {
 				return;
 			}
@@ -53,6 +56,9 @@ class MediaPopup extends EventTarget {
 		});
 
 		this.elementPrev.addEventListener('click', function (event) {
+			if (event.ctrlKey === true) {
+				return;
+			}
 			event.preventDefault();
 			self.dispatchEvent(new CustomEvent('clickprevious', {
 				detail: {
@@ -62,6 +68,9 @@ class MediaPopup extends EventTarget {
 		});
 
 		this.elementNext.addEventListener('click', function (event) {
+			if (event.ctrlKey === true) {
+				return;
+			}
 			event.preventDefault();
 			self.dispatchEvent(new CustomEvent('clicknext', {
 				detail: {

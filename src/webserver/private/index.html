@@ -103,6 +103,9 @@
 				// Add listeners on manual theme change
 				for (const selectorButton of selectorButtons) {
 					selectorButton.addEventListener('click', function (event) {
+						if (event.ctrlKey === true) {
+							return;
+						}
 						event.preventDefault();
 						setTheme(selectorButton.dataset.theme);
 					});
