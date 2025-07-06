@@ -152,14 +152,6 @@
 				</a>
 			</li>
 
-			<!-- Download directory as archive -->
-			<li class="nav-item" title="Download this directory and it's subdirectories as an archive">
-				<a class="btn btn-outline-secondary" href="#" id="navbar-download-archive">
-					<i class="fa fa-download fa-fw"></i>
-					<span class="d-md-none d-lg-none">Download</span>
-				</a>
-			</li>
-
 			<li class="nav-item dropdown" id="theme-selector" title="Toggle theme">
 				<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown">
 					<i class="fa fa-lightbulb-o fa-fw"></i>
@@ -186,6 +178,38 @@
 							<i class="fa fa-check"></i>
 							Auto
 							<i class="fa fa-lightbulb-o"></i>
+						</a>
+					</li>
+				</ul>
+			</li>
+
+			<li class="nav-item dropdown" id="actions" title="Toggle theme">
+				<button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown">
+					<i class="fa fa-folder-open fa-fw"></i>
+					<span class="d-md-none">Actions</span>
+				</button>
+
+				<ul class="dropdown-menu dropdown-menu-end">
+
+					<!-- Download directory as archive -->
+					<li title="Download this directory and it's subdirectories as an archive">
+						<a href="#" class="dropdown-item" data-theme="light" id="navbar-download-archive">
+							Download
+							<i class="fa fa-download fa-fw"></i>
+						</a>
+					</li>
+
+					<li title="Run fast scan of this directory and it's subdirectories">
+						<a href="#" class="dropdown-item" data-theme="light" id="navbar-start-scan-fast" target="_blank">
+							Fast scan
+							<i class="fa fa-refresh fa-fw"></i>
+						</a>
+					</li>
+
+					<li title="Run deep scan of this directory and it's subdirectories">
+						<a href="#" class="dropdown-item" data-theme="light" id="navbar-start-scan-deep" target="_blank">
+							Deep scan
+							<i class="fa fa-refresh fa-fw"></i>
 						</a>
 					</li>
 				</ul>

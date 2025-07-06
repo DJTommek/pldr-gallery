@@ -860,6 +860,8 @@ function parseStructure(items) {
 
 	let maxVisible = structure.getItems().length;
 	$('#navbar-download-archive').attr('href', structure.getCurrentFolder().getArchiveUrl());
+	$('#navbar-start-scan-fast').attr('href', '/api/scan?path=' + structure.getCurrentFolder().getEncodedPath());
+	$('#navbar-start-scan-deep').attr('href', '/api/scan?path=' + structure.getCurrentFolder().getEncodedPath() + '&deep=1');
 
 	/**
 	 * Generate structure content
