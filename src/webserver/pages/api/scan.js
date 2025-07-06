@@ -1,5 +1,6 @@
 const scanStructure = require(BASE_DIR_GET('/src/libs/scanStructure.js'));
 const Utils = require('../../../libs/utils/utils.js');
+const ThumbnailGenerator = require("../../../libs/thumbnailGenerator");
 
 module.exports = function (webserver, endpoint) {
 
@@ -27,14 +28,19 @@ module.exports = function (webserver, endpoint) {
 
 		const scanOptions = {stat: false, exif: false};
 		let scanType = 'Fast';
-		if (Utils.mixedToBool(req.query.deep) === true) {
+		const doDeepScan = Utils.mixedToBool(req.query.deep);
+		if (doDeepScan) {
 			scanType = 'Deep';
 			scanOptions.stat = true;
 			scanOptions.exif = true;
 		}
 
 		// noinspection ES6MissingAwait (intentionally missing await to send response to user within few seconds)
-		scanStructure.scan(res.locals.pathAbsolute, scanOptions);
+		scanStructure.scan(res.locals.pathAbsolute, scanOptions).then(function () {
+			if (doDeepScan) {
+				ThumbnailGenerator.generateThumbnails();
+			}
+		});
 
 		// Wait a while until scan is finished. If is taking too long, response with default message.
 		const responseTextDefault = scanType + ' scan of directory "' + folderItem.path + '"';
