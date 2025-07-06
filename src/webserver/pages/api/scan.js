@@ -28,7 +28,7 @@ module.exports = function (webserver, endpoint) {
 
 		const scanOptions = {stat: false, exif: false};
 		let scanType = 'Fast';
-		const doDeepScan = Utils.mixedToBool(req.query.deep);
+		const doDeepScan = Utils.mixedToBool(req.query.deep) === true;
 		if (doDeepScan) {
 			scanType = 'Deep';
 			scanOptions.stat = true;
