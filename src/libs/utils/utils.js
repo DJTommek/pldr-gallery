@@ -194,3 +194,31 @@ module.exports.gpxAverageCoordinate = function (xml) {
 		allCoordinates.reduce((partialSum, a) => partialSum + a.lon, 0) / allCoordinates.length,
 	);
 }
+
+/**
+ * Accept various types and convert to bool if possible. If not, returns null
+ *
+ * @param {string|int|null|mixed} input
+ * @return {boolean|null}
+ */
+module.exports.mixedToBool = function (input) {
+	if (typeof input === 'boolean' || input === null) {
+		return input;
+	}
+	if (typeof input === 'string') {
+		input = input.toLowerCase().trim();
+	}
+	switch (input) {
+		case 1:
+		case '1':
+		case 'true':
+			return true;
+		case 0:
+		case '0':
+		case 'false':
+			return false;
+		default:
+			return null;
+	}
+}
+

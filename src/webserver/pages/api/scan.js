@@ -1,5 +1,5 @@
-const CONFIG = require(BASE_DIR_GET('/src/libs/config.js'));
 const scanStructure = require(BASE_DIR_GET('/src/libs/scanStructure.js'));
+const Utils = require('../../../libs/utils/utils.js');
 
 module.exports = function (webserver, endpoint) {
 
@@ -27,7 +27,7 @@ module.exports = function (webserver, endpoint) {
 
 		const scanOptions = {stat: false, exif: false};
 		let scanType = 'Fast';
-		if (req.query.deep === '1') {
+		if (Utils.mixedToBool(req.query.deep) === true) {
 			scanType = 'Deep';
 			scanOptions.stat = true;
 			scanOptions.exif = true;

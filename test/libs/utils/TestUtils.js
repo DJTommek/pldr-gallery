@@ -40,4 +40,25 @@ describe('Utils', function () {
 			});
 		}
 	});
+	describe('mixedToBool()', function () {
+		const dataProviderTrue = [true, 1, '1', '  1   ', 'true', 'TRue', '  tRUe   '];
+		const dataProviderFalse = [false, 0, '0', '  0 ', 'false', 'FALse', '  faLSe   '];
+		const dataProviderNull = [null, 'null', 2, '  TRueee   ', new Date()];
+
+		it('Expecting true', async function () {
+			for (const input of dataProviderTrue) {
+				assert.strictEqual(Utils.mixedToBool(input), true);
+			}
+		});
+		it('Expecting false', async function () {
+			for (const input of dataProviderFalse) {
+				assert.strictEqual(Utils.mixedToBool(input), false);
+			}
+		});
+		it('Expecting null', async function () {
+			for (const input of dataProviderNull) {
+				assert.strictEqual(Utils.mixedToBool(input), null);
+			}
+		});
+	});
 });
