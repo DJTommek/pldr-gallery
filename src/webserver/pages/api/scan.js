@@ -36,9 +36,13 @@ module.exports = function (webserver, endpoint) {
 		}
 
 		// noinspection ES6MissingAwait (intentionally missing await to send response to user within few seconds)
-		scanStructure.scan(res.locals.pathAbsolute, scanOptions).then(function () {
-			if (doDeepScan) {
-				ThumbnailGenerator.generateThumbnails();
+		scanStructure.scan(res.locals.pathAbsolute, scanOptions).then(async function (scannedItems) {
+			if (doDeepScan === false) {
+				return;
+			}
+
+			for (const item of scannedItems) {
+				await ThumbnailGenerator.generateThumbnail(item);
 			}
 		});
 

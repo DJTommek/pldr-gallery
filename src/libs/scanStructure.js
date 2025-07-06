@@ -17,7 +17,7 @@ const {XMLParser} = require('fast-xml-parser');
  * @param options
  *    `stat` (bool) load also file stats (scan will be slower), default false
  *    `exif` (bool) load also EXIF metadata (scan will be slower), default false
- * @return {Promise<void>}
+ * @return {Promise<array<FileItem|FolderItem>>} All scanned items
  */
 async function scan(absolutePathToScan, options = {}) {
 	options.exif = (typeof options.exif === 'boolean') ? options.exif : false;
@@ -34,6 +34,7 @@ async function scan(absolutePathToScan, options = {}) {
 	const relativePathToScan = pathCustom.absoluteToRelative(absolutePathToScan, CONFIG.path);
 	await structureRepository.updateData(relativePathToScan, items, scanStarted)
 	module.exports.scanning = false;
+	return items;
 }
 
 /**
