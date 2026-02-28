@@ -24,7 +24,7 @@
 		"cron": "^1.8",
 		"exif-parser": "https://github.com/DJTommek/exif-parser.git",
 		"express": "^4.22",
-		"fast-xml-parser": "^5.2.0",
+		"fast-xml-parser": "^5.3.8",
 		"filenamify": "^6.0.0",
 		"fluent-ffmpeg": "^2.1",
 		"google-auth-library": "^7.0",
